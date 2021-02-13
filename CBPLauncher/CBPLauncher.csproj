@@ -131,9 +131,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\jatin bodybuilder 01.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="images\RoN CBP launcher logo 01.png" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +150,9 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\CBP launcher background 01.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

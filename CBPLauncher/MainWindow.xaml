@@ -7,9 +7,9 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         ContentRendered="Window_ContentRendered"
-        Title="CBP Launcher (PRE-RELEASE)" Height="500" Width="800">
+        Title="CBP Launcher" Height="500" Width="800">
     <Grid>
-        <Image Stretch="UniformToFill" Source="images/jatin bodybuilder 01.png"/>
+        <Image Stretch="UniformToFill" Source="images/CBP launcher background 01.jpg"/>
         <TextBlock Name="VersionTextOnline" Text="Checking online version..." VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="18" Foreground="#FFE9E9E9" Margin="0,0,5,24" Background="#7F000000" Padding="4,0"/>
         <TextBlock Name="VersionTextLocal" Text="Checking local version..." VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="18" Foreground="#FFE9E9E9" Margin="0, 0, 5, 0" Background="#7F000000" Padding="4,0"/>
         <Button Name="PlayButton" Content="Checking For Updates" Click="PlayButton_Click" Height="60" FontSize="28" FontWeight="Bold" Foreground="#DDFFFFFF" Margin="-3,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Center" MinWidth="150" Background="#FF016AC1" Padding="10,1"/>
