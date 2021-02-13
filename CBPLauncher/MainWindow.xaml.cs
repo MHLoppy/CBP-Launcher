@@ -1,4 +1,8 @@
-﻿using Microsoft.Win32;
+﻿/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+using Microsoft.Win32;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,7 +10,7 @@ using System.IO;
 using System.IO.Compression;
 // using System.IO.Compression.FileSystem; added in project References instead (per stackexchange suggestion - I don't actually understand it ::fingerguns::)
 using System.Net;           /// this project was made with .NET framework 4.6.1 (at least as of near the start when I'm writing this comment)
-using System.Windows;       ///idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core apparently
+using System.Windows;       ///idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
 namespace CBPLauncher
 {
 
