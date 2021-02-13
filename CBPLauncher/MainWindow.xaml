@@ -1,0 +1,36 @@
+﻿<Window x:Class="CBPLauncher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CBPLauncher"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        ContentRendered="Window_ContentRendered"
+        Title="CBP Launcher (PRE-RELEASE)" Height="500" Width="800">
+    <Grid>
+        <Image Stretch="UniformToFill" Source="images/jatin bodybuilder 01.png"/>
+        <TextBlock Name="VersionTextOnline" Text="Checking online version..." VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="18" Foreground="#FFE9E9E9" Margin="0,0,5,24" Background="#7F000000" Padding="4,0"/>
+        <TextBlock Name="VersionTextLocal" Text="Checking local version..." VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="18" Foreground="#FFE9E9E9" Margin="0, 0, 5, 0" Background="#7F000000" Padding="4,0"/>
+        <Button Name="PlayButton" Content="Checking For Updates" Click="PlayButton_Click" Height="60" FontSize="28" FontWeight="Bold" Foreground="#DDFFFFFF" Margin="-3,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Center" MinWidth="150" Background="#FF016AC1" Padding="10,1"/>
+        <TextBox Name="EEPath" Height="23" Margin="240,0,243,80" TextWrapping="Wrap" Text="RoN:EE Install Path" VerticalAlignment="Bottom" HorizontalAlignment="Center" MinWidth="309" Padding="3,0,0,0"/>
+        <TextBlock Margin="303,0,309,103" TextWrapping="Wrap" Text="RoN:EE install detected in:" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="180" Padding="6,0,0,0" Foreground="White" Background="#26000000">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="4" ShadowDepth="1"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <TextBox Name="workshopPathDebug" HorizontalAlignment="Left" Height="23" Margin="32,86,0,0" TextWrapping="Wrap" Text="Steam Workshop file path" VerticalAlignment="Top" MinWidth="150" Background="#E5FFFFFF"/>
+        <TextBox Name="workshopPathCBPDebug" HorizontalAlignment="Left" Height="23" Margin="32,144,0,0" TextWrapping="Wrap" Text="CBP (workshop) file path" VerticalAlignment="Top" MinWidth="150" Background="#E5FFFFFF"/>
+        <TextBlock Name="workshopPathLabel" HorizontalAlignment="Left" Margin="32,70,0,0" TextWrapping="Wrap" Text="Steam Workshop detected location:" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Background="#26000000" Padding="1,0">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="4" ShadowDepth="0"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <TextBlock Name="workshopPathCBPLabel" HorizontalAlignment="Left" Margin="32,128,0,0" TextWrapping="Wrap" Text="CBP (workshop files) detected location:" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Background="#26000000" Padding="1,0">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="4" ShadowDepth="1"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <TextBox Name="regPathDebug" HorizontalAlignment="Left" MinHeight="23" Margin="32,30,0,0" TextWrapping="Wrap" Text="Registry debug" VerticalAlignment="Top" MinWidth="150" Background="#99FFFFFF"/>
+    </Grid>
+</Window>
