@@ -14,7 +14,7 @@ namespace CBPLauncher
     {
         ready,
         failed,
-        downloadingPatch,
+        downloadingFirstPatch,
         downloadingUpdate
     }
 
@@ -30,6 +30,7 @@ namespace CBPLauncher
         private string localMods;
         private string gameInstallPath;
         private string workshopPath; // yet to implement the part where it finds and uses downloaded Workshop files - right now it downloads a non-Steam copy of the files from google drive
+        private string modIDCBP;
         private string workshopPathCBP;
 
         private LauncherStatus _status;
@@ -47,7 +48,7 @@ namespace CBPLauncher
                     case LauncherStatus.failed:
                         PlayButton.Content = "Update Failed - Retry?";
                         break;
-                    case LauncherStatus.downloadingPatch:
+                    case LauncherStatus.downloadingFirstPatch:
                         PlayButton.Content = "Downloading Patch"; //means no local-mods CBP detected
                         break;
                     case LauncherStatus.downloadingUpdate:
@@ -68,6 +69,7 @@ namespace CBPLauncher
             catch (Exception ex)
             {
                 MessageBox.Show($"Error during initialization: {ex}");
+                Close(); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
             RegistryKey regPath; //this part (and related below) is to find the install location for RoN:EE (Steam)
@@ -82,23 +84,29 @@ namespace CBPLauncher
 
             try
             {
+                // core paths
                 rootPath = Directory.GetCurrentDirectory();
                 gameZip = Path.Combine(rootPath, "Community Balance Patch (Alpha 6c).zip"); //at some point, this should probably have a generic name that doesn't change between versions e.g. "CBP.zip"
                 gameInstallPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
-                EEPath.Text = gameInstallPath; //to display the detected install path for RoN:EE
                 gameExe = Path.Combine(gameInstallPath, "riseofnations.exe"); //in EE this is the main game exe, with patriots.exe as the launcher (in T&P it was just rise.exe)
-
                 localMods = Path.Combine(gameInstallPath, "mods");
-                workshopPath = Path.GetFullPath(Path.Combine(gameInstallPath, @"..\..", @"workshop\content\287450")); ///maybe not the best method, but serviceable?
-                workshopPathCBP = Path.Combine(workshopPath, @"2287791153");                                          ///Path.GetFullPath used to make final path more human-readable
-                workshopPathDebug.Text = workshopPath; //debug readout
-                workshopPathCBPDebug.Text = workshopPathCBP; //debug readout
+                workshopPath = Path.GetFullPath(Path.Combine(gameInstallPath, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
 
-                versionFile = Path.Combine(localMods, "Version.txt"); //putting this file in the mods folder seems like a good spot
+                // mods and their paths
+                modIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager
+                workshopPathCBP = Path.Combine(workshopPath, modIDCBP);
+
+                // detected paths shown in the UI
+                EEPath.Text = gameInstallPath;
+                workshopPathDebug.Text = workshopPath;
+                workshopPathCBPDebug.Text = workshopPathCBP;
+
+                versionFile = Path.Combine(localMods, "Version.txt"); //putting this file in the mods folder seems like a good spot for now
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error creating paths: {ex}");
+                Close(); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
         }
 
@@ -154,7 +162,7 @@ namespace CBPLauncher
                 }
                 else
                 {
-                    Status = LauncherStatus.downloadingPatch;
+                    Status = LauncherStatus.downloadingFirstPatch;
                     _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); ///maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
                                                                                                               /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
                 }
