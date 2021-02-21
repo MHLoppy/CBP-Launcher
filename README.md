@@ -1,4 +1,4 @@
-# CBPLauncher
+# CBP-Launcher
 A launcher/installer for the Rise of Nations [Community Balance Patch](https://steamcommunity.com/sharedfiles/filedetails/?id=2287791153).
 
 ![CBP Launcher v0.1 demo](https://i.imgur.com/m8inuTy.png)
