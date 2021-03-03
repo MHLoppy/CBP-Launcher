@@ -22,5 +22,53 @@ namespace CBPLauncher.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DefaultCBP {
+            get {
+                return ((bool)(this["DefaultCBP"]));
+            }
+            set {
+                this["DefaultCBP"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CBPUnloaded {
+            get {
+                return ((bool)(this["CBPUnloaded"]));
+            }
+            set {
+                this["CBPUnloaded"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseWorkshopFiles {
+            get {
+                return ((bool)(this["UseWorkshopFiles"]));
+            }
+            set {
+                this["UseWorkshopFiles"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CBPLoaded {
+            get {
+                return ((bool)(this["CBPLoaded"]));
+            }
+            set {
+                this["CBPLoaded"] = value;
+            }
+        }
     }
 }

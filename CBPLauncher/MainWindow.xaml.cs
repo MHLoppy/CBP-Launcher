@@ -2,33 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+// sometimes comments will refer to a "reference [program]" which refers to https://github.com/tom-weiland/csharp-game-launcher
+
 using Microsoft.Win32;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-// using System.IO.Compression.FileSystem; added in project References instead (per stackexchange suggestion - I don't actually understand it ::fingerguns::)
+using System.IO.Compression;// using System.IO.Compression.FileSystem added in project References instead (per stackexchange suggestion - I don't actually fully understand it ::fingerguns::)
 using System.Net;           /// this project was made with .NET framework 4.6.1 (at least as of near the start when I'm writing this comment)
-using System.Windows;       ///idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
+using System.Windows;       /// idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
 using System.Windows.Forms; // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
+using System.Windows.Media; // used for selecting brushes (used for coloring in e.g. textboxes)
 
 namespace CBPLauncher
 {
 
     enum LauncherStatus
     {
-        ready,
-        failed,
-        installingFirstPatchLocal,
+        readyCBPEnabled,
+        readyCBPDisabled,
+        loadFailed,
+        unloadFailed,
+        installFailed,
+        installingFirstTimeLocal,
         installingUpdateLocal,
-        installingFirstPatchOnline,
-        installingUpdateOnline
+        installingFirstTimeOnline,
+        installingUpdateOnline,
+        connectionProblem,
+        installProblem
     }
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml [imagine understanding what's going on enough to succinctly summarise it]
-    /// </summary>
     public partial class MainWindow : Window
     {
         private string rootPath;
@@ -37,6 +41,7 @@ namespace CBPLauncher
         private string localMods;
         private string gameInstallPath;
         private string workshopPath; // yet to implement the part where it finds and uses downloaded Workshop files - right now it downloads a non-Steam copy of the files from google drive
+        private string UnloadedModsPath;
 
         /// ===== START OF MOD LIST =====
 
@@ -58,24 +63,68 @@ namespace CBPLauncher
                 _status = value;
                 switch (_status)
                 {
-                    case LauncherStatus.ready:
+                    case LauncherStatus.readyCBPEnabled:
+                        StatusReadout.Text = "Ready: CBP enabled";
+                        StatusReadout.Foreground = Brushes.LimeGreen;
                         PlayButton.Content = "Launch Game";
+                        PlayButton.IsEnabled = true;
                         break;
-                    case LauncherStatus.failed:
-                        PlayButton.Content = "Update Failed - Retry?";
+                    case LauncherStatus.readyCBPDisabled:
+                        StatusReadout.Text = "Ready: CBP disabled";
+                        StatusReadout.Foreground = Brushes.Orange;
+                        PlayButton.Content = "Launch Game";
+                        PlayButton.IsEnabled = true;
                         break;
-                    case LauncherStatus.installingFirstPatchLocal:  /// primary method: use workshop files;
-                        PlayButton.Content = "Installing Patch";    /// means no local-mods CBP detected
+                    case LauncherStatus.loadFailed:
+                        StatusReadout.Text = "Error: unable to load CBP";
+                        StatusReadout.Foreground = Brushes.Red;
+                        PlayButton.Content = "Retry Unload?";
+                        PlayButton.IsEnabled = true;
                         break;
-                    case LauncherStatus.installingUpdateLocal:      /// primary method: use workshop files;
-                        PlayButton.Content = "Installing Update";   /// local-mods CBP detected, but out of date compared to workshop version.txt
+                    case LauncherStatus.unloadFailed:
+                        StatusReadout.Text = "Error: unable to unload CBP";
+                        StatusReadout.Foreground = Brushes.Red;
+                        PlayButton.Content = "Retry Unload?";
+                        PlayButton.IsEnabled = true;
                         break;
-                    case LauncherStatus.installingFirstPatchOnline: /// backup method: use online files;
-                        PlayButton.Content = "Installing Patch";    /// means no local-mods CBP detected but can't find workshop files either
+                    case LauncherStatus.installFailed:
+                        StatusReadout.Text = "Error: update failed";
+                        StatusReadout.Foreground = Brushes.Red;
+                        PlayButton.Content = "Retry Update?";
+                        PlayButton.IsEnabled = true;
                         break;
-                    case LauncherStatus.installingUpdateOnline:     /// backup method: use online files; 
-                        PlayButton.Content = "Installing Update";   /// local-mods CBP detected, but can't find workshop files and
-                        break;                                      /// local files out of date compared to online version.txt
+                    case LauncherStatus.installingFirstTimeLocal:                      /// primary method: use workshop files;
+                        StatusReadout.Text = "Installing patch from local files...";    /// means no local-mods CBP detected
+                        StatusReadout.Foreground = Brushes.White;
+                        PlayButton.IsEnabled = false;
+                        break;
+                    case LauncherStatus.installingUpdateLocal:                          /// primary method: use workshop files;
+                        StatusReadout.Text = "Installing update from local files...";   /// local-mods CBP detected, but out of date compared to workshop version.txt
+                        StatusReadout.Foreground = Brushes.White;
+                        PlayButton.IsEnabled = false;
+                        break;
+                    case LauncherStatus.installingFirstTimeOnline:                     /// backup method: use online files;
+                        StatusReadout.Text = "Installing patch from online files...";   /// means no local-mods CBP detected but can't find workshop files either
+                        StatusReadout.Foreground = Brushes.White;
+                        PlayButton.IsEnabled = false;
+                        break;
+                    case LauncherStatus.installingUpdateOnline:                         /// backup method: use online files; 
+                        StatusReadout.Text = "Installing update from online files...";  /// local-mods CBP detected, but can't find workshop files and
+                        StatusReadout.Foreground = Brushes.White;                       /// local files out of date compared to online version.txt
+                        PlayButton.IsEnabled = false;
+                        break;
+                    case LauncherStatus.connectionProblem:
+                        StatusReadout.Text = "Error: connectivity issue";
+                        StatusReadout.Foreground = Brushes.OrangeRed;
+                        PlayButton.Content = "Launch game";
+                        PlayButton.IsEnabled = true;
+                        break;
+                    case LauncherStatus.installProblem:
+                        StatusReadout.Text = "Potential installation error";
+                        StatusReadout.Foreground = Brushes.OrangeRed;
+                        PlayButton.Content = "Launch game";
+                        PlayButton.IsEnabled = true;
+                        break;
                     default:
                         break;
                 }
@@ -155,73 +204,126 @@ namespace CBPLauncher
                 System.Windows.MessageBox.Show($"Error creating paths: {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
+            try
+            {
+                Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
+                UnloadedModsPath = Path.Combine(localMods, "Unloaded Mods");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error creating Unloaded Mods directory {ex}");
+                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
+            CBPDefaultChecker();
+
         }
 
         private void CheckForUpdates()
         {
-            WebClient webClient = new WebClient();                                                           /// Moved this section from reference to here in order to display
-            Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// latest available version as well as installed version
+            try // without the try you can accidentally create online-only DRM whoops
+            {
+                VersionTextOnline.Text = "Checking online version...";
+                VersionTextLocal.Text = "Checking local version...";
 
-            VersionTextOnline.Text = "Latest CBP version: "
-                 + VersionArray.versionStart[onlineVersion.major]
-                 + VersionArray.versionMiddle[onlineVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
+                WebClient webClient = new WebClient();                                                           /// Moved this section from reference to here in order to display
+                Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// latest available version as well as installed version
+
+                VersionTextOnline.Text = "Latest CBP version: "
+                     + VersionArray.versionStart[onlineVersion.major]
+                     + VersionArray.versionMiddle[onlineVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
                  + VersionArray.versionEnd[onlineVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
 
-            if (File.Exists(versionFileCBP)) //If there's already a version.txt in the local-mods CBP folder, then...
-            {
-                Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // recent changes to the version displays creates some code duplication X_X
-
-                VersionTextLocal.Text = "Installed CBP version: "
-                                 + VersionArray.versionStart[localVersion.major]
-                                 + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                 + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
-                try
+                if (File.Exists(versionFileCBP)) //If there's already a version.txt in the local-mods CBP folder, then...
                 {
-                    if (onlineVersion.IsDifferentThan(localVersion))
+                    Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // recent changes to the version displays creates some code duplication X_X
+
+                    VersionTextLocal.Text = "Installed CBP version: "
+                                            + VersionArray.versionStart[localVersion.major]
+                                            + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
+                                            + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                    try
                     {
-                        InstallGameFiles(true, onlineVersion);
+                        if (onlineVersion.IsDifferentThan(localVersion))
+                        {
+                            InstallGameFiles(true, onlineVersion);
+                        }
+                        else
+                        {
+                            Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
+                            Properties.Settings.Default.CBPLoaded = true;
+                            Properties.Settings.Default.CBPUnloaded = false;
+                            SaveSettings();
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        Status = LauncherStatus.ready; //if the local version.txt matches the version found in the online file, then no patch required
+                        Status = LauncherStatus.installFailed;
+                        System.Windows.MessageBox.Show($"Error installing patch files: {ex}");
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Status = LauncherStatus.failed;
-                    System.Windows.MessageBox.Show($"Error installing patch files: {ex}");
+                    InstallGameFiles(false, Version.zero);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                InstallGameFiles(false, Version.zero);
+                Status = LauncherStatus.connectionProblem;
+                System.Windows.MessageBox.Show($"Error checking for updates. Maybe no internet connection could be established? {ex}");
             }
         }
 
         private void InstallGameFiles(bool _isUpdate, Version _onlineVersion)
         {
-            try
-            {
-                WebClient webClient = new WebClient();
-                if (_isUpdate)
-                {
-                    Status = LauncherStatus.installingUpdateOnline;
-                }
-                else
-                {
-                    Status = LauncherStatus.installingFirstPatchOnline;
-                    _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
-                                                                                                              /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
-                }
+            if (Properties.Settings.Default.CBPUnloaded == false)
 
-                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
-                webClient.DownloadFileAsync(new Uri("https://drive.google.com/uc?export=download&id=1hQYZtdsTDihFi33Cc_BisRUHdXvSy5o4"), gameZip, _onlineVersion); //a6c old one https://drive.google.com/uc?export=download&id=1usd0ihBy5HWxsD6UiabV3ohzGxB7SxDD
-            }
-            catch (Exception ex)
-            {
-                Status = LauncherStatus.failed;
-                System.Windows.MessageBox.Show($"Error retrieving patch files: {ex}");
-            }
+                try
+                {
+                   WebClient webClient = new WebClient();
+                   if (_isUpdate)
+                    {
+                       Status = LauncherStatus.installingUpdateOnline;
+                    }
+                    else
+                    {
+                       Status = LauncherStatus.installingFirstTimeOnline;
+                       _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
+                                                                                                              /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
+                    }
+
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
+                    webClient.DownloadFileAsync(new Uri("https://drive.google.com/uc?export=download&id=1hQYZtdsTDihFi33Cc_BisRUHdXvSy5o4"), gameZip, _onlineVersion); //a6c old one https://drive.google.com/uc?export=download&id=1usd0ihBy5HWxsD6UiabV3ohzGxB7SxDD
+                }
+                catch (Exception ex)
+                {
+                    Status = LauncherStatus.installFailed;
+                    System.Windows.MessageBox.Show($"Error retrieving patch files: {ex}");
+                }
+            if (Properties.Settings.Default.CBPUnloaded == true)
+
+                try
+                {
+                    Directory.Move(Path.Combine(UnloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP)); //this will still currently fail if the folder already exists though
+
+                    Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // code duplication X_X
+
+                    VersionTextLocal.Text = "Installed CBP version: "
+                                            + VersionArray.versionStart[localVersion.major]
+                                            + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
+                                            + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+
+                    Properties.Settings.Default.CBPLoaded = true;
+                    Properties.Settings.Default.CBPUnloaded = false;
+                    SaveSettings();
+
+                    Status = LauncherStatus.readyCBPEnabled;
+                }
+                catch (Exception ex)
+                {
+                    Status = LauncherStatus.loadFailed;
+                    System.Windows.MessageBox.Show($"Error loading CBP: {ex}");
+                }
         }
 
         private void DownloadGameCompletedCallback(object sender, AsyncCompletedEventArgs e)
@@ -238,12 +340,11 @@ namespace CBPLauncher
                 try
                 {
                     ZipFile.ExtractToDirectory(gameZip, localMods);
-                    Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
                     File.Delete(gameZip); //extra file to local mods folder, then delete it after the extraction is done
                 }
                 catch (Exception ex)
                 {
-                    Status = LauncherStatus.failed;
+                    Status = LauncherStatus.installFailed;
                     File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
 
                     // show a message asking user if they want to ignore the error (and unlock the launch button)
@@ -260,7 +361,7 @@ namespace CBPLauncher
                     // if they say yes, then also ask if they want to write a new version.txt file where the mod is supposed to be installed:
                     if (result == System.Windows.Forms.DialogResult.Yes)
                     {
-                        Status = LauncherStatus.ready;
+                        Status = LauncherStatus.installProblem;
 
                         string message2 = $"If you're very confident that CBP is actually installed and the problem is just the version.txt file, you can write a new file to resolve this issue."
                                           + Environment.NewLine + Environment.NewLine + "Would you like to write a new version.txt file?"
@@ -280,6 +381,11 @@ namespace CBPLauncher
                                                     + VersionArray.versionStart[localVersion2.major]
                                                     + VersionArray.versionMiddle[localVersion2.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
                                                     + VersionArray.versionEnd[localVersion2.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+
+                            Status = LauncherStatus.readyCBPEnabled;
+                            Properties.Settings.Default.CBPLoaded = true;
+                            SaveSettings();
+
                             return; /// I had expected that this return would actually go down to the indicated location before the caught exception, but it doesn't?
                         }           /// It means I have to do the few lines above this when I didn't really want to because it's super redundant code
                         else
@@ -302,24 +408,68 @@ namespace CBPLauncher
                                  + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
                                  + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
 
-                Status = LauncherStatus.ready;
+                Status = LauncherStatus.readyCBPEnabled;
+                Properties.Settings.Default.CBPLoaded = true;
+                SaveSettings();
             }
             catch (Exception ex)
             {
-                Status = LauncherStatus.failed;
+                Status = LauncherStatus.installFailed;
                 File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
                 System.Windows.MessageBox.Show($"Error installing new patch files: {ex}"); 
             }
         }
 
+        private void UnloadCBP()
+        {
+            if (Properties.Settings.Default.CBPUnloaded == false)
+            {
+                try
+                {
+                    System.IO.Directory.Move(localPathCBP, Path.Combine(UnloadedModsPath, "Community Balance Patch"));
+                    Properties.Settings.Default.CBPUnloaded = true;
+                    Properties.Settings.Default.CBPLoaded = false;
+                    SaveSettings();
+
+                    VersionTextLocal.Text = "Installed CBP version: not loaded";
+
+                    Status = LauncherStatus.readyCBPDisabled;
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show($"Error unloading mod: {ex}");
+                    Status = LauncherStatus.unloadFailed;
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show($"CBP is already unloaded.");
+            }
+        }
+
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            CheckForUpdates();
+            // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
+            if (Properties.Settings.Default.DefaultCBP == true)
+            {
+                CheckForUpdates();
+            };
+            if (Properties.Settings.Default.DefaultCBP == false)
+            {
+                if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
+                {
+                    UnloadCBP();
+                }
+                else
+                {
+                    Status = LauncherStatus.readyCBPDisabled;
+                }
+            }
         }
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(gameExe) && Status == LauncherStatus.ready)
+            if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
                 {
@@ -330,11 +480,70 @@ namespace CBPLauncher
 
                 Close();
             }
-            else if (Status == LauncherStatus.failed)
+            else if (Status == LauncherStatus.installFailed)
             {
                 CheckForUpdates();
             }
+            else if (Status == LauncherStatus.loadFailed)
+            {
+                CheckForUpdates();
+            }
+            else if (Status == LauncherStatus.unloadFailed)
+            {
+                UnloadCBP();
+            }
         }
+
+        private void ManualLoadCBP_Click(object sender, RoutedEventArgs e)
+        {
+            CheckForUpdates();
+        }
+
+        private void ManualUnloadCBP_Click(object sender, RoutedEventArgs e)
+        {
+            UnloadCBP();
+        }
+        private void ResetSettings_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.Reset();
+
+            System.Windows.MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
+        }
+
+        private void CBPDefaultCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.DefaultCBP = true;
+
+            SaveSettings();
+
+            //debug: System.Windows.MessageBox.Show($"New value: {Properties.Settings.Default.DefaultCBP}"); //p.s. this will *also* be activated if the program loads with check enabled
+        }
+
+        private void CBPDefaultCheckbox_UnChecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.DefaultCBP = false;
+
+            SaveSettings();
+
+            //debug: System.Windows.MessageBox.Show($"new value: {Properties.Settings.Default.DefaultCBP}");
+        }
+        private void SaveSettings()
+        {
+            Properties.Settings.Default.Save();
+        }
+
+        private void CBPDefaultChecker()
+        {
+            if ( Properties.Settings.Default.DefaultCBP == true)
+            { 
+                CBPDefaultCheckbox.IsChecked = true; 
+            }
+            else if ( Properties.Settings.Default.DefaultCBP == false)
+            {
+                CBPDefaultCheckbox.IsChecked = false;
+            }
+        }
+
     }
 
     struct Version 
@@ -396,6 +605,7 @@ namespace CBPLauncher
             return $"{major}.{minor}.{subMinor}"; //because this is used for comparison, you can't put the conversion into e.g. "Alpha 6c" here or it will fail the version check above because of the format change
         }
     }
+
     public class VersionArray //this seems like an inelegant way to implement the string array? but I wasn't sure where else to put it (and have it work)
     {
         //cheeky bit of extra changes to convert the numerical/int based X.Y.Z into the versioning I already used before this launcher
