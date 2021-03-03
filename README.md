@@ -7,3 +7,6 @@ A launcher/installer for the Rise of Nations [Community Balance Patch](https://s
 This is still in development, and more features and broader error handling is expected to be added in future versions. Right now it's only expected to work if you *don't* have CBP installed already, but feel free to test it anyway!
 
 Please let me know whether the launcher works / doesn't work for you - the bugs can't get fixed until someone notices them.
+
+### Credits:
+The basic structure and functionality of the launcher (although an increasing minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
