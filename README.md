@@ -19,4 +19,5 @@ Please let me know whether the launcher works / doesn't work for you - the bugs 
 - Option to override file / registry paths (target v0.4-v0.8)
 
 ### Credits
-The basic structure and functionality of the launcher (although an increasing minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
+- The basic structure and functionality of the launcher (although an increasing minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
+- The background image is from [Tingey Injury Law Firm via Unsplash](https://unsplash.com/photos/yCdPU73kGSc).
