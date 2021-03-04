@@ -236,12 +236,12 @@ namespace CBPLauncher
 
                 if (File.Exists(versionFileCBP)) //If there's already a version.txt in the local-mods CBP folder, then...
                 {
-                    Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // recent changes to the version displays creates some code duplication X_X
+                    Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // this doesn't use UpdateLocalVersionNumber() because of the compare done below it - will break if replaced without modification
 
                     VersionTextLocal.Text = "Installed CBP version: "
                                             + VersionArray.versionStart[localVersion.major]
-                                            + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                            + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                                            + VersionArray.versionMiddle[localVersion.minor]
+                                            + VersionArray.versionEnd[localVersion.subMinor];
                     try
                     {
                         if (onlineVersion.IsDifferentThan(localVersion))
@@ -306,12 +306,7 @@ namespace CBPLauncher
                 {
                     Directory.Move(Path.Combine(UnloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP)); //this will still currently fail if the folder already exists though
 
-                    Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // code duplication X_X
-
-                    VersionTextLocal.Text = "Installed CBP version: "
-                                            + VersionArray.versionStart[localVersion.major]
-                                            + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                            + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                    UpdateLocalVersionNumber();
 
                     Properties.Settings.Default.CBPLoaded = true;
                     Properties.Settings.Default.CBPUnloaded = false;
@@ -375,12 +370,7 @@ namespace CBPLauncher
                         {
                             File.WriteAllText(versionFileCBP, onlineVersionString);
 
-                            Version localVersion2 = new Version(File.ReadAllText(versionFileCBP)); //I don't fully understand why I can't refer to localVersion, but ALSO can't declare it??
-
-                            VersionTextLocal.Text = "Installed CBP version: "
-                                                    + VersionArray.versionStart[localVersion2.major]
-                                                    + VersionArray.versionMiddle[localVersion2.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                                    + VersionArray.versionEnd[localVersion2.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                            UpdateLocalVersionNumber();
 
                             Status = LauncherStatus.readyCBPEnabled;
                             Properties.Settings.Default.CBPLoaded = true;
@@ -401,12 +391,7 @@ namespace CBPLauncher
 
                 File.WriteAllText(versionFileCBP, onlineVersionString); // I thought this is where return would go, but it doesn't, so I evidently don't know what I'm doing
 
-                Version localVersion = new Version(File.ReadAllText(versionFileCBP));
-
-                VersionTextLocal.Text = "Installed CBP version: "
-                                 + VersionArray.versionStart[localVersion.major]
-                                 + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                 + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                UpdateLocalVersionNumber();
 
                 Status = LauncherStatus.readyCBPEnabled;
                 Properties.Settings.Default.CBPLoaded = true;
@@ -447,7 +432,17 @@ namespace CBPLauncher
             }
         }
 
-        private void Window_ContentRendered(object sender, EventArgs e)
+        private void UpdateLocalVersionNumber()
+        {
+            Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // moved to separate thing to reduce code duplication
+
+            VersionTextLocal.Text = "Installed CBP version: "
+                                    + VersionArray.versionStart[localVersion.major]
+                                    + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
+                                    + VersionArray.versionEnd[localVersion.subMinor]; ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+        }
+
+            private void Window_ContentRendered(object sender, EventArgs e)
         {
             // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
             if (Properties.Settings.Default.DefaultCBP == true)
@@ -482,7 +477,7 @@ namespace CBPLauncher
             }
             else if (Status == LauncherStatus.installFailed)
             {
-                CheckForUpdates();
+                CheckForUpdates(); // because CheckForUpdates currently includes the logic for *all* installing/loading, it's used for both installFailed and loadFailed right now
             }
             else if (Status == LauncherStatus.loadFailed)
             {
