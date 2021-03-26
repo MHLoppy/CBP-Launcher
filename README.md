@@ -20,6 +20,9 @@ Please let me know whether the launcher works / doesn't work for you - the bugs 
 - Backup then replace default launcher (target v0.5-v0.7)
 - Option to override file / registry paths (target v0.4-v0.8)
 
+\* Right now it still sources files externally even though it "knows" where the Workshop files are - I just prioritised the load/unload functionality because I considered it more important.  
+\*\* The current version can function offline if you're not using CBP, but it can't use or install CBP yet without an active connection.
+
 ### Credits
 - The basic structure and functionality of the launcher (although an increasing minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
 - The background image is from [Tingey Injury Law Firm via Unsplash](https://unsplash.com/photos/yCdPU73kGSc).
