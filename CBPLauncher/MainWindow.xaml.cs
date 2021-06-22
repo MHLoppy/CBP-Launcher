@@ -14,6 +14,7 @@ using System.Net;           /// this project was made with .NET framework 4.6.1 
 using System.Windows;       /// idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
 using System.Windows.Forms; // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
 using System.Windows.Media; // used for selecting brushes (used for coloring in e.g. textboxes)
+using Microsoft.VisualBasic; //used for the current (temporary?) manual path input
 
 namespace CBPLauncher
 {
@@ -40,6 +41,7 @@ namespace CBPLauncher
         private string gameExe;
         private string localMods;
         private string gameInstallPath;
+        private string manualInstallPath; //used for manual install only
         private string workshopPath; // yet to implement the part where it finds and uses downloaded Workshop files - right now it downloads a non-Steam copy of the files from google drive
         private string UnloadedModsPath;
 
@@ -144,11 +146,15 @@ namespace CBPLauncher
             }
 
             RegistryKey regPath; //this part (and related below) is to find the install location for RoN:EE (Steam)
-
+ //!!!!!!           // apparently this is not a good method for the registry part? use using instead? https://stackoverflow.com/questions/1675864/read-a-registry-key
             if (Environment.Is64BitOperatingSystem) //I don't *fully* understand what's going on here (ported from stackexchange), but this block seems to be needed to prevent null value return due to 32/64 bit differences???
+            {
                 regPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+            }
             else
+            {
                 regPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
+            }
 
             regPathDebug.Text = "Debug: registry read as " + regPath;
 
@@ -157,7 +163,69 @@ namespace CBPLauncher
                 // core paths
                 rootPath = Directory.GetCurrentDirectory();
                 gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
-                gameInstallPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
+
+                using (RegistryKey ronReg = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
+                {
+                    if (ronReg == null)
+                    {
+                        // try a default install path, since that should honestly work for most of the users with cursed registries
+                        gameInstallPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
+
+                        if (File.Exists(Path.Combine(gameInstallPath, "riseofnations.exe")))
+                        {
+                            System.Windows.MessageBox.Show($"accompanied by a torrent of trumpets, dave descends from his throne in the heavens and bestows upon you an automated workaround for your registry being cursed");
+                        }
+                        else
+                        {
+                            System.Windows.MessageBox.Show($"None of the automated methods were able to find your Rise of Nations install. Try entering the path manually instead.");
+                            manualInstallPath = Interaction.InputBox(@"Enter the path for your Rise of Nations install (e.g. D:\SteamLibrary\SteamApps\common\Rise of Nations", "Manual path entry");
+
+                            // check that the user has input a seemingly valid location
+                            if (File.Exists(Path.Combine(manualInstallPath, "riseofnations.exe")))
+                            {
+                                gameInstallPath = manualInstallPath;
+                            }
+                            else
+                            {
+                                System.Windows.MessageBox.Show($"Can't find a RoN install at that location! Launcher will now close.");
+                                Environment.Exit(0);
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        gameInstallPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
+                    }
+                }
+
+ /*               try
+                {
+                    gameInstallPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 2874500").GetValue("InstallLocation").ToString();
+                }
+                catch (NullReferenceException ex)
+                {
+                    // some installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
+                    if (gameInstallPath == null)
+                    {
+                        // try a default install path, since that should honestly work for most of the users with cursed registries
+                        gameInstallPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
+
+                        if (File.Exists(Path.Combine(gameInstallPath, "riseofnations.exe")))
+                        {
+                            System.Windows.MessageBox.Show($"accompanied by a torrent of trumpets, dave descends from his throne in the heavens and bestows upon you an automated workaround for your registry being cursed");
+                        }
+                        else
+                        {
+                            System.Windows.MessageBox.Show($"the first automated fix didn't work for you - try entering your path manually");
+                            gameInstallPath = Interaction.InputBox(@"Enter the path for your Rise of Nations install (e.g. D:\SteamLibrary\SteamApps\common\Rise of Nations", "Manual path entry");
+                        }
+                    }
+                    
+                    System.Windows.MessageBox.Show($"Error with the game install path: {ex}");
+                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+                }*/
+
                 gameExe = Path.Combine(gameInstallPath, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
                 localMods = Path.Combine(gameInstallPath, "mods");
                 workshopPath = Path.GetFullPath(Path.Combine(gameInstallPath, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
@@ -171,6 +239,10 @@ namespace CBPLauncher
                 workshopPathCBP = Path.Combine(Path.GetFullPath(workshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
                 localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
                 versionFileCBP = Path.Combine(localPathCBP, "Version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
+
+                /// TODO
+                /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
+                /// (at the moment it just assumes they exist and eventually errors later on if they don't)
 
                 // Example New Mod
                 // modname<MOD> = A
@@ -604,8 +676,9 @@ namespace CBPLauncher
     public class VersionArray //this seems like an inelegant way to implement the string array? but I wasn't sure where else to put it (and have it work)
     {
         //cheeky bit of extra changes to convert the numerical/int based X.Y.Z into the versioning I already used before this launcher
-        public static String[] versionStart = new string[6] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate ", "1." }; // I am a fucking god figuring out how to properly use these arrays based on 10 fragments of 5% knowledge each
-        public static String[] versionMiddle = new string[13] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }; // I don't even know what "static" means in this context, I just know what I need to use it
-        public static String[] versionEnd = new string[12] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" }; //e.g. can optionally just skip the subminor by intentionally using [0]
+        public static string[] versionStart = new string[6] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate ", "1." }; // I am a fucking god figuring out how to properly use these arrays based on 10 fragments of 5% knowledge each
+        public static string[] versionMiddle = new string[13] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }; // I don't even know what "static" means in this context, I just know what I need to use it
+        public static string[] versionEnd = new string[12] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k" }; //e.g. can optionally just skip the subminor by intentionally using [0]
+        //and add a hotfix number as well, where 0 in the array will be blank (not a hotfix update)
     }
 }
