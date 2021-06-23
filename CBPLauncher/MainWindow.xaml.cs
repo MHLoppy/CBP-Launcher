@@ -4,17 +4,17 @@
 
 // sometimes comments will refer to a "reference [program]" which refers to https://github.com/tom-weiland/csharp-game-launcher
 
-using Microsoft.Win32;
-using System;
+using Microsoft.Win32;          /// this project was made with .NET framework 4.6.1 (at least as of near the start when I'm writing this comment)
+using System;                   /// idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;// using System.IO.Compression.FileSystem added in project References instead (per stackexchange suggestion - I don't actually fully understand it ::fingerguns::)
-using System.Net;           /// this project was made with .NET framework 4.6.1 (at least as of near the start when I'm writing this comment)
-using System.Windows;       /// idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
-using System.Windows.Forms; // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
-using System.Windows.Media; // used for selecting brushes (used for coloring in e.g. textboxes)
-using Microsoft.VisualBasic; //used for the current (temporary?) manual path input
+using System.IO.Compression;    // System.IO.Compression.FileSystem added in project References instead (per stackexchange suggestion - I don't actually fully understand it ::fingerguns::)
+using System.Net;           
+using System.Windows;
+using System.Windows.Forms;     // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
+using System.Windows.Media;     // used for selecting brushes (used for coloring in e.g. textboxes)
+using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path
 
 namespace CBPLauncher
 {
@@ -40,10 +40,10 @@ namespace CBPLauncher
         private string gameZip;
         private string gameExe;
         private string localMods;
-        private string gameInstallPath;
-        private string manualInstallPath; //used for manual install only
+        private string RoNPath;
+        private string RoNPathManual; //used for manual install only
         private string workshopPath; // yet to implement the part where it finds and uses downloaded Workshop files - right now it downloads a non-Steam copy of the files from google drive
-        private string UnloadedModsPath;
+        private string unloadedModsPath;
 
         /// ===== START OF MOD LIST =====
 
@@ -95,7 +95,7 @@ namespace CBPLauncher
                         PlayButton.Content = "Retry Update?";
                         PlayButton.IsEnabled = true;
                         break;
-                    case LauncherStatus.installingFirstTimeLocal:                      /// primary method: use workshop files;
+                    case LauncherStatus.installingFirstTimeLocal:                       /// primary method: use workshop files;
                         StatusReadout.Text = "Installing patch from local files...";    /// means no local-mods CBP detected
                         StatusReadout.Foreground = Brushes.White;
                         PlayButton.IsEnabled = false;
@@ -105,7 +105,7 @@ namespace CBPLauncher
                         StatusReadout.Foreground = Brushes.White;
                         PlayButton.IsEnabled = false;
                         break;
-                    case LauncherStatus.installingFirstTimeOnline:                     /// backup method: use online files;
+                    case LauncherStatus.installingFirstTimeOnline:                      /// backup method: use online files;
                         StatusReadout.Text = "Installing patch from online files...";   /// means no local-mods CBP detected but can't find workshop files either
                         StatusReadout.Foreground = Brushes.White;
                         PlayButton.IsEnabled = false;
@@ -166,24 +166,33 @@ namespace CBPLauncher
 
                 using (RegistryKey ronReg = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
                 {
-                    if (ronReg == null)
+                    if (ronReg == null) // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
                     {
                         // try a default install path, since that should honestly work for most of the users with cursed registries
-                        gameInstallPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
+                        RoNPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\steamapps\common\Rise of Nations";
 
-                        if (File.Exists(Path.Combine(gameInstallPath, "riseofnations.exe")))
+                        if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
+                        {
+                            // success: automated secondary 1
+                            return;
+                        }
+
+                        // old way of doing it, but used as as backup because I don't know if the environment call ever fails or not
+                        RoNPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
+
+                        if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
                         {
                             System.Windows.MessageBox.Show($"accompanied by a torrent of trumpets, dave descends from his throne in the heavens and bestows upon you an automated workaround for your registry being cursed");
                         }
                         else
                         {
                             System.Windows.MessageBox.Show($"None of the automated methods were able to find your Rise of Nations install. Try entering the path manually instead.");
-                            manualInstallPath = Interaction.InputBox(@"Enter the path for your Rise of Nations install (e.g. D:\SteamLibrary\SteamApps\common\Rise of Nations", "Manual path entry");
+                            RoNPathManual = Interaction.InputBox(@"Enter the path for your Rise of Nations install (e.g. D:\SteamLibrary\SteamApps\common\Rise of Nations", "Manual path entry");
 
                             // check that the user has input a seemingly valid location
-                            if (File.Exists(Path.Combine(manualInstallPath, "riseofnations.exe")))
+                            if (File.Exists(Path.Combine(RoNPathManual, "riseofnations.exe")))
                             {
-                                gameInstallPath = manualInstallPath;
+                                RoNPath = RoNPathManual;
                             }
                             else
                             {
@@ -195,40 +204,13 @@ namespace CBPLauncher
 
                     else
                     {
-                        gameInstallPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
+                        RoNPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
                     }
                 }
 
- /*               try
-                {
-                    gameInstallPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 2874500").GetValue("InstallLocation").ToString();
-                }
-                catch (NullReferenceException ex)
-                {
-                    // some installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
-                    if (gameInstallPath == null)
-                    {
-                        // try a default install path, since that should honestly work for most of the users with cursed registries
-                        gameInstallPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
-
-                        if (File.Exists(Path.Combine(gameInstallPath, "riseofnations.exe")))
-                        {
-                            System.Windows.MessageBox.Show($"accompanied by a torrent of trumpets, dave descends from his throne in the heavens and bestows upon you an automated workaround for your registry being cursed");
-                        }
-                        else
-                        {
-                            System.Windows.MessageBox.Show($"the first automated fix didn't work for you - try entering your path manually");
-                            gameInstallPath = Interaction.InputBox(@"Enter the path for your Rise of Nations install (e.g. D:\SteamLibrary\SteamApps\common\Rise of Nations", "Manual path entry");
-                        }
-                    }
-                    
-                    System.Windows.MessageBox.Show($"Error with the game install path: {ex}");
-                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
-                }*/
-
-                gameExe = Path.Combine(gameInstallPath, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
-                localMods = Path.Combine(gameInstallPath, "mods");
-                workshopPath = Path.GetFullPath(Path.Combine(gameInstallPath, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
+                gameExe = Path.Combine(RoNPath, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
+                localMods = Path.Combine(RoNPath, "mods");
+                workshopPath = Path.GetFullPath(Path.Combine(RoNPath, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
 
                 /// ===== START OF MOD LIST =====
 
@@ -253,7 +235,7 @@ namespace CBPLauncher
                 // versionFile<MOD> = Path.Combine(localPath<MOD>, "Version.txt"
 
                 /// Ideally in future these values can be dynamically loaded/added/edited etc from
-                /// within the program's UI, meaning that these values no longer need to be hardcoded like this.
+                /// within the program's UI (using e.g. external files), meaning that these values no longer need to be hardcoded like this.
                 /// I guess it might involve a Steam Workshop api call/request(?) for a string the user inputs (e.g. "Community Balance Patch")
                 /// and then it comes back with the ID and description so that the user can decide if that's the one they want.
                 /// If it is, then its details are populated into new strings within CBP Launcher.
@@ -267,7 +249,7 @@ namespace CBPLauncher
                 /// ===== END OF MOD LIST =====
 
                 // detected paths shown in the UI
-                EEPath.Text = gameInstallPath;
+                EEPath.Text = RoNPath;
                 workshopPathDebug.Text = workshopPath;
                 workshopPathCBPDebug.Text = workshopPathCBP;
             }
@@ -279,7 +261,7 @@ namespace CBPLauncher
             try
             {
                 Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
-                UnloadedModsPath = Path.Combine(localMods, "Unloaded Mods");
+                unloadedModsPath = Path.Combine(localMods, "Unloaded Mods");
             }
             catch (Exception ex)
             {
@@ -376,7 +358,7 @@ namespace CBPLauncher
 
                 try
                 {
-                    Directory.Move(Path.Combine(UnloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP)); //this will still currently fail if the folder already exists though
+                    Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP)); //this will still currently fail if the folder already exists though
 
                     UpdateLocalVersionNumber();
 
@@ -483,7 +465,7 @@ namespace CBPLauncher
             {
                 try
                 {
-                    System.IO.Directory.Move(localPathCBP, Path.Combine(UnloadedModsPath, "Community Balance Patch"));
+                    System.IO.Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
                     Properties.Settings.Default.CBPUnloaded = true;
                     Properties.Settings.Default.CBPLoaded = false;
                     SaveSettings();
@@ -540,7 +522,7 @@ namespace CBPLauncher
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
                 {
-                    WorkingDirectory = gameInstallPath //this change compared to reference app was suggested by VS itself - I'm assuming it's functionally equivalent at worst
+                    WorkingDirectory = RoNPath //this change compared to reference app was suggested by VS itself - I'm assuming it's functionally equivalent at worst
                 };
                 Process.Start(startInfo);
                 //DEBUG: Process.Start(gameExe);
