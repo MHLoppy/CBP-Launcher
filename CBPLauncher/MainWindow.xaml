@@ -41,5 +41,6 @@
         <Button Name="ManualLoadCBP" Content="Load CBP" Click="ManualLoadCBP_Click" HorizontalAlignment="Center" Margin="298,0,419,95" VerticalAlignment="Bottom" Width="75" RenderTransformOrigin="1.12,0.4"/>
         <Button Name="ManualUnloadCBP" Content="Unload CBP" Click="ManualUnloadCBP_Click" HorizontalAlignment="Center" Margin="419,0,298,95" VerticalAlignment="Bottom" Width="75"/>
         <Button Name="ResetSettings" Content="Reset Settings" Click="ResetSettings_Click" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="83" Background="#FFDDC9C9"/>
+        <CheckBox Name="UsePrereleaseCheckbox" Content="Use a7 prerelease" HorizontalAlignment="Left" Margin="32,258,0,0" VerticalAlignment="Top" Checked="UsePrereleaseCheckbox_Checked" Unchecked="UsePrereleaseCheckbox_UnChecked"/>
     </Grid>
 </Window>

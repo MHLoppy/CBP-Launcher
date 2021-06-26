@@ -264,7 +264,17 @@ namespace CBPLauncher
 
                 // Community Balance Patch
                 modnameCBP = "Community Balance Patch"; // this has to be static, which loses the benefit of having the version display in in-game mod manager, but acceptable because it will display in CBP Launcher instead
-                workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+
+                // for testing purposes, access pre-elease (of a7)
+                if (Properties.Settings.Default.UsePrerelease == true)
+                {
+                    workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+                }
+                else
+                {
+                    workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+                }
+                //workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
 
                 workshopPathCBP = Path.Combine(Path.GetFullPath(workshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
                 localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
@@ -740,6 +750,25 @@ namespace CBPLauncher
 
             //debug: System.Windows.MessageBox.Show($"new value: {Properties.Settings.Default.DefaultCBP}");
         }
+
+        private void UsePrereleaseCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.DefaultCBP = true;
+
+            SaveSettings();
+
+            //debug: System.Windows.MessageBox.Show($"New value: {Properties.Settings.Default.DefaultCBP}"); //p.s. this will *also* be activated if the program loads with check enabled
+        }
+
+        private void UsePrereleaseCheckbox_UnChecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.DefaultCBP = false;
+
+            SaveSettings();
+
+            //debug: System.Windows.MessageBox.Show($"new value: {Properties.Settings.Default.DefaultCBP}");
+        }
+
         private void SaveSettings()
         {
             Properties.Settings.Default.Save();
@@ -760,6 +789,15 @@ namespace CBPLauncher
             else if (Properties.Settings.Default.DefaultCBP == false)
             {
                 CBPDefaultCheckbox.IsChecked = false;
+            }
+
+            if (Properties.Settings.Default.UsePrerelease == true)
+            {
+                UsePrereleaseCheckbox.IsChecked = true;
+            }
+            else if (Properties.Settings.Default.UsePrerelease == false)
+            {
+                UsePrereleaseCheckbox.IsChecked = false;
             }
         }
 
