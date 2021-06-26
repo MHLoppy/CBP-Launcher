@@ -10,10 +10,10 @@ Please let me know whether the launcher works / doesn't work for you - the bugs 
 
 ### TODO
 - Use Steam Workshop files as primary* (target: v0.3)
-- Load / unload Workshop mod alongside local mod files (target: v0.3)
+- Load / unload Workshop mod alongside local mod files (wishlist)
 - Work with existing CBP installs (target: v0.4)
 - Remove / archive previous versions of CBP (target: v0.4)
-- Enable / Disable optional changes (target: v0.3-v0.5)
+- Enable / Disable optional changes (target: v0.4-v0.5)
 - Launcher can self-update using Steam Workshop files (target v0.5)
 - Optional changes addressed individually, not as group (target: v0.3-0.6)
 - Improved offline capabilities** (target v0.4-v0.6)
@@ -25,5 +25,5 @@ Please let me know whether the launcher works / doesn't work for you - the bugs 
 \*\* The current version can function offline if you're not using CBP, but it can't use or install CBP yet without an active connection.
 
 ### Credits
-- The basic structure and functionality of the launcher (although increasing a minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
+- The basic structure and functionality of the launcher (although increasingly a minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
 - The background image is from [Tingey Injury Law Firm via Unsplash](https://unsplash.com/photos/yCdPU73kGSc).
