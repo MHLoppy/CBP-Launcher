@@ -94,5 +94,29 @@ namespace CBPLauncher.Properties {
                 this["NoWorkshopFiles"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("no path")]
+        public string RoNPathSetting {
+            get {
+                return ((string)(this["RoNPathSetting"]));
+            }
+            set {
+                this["RoNPathSetting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UnloadWorkshopToo {
+            get {
+                return ((bool)(this["UnloadWorkshopToo"]));
+            }
+            set {
+                this["UnloadWorkshopToo"] = value;
+            }
+        }
     }
 }

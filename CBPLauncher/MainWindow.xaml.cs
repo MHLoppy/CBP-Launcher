@@ -40,9 +40,9 @@ namespace CBPLauncher
         private string gameZip;
         private string gameExe;
         private string localMods;
-        private string RoNPathFinal;
-        private string RoNPathCheck; //used for manual install only
-        private string workshopPath; // yet to implement the part where it finds and uses downloaded Workshop files - right now it downloads a non-Steam copy of the files from google drive
+        private string RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
+        private string RoNPathCheck;
+        private string workshopPath;
         private string unloadedModsPath;
 
         /// ===== START OF MOD LIST =====
@@ -172,73 +172,82 @@ namespace CBPLauncher
                 rootPath = Directory.GetCurrentDirectory();
                 gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
 
-                using (RegistryKey ronReg = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
+                if (Properties.Settings.Default.RoNPathSetting == "no path")
                 {
-                    if (ronReg != null) // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
-                    {
-                        // success: automated primary
-                        RoNPathCheck = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
-                        RoNPathFound();
-                    }
+                    // debug: System.Windows.MessageBox.Show($"path" + RoNPathFinal);
 
-                    else
+                    using (RegistryKey ronReg = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
                     {
-                        // try a default 64-bit install path, since that should probably work for most of the users with cursed registries
-                        RoNPathCheck = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\steamapps\common\Rise of Nations";
-
-                        if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
+                        if (ronReg != null) // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
                         {
-                            // success: automated secondary 1
+                            // success: automated primary
+                            RoNPathCheck = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
                             RoNPathFound();
-                            return;
                         }
+
                         else
                         {
-                            // old way of doing it, but used as as backup because I don't know if the environment call method ever fails or not
-                            RoNPathCheck = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
+                            // try a default 64-bit install path, since that should probably work for most of the users with cursed registries
+                            RoNPathCheck = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\steamapps\common\Rise of Nations";
 
                             if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
                             {
-                                // success: automated secondary 2
+                                // success: automated secondary 1
                                 RoNPathFound();
                                 return;
                             }
-
-                            // automated methods unable to locate RoN install path - ask user for path
                             else
                             {
-                                //people hate gotos (less so in C# but still) but this seems like a very reasonable substitute for a while-not-true loop that I haven't figured out how to implement here
-                                AskManualPath:
-                                
-                                RoNPathCheck = Interaction.InputBox($"Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
-                                                                   + "\n\n" + @"e.g. D:\Steamgames\common\Rise of Nations", "Unable to detect RoN install");
+                                // old way of doing it, but used as as backup because I don't know if the environment call method ever fails or not
+                                RoNPathCheck = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
 
-                                // check that the user has input a seemingly valid location
                                 if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
                                 {
-                                    // success: manual path
+                                    // success: automated secondary 2
                                     RoNPathFound();
                                     return;
                                 }
+
+                                // automated methods unable to locate RoN install path - ask user for path
                                 else
                                 {
-                                    // tell user invalid path, ask if they want to try again
-                                    DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Rise of Nations install not detected in that location. "
-                                                                                                    + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
-                                                                                                    + "\n\n Would you like to try entering a path again?", "Invalid Path", MessageBoxButtons.YesNo);
-                                    if (dialogResult == System.Windows.Forms.DialogResult.Yes)
+                                    //people hate gotos (less so in C# but still) but this seems like a very reasonable substitute for a while-not-true loop that I haven't figured out how to implement here
+                                    AskManualPath:
+
+                                    RoNPathCheck = Interaction.InputBox($"Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
+                                                                       + "\n\n" + @"e.g. D:\Steamgames\common\Rise of Nations", "Unable to detect RoN install");
+
+                                    // check that the user has input a seemingly valid location
+                                    if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
                                     {
-                                        goto AskManualPath;
+                                        // success: manual path
+                                        RoNPathFound();
+                                        return;
                                     }
-                                    else if (dialogResult == System.Windows.Forms.DialogResult.No)
+                                    else
                                     {
-                                        System.Windows.MessageBox.Show($"Launcher will now close.");
-                                        Environment.Exit(0);
+                                        // tell user invalid path, ask if they want to try again
+                                        DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Rise of Nations install not detected in that location. "
+                                                                                                        + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
+                                                                                                        + "\n\n Would you like to try entering a path again?", "Invalid Path", MessageBoxButtons.YesNo);
+                                        if (dialogResult == System.Windows.Forms.DialogResult.Yes)
+                                        {
+                                            goto AskManualPath;
+                                        }
+                                        else if (dialogResult == System.Windows.Forms.DialogResult.No)
+                                        {
+                                            System.Windows.MessageBox.Show($"Launcher will now close.");
+                                            Environment.Exit(0);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }
+                else
+                {
+                    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
                 }
 
                 gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
@@ -382,6 +391,8 @@ namespace CBPLauncher
                     // try using workshop files
                     try
                     {
+                        // debug: System.Windows.MessageBox.Show($"path" + RoNPathFinal);
+
                         if (_isUpdate)
                         {
                             Status = LauncherStatus.installingUpdateLocal;
@@ -571,6 +582,20 @@ namespace CBPLauncher
                     System.Windows.MessageBox.Show($"Error unloading mod: {ex}");
                     Status = LauncherStatus.unloadFailed;
                 }
+
+                if (Properties.Settings.Default.UnloadWorkshopToo == true)
+                {
+                    try
+                    {
+                        //unload workshop
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show($"Error unloading Workshop mod: {ex}");
+                        Status = LauncherStatus.unloadFailed;
+                    }
+                }
+
             }
             else
             {

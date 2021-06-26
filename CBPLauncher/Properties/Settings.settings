@@ -20,5 +20,11 @@
     <Setting Name="NoWorkshopFiles" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="RoNPathSetting" Type="System.String" Scope="User">
+      <Value Profile="(Default)">no path</Value>
+    </Setting>
+    <Setting Name="UnloadWorkshopToo" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
