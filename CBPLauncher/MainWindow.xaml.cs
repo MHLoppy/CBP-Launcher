@@ -138,6 +138,12 @@ namespace CBPLauncher
             try
             {
                 InitializeComponent();
+
+                if (Properties.Settings.Default.UpgradeRequired == true)
+                {
+                    UpgradeSettings();
+                    SaveSettings();
+                }
             }
             catch (Exception ex)
             {
@@ -618,6 +624,12 @@ namespace CBPLauncher
         private void SaveSettings()
         {
             Properties.Settings.Default.Save();
+        }
+
+        private void UpgradeSettings()
+        {
+            Properties.Settings.Default.Upgrade();
+            Properties.Settings.Default.UpgradeRequired = false;
         }
 
         private void CBPDefaultChecker()
