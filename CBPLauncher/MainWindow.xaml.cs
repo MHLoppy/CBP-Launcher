@@ -313,13 +313,13 @@ namespace CBPLauncher
         {
             try // without the try you can accidentally create online-only DRM whoops
             {
-                VersionTextOnline.Text = "Checking online version...";
-                VersionTextLocal.Text = "Checking local version...";
+                VersionTextLatest.Text = "Checking latest version...";
+                VersionTextInstalled.Text = "Checking installed version...";
 
                 WebClient webClient = new WebClient();                                                           /// Moved this section from reference to here in order to display
-                Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// latest available version as well as installed version
+                Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
 
-                VersionTextOnline.Text = "Latest CBP version: "
+                VersionTextLatest.Text = "Latest CBP version: "
                      + VersionArray.versionStart[onlineVersion.major]
                      + VersionArray.versionMiddle[onlineVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
                      + VersionArray.versionEnd[onlineVersion.subMinor] ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
@@ -329,7 +329,7 @@ namespace CBPLauncher
                 {
                     Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // this doesn't use UpdateLocalVersionNumber() because of the compare done below it - will break if replaced without modification
 
-                    VersionTextLocal.Text = "Installed CBP version: "
+                    VersionTextInstalled.Text = "Installed CBP version: "
                                             + VersionArray.versionStart[localVersion.major]
                                             + VersionArray.versionMiddle[localVersion.minor]
                                             + VersionArray.versionEnd[localVersion.subMinor]
@@ -380,7 +380,7 @@ namespace CBPLauncher
                     else
                     {
                        Status = LauncherStatus.installingFirstTimeOnline;
-                       _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
+                       _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
                                                                                                               /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
                     }
 
@@ -508,7 +508,7 @@ namespace CBPLauncher
                     Properties.Settings.Default.CBPLoaded = false;
                     SaveSettings();
 
-                    VersionTextLocal.Text = "Installed CBP version: not loaded";
+                    VersionTextInstalled.Text = "Installed CBP version: not loaded";
 
                     Status = LauncherStatus.readyCBPDisabled;
                 }
@@ -528,7 +528,7 @@ namespace CBPLauncher
         {
             Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // moved to separate thing to reduce code duplication
 
-            VersionTextLocal.Text = "Installed CBP version: "
+            VersionTextInstalled.Text = "Installed CBP version: "
                                     + VersionArray.versionStart[localVersion.major]
                                     + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
                                     + VersionArray.versionEnd[localVersion.subMinor] ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
@@ -643,6 +643,7 @@ namespace CBPLauncher
     {
         internal static Version zero = new Version(0, 0, 0, 0);
 
+        // introduced a fourth tier of version numbering as well, since the naming convention doesn't work very well for subminor being used for the purpose of a hotfix
         public short major;    ///in reference these are private, but I want to refer to them in the version displayed to the user (which I'm converting to X.Y.Z numerical to e.g. "Alpha 6c")
         public short minor;    ///I feel obliged to point out that I have little/no frame of reference to know if this is "bad" to do so maybe this is a code sin and I'm just too naive to know
         public short subMinor;
@@ -659,7 +660,7 @@ namespace CBPLauncher
         internal Version(string _version)
         {
             string[] _versionStrings = _version.Split('.'); //version.txt uses an X.Y.Z version pattern e.g. 6.0.3, so break that up  on the "." to parse each value
-            if (_versionStrings.Length !=3)
+            if (_versionStrings.Length !=4)
             {
                 major = 0;
                 minor = 0;
@@ -716,8 +717,6 @@ namespace CBPLauncher
         public static string[] versionStart = new string[11] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate ", "1.", "2.", "3.", "4.", "5.", "6." }; // I am a fucking god figuring out how to properly use these arrays based on 10 fragments of 5% knowledge each
         public static string[] versionMiddle = new string[16] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }; // I don't even know what "static" means in this context, I just know what I need to use it
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
-        
-        // introduced a fourth tier of version numbering as well, since the naming convention doesn't work very well for subminor being used for the purpose of a hotfix
-        public static string[] versionHotfix = new string[10] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)"}; //e.g. can optionally just skip the subminor by intentionally using [0]
+        public static string[] versionHotfix = new string[10] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)"}; //e.g. can optionally just skip the hotfix by intentionally using [0]
     }
 }
