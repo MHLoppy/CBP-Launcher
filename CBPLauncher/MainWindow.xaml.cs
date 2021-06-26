@@ -274,15 +274,25 @@ namespace CBPLauncher
                 /// ===== END OF MOD LIST =====
 
                 // detected paths shown in the UI
-                EEPath.Text = RoNPathFinal;
-                workshopPathDebug.Text = workshopPath;
-                workshopPathCBPDebug.Text = workshopPathCBP;
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show($"Error creating paths: {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
+
+            try
+            {
+                EEPath.Text = RoNPathFinal;
+                workshopPathDebug.Text = workshopPath;
+                workshopPathCBPDebug.Text = workshopPathCBP;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error displaying paths in UI {ex}");
+                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
             try
             {
                 Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
