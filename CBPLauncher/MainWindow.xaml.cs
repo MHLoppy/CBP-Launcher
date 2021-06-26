@@ -30,7 +30,8 @@ namespace CBPLauncher
         installingUpdateLocal,
         installingFirstTimeOnline,
         installingUpdateOnline,
-        connectionProblem,
+        connectionProblemLoaded,
+        connectionProblemUnloaded,
         installProblem
     }
 
@@ -116,8 +117,14 @@ namespace CBPLauncher
                         StatusReadout.Foreground = Brushes.White;                       /// local files out of date compared to online version.txt
                         PlayButton.IsEnabled = false;
                         break;
-                    case LauncherStatus.connectionProblem:
-                        StatusReadout.Text = "Error: connectivity issue";
+                    case LauncherStatus.connectionProblemLoaded:
+                        StatusReadout.Text = "Error: connectivity issue (CBP loaded)";
+                        StatusReadout.Foreground = Brushes.OrangeRed;
+                        PlayButton.Content = "Launch game";
+                        PlayButton.IsEnabled = true;
+                        break;
+                    case LauncherStatus.connectionProblemUnloaded:
+                        StatusReadout.Text = "Error: connectivity issue (CBP not loaded)";
                         StatusReadout.Foreground = Brushes.OrangeRed;
                         PlayButton.Content = "Launch game";
                         PlayButton.IsEnabled = true;
@@ -332,7 +339,7 @@ namespace CBPLauncher
                 VersionTextLatest.Text = "Checking latest version...";
                 VersionTextInstalled.Text = "Checking installed version...";
 
-                WebClient webClient = new WebClient();                                                           /// Moved this section from reference to here in order to display
+                WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
                 Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
 
                 VersionTextLatest.Text = "Latest CBP version: "
@@ -377,8 +384,18 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                Status = LauncherStatus.connectionProblem;
-                System.Windows.MessageBox.Show($"Error checking for updates. Maybe no internet connection could be established? {ex}");
+                if (Properties.Settings.Default.CBPLoaded == true)
+                {
+                    Status = LauncherStatus.connectionProblemLoaded;
+                }
+                else
+                {
+                    Status = LauncherStatus.connectionProblemUnloaded;
+                }
+
+                UpdateLocalVersionNumber();
+                VersionTextLatest.Text = "Unable to check latest version";
+                System.Windows.MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
             }
         }
 
@@ -605,16 +622,23 @@ namespace CBPLauncher
 
         private void UpdateLocalVersionNumber()
         {
-            Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // moved to separate thing to reduce code duplication
+            if (File.Exists(versionFileCBP))
+            {
+                Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // moved to separate thing to reduce code duplication
 
-            VersionTextInstalled.Text = "Installed CBP version: "
-                                    + VersionArray.versionStart[localVersion.major]
-                                    + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
+                VersionTextInstalled.Text = "Installed CBP version: "
+                                        + VersionArray.versionStart[localVersion.major]
+                                        + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
                                     + VersionArray.versionEnd[localVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
                                     + VersionArray.versionHotfix[localVersion.hotfix];
+            }
+            else
+            {
+                VersionTextInstalled.Text = "CBP not installed";
+            }
         }
 
-            private void Window_ContentRendered(object sender, EventArgs e)
+        private void Window_ContentRendered(object sender, EventArgs e)
         {
             // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
             if (Properties.Settings.Default.DefaultCBP == true)
