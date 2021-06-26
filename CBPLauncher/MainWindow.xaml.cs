@@ -340,13 +340,13 @@ namespace CBPLauncher
                 VersionTextInstalled.Text = "Checking installed version...";
 
                 WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
-                Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
+                Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// latest available version as well as installed version
 
                 VersionTextLatest.Text = "Latest CBP version: "
                      + VersionArray.versionStart[onlineVersion.major]
                      + VersionArray.versionMiddle[onlineVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                     + VersionArray.versionEnd[onlineVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
-                     + VersionArray.versionHotfix[onlineVersion.hotfix];
+                     + VersionArray.versionEnd[onlineVersion.subMinor];  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                     //+ VersionArray.versionHotfix[onlineVersion.hotfix];
 
                 if (File.Exists(versionFileCBP)) //If there's already a version.txt in the local-mods CBP folder, then...
                 {
@@ -355,8 +355,8 @@ namespace CBPLauncher
                     VersionTextInstalled.Text = "Installed CBP version: "
                                             + VersionArray.versionStart[localVersion.major]
                                             + VersionArray.versionMiddle[localVersion.minor]
-                                            + VersionArray.versionEnd[localVersion.subMinor]
-                                            + VersionArray.versionHotfix[localVersion.hotfix];
+                                            + VersionArray.versionEnd[localVersion.subMinor];
+                                            //+ VersionArray.versionHotfix[localVersion.hotfix];
                     try
                     {
                         if (onlineVersion.IsDifferentThan(localVersion))
@@ -419,7 +419,7 @@ namespace CBPLauncher
                             Status = LauncherStatus.installingFirstTimeLocal;
                         }
                         // to archive/delete old CBP versions this part will by necessity get more complex and actually meaningfully different other than just the status changing
-                        DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
+                        DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch (Alpha 6c)"), Path.Combine(localPathCBP), true);
 
                         try
                         {
@@ -457,7 +457,7 @@ namespace CBPLauncher
                         else
                         {
                             Status = LauncherStatus.installingFirstTimeOnline;
-                            _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
+                            _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
                                                                                                                           /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
                         }
 
@@ -629,8 +629,8 @@ namespace CBPLauncher
                 VersionTextInstalled.Text = "Installed CBP version: "
                                         + VersionArray.versionStart[localVersion.major]
                                         + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                    + VersionArray.versionEnd[localVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
-                                    + VersionArray.versionHotfix[localVersion.hotfix];
+                                    + VersionArray.versionEnd[localVersion.subMinor];  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                                    //+ VersionArray.versionHotfix[localVersion.hotfix];
             }
             else
             {
@@ -786,38 +786,38 @@ namespace CBPLauncher
 
     struct Version 
     {
-        internal static Version zero = new Version(0, 0, 0, 0);
+        internal static Version zero = new Version(0, 0, 0);
 
         // introduced a fourth tier of version numbering as well, since the naming convention doesn't work very well for subminor being used for the purpose of a hotfix
         public short major;    ///in reference these are private, but I want to refer to them in the version displayed to the user (which I'm converting to X.Y.Z numerical to e.g. "Alpha 6c")
         public short minor;    ///I feel obliged to point out that I have little/no frame of reference to know if this is "bad" to do so maybe this is a code sin and I'm just too naive to know
         public short subMinor;
-        public short hotfix;
+        //public short hotfix;
 
-        internal Version(short _major, short _minor, short _subMinor, short _hotFix)
+        internal Version(short _major, short _minor, short _subMinor)
         {
             major = _major;
             minor = _minor;
             subMinor = _subMinor;
-            hotfix = _hotFix;
+            //hotfix = _hotFix;
         }
 
         internal Version(string _version)
         {
             string[] _versionStrings = _version.Split('.'); //version.txt uses an X.Y.Z version pattern e.g. 6.0.3, so break that up  on the "." to parse each value
-            if (_versionStrings.Length !=4)
+            if (_versionStrings.Length !=3)
             {
                 major = 0;
                 minor = 0;
                 subMinor = 0;
-                hotfix = 0;
+                //hotfix = 0;
                 return; //if the version detected doesn't seem to follow the format expected, set detected version to 0.0.0
             }
 
             major = short.Parse(_versionStrings[0]);
             minor = short.Parse(_versionStrings[1]);
             subMinor = short.Parse(_versionStrings[2]);
-            hotfix = short.Parse(_versionStrings[3]);
+            //hotfix = short.Parse(_versionStrings[3]);
         }
 
         internal bool IsDifferentThan(Version _otherVersion) //check if version (from local version.txt file) matches online with online version.txt
@@ -838,13 +838,13 @@ namespace CBPLauncher
                     {
                         return true;
                     }
-                    else
-                    {
-                        if (hotfix != _otherVersion.hotfix)
-                        {
-                            return true;
-                        }
-                    }
+//                    else
+//                    {
+//                        if (hotfix != _otherVersion.hotfix)
+//                        {
+//                            return true;
+//                        }
+//                    }
                 }
             }
             return false; //detecting if they're different, so false = not different
@@ -852,7 +852,7 @@ namespace CBPLauncher
 
         public override string ToString()
         { 
-            return $"{major}.{minor}.{subMinor}.{hotfix}"; //because this is used for comparison, you can't put the conversion into e.g. "Alpha 6c" here or it will fail the version check above because of the format change
+            return $"{major}.{minor}.{subMinor}"; //because this is used for comparison, you can't put the conversion into e.g. "Alpha 6c" here or it will fail the version check above because of the format change
         }
     }
 
@@ -862,6 +862,6 @@ namespace CBPLauncher
         public static string[] versionStart = new string[11] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate ", "1.", "2.", "3.", "4.", "5.", "6." }; // I am a fucking god figuring out how to properly use these arrays based on 10 fragments of 5% knowledge each
         public static string[] versionMiddle = new string[16] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }; // I don't even know what "static" means in this context, I just know what I need to use it
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
-        public static string[] versionHotfix = new string[10] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)"}; //e.g. can optionally just skip the hotfix by intentionally using [0]
+        //public static string[] versionHotfix = new string[10] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)"}; //e.g. can optionally just skip the hotfix by intentionally using [0]
     }
 }
