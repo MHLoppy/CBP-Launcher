@@ -40,8 +40,8 @@ namespace CBPLauncher
         private string gameZip;
         private string gameExe;
         private string localMods;
-        private string RoNPath;
-        private string RoNPathManual; //used for manual install only
+        private string RoNPathFinal;
+        private string RoNPathCheck; //used for manual install only
         private string workshopPath; // yet to implement the part where it finds and uses downloaded Workshop files - right now it downloads a non-Steam copy of the files from google drive
         private string unloadedModsPath;
 
@@ -166,58 +166,72 @@ namespace CBPLauncher
 
                 using (RegistryKey ronReg = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
                 {
-                    if (ronReg == null) // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
+                    if (ronReg != null) // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
                     {
-                        // try a default 64-bit install path, since that should honestly work for most of the users with cursed registries
-                        RoNPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\steamapps\common\Rise of Nations";
-
-                        if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
-                        {
-                            // success: automated secondary 1
-                            return;
-                        }
-
-                        // old way of doing it, but used as as backup because I don't know if the environment call ever fails or not
-                        /*RoNPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
-
-                        if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
-                        {
-                            // success: automated secondary 2
-                            return;
-                        }*/
-
-                        if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
-                        {
-                            System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPath);
-                        }
-                        else
-                        {
-                            System.Windows.MessageBox.Show($"None of the automated methods were able to find your Rise of Nations install. Try entering the path manually instead.");
-                            RoNPathManual = Interaction.InputBox(@"Enter the path for your Rise of Nations install (e.g. D:\SteamLibrary\SteamApps\common\Rise of Nations", "Manual path entry");
-
-                            // check that the user has input a seemingly valid location
-                            if (File.Exists(Path.Combine(RoNPathManual, "riseofnations.exe")))
-                            {
-                                RoNPath = RoNPathManual;
-                            }
-                            else
-                            {
-                                System.Windows.MessageBox.Show($"Can't find a RoN install at that location! Launcher will now close.");
-                                Environment.Exit(0);
-                            }
-                        }
+                        // success: automated primary
+                        RoNPathCheck = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
+                        RoNPathFound();
                     }
 
                     else
                     {
-                        // success: automated primary
-                        RoNPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
+                        // try a default 64-bit install path, since that should probably work for most of the users with cursed registries
+                        RoNPathCheck = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\steamapps\common\Rise of Nations";
+
+                        if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
+                        {
+                            // success: automated secondary 1
+                            RoNPathFound();
+                            return;
+                        }
+                        else
+                        {
+                            // old way of doing it, but used as as backup because I don't know if the environment call method ever fails or not
+                            RoNPathCheck = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
+
+                            if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
+                            {
+                                // success: automated secondary 2
+                                RoNPathFound();
+                                return;
+                            }
+
+                            // automated methods unable to locate RoN install path - ask user for path
+                            else
+                            {
+                                AskManualPath:
+                                
+                                RoNPathCheck = Interaction.InputBox(@"Unable to find RoN install path. Please enter the path for your Rise of Nations install e.g. D:\Steamgames\common\Rise of Nations", "Manual path entry required");
+
+                                // check that the user has input a seemingly valid location
+                                if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
+                                {
+                                    // success: manual path
+                                    RoNPathFound();
+                                    return;
+                                }
+                                else
+                                {
+                                    DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Rise of Nations install not detected in that location. The path needs to be the folder that riseofnations.exe is located in, not including the executable itself. Would you like to enter a path again?", "Invalid Path", MessageBoxButtons.YesNo);
+                                    if (dialogResult == System.Windows.Forms.DialogResult.Yes)
+                                    {
+                                        goto AskManualPath; //people hate gotos but this seems like a very reasonable substitute for a while not true loop that I haven't figured out how to implement here
+                                    }
+                                    else if (dialogResult == System.Windows.Forms.DialogResult.No)
+                                    {
+                                        System.Windows.MessageBox.Show($"Launcher will now close.");
+                                        Environment.Exit(0);
+                                    }
+
+                                }
+                            }
+                        }
                     }
                 }
 
-                gameExe = Path.Combine(RoNPath, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
-                localMods = Path.Combine(RoNPath, "mods");
-                workshopPath = Path.GetFullPath(Path.Combine(RoNPath, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
+                gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
+                localMods = Path.Combine(RoNPathFinal, "mods");
+                workshopPath = Path.GetFullPath(Path.Combine(RoNPathFinal, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
 
                 /// ===== START OF MOD LIST =====
 
@@ -256,7 +270,7 @@ namespace CBPLauncher
                 /// ===== END OF MOD LIST =====
 
                 // detected paths shown in the UI
-                EEPath.Text = RoNPath;
+                EEPath.Text = RoNPathFinal;
                 workshopPathDebug.Text = workshopPath;
                 workshopPathCBPDebug.Text = workshopPathCBP;
             }
@@ -529,7 +543,7 @@ namespace CBPLauncher
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
                 {
-                    WorkingDirectory = RoNPath //this change compared to reference app was suggested by VS itself - I'm assuming it's functionally equivalent at worst
+                    WorkingDirectory = RoNPathFinal //this change compared to reference app was suggested by VS itself - I'm assuming it's functionally equivalent at worst
                 };
                 Process.Start(startInfo);
                 //DEBUG: Process.Start(gameExe);
@@ -600,6 +614,11 @@ namespace CBPLauncher
             }
         }
 
+        private void RoNPathFound()
+        {
+            RoNPathFinal = RoNPathCheck;
+            System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathFinal);
+        }
     }
 
     struct Version 
