@@ -118,5 +118,17 @@ namespace CBPLauncher.Properties {
                 this["UnloadWorkshopToo"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CBPArchive {
+            get {
+                return ((bool)(this["CBPArchive"]));
+            }
+            set {
+                this["CBPArchive"] = value;
+            }
+        }
     }
 }

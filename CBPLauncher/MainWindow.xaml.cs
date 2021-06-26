@@ -41,7 +41,7 @@ namespace CBPLauncher
         private string gameZip;
         private string gameExe;
         private string localMods;
-        private string RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
+        private string RoNPathFinal = Properties.Settings.Default.RoNPathSetting; // is it possible there's a narrow af edge case where the path ends up wrong after a launcher version upgrade?
         private string RoNPathCheck;
         private string workshopPath;
         private string unloadedModsPath;
@@ -54,6 +54,7 @@ namespace CBPLauncher
         private string workshopPathCBP;
         private string localPathCBP;
         private string versionFileCBP;
+        private string archiveCBP;
 
         /// ===== END OF MOD LIST =====
 
@@ -201,7 +202,6 @@ namespace CBPLauncher
                             {
                                 // success: automated secondary 1
                                 RoNPathFound();
-                                return;
                             }
                             else
                             {
@@ -212,7 +212,6 @@ namespace CBPLauncher
                                 {
                                     // success: automated secondary 2
                                     RoNPathFound();
-                                    return;
                                 }
 
                                 // automated methods unable to locate RoN install path - ask user for path
@@ -229,7 +228,6 @@ namespace CBPLauncher
                                     {
                                         // success: manual path
                                         RoNPathFound();
-                                        return;
                                     }
                                     else
                                     {
@@ -253,9 +251,10 @@ namespace CBPLauncher
                     }
                 }
                 else
-                {
-                    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
-                }
+                //frequent usage probably doesn't need this popup
+                //{
+                //    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
+                //}
 
                 gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
                 localMods = Path.Combine(RoNPathFinal, "mods");
@@ -321,10 +320,13 @@ namespace CBPLauncher
             {
                 Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
                 unloadedModsPath = Path.Combine(localMods, "Unloaded Mods");
+
+                Directory.CreateDirectory(Path.Combine(unloadedModsPath, "CBP Archive")); // will be used for archiving old CBP versions
+                archiveCBP = Path.Combine(unloadedModsPath, "CBP Archive");
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error creating Unloaded Mods directory {ex}");
+                System.Windows.MessageBox.Show($"Error creating directories {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -377,6 +379,13 @@ namespace CBPLauncher
                         System.Windows.MessageBox.Show($"Error installing patch files: {ex}");
                     }
                 }
+
+                // compatibility with a6c (maybe making it compatible was a mistake)
+                else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
+                {
+                    InstallGameFiles(true, Version.zero);
+                }
+
                 else
                 {
                     InstallGameFiles(false, Version.zero);
@@ -408,17 +417,38 @@ namespace CBPLauncher
                     // try using workshop files
                     try
                     {
-                        // debug: System.Windows.MessageBox.Show($"path" + RoNPathFinal);
-
+                        // extra steps depending on whether this an update to existing install or first time install
                         if (_isUpdate)
                         {
                             Status = LauncherStatus.installingUpdateLocal;
+
+                            // if archive setting is enabled, archive the old version; it looks for an unversioned CBP folder and has a separate check for a6c specifically
+                            if (Properties.Settings.Default.CBPArchive == true)
+                            {
+                                // standard (non-a6c) archiving
+                                if (Directory.Exists(Path.Combine(localPathCBP)))
+                                {
+                                    ArchiveNormal();
+                                }
+                                
+                                // compatibility with archiving a6c
+                                if(Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
+                                {
+                                    ArchiveA6c();
+                                }
+
+                                else
+                                {
+                                    System.Windows.MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive.");
+                                }
+                            }
                         }
                         else
                         {
                             Status = LauncherStatus.installingFirstTimeLocal;
                         }
-                        // to archive/delete old CBP versions this part will by necessity get more complex and actually meaningfully different other than just the status changing
+
+                        // perhaps this is a chance to use async, but the benefits are minor given the limited IO, and my half-hour attempt wasn't adequate to get it working
                         DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
 
                         try
@@ -542,16 +572,8 @@ namespace CBPLauncher
                         result2 = System.Windows.Forms.MessageBox.Show(message2, caption2, buttons2);
                         if (result2 == System.Windows.Forms.DialogResult.Yes)
                         {
-                            File.WriteAllText(versionFileCBP, onlineVersionString);
-
-                            UpdateLocalVersionNumber();
-
-                            Status = LauncherStatus.readyCBPEnabled;
-                            Properties.Settings.Default.CBPLoaded = true;
-                            SaveSettings();
-
-                            return; /// I had expected that this return would actually go down to the indicated location before the caught exception, but it doesn't?
-                        }           /// It means I have to do the few lines above this when I didn't really want to because it's super redundant code
+                            // currently do nothing; explicitly preferred over using if-not-yes-then-return in case I change this later
+                        }
                         else
                         {
                             return;
@@ -743,10 +765,57 @@ namespace CBPLauncher
 
         private void RoNPathFound()
         {
+            if (RoNPathFinal == $"no path")
+            {
+                System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathCheck);
+            }
             RoNPathFinal = RoNPathCheck;
-            System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathFinal);
+
+            Properties.Settings.Default.RoNPathSetting = RoNPathFinal;
+            SaveSettings();
         }
 
+        private void ArchiveNormal()
+        {
+            try
+            {
+                //rename it after moving it, then check version and use that to rename the folder in the archived location
+                Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch"));
+
+                Version archiveVersion = new Version(File.ReadAllText(Path.Combine(archiveCBP, "Community Balance Patch", "version.txt")));
+
+                string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
+                                         + VersionArray.versionMiddle[archiveVersion.minor]
+                                         + VersionArray.versionEnd[archiveVersion.subMinor]
+                                         + VersionArray.versionHotfix[archiveVersion.hotfix];
+
+                Directory.Move(Path.Combine(archiveCBP, "Community Balance Patch"), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
+                System.Windows.MessageBox.Show(archiveVersionNew + " has been archived.");
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.loadFailed;
+                System.Windows.MessageBox.Show($"Error archiving previous CBP version: {ex}");
+            }
+        }
+
+        // can't use same version check because it uses a 3-digit identifier, not 4-digit, but since we know its name it's not too bad
+        private void ArchiveA6c()
+        {
+            try
+            {
+                //rename it after moving it
+                Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
+                System.Windows.MessageBox.Show("Alpha 6c has been archived.");
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.loadFailed;
+                System.Windows.MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
+            }
+        }
+
+        // MS reference method of dir copying
         private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
             // Get the subdirectories for the specified directory.
