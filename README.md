@@ -25,5 +25,5 @@ Please let me know whether the launcher works / doesn't work for you - the bugs 
 \*\* The current version can function offline if you're not using CBP, but it can't use or install CBP yet without an active connection.
 
 ### Credits
-- The basic structure and functionality of the launcher (although an increasing minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
+- The basic structure and functionality of the launcher (although increasing a minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
 - The background image is from [Tingey Injury Law Firm via Unsplash](https://unsplash.com/photos/yCdPU73kGSc).
