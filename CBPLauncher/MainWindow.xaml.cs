@@ -422,48 +422,19 @@ namespace CBPLauncher
                         {
                             Status = LauncherStatus.installingUpdateLocal;
 
-                            // if archive setting is enabled, archive the old version; of note it only tries to archive a single folder at once; people with mass-versioning are out of luck
+                            // if archive setting is enabled, archive the old version; it looks for an unversioned CBP folder and has a separate check for a6c specifically
                             if (Properties.Settings.Default.CBPArchive == true)
                             {
                                 // standard (non-a6c) archiving
                                 if (Directory.Exists(Path.Combine(localPathCBP)))
                                 {
-                                    try
-                                    {
-                                        //rename it after moving it, then check version and use that to rename the folder in the archived location
-                                        Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch"));
-
-                                        Version archiveVersion = new Version(File.ReadAllText(Path.Combine(archiveCBP, "Community Balance Patch", "version.txt")));
-
-                                        string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
-                                                                 + VersionArray.versionMiddle[archiveVersion.minor]
-                                                                 + VersionArray.versionEnd[archiveVersion.subMinor]
-                                                                 + VersionArray.versionHotfix[archiveVersion.hotfix];
-
-                                        Directory.Move(Path.Combine(archiveCBP, "Community Balance Patch"), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
-                                        System.Windows.MessageBox.Show(archiveVersionNew + " has been archived.");
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Status = LauncherStatus.loadFailed;
-                                        System.Windows.MessageBox.Show($"Error archiving previous CBP version: {ex}");
-                                    }
+                                    ArchiveNormal();
                                 }
                                 
-                                // compatibility with archiving a6c - can't use same version check because it uses a 3-digit identifier, not 4-digit, but since we know its name it's not too bad
-                                else if(Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
+                                // compatibility with archiving a6c
+                                if(Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
                                 {
-                                    try
-                                    {
-                                        //rename it after moving it
-                                        Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
-                                        System.Windows.MessageBox.Show("Alpha 6c has been archived.");
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Status = LauncherStatus.loadFailed;
-                                        System.Windows.MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
-                                    }
+                                    ArchiveA6c();
                                 }
 
                                 else
@@ -601,16 +572,8 @@ namespace CBPLauncher
                         result2 = System.Windows.Forms.MessageBox.Show(message2, caption2, buttons2);
                         if (result2 == System.Windows.Forms.DialogResult.Yes)
                         {
-                            File.WriteAllText(versionFileCBP, onlineVersionString);
-
-                            UpdateLocalVersionNumber();
-
-                            Status = LauncherStatus.readyCBPEnabled;
-                            Properties.Settings.Default.CBPLoaded = true;
-                            SaveSettings();
-
-                            return; /// I had expected that this return would actually go down to the indicated location before the caught exception, but it doesn't?
-                        }           /// It means I have to do the few lines above this when I didn't really want to because it's super redundant code
+                            // currently do nothing; explicitly preferred over using if-not-yes-then-return in case I change this later
+                        }
                         else
                         {
                             return;
@@ -810,6 +773,46 @@ namespace CBPLauncher
 
             Properties.Settings.Default.RoNPathSetting = RoNPathFinal;
             SaveSettings();
+        }
+
+        private void ArchiveNormal()
+        {
+            try
+            {
+                //rename it after moving it, then check version and use that to rename the folder in the archived location
+                Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch"));
+
+                Version archiveVersion = new Version(File.ReadAllText(Path.Combine(archiveCBP, "Community Balance Patch", "version.txt")));
+
+                string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
+                                         + VersionArray.versionMiddle[archiveVersion.minor]
+                                         + VersionArray.versionEnd[archiveVersion.subMinor]
+                                         + VersionArray.versionHotfix[archiveVersion.hotfix];
+
+                Directory.Move(Path.Combine(archiveCBP, "Community Balance Patch"), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
+                System.Windows.MessageBox.Show(archiveVersionNew + " has been archived.");
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.loadFailed;
+                System.Windows.MessageBox.Show($"Error archiving previous CBP version: {ex}");
+            }
+        }
+
+        // can't use same version check because it uses a 3-digit identifier, not 4-digit, but since we know its name it's not too bad
+        private void ArchiveA6c()
+        {
+            try
+            {
+                //rename it after moving it
+                Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
+                System.Windows.MessageBox.Show("Alpha 6c has been archived.");
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.loadFailed;
+                System.Windows.MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
+            }
         }
 
         // MS reference method of dir copying
