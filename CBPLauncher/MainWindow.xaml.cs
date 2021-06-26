@@ -41,7 +41,7 @@ namespace CBPLauncher
         private string gameZip;
         private string gameExe;
         private string localMods;
-        private string RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
+        private string RoNPathFinal = Properties.Settings.Default.RoNPathSetting; // is it possible there's a narrow af edge case where the path ends up wrong after a launcher version upgrade?
         private string RoNPathCheck;
         private string workshopPath;
         private string unloadedModsPath;
@@ -54,6 +54,7 @@ namespace CBPLauncher
         private string workshopPathCBP;
         private string localPathCBP;
         private string versionFileCBP;
+        private string archiveCBP;
 
         /// ===== END OF MOD LIST =====
 
@@ -321,10 +322,13 @@ namespace CBPLauncher
             {
                 Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
                 unloadedModsPath = Path.Combine(localMods, "Unloaded Mods");
+
+                Directory.CreateDirectory(Path.Combine(unloadedModsPath, "CBP Archive")); // will be used to archiving old CBP versions
+                archiveCBP = Path.Combine(unloadedModsPath, "CBP Archive");
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error creating Unloaded Mods directory {ex}");
+                System.Windows.MessageBox.Show($"Error creating directories {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -410,6 +414,7 @@ namespace CBPLauncher
                     {
                         // debug: System.Windows.MessageBox.Show($"path" + RoNPathFinal);
 
+                        // to archive/delete old CBP versions this part will by necessity get more complex and actually meaningfully different other than just the status changing
                         if (_isUpdate)
                         {
                             Status = LauncherStatus.installingUpdateLocal;
@@ -418,7 +423,8 @@ namespace CBPLauncher
                         {
                             Status = LauncherStatus.installingFirstTimeLocal;
                         }
-                        // to archive/delete old CBP versions this part will by necessity get more complex and actually meaningfully different other than just the status changing
+
+                        // perhaps this is a chance to use async, but the benefits are minor given the limited IO, and my half-hour attempt wasn't adequate to get it working
                         DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
 
                         try
@@ -747,6 +753,7 @@ namespace CBPLauncher
             System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathFinal);
         }
 
+        // MS reference method of dir copying
         private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
         {
             // Get the subdirectories for the specified directory.
