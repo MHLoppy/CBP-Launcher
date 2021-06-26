@@ -202,7 +202,6 @@ namespace CBPLauncher
                             {
                                 // success: automated secondary 1
                                 RoNPathFound();
-                                return;
                             }
                             else
                             {
@@ -213,7 +212,6 @@ namespace CBPLauncher
                                 {
                                     // success: automated secondary 2
                                     RoNPathFound();
-                                    return;
                                 }
 
                                 // automated methods unable to locate RoN install path - ask user for path
@@ -230,7 +228,6 @@ namespace CBPLauncher
                                     {
                                         // success: manual path
                                         RoNPathFound();
-                                        return;
                                     }
                                     else
                                     {
@@ -254,9 +251,10 @@ namespace CBPLauncher
                     }
                 }
                 else
-                {
-                    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
-                }
+                //frequent usage probably doesn't need this popup
+                //{
+                //    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
+                //}
 
                 gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
                 localMods = Path.Combine(RoNPathFinal, "mods");
@@ -381,6 +379,13 @@ namespace CBPLauncher
                         System.Windows.MessageBox.Show($"Error installing patch files: {ex}");
                     }
                 }
+
+                // compatibility with a6c (maybe making it compatible was a mistake)
+                else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
+                {
+                    InstallGameFiles(true, Version.zero);
+                }
+
                 else
                 {
                     InstallGameFiles(false, Version.zero);
@@ -412,12 +417,60 @@ namespace CBPLauncher
                     // try using workshop files
                     try
                     {
-                        // debug: System.Windows.MessageBox.Show($"path" + RoNPathFinal);
-
-                        // to archive/delete old CBP versions this part will by necessity get more complex and actually meaningfully different other than just the status changing
+                        // extra steps depending on whether this an update to existing install or first time install
                         if (_isUpdate)
                         {
                             Status = LauncherStatus.installingUpdateLocal;
+
+                            // if archive setting is enabled, archive the old version; of note it only tries to archive a single folder at once; people with mass-versioning are out of luck
+                            if (Properties.Settings.Default.CBPArchive == true)
+                            {
+                                // standard (non-a6c) archiving
+                                if (Directory.Exists(Path.Combine(localPathCBP)))
+                                {
+                                    try
+                                    {
+                                        //rename it after moving it, then check version and use that to rename the folder in the archived location
+                                        Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch"));
+
+                                        Version archiveVersion = new Version(File.ReadAllText(Path.Combine(archiveCBP, "Community Balance Patch", "version.txt")));
+
+                                        string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
+                                                                 + VersionArray.versionMiddle[archiveVersion.minor]
+                                                                 + VersionArray.versionEnd[archiveVersion.subMinor]
+                                                                 + VersionArray.versionHotfix[archiveVersion.hotfix];
+
+                                        Directory.Move(Path.Combine(archiveCBP, "Community Balance Patch"), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
+                                        System.Windows.MessageBox.Show(archiveVersionNew + " has been archived.");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Status = LauncherStatus.loadFailed;
+                                        System.Windows.MessageBox.Show($"Error archiving previous CBP version: {ex}");
+                                    }
+                                }
+                                
+                                // compatibility with archiving a6c - can't use same version check because it uses a 3-digit identifier, not 4-digit, but since we know its name it's not too bad
+                                else if(Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
+                                {
+                                    try
+                                    {
+                                        //rename it after moving it
+                                        Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
+                                        System.Windows.MessageBox.Show("Alpha 6c has been archived.");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Status = LauncherStatus.loadFailed;
+                                        System.Windows.MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
+                                    }
+                                }
+
+                                else
+                                {
+                                    System.Windows.MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive.");
+                                }
+                            }
                         }
                         else
                         {
@@ -749,8 +802,14 @@ namespace CBPLauncher
 
         private void RoNPathFound()
         {
+            if (RoNPathFinal == $"no path")
+            {
+                System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathCheck);
+            }
             RoNPathFinal = RoNPathCheck;
-            System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathFinal);
+
+            Properties.Settings.Default.RoNPathSetting = RoNPathFinal;
+            SaveSettings();
         }
 
         // MS reference method of dir copying
