@@ -4,7 +4,7 @@ A launcher/installer for the Rise of Nations [Community Balance Patch](https://s
 ![CBP Launcher v0.1 demo](https://i.imgur.com/m8inuTy.png)
 *screenshot shows v0.1*
 
-This is still in development, and more features and broader error handling is expected to be added in future versions. Right now it's only expected to work if you *don't* have CBP installed already, but feel free to test it anyway!
+This is still in development, and more updates are ongoing. Versions 3a and below work with CBP Alpha 6c but not if it's already properly installed. Versions 3b and above only target Alpha 7+.
 
 Please let me know whether the launcher works / doesn't work for you - the bugs can't get fixed until someone notices them.
 
