@@ -82,5 +82,17 @@ namespace CBPLauncher.Properties {
                 this["UpgradeRequired"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NoWorkshopFiles {
+            get {
+                return ((bool)(this["NoWorkshopFiles"]));
+            }
+            set {
+                this["NoWorkshopFiles"] = value;
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ using System.Net;
 using System.Windows;
 using System.Windows.Forms;     // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
 using System.Windows.Media;     // used for selecting brushes (used for coloring in e.g. textboxes)
-using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path
+using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path; I doubt it's efficient but it doesn't seem to be *too* resource intensive pending a replacement
 
 namespace CBPLauncher
 {
@@ -95,6 +95,7 @@ namespace CBPLauncher
                         PlayButton.Content = "Retry Update?";
                         PlayButton.IsEnabled = true;
                         break;
+                    // I tried renaming the *Local to *Workshop and VS2019 literally did the opposite of that (by renaming what I just changed) instead of doing what it said it would wtf
                     case LauncherStatus.installingFirstTimeLocal:                       /// primary method: use workshop files;
                         StatusReadout.Text = "Installing patch from local files...";    /// means no local-mods CBP detected
                         StatusReadout.Foreground = Brushes.White;
@@ -328,7 +329,7 @@ namespace CBPLauncher
                 VersionTextLatest.Text = "Latest CBP version: "
                      + VersionArray.versionStart[onlineVersion.major]
                      + VersionArray.versionMiddle[onlineVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                     + VersionArray.versionEnd[onlineVersion.subMinor] ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                     + VersionArray.versionEnd[onlineVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
                      + VersionArray.versionHotfix[onlineVersion.hotfix];
 
                 if (File.Exists(versionFileCBP)) //If there's already a version.txt in the local-mods CBP folder, then...
@@ -375,31 +376,77 @@ namespace CBPLauncher
         private void InstallGameFiles(bool _isUpdate, Version _onlineVersion)
         {
             if (Properties.Settings.Default.CBPUnloaded == false)
-
-                try
+            {
+                if (Properties.Settings.Default.NoWorkshopFiles == false)
                 {
-                   WebClient webClient = new WebClient();
-                   if (_isUpdate)
+                    // try using workshop files
+                    try
                     {
-                       Status = LauncherStatus.installingUpdateOnline;
-                    }
-                    else
-                    {
-                       Status = LauncherStatus.installingFirstTimeOnline;
-                       _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
-                                                                                                              /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
-                    }
+                        if (_isUpdate)
+                        {
+                            Status = LauncherStatus.installingUpdateLocal;
+                        }
+                        else
+                        {
+                            Status = LauncherStatus.installingFirstTimeLocal;
+                        }
+                        // to archive/delete old CBP versions this part will by necessity get more complex and actually meaningfully different other than just the status changing
+                        DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
 
-                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
-                    webClient.DownloadFileAsync(new Uri("https://drive.google.com/uc?export=download&id=1hQYZtdsTDihFi33Cc_BisRUHdXvSy5o4"), gameZip, _onlineVersion); //a6c old one https://drive.google.com/uc?export=download&id=1usd0ihBy5HWxsD6UiabV3ohzGxB7SxDD
+                        try
+                        {
+                            UpdateLocalVersionNumber();
+
+                            Properties.Settings.Default.CBPLoaded = true;
+                            Properties.Settings.Default.CBPUnloaded = false;
+                            SaveSettings();
+
+                            Status = LauncherStatus.readyCBPEnabled;
+                        }
+                        catch (Exception ex)
+                        {
+                            Status = LauncherStatus.loadFailed;
+                            System.Windows.MessageBox.Show($"Error loading CBP: {ex}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Status = LauncherStatus.installFailed;
+                        System.Windows.MessageBox.Show($"Error installing CBP from Workshop files: {ex}");
+                    }
                 }
-                catch (Exception ex)
+
+                else if (Properties.Settings.Default.NoWorkshopFiles == true) // as of v0.3 release this option isn't even exposed to the user yet, but it'll be useful later
                 {
-                    Status = LauncherStatus.installFailed;
-                    System.Windows.MessageBox.Show($"Error retrieving patch files: {ex}");
+                    // try using online files
+                    try
+                    {
+                        WebClient webClient = new WebClient();
+                        if (_isUpdate)
+                        {
+                            Status = LauncherStatus.installingUpdateOnline;
+                        }
+                        else
+                        {
+                            Status = LauncherStatus.installingFirstTimeOnline;
+                            _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
+                                                                                                                          /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
+                        }
+
+                        webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
+                        webClient.DownloadFileAsync(new Uri("https://drive.google.com/uc?export=download&id=1hQYZtdsTDihFi33Cc_BisRUHdXvSy5o4"), gameZip, _onlineVersion); //a6c old one https://drive.google.com/uc?export=download&id=1usd0ihBy5HWxsD6UiabV3ohzGxB7SxDD
+                    }
+                    catch (Exception ex)
+                    {
+                        Status = LauncherStatus.installFailed;
+                        System.Windows.MessageBox.Show($"Error retrieving patch files: {ex}");
+                    }
                 }
+
+            }
+
             if (Properties.Settings.Default.CBPUnloaded == true)
-
+            {
                 try
                 {
                     Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP)); //this will still currently fail if the folder already exists though
@@ -417,6 +464,7 @@ namespace CBPLauncher
                     Status = LauncherStatus.loadFailed;
                     System.Windows.MessageBox.Show($"Error loading CBP: {ex}");
                 }
+            }
         }
 
         private void DownloadGameCompletedCallback(object sender, AsyncCompletedEventArgs e)
@@ -537,7 +585,7 @@ namespace CBPLauncher
             VersionTextInstalled.Text = "Installed CBP version: "
                                     + VersionArray.versionStart[localVersion.major]
                                     + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                    + VersionArray.versionEnd[localVersion.subMinor] ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                                    + VersionArray.versionEnd[localVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
                                     + VersionArray.versionHotfix[localVersion.hotfix];
         }
 
@@ -634,11 +682,11 @@ namespace CBPLauncher
 
         private void CBPDefaultChecker()
         {
-            if ( Properties.Settings.Default.DefaultCBP == true)
+            if (Properties.Settings.Default.DefaultCBP == true)
             { 
                 CBPDefaultCheckbox.IsChecked = true; 
             }
-            else if ( Properties.Settings.Default.DefaultCBP == false)
+            else if (Properties.Settings.Default.DefaultCBP == false)
             {
                 CBPDefaultCheckbox.IsChecked = false;
             }
@@ -648,6 +696,42 @@ namespace CBPLauncher
         {
             RoNPathFinal = RoNPathCheck;
             System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathFinal);
+        }
+
+        private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source folder does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            // If the destination directory doesn't exist, create it.       
+            Directory.CreateDirectory(destDirName);
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string tempPath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(tempPath, false);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if (copySubDirs)
+            {
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string tempPath = Path.Combine(destDirName, subdir.Name);
+                    DirectoryCopy(subdir.FullName, tempPath, copySubDirs);
+                }
+            }
         }
     }
 
