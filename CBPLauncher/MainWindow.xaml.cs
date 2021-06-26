@@ -168,7 +168,7 @@ namespace CBPLauncher
                 {
                     if (ronReg == null) // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
                     {
-                        // try a default install path, since that should honestly work for most of the users with cursed registries
+                        // try a default 64-bit install path, since that should honestly work for most of the users with cursed registries
                         RoNPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\steamapps\common\Rise of Nations";
 
                         if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
@@ -178,11 +178,17 @@ namespace CBPLauncher
                         }
 
                         // old way of doing it, but used as as backup because I don't know if the environment call ever fails or not
-                        RoNPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
+                        /*RoNPath = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
 
                         if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
                         {
-                            System.Windows.MessageBox.Show($"accompanied by a torrent of trumpets, dave descends from his throne in the heavens and bestows upon you an automated workaround for your registry being cursed");
+                            // success: automated secondary 2
+                            return;
+                        }*/
+
+                        if (File.Exists(Path.Combine(RoNPath, "riseofnations.exe")))
+                        {
+                            System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPath);
                         }
                         else
                         {
@@ -204,6 +210,7 @@ namespace CBPLauncher
 
                     else
                     {
+                        // success: automated primary
                         RoNPath = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
                     }
                 }
