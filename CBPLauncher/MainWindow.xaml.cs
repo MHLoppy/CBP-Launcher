@@ -146,7 +146,7 @@ namespace CBPLauncher
             }
 
             RegistryKey regPath; //this part (and related below) is to find the install location for RoN:EE (Steam)
- //!!!!!!           // apparently this is not a good method for the registry part? use using instead? https://stackoverflow.com/questions/1675864/read-a-registry-key
+ //!!!!!!           // apparently this is not a good method for the registry part? use using instead? (but I don't know how to make that work with the bit-check :( ) https://stackoverflow.com/questions/1675864/read-a-registry-key
             if (Environment.Is64BitOperatingSystem) //I don't *fully* understand what's going on here (ported from stackexchange), but this block seems to be needed to prevent null value return due to 32/64 bit differences???
             {
                 regPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
@@ -199,9 +199,11 @@ namespace CBPLauncher
                             // automated methods unable to locate RoN install path - ask user for path
                             else
                             {
+                                //people hate gotos (less so in C# but still) but this seems like a very reasonable substitute for a while-not-true loop that I haven't figured out how to implement here
                                 AskManualPath:
                                 
-                                RoNPathCheck = Interaction.InputBox(@"Unable to find RoN install path. Please enter the path for your Rise of Nations install e.g. D:\Steamgames\common\Rise of Nations", "Manual path entry required");
+                                RoNPathCheck = Interaction.InputBox($"Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
+                                                                   + "\n\n" + @"e.g. D:\Steamgames\common\Rise of Nations", "Unable to detect RoN install");
 
                                 // check that the user has input a seemingly valid location
                                 if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
@@ -212,17 +214,19 @@ namespace CBPLauncher
                                 }
                                 else
                                 {
-                                    DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Rise of Nations install not detected in that location. The path needs to be the folder that riseofnations.exe is located in, not including the executable itself. Would you like to enter a path again?", "Invalid Path", MessageBoxButtons.YesNo);
+                                    // tell user invalid path, ask if they want to try again
+                                    DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Rise of Nations install not detected in that location. "
+                                                                                                    + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
+                                                                                                    + "\n\n Would you like to try entering a path again?", "Invalid Path", MessageBoxButtons.YesNo);
                                     if (dialogResult == System.Windows.Forms.DialogResult.Yes)
                                     {
-                                        goto AskManualPath; //people hate gotos but this seems like a very reasonable substitute for a while not true loop that I haven't figured out how to implement here
+                                        goto AskManualPath;
                                     }
                                     else if (dialogResult == System.Windows.Forms.DialogResult.No)
                                     {
                                         System.Windows.MessageBox.Show($"Launcher will now close.");
                                         Environment.Exit(0);
                                     }
-
                                 }
                             }
                         }
