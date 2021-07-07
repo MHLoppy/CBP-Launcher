@@ -4,19 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using CBPSetupGUI;
-using CBPSetupGUI.Language;
 
 namespace CBPSetupGUI
 {
@@ -284,25 +274,25 @@ namespace CBPSetupGUI
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
                                 PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex;
-                                Environment.Exit(-1);
+                                Application.Current.Shutdown(-1);
                             }
                             if (ex is FileNotFoundException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
                                 PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex;
-                                Environment.Exit(-1);
+                                Application.Current.Shutdown(-1);
                             }
                             if (ex is IOException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
                                 PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex;
-                                Environment.Exit(-1);
+                                Application.Current.Shutdown(-1);
                             }
                             else
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
                                 PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex;
-                                Environment.Exit(-1);
+                                Application.Current.Shutdown(-1);
                             }
                         }
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
@@ -316,7 +306,7 @@ namespace CBPSetupGUI
                         {
                             MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
                             PrimaryLog.Text += CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex;
-                            Environment.Exit(-1);
+                            Application.Current.Shutdown(-1);
                         }
                     }
                 }
@@ -330,7 +320,7 @@ namespace CBPSetupGUI
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootError);
                         PrimaryLog.Text += CBPSetupGUI.Language.Resources.CopyToRootError + "\n" + ex;
-                        Environment.Exit(-1);
+                        Application.Current.Shutdown(-1);
                     }
                 }
             }
@@ -379,7 +369,7 @@ namespace CBPSetupGUI
             {
                 PrimaryLog.Text += "\n" + str;
                 Thread.Sleep(5000);
-                Environment.Exit(code);
+                Application.Current.Shutdown(code);
             }
         }
     }
