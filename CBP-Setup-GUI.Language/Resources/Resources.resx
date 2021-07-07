@@ -117,7 +117,95 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CBPSTestString" xml:space="preserve">
-    <value>Hello World Test String</value>
+  <data name="ConsentIsCool" xml:space="preserve">
+    <value>Is this okay?</value>
+  </data>
+  <data name="ConsentNo" xml:space="preserve">
+    <value>No (close CBP Setup)</value>
+  </data>
+  <data name="ConsentYes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="CopyToRootError" xml:space="preserve">
+    <value>Error copying CBP Launcher into RoN root folder: </value>
+  </data>
+  <data name="DeletingFiles" xml:space="preserve">
+    <value>Looks like the file update worked fine, deleting old files...</value>
+  </data>
+  <data name="DeletingFilesError" xml:space="preserve">
+    <value>Error deleting the old files.</value>
+  </data>
+  <data name="ErrorAlreadyRunning" xml:space="preserve">
+    <value>It looks like CBP Setup is already running in another thread. This window will close in 5 seconds.</value>
+  </data>
+  <data name="ErrorFileNotFound" xml:space="preserve">
+    <value>Error replacing CBP Launcher with new version - file not found.</value>
+  </data>
+  <data name="ErrorIO" xml:space="preserve">
+    <value>Error replacing CBP Launcher with new version - maybe old version was not deleted or wrong path?</value>
+  </data>
+  <data name="ErrorPermissions" xml:space="preserve">
+    <value>Permissions error replacing CBP Launcher with new version. Try running CBP Setup as admin?</value>
+  </data>
+  <data name="ErrorUnknown" xml:space="preserve">
+    <value>Unknown error replacing CBP Launcher with new version.</value>
+  </data>
+  <data name="FoundRootNo" xml:space="preserve">
+    <value>Can't find CBP Launcher in RoN's root folder.</value>
+  </data>
+  <data name="FoundRootYes" xml:space="preserve">
+    <value>Found CBP Launcher in RoN's root folder.</value>
+  </data>
+  <data name="FreezeNotification" xml:space="preserve">
+    <value>(during this delay the window may seem unresponsive)</value>
+    <comment>Not currently used</comment>
+  </data>
+  <data name="LocationCase0" xml:space="preserve">
+    <value>Unable to ascertain current location. This window will close in 5 seconds.</value>
+  </data>
+  <data name="LocationCase1" xml:space="preserve">
+    <value>Looks like the root RoN folder.</value>
+  </data>
+  <data name="LocationCase2" xml:space="preserve">
+    <value>Looks like the Workshop mods folder for normal CBP.</value>
+  </data>
+  <data name="LocationCase3" xml:space="preserve">
+    <value>Looks like the local mods folder (it probably shouldn't be here except for testing).</value>
+  </data>
+  <data name="LocationCase4" xml:space="preserve">
+    <value>Looks like the Workshop mods folder for pre-release CBP.</value>
+  </data>
+  <data name="LocationCaseDefault" xml:space="preserve">
+    <value>Location result unexpected. This window will close in 5 seconds.</value>
+  </data>
+  <data name="OldVersionRestore" xml:space="preserve">
+    <value>Trying to restore old versions...</value>
+  </data>
+  <data name="OldVersionRestoreError" xml:space="preserve">
+    <value>Error restoring old versions: </value>
+  </data>
+  <data name="StartCBPL" xml:space="preserve">
+    <value>All done! Time to start CBP Launcher...</value>
+  </data>
+  <data name="StartCBPLFail" xml:space="preserve">
+    <value>It looks like CBP Launcher didn't start :(</value>
+  </data>
+  <data name="StartCBPLProblem" xml:space="preserve">
+    <value>There was a problem starting CBP Launcher: </value>
+  </data>
+  <data name="StartCBPLSuccess" xml:space="preserve">
+    <value>CBP Launcher detected as running; job complete. This window will close in 5 seconds.</value>
+  </data>
+  <data name="StartupLanguageDetected" xml:space="preserve">
+    <value>English text has been loaded.</value>
+  </data>
+  <data name="StartupMessage" xml:space="preserve">
+    <value>CBP Setup will prepare/update CBP Launcher.</value>
+  </data>
+  <data name="VersionCheckDifferent" xml:space="preserve">
+    <value>CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Updating it...</value>
+  </data>
+  <data name="VersionCheckSame" xml:space="preserve">
+    <value>CBP Launcher in the RoN folder is the same as the downloaded Workshop version. Continuing...</value>
   </data>
 </root>

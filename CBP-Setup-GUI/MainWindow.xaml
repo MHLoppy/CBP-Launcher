@@ -8,9 +8,10 @@
         Title="CBP Setup (GUI)" Height="380" Width="550"
         Background="#FF191923"
         WindowStartupLocation="CenterScreen"
-        ContentRendered="Window_ContentRendered">
+        ContentRendered="Window_ContentRendered"
+        Name="GUIWindow">
     <!--Background="#FF191923"-->
     <Grid>
-        <TextBox Name="PrimaryTextBox" Margin="3,4,3,2" Text="" FontSize="12" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
+        <TextBox Name="PrimaryLog" Margin="3,4,3,2" Text="" FontSize="12" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
     </Grid>
 </Window>

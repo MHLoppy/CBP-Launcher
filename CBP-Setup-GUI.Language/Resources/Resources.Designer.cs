@@ -61,11 +61,272 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello World Test String.
+        ///   Looks up a localized string similar to Is this okay?.
         /// </summary>
-        public static string CBPSTestString {
+        public static string ConsentIsCool {
             get {
-                return ResourceManager.GetString("CBPSTestString", resourceCulture);
+                return ResourceManager.GetString("ConsentIsCool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No (close CBP Setup).
+        /// </summary>
+        public static string ConsentNo {
+            get {
+                return ResourceManager.GetString("ConsentNo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        public static string ConsentYes {
+            get {
+                return ResourceManager.GetString("ConsentYes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error copying CBP Launcher into RoN root folder: .
+        /// </summary>
+        public static string CopyToRootError {
+            get {
+                return ResourceManager.GetString("CopyToRootError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looks like the file update worked fine, deleting old files....
+        /// </summary>
+        public static string DeletingFiles {
+            get {
+                return ResourceManager.GetString("DeletingFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error deleting the old files..
+        /// </summary>
+        public static string DeletingFilesError {
+            get {
+                return ResourceManager.GetString("DeletingFilesError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It looks like CBP Setup is already running in another thread. This window will close in 5 seconds..
+        /// </summary>
+        public static string ErrorAlreadyRunning {
+            get {
+                return ResourceManager.GetString("ErrorAlreadyRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error replacing CBP Launcher with new version - file not found..
+        /// </summary>
+        public static string ErrorFileNotFound {
+            get {
+                return ResourceManager.GetString("ErrorFileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error replacing CBP Launcher with new version - maybe old version was not deleted or wrong path?.
+        /// </summary>
+        public static string ErrorIO {
+            get {
+                return ResourceManager.GetString("ErrorIO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions error replacing CBP Launcher with new version. Try running CBP Setup as admin?.
+        /// </summary>
+        public static string ErrorPermissions {
+            get {
+                return ResourceManager.GetString("ErrorPermissions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown error replacing CBP Launcher with new version..
+        /// </summary>
+        public static string ErrorUnknown {
+            get {
+                return ResourceManager.GetString("ErrorUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find CBP Launcher in RoN&apos;s root folder..
+        /// </summary>
+        public static string FoundRootNo {
+            get {
+                return ResourceManager.GetString("FoundRootNo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Found CBP Launcher in RoN&apos;s root folder..
+        /// </summary>
+        public static string FoundRootYes {
+            get {
+                return ResourceManager.GetString("FoundRootYes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (during this delay the window may seem unresponsive).
+        /// </summary>
+        public static string FreezeNotification {
+            get {
+                return ResourceManager.GetString("FreezeNotification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to ascertain current location. This window will close in 5 seconds..
+        /// </summary>
+        public static string LocationCase0 {
+            get {
+                return ResourceManager.GetString("LocationCase0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looks like the root RoN folder..
+        /// </summary>
+        public static string LocationCase1 {
+            get {
+                return ResourceManager.GetString("LocationCase1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looks like the Workshop mods folder for normal CBP..
+        /// </summary>
+        public static string LocationCase2 {
+            get {
+                return ResourceManager.GetString("LocationCase2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looks like the local mods folder (it probably shouldn&apos;t be here except for testing)..
+        /// </summary>
+        public static string LocationCase3 {
+            get {
+                return ResourceManager.GetString("LocationCase3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looks like the Workshop mods folder for pre-release CBP..
+        /// </summary>
+        public static string LocationCase4 {
+            get {
+                return ResourceManager.GetString("LocationCase4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location result unexpected. This window will close in 5 seconds..
+        /// </summary>
+        public static string LocationCaseDefault {
+            get {
+                return ResourceManager.GetString("LocationCaseDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trying to restore old versions....
+        /// </summary>
+        public static string OldVersionRestore {
+            get {
+                return ResourceManager.GetString("OldVersionRestore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error restoring old versions: .
+        /// </summary>
+        public static string OldVersionRestoreError {
+            get {
+                return ResourceManager.GetString("OldVersionRestoreError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All done! Time to start CBP Launcher....
+        /// </summary>
+        public static string StartCBPL {
+            get {
+                return ResourceManager.GetString("StartCBPL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It looks like CBP Launcher didn&apos;t start :(.
+        /// </summary>
+        public static string StartCBPLFail {
+            get {
+                return ResourceManager.GetString("StartCBPLFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There was a problem starting CBP Launcher: .
+        /// </summary>
+        public static string StartCBPLProblem {
+            get {
+                return ResourceManager.GetString("StartCBPLProblem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CBP Launcher detected as running; job complete. This window will close in 5 seconds..
+        /// </summary>
+        public static string StartCBPLSuccess {
+            get {
+                return ResourceManager.GetString("StartCBPLSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to English text has been loaded..
+        /// </summary>
+        public static string StartupLanguageDetected {
+            get {
+                return ResourceManager.GetString("StartupLanguageDetected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CBP Setup will prepare/update CBP Launcher..
+        /// </summary>
+        public static string StartupMessage {
+            get {
+                return ResourceManager.GetString("StartupMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Updating it....
+        /// </summary>
+        public static string VersionCheckDifferent {
+            get {
+                return ResourceManager.GetString("VersionCheckDifferent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CBP Launcher in the RoN folder is the same as the downloaded Workshop version. Continuing....
+        /// </summary>
+        public static string VersionCheckSame {
+            get {
+                return ResourceManager.GetString("VersionCheckSame", resourceCulture);
             }
         }
     }
