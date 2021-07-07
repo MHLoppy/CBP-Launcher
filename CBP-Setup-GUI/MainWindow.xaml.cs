@@ -15,7 +15,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using CBPSetupGUI.Language;
 
 namespace CBPSetupGUI
@@ -28,27 +27,6 @@ namespace CBPSetupGUI
         public MainWindow()
         {
             InitializeComponent();
-
-            Console.WriteLine(CBPSetupGUI.Language.Resources.CBPSTestString.ToString());
-
-            // Step 0: don't overlap the streams (check if already running)
-            MasculinityCheck();
-
-            // Step 1: figure out what location exe is running from
-            WhereTheBloodyHellAreYou();
-
-            //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
-            CheckForCBPL();
-
-            //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
-            CBPLVersionCheck();
-
-            // Step 4: launch CBP launcher, then close this
-            StartCBPL();
-
-            //CBPS exits if CBP Launcher is running
-            ProcessCheck("CBP Launcher");
-            Conclusion();
         }
 
         private static int Location = 0;
@@ -67,18 +45,15 @@ namespace CBPSetupGUI
         private static string CBPLDll = "";
         private static string CBPLDllUpdate = "";
 
-        private static string CBPSFolder = System.IO.Path.GetFullPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static string CBPSExe = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, "CBP Setup.exe"));
+        private static string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
+        private static string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Setup.exe"));
 
         private static void MasculinityCheck()
         {
             // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
-            if (Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location)).Count() > 1)
+            if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location)).Count() > 1)
             {
-                // there probably won't be enough time to see this (even if you're literally recording the screen)
-                Console.WriteLine("It looks like CBP Setup is already running in another thread. (window will close in 5 seconds)");
-                Thread.Sleep(5000);
-                Environment.Exit(1056);
+                DelayedClose("It looks like CBP Setup is already running in another thread. (window will close in 5 seconds)", 1056);
             }
         }
 
@@ -86,29 +61,29 @@ namespace CBPSetupGUI
         {
 
             if (File.Exists
-                (System.IO.Path.GetFullPath
-                (System.IO.Path.Combine
-                    (System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                (Path.GetFullPath
+                (Path.Combine
+                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
                     , "riseofnations.exe"))))
             {
                 //RoN root folder
                 Location = 1;
             }
 
-            if (System.IO.Path.GetFullPath
-                (System.IO.Path.Combine
-                    (System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+            if (Path.GetFullPath
+                (Path.Combine
+                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
                     , @"..\"
-                    , "2287791153")).ToString() == System.IO.Path.GetFullPath(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
+                    , "2287791153")).ToString() == Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
             {
                 //workshop mods folder
                 Location = 2;
             }
 
             if (File.Exists
-                (System.IO.Path.GetFullPath
-                (System.IO.Path.Combine
-                    (System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                (Path.GetFullPath
+                (Path.Combine
+                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
                     , @"..\"
                     , "mod-status.txt"))))
             {
@@ -116,11 +91,11 @@ namespace CBPSetupGUI
                 Location = 3;
             }
 
-            if (System.IO.Path.GetFullPath
-                (System.IO.Path.Combine
-                    (System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+            if (Path.GetFullPath
+                (Path.Combine
+                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
                     , @"..\"
-                    , "2528425253")).ToString() == System.IO.Path.GetFullPath(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
+                    , "2528425253")).ToString() == Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
             {
                 //workshop mods folder, but pre-release
                 Location = 4;
@@ -136,25 +111,23 @@ namespace CBPSetupGUI
             switch (Location)
             {
                 case 0:
-                    Console.WriteLine("Unable to ascertain current location. (window will close in 5 seconds)");
-                    Thread.Sleep(5000);
-                    Environment.Exit(3);
+                    DelayedClose("Unable to ascertain current location. (window will close in 5 seconds)", 3);
                     break;
 
                 case 1:
                     Console.WriteLine("Looks like the root RoN folder.");
 
-                    CBPLExe = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                    CBPLDll = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                    CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
+                    CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
 
-                    CBPLExeUpdate = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                    CBPLDllUpdate = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
 
 
                     if (File.Exists
-                        (System.IO.Path.GetFullPath
-                        (System.IO.Path.Combine
-                            (System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                        (Path.GetFullPath
+                        (Path.Combine
+                            (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
                             , "CBP Launcher.exe"))))
                     {
                         Console.WriteLine("Found CBP Launcher in RoN's root folder.");
@@ -167,14 +140,14 @@ namespace CBPSetupGUI
                     }
                     break;
 
-                case int n when (Location == 2 || Location == 4)://parens just for my sake
+                case int _ when (Location == 2 || Location == 4)://parens just for my sake
 
-                    CBPLExe = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
-                    CBPLDll = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
+                    CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
+                    CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
 
                     // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same location both on normal and pre-release versions
-                    CBPLExeUpdate = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                    CBPLDllUpdate = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
+                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
 
                     if (Location == 2)
                     {
@@ -187,9 +160,9 @@ namespace CBPSetupGUI
                     }
 
                     if (File.Exists
-                        (System.IO.Path.GetFullPath
-                        (System.IO.Path.Combine
-                            (System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                        (Path.GetFullPath
+                        (Path.Combine
+                            (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
                             , @"..\..\..\.."
                             , @"common\Rise of Nations"
                             , "CBP Launcher.exe"))))
@@ -207,16 +180,16 @@ namespace CBPSetupGUI
                 case 3:
                     Console.WriteLine("Looks like the local mods folder (it probably shouldn't be here except for testing).");
 
-                    CBPLExe = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
-                    CBPLDll = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
+                    CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
+                    CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
 
-                    CBPLExeUpdate = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                    CBPLDllUpdate = System.IO.Path.GetFullPath(System.IO.Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
 
                     if (File.Exists
-                        (System.IO.Path.GetFullPath
-                        (System.IO.Path.Combine
-                            (System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                        (Path.GetFullPath
+                        (Path.Combine
+                            (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
                             , @"..\.."
                             , @"CBP Launcher.exe"))))
                     {
@@ -231,9 +204,7 @@ namespace CBPSetupGUI
                     break;
 
                 default:
-                    Console.WriteLine("Location result unexpected. (window will close in 5 seconds)");
-                    Thread.Sleep(5000);
-                    Environment.Exit(-1);
+                    DelayedClose("Location result unexpected. (window will close in 5 seconds)", -1);
                     break;
             }
         }
@@ -262,10 +233,10 @@ namespace CBPSetupGUI
 
                     try
                     {
-                        File.Move(CBPLExe, System.IO.Path.Combine(CBPLExe + "old"));
+                        File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
                         File.Copy(CBPLExeUpdate, CBPLExe);
 
-                        File.Move(CBPLDll, System.IO.Path.Combine(CBPLDll + "old"));
+                        File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
                         File.Copy(CBPLDllUpdate, CBPLDll);
                     }
                     catch (Exception ex)
@@ -273,8 +244,8 @@ namespace CBPSetupGUI
                         try
                         {
                             Console.WriteLine("Trying to restore old versions...");
-                            File.Move(System.IO.Path.Combine(CBPLExe + "old"), CBPLExe);
-                            File.Move(System.IO.Path.Combine(CBPLDll + "old"), CBPLDll);
+                            File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
+                            File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
                         }
                         catch (Exception ex2)
                         {
@@ -310,8 +281,8 @@ namespace CBPSetupGUI
 
                     try
                     {
-                        File.Delete(System.IO.Path.Combine(CBPLExe + "old"));
-                        File.Delete(System.IO.Path.Combine(CBPLDll + "old"));
+                        File.Delete(Path.Combine(CBPLExe + "old"));
+                        File.Delete(Path.Combine(CBPLDll + "old"));
                     }
                     catch (Exception ex)
                     {
@@ -331,7 +302,7 @@ namespace CBPSetupGUI
                 catch (Exception ex)
                 {
                     Console.WriteLine("CBPLExe: " + CBPLExe);
-                    Console.WriteLine("Error copying CBP Launcher into RoN root folder\n" + ex);
+                    Console.WriteLine("Error copying CBP Launcher into RoN root folder: \n" + ex);
                     Console.ReadLine();
                     Environment.Exit(0);
                 }
@@ -343,13 +314,21 @@ namespace CBPSetupGUI
             Console.WriteLine("Time to start CBP Launcher!");
             Console.WriteLine(CBPSetupGUI.Language.Resources.CBPSTestString.ToString());
 
-            // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
-            ProcessStartInfo startInfo = new ProcessStartInfo(CBPLExe)
+            try
             {
-                WorkingDirectory = CBPLExe + @"..\"
-            };
-            Process.Start(CBPLExe);
-            Thread.Sleep(5000);
+                // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
+                ProcessStartInfo _ = new ProcessStartInfo(CBPLExe)
+                {
+                    WorkingDirectory = CBPLExe + @"..\"
+                };
+                Process.Start(CBPLExe);
+                Thread.Sleep(5000);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error starting CBP Launcher: " + ex);
+            }
+
         }
 
         public static bool ProcessCheck(string processName)
@@ -367,10 +346,39 @@ namespace CBPSetupGUI
             }
             else
             {
-                Console.WriteLine("CBP Launcher detected as running; job complete. Window will close in 5 seconds.");
-                Thread.Sleep(5000);
-                Environment.Exit(0);
+                DelayedClose("CBP Launcher detected as running; job complete. Window will close in 5 seconds.", 0);
             }
+        }
+
+        private static void DelayedClose(string str, int code)
+        {
+            Console.WriteLine(str);
+            Thread.Sleep(5000);
+            Environment.Exit(code);
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            PrimaryTextBox.Text += CBPSetupGUI.Language.Resources.CBPSTestString;
+
+            // Step 0: don't overlap the streams (check if already running)
+            MasculinityCheck();
+
+            // Step 1: figure out what location exe is running from
+            WhereTheBloodyHellAreYou();
+
+            //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
+            CheckForCBPL();
+
+            //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
+            CBPLVersionCheck();
+
+            // Step 4: launch CBP launcher, then close this
+            StartCBPL();
+
+            //CBPS exits if CBP Launcher is running
+            ProcessCheck("CBP Launcher");
+            Conclusion();
         }
     }
 }
