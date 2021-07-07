@@ -127,6 +127,13 @@ namespace CBPSetup
                 case 1:
                     Console.WriteLine("Looks like the root RoN folder.");
 
+                    CBPLExe = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"));
+                    CBPLDll = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.Language.dll"));
+
+                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+
+
                     if (File.Exists
                         (Path.GetFullPath
                         (Path.Combine
@@ -134,13 +141,7 @@ namespace CBPSetup
                             , "CBP Launcher.exe"))))
                     {
                         Console.WriteLine("Found CBP Launcher in RoN's root folder.");
-
                         CBPL = true;
-                        CBPLExe = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"));
-                        CBPLDll = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.Language.dll"));
-
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                        CBPLDllUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
                     }
                     else
                     {
@@ -150,7 +151,14 @@ namespace CBPSetup
                     break;
 
                 case int n when (Location == 2 || Location == 4)://parens just for my sake
-                    
+
+                    CBPLExe = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
+                    CBPLDll = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
+
+                    // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same location both on normal and pre-release versions
+                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"));
+                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.Language.dll"));
+
                     if (Location == 2)
                     {
                         Console.WriteLine("Looks like the Workshop mods folder for normal CBP.");
@@ -171,12 +179,6 @@ namespace CBPSetup
                     {
                         Console.WriteLine("Found CBP Launcher in RoN's root folder.");
                         CBPL = true;
-                        CBPLExe = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
-                        CBPLDll = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
-
-                        // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same location both on normal and pre-release versions
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"));
-                        CBPLDllUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.Language.dll"));
                     }
                     else
                     {
@@ -188,6 +190,12 @@ namespace CBPSetup
                 case 3:
                     Console.WriteLine("Looks like the local mods folder (it probably shouldn't be here except for testing).");
 
+                    CBPLExe = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", "CBP Launcher.exe"));
+                    CBPLDll = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", "CBP Launcher.Language.dll"));
+
+                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+
                     if (File.Exists
                         (Path.GetFullPath
                         (Path.Combine
@@ -197,11 +205,6 @@ namespace CBPSetup
                     {
                         Console.WriteLine("Found CBP Launcher in RoN's root folder.");
                         CBPL = true;
-                        CBPLExe = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", "CBP Launcher.exe"));
-                        CBPLDll = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..", "CBP Launcher.Language.dll"));
-
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                        CBPLDllUpdate = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
                     }
                     else
                     {
@@ -310,6 +313,7 @@ namespace CBPSetup
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine("blah" + CBPLExe);
                     Console.WriteLine("Error copying CBP Launcher into RoN root folder\n" + ex);
                     Console.ReadLine();
                     Environment.Exit(0);
