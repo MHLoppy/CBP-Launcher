@@ -334,7 +334,6 @@ namespace CBPSetupGUI
                         WorkingDirectory = CBPLExe + @"..\"
                     };
                     Process.Start(CBPLExe);
-                    Thread.Sleep(5000);
                 }
                 catch (Exception ex)
                 {
@@ -346,6 +345,7 @@ namespace CBPSetupGUI
 
             bool ProcessCheck(string processName)
             {
+                Thread.Sleep(5000);
                 return Process.GetProcessesByName(processName).Length > 0;
             }
 
