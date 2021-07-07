@@ -226,7 +226,7 @@ namespace CBPSetup
         {
             if (CBPL == true)
             {
-                Console.WriteLine(CBPLExe);
+                Console.WriteLine("CBPLExe: " + CBPLExe);
 
                 //https://stackoverflow.com/questions/11350008/how-to-get-exe-file-version-number-from-file-path/23325102#23325102
                 var newVersionShort = FileVersionInfo.GetVersionInfo(CBPLExe);
@@ -309,12 +309,12 @@ namespace CBPSetup
             {
                 try
                 {
-                    Console.WriteLine(CBPLExe);
+                    Console.WriteLine("CBPLExe: " + CBPLExe);
                     File.Copy(CBPLExeUpdate, CBPLExe);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("blah" + CBPLExe);
+                    Console.WriteLine("CBPLExe: " + CBPLExe);
                     Console.WriteLine("Error copying CBP Launcher into RoN root folder\n" + ex);
                     Console.ReadLine();
                     Environment.Exit(0);
