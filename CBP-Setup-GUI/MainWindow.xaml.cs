@@ -36,8 +36,8 @@ namespace CBPSetupGUI
         private static string CBPLDll = "";
         private static string CBPLDllUpdate = "";
 
-        private static string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Setup.exe"));
+        private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
+        private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Setup.exe"));
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
@@ -70,6 +70,7 @@ namespace CBPSetupGUI
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning);
                     DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning, 1056);
+                    return;
                 }
             }
 
@@ -273,26 +274,22 @@ namespace CBPSetupGUI
                             if (ex is UnauthorizedAccessException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
-                                PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex;
-                                Application.Current.Shutdown(-1);
+                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex, -1);
                             }
                             if (ex is FileNotFoundException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
-                                PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex;
-                                Application.Current.Shutdown(-1);
+                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex, -1);
                             }
                             if (ex is IOException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
-                                PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex;
-                                Application.Current.Shutdown(-1);
+                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex, -1);
                             }
                             else
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
-                                PrimaryLog.Text += CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex;
-                                Application.Current.Shutdown(-1);
+                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex, -1);
                             }
                         }
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
@@ -306,7 +303,7 @@ namespace CBPSetupGUI
                         {
                             MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
                             PrimaryLog.Text += CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex;
-                            Application.Current.Shutdown(-1);
+                            Environment.Exit(-1);
                         }
                     }
                 }
@@ -320,7 +317,7 @@ namespace CBPSetupGUI
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootError);
                         PrimaryLog.Text += CBPSetupGUI.Language.Resources.CopyToRootError + "\n" + ex;
-                        Application.Current.Shutdown(-1);
+                        Environment.Exit(-1);
                     }
                 }
             }
@@ -358,10 +355,12 @@ namespace CBPSetupGUI
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
                     DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail, -1);
+                    return;
                 }
                 else
                 {
                     DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLSuccess, 0);
+                    return;
                 }
             }
 
@@ -369,7 +368,7 @@ namespace CBPSetupGUI
             {
                 PrimaryLog.Text += "\n" + str;
                 Thread.Sleep(5000);
-                Application.Current.Shutdown(code);
+                Environment.Exit(code);
             }
         }
     }
