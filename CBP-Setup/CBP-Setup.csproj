@@ -57,7 +57,7 @@
       <Project>{81ad6fdc-5db4-403a-82dd-bbb875795cf4}</Project>
       <Name>CBP-Launcher</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CBPS.Language\CBP-Setup.Language.csproj">
+    <ProjectReference Include="..\CBP-Setup.Language\CBP-Setup.Language.csproj">
       <Project>{e8329647-4159-4cd9-b250-8d7dd901c986}</Project>
       <Name>CBP-Setup.Language</Name>
     </ProjectReference>

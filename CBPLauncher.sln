@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Launcher", "CBP-Launche
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Setup", "CBP-Setup\CBP-Setup.csproj", "{07459119-2220-46AB-8131-F3FA92039740}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Setup.Language", "CBPS.Language\CBP-Setup.Language.csproj", "{E8329647-4159-4CD9-B250-8D7DD901C986}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Setup.Language", "CBP-Setup.Language\CBP-Setup.Language.csproj", "{E8329647-4159-4CD9-B250-8D7DD901C986}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
