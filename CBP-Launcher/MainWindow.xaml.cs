@@ -15,6 +15,7 @@ using System.Windows;
 using System.Windows.Forms;     // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
 using System.Windows.Media;     // used for selecting brushes (used for coloring in e.g. textboxes)
 using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path; I doubt it's efficient but it doesn't seem to be *too* resource intensive pending a replacement
+using CBPLauncher.logic;
 
 namespace CBPLauncher
 {
@@ -250,8 +251,8 @@ namespace CBPLauncher
                         }
                     }
                 }
-                else
                 //frequent usage probably doesn't need this popup
+                //else
                 //{
                 //    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
                 //}
@@ -459,7 +460,7 @@ namespace CBPLauncher
                         }
 
                         // perhaps this is a chance to use async, but the benefits are minor given the limited IO, and my half-hour attempt wasn't adequate to get it working
-                        DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
+                        FileIO.DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
 
                         try
                         {
@@ -850,43 +851,6 @@ namespace CBPLauncher
             {
                 Status = LauncherStatus.loadFailed;
                 System.Windows.MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
-            }
-        }
-
-        // MS reference method of dir copying
-        private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
-        {
-            // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-
-            if (!dir.Exists)
-            {
-                throw new DirectoryNotFoundException(
-                    "Source folder does not exist or could not be found: "
-                    + sourceDirName);
-            }
-
-            DirectoryInfo[] dirs = dir.GetDirectories();
-
-            // If the destination directory doesn't exist, create it.       
-            Directory.CreateDirectory(destDirName);
-
-            // Get the files in the directory and copy them to the new location.
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
-            {
-                string tempPath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(tempPath, false);
-            }
-
-            // If copying subdirectories, copy them and their contents to new location.
-            if (copySubDirs)
-            {
-                foreach (DirectoryInfo subdir in dirs)
-                {
-                    string tempPath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, tempPath, copySubDirs);
-                }
             }
         }
     }
