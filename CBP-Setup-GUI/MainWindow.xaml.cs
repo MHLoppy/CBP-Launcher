@@ -41,40 +41,50 @@ namespace CBPSetupGUI
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
+            Primary();
+        }
+
+        async Task Primary()
+        {
             PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected.ToString();
-            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartupMessage.ToString();
+            PrimaryLog.Text += "\n\n" + CBPSetupGUI.Language.Resources.StartupMessage.ToString();
 
             // Step 0: don't overlap the streams (check if already running)
-            MasculinityCheck();
+            await MasculinityCheck();
+            //await Delay(1000);
 
             // Step 1: figure out what location exe is running from
-            WhereTheBloodyHellAreYou();
+            await WhereTheBloodyHellAreYou();
+            //await Delay(1000);
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
-            CheckForCBPL();
+            await CheckForCBPL ();
+            //await Delay(1000);
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
-            CBPLVersionCheck();
+            await CBPLVersionCheck();
+            //await Delay(1000);
 
             // Step 4: launch CBP launcher
-            StartCBPL();
+            await StartCBPL();
+            //await Delay(1000);
 
             //CBPS exits if CBP Launcher is running
-            ProcessCheck("CBP Launcher");
-            Conclusion();
+            await ProcessCheck("CBP Launcher");
+            await Conclusion();
 
-            void MasculinityCheck()
+            async Task MasculinityCheck()
             {
                 // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
                 if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location)).Count() > 1)
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning);
-                    DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning, 1056);
+                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning, 1056);
                     return;
                 }
             }
 
-            void WhereTheBloodyHellAreYou()
+            async Task WhereTheBloodyHellAreYou()
             {
 
                 if (File.Exists
@@ -121,7 +131,7 @@ namespace CBPSetupGUI
 
             // condenses multiple steps into one; slightly harder to read but easier to make for me /shrug
             // just remember that each paths are heavily duplicated (but I don't think it's worth the trouble of making more sophisticated logic to avoid it right now)
-            void CheckForCBPL()
+            async Task CheckForCBPL()
             {
                 // change the path it checks based on where it thinks it is
                 // pretty sure this isn't a particularly efficient way of doing this, but it shouldn't really matter
@@ -130,7 +140,7 @@ namespace CBPSetupGUI
                     case 0:
 
                         MessageBox.Show(CBPSetupGUI.Language.Resources.LocationCase0);
-                        DelayedClose(CBPSetupGUI.Language.Resources.LocationCase0, 3);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.LocationCase0, 3);
                         break;
 
                     case 1:
@@ -224,12 +234,12 @@ namespace CBPSetupGUI
 
                     default:
                         MessageBox.Show(CBPSetupGUI.Language.Resources.LocationCaseDefault);
-                        DelayedClose(CBPSetupGUI.Language.Resources.LocationCaseDefault, -1);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.LocationCaseDefault, -1);
                         break;
                 }
             }
 
-            void CBPLVersionCheck()
+            async Task CBPLVersionCheck()
             {
                 if (CBPL == true)
                 {
@@ -274,22 +284,22 @@ namespace CBPSetupGUI
                             if (ex is UnauthorizedAccessException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
-                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex, -1);
+                                await DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex, -1);
                             }
                             if (ex is FileNotFoundException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
-                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex, -1);
+                                await DelayedClose (CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex, -1);
                             }
                             if (ex is IOException)
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
-                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex, -1);
+                                await DelayedClose (CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex, -1);
                             }
                             else
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
-                                DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex, -1);
+                                await DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex, -1);
                             }
                         }
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
@@ -322,7 +332,7 @@ namespace CBPSetupGUI
                 }
             }
 
-            void StartCBPL()
+            async Task StartCBPL()
             {
                 PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPL;
 
@@ -343,32 +353,38 @@ namespace CBPSetupGUI
 
             }
 
-            bool ProcessCheck(string processName)
+            async Task<bool> ProcessCheck(string processName)
             {
-                Thread.Sleep(5000);
+                await Delay(1000);//wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
                 return Process.GetProcessesByName(processName).Length > 0;
             }
 
-            void Conclusion()
+            async Task Conclusion()
             {
-                if (ProcessCheck("CBP Launcher") == false)
+                if (await ProcessCheck("CBP Launcher") == false)
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
-                    DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail, -1);
+                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail, -1);
                     return;
                 }
                 else
                 {
-                    DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLSuccess, 0);
+                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLSuccess, 0);
                     return;
                 }
             }
 
-            void DelayedClose(string str, int code)
+            async Task DelayedClose(string str, int code)
             {
                 PrimaryLog.Text += "\n" + str;
-                Thread.Sleep(5000);
+                await Delay(5000);
                 Environment.Exit(code);
+            }
+
+            async Task Delay(int ms)
+            {
+                Task pause = Task.Delay(ms);
+                await pause;
             }
         }
     }
