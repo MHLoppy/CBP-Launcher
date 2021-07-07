@@ -259,6 +259,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add artificial delay during process (to make reading easier).
+        /// </summary>
+        public static string SlowModeButtonText {
+            get {
+                return ResourceManager.GetString("SlowModeButtonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All done! Time to start CBP Launcher....
         /// </summary>
         public static string StartCBPL {

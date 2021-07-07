@@ -184,6 +184,10 @@
   <data name="OldVersionRestoreError" xml:space="preserve">
     <value>Error restoring old versions: </value>
   </data>
+  <data name="SlowModeButtonText" xml:space="preserve">
+    <value>Add artificial delay during process (to make reading easier)</value>
+    <comment>Used in xaml</comment>
+  </data>
   <data name="StartCBPL" xml:space="preserve">
     <value>All done! Time to start CBP Launcher...</value>
   </data>

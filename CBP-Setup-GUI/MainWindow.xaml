@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CBPSetupGUI"
+        xmlns:lang="clr-namespace:CBPSetupGUI.Language;assembly=CBPSetupGUI.Language"
         mc:Ignorable="d"
         Title="CBP Setup (GUI)" Height="380" Width="550"
         Background="#FF191923"
@@ -12,6 +13,11 @@
         Name="GUIWindow">
     <!--Background="#FF191923"-->
     <Grid>
-        <TextBox Name="PrimaryLog" Margin="3,4,3,2" Text="" FontSize="12" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <TextBox Name="PrimaryLog" Grid.Row="0" Margin="3,4,3,2" Text="" FontSize="12" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
+        <CheckBox Name="SlowModeCheckBox" Grid.Row="1" Content="{x:Static lang:Resources.SlowModeButtonText}" VerticalAlignment="Center" Margin="8,0,0,0" Checked="SlowModeCheckBox_Checked" Unchecked="SlowModeCheckBox_UnChecked" Foreground="WhiteSmoke"/>
     </Grid>
 </Window>

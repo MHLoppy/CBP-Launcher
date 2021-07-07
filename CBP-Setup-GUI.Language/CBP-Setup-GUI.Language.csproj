@@ -7,7 +7,7 @@
     <ProjectGuid>{54B68121-A258-4C03-8322-9F79ABB78005}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>CBPSetupGUI.Language</RootNamespace>
-    <AssemblyName>CBP Setup GUI.Language</AssemblyName>
+    <AssemblyName>CBPSetupGUI.Language</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

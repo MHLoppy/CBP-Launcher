@@ -18,6 +18,14 @@ namespace CBPSetupGUI
         public MainWindow()
         {
             InitializeComponent();
+
+            if (Properties.Settings.Default.UpgradeRequired == true)
+            {
+                UpgradeSettings();
+                SaveSettings();
+            }
+
+            DefaultChecker();
         }
 
         private static int Location = 0;
@@ -47,27 +55,24 @@ namespace CBPSetupGUI
         async Task Primary()
         {
             PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected.ToString();
+            await SlowDown();
             PrimaryLog.Text += "\n\n" + CBPSetupGUI.Language.Resources.StartupMessage.ToString();
+            await SlowDown();
 
             // Step 0: don't overlap the streams (check if already running)
             await MasculinityCheck();
-            //await Delay(1000);
 
             // Step 1: figure out what location exe is running from
             await WhereTheBloodyHellAreYou();
-            //await Delay(1000);
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
             await CheckForCBPL ();
-            //await Delay(1000);
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
             await CBPLVersionCheck();
-            //await Delay(1000);
 
             // Step 4: launch CBP launcher
             await StartCBPL();
-            //await Delay(1000);
 
             //CBPS exits if CBP Launcher is running
             await ProcessCheck("CBP Launcher");
@@ -151,7 +156,7 @@ namespace CBPSetupGUI
 
                         CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
                         CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
-
+                        await SlowDown();
 
                         if (File.Exists
                             (Path.GetFullPath
@@ -188,6 +193,8 @@ namespace CBPSetupGUI
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase4;
                         }
 
+                        await SlowDown();
+
                         if (File.Exists
                             (Path.GetFullPath
                             (Path.Combine
@@ -214,6 +221,7 @@ namespace CBPSetupGUI
 
                         CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
                         CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                        await SlowDown();
 
                         if (File.Exists
                             (Path.GetFullPath
@@ -233,6 +241,7 @@ namespace CBPSetupGUI
                         break;
 
                     default:
+                        await SlowDown();
                         MessageBox.Show(CBPSetupGUI.Language.Resources.LocationCaseDefault);
                         await DelayedClose(CBPSetupGUI.Language.Resources.LocationCaseDefault, -1);
                         break;
@@ -249,6 +258,7 @@ namespace CBPSetupGUI
 
                     var oldVersionShort = FileVersionInfo.GetVersionInfo(CBPSExe);
                     string oldVersionFull = oldVersionShort.FileVersion;
+                    await SlowDown();
 
                     if (newVersionFull == oldVersionFull)
                     {
@@ -269,6 +279,7 @@ namespace CBPSetupGUI
                         }
                         catch (Exception ex)
                         {
+                            await SlowDown();
                             try
                             {
                                 PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
@@ -308,6 +319,7 @@ namespace CBPSetupGUI
                         {
                             File.Delete(Path.Combine(CBPLExe + "old"));
                             File.Delete(Path.Combine(CBPLDll + "old"));
+                            await SlowDown();
                         }
                         catch (Exception ex)
                         {
@@ -319,6 +331,7 @@ namespace CBPSetupGUI
                 }
                 else if (CBPL == false)
                 {
+                    await SlowDown();
                     try
                     {
                         File.Copy(CBPLExeUpdate, CBPLExe);
@@ -334,7 +347,9 @@ namespace CBPSetupGUI
 
             async Task StartCBPL()
             {
+                await SlowDown();
                 PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPL;
+                await SlowDown();
 
                 try
                 {
@@ -355,7 +370,7 @@ namespace CBPSetupGUI
 
             async Task<bool> ProcessCheck(string processName)
             {
-                await Delay(1000);//wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
+                await Delay(600);//wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
                 return Process.GetProcessesByName(processName).Length > 0;
             }
 
@@ -363,12 +378,14 @@ namespace CBPSetupGUI
             {
                 if (await ProcessCheck("CBP Launcher") == false)
                 {
+                    await SlowDown();
                     MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
                     await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail, -1);
                     return;
                 }
                 else
                 {
+                    await SlowDown();
                     await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLSuccess, 0);
                     return;
                 }
@@ -385,6 +402,49 @@ namespace CBPSetupGUI
             {
                 Task pause = Task.Delay(ms);
                 await pause;
+            }
+
+            async Task SlowDown()
+            {
+                if (Properties.Settings.Default.SlowMode == true)
+                {
+                    await Delay(2250);
+                }
+            }
+        }
+
+        private void SlowModeCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SlowMode = true;
+            SaveSettings();
+        }
+
+        private void SlowModeCheckBox_UnChecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.SlowMode = false;
+            SaveSettings();
+        }
+
+        private void SaveSettings()
+        {
+            Properties.Settings.Default.Save();
+        }
+
+        private void UpgradeSettings()
+        {
+            Properties.Settings.Default.Upgrade();
+            Properties.Settings.Default.UpgradeRequired = false;
+        }
+
+        private void DefaultChecker()
+        {
+            if (Properties.Settings.Default.SlowMode == true)
+            {
+                SlowModeCheckBox.IsChecked = true;
+            }
+            else if (Properties.Settings.Default.SlowMode == false)
+            {
+                SlowModeCheckBox.IsChecked = false;
             }
         }
     }
