@@ -93,33 +93,43 @@ namespace CBPSetupGUI
                             await DelayedClose("Unable to access language files (there should be a dll for CBP Setup to use)." + "\n" + ex, -1);
                             break;
                         case "zh":
+                            MessageBox.Show("无法访问语言文件（应该有一个dll供CBP Setup使用）。");
                             await DelayedClose("无法访问语言文件（应该有一个dll供CBP Setup使用）。" + "\n" + ex, -1);
                             break;
                         case "fr":
+                            MessageBox.Show("Impossible d'accéder aux fichiers de langue (il devrait y avoir une dll à utiliser par CBP Setup).");
                             await DelayedClose("Impossible d'accéder aux fichiers de langue (il devrait y avoir une dll à utiliser par CBP Setup)." + "\n" + ex, -1);
                             break;
                         case "de":
+                            MessageBox.Show("Zugriff auf Sprachdateien nicht möglich (es sollte eine dll für CBP Setup zur Verfügung stehen).");
                             await DelayedClose("Zugriff auf Sprachdateien nicht möglich (es sollte eine dll für CBP Setup zur Verfügung stehen)." + "\n" + ex, -1);
                             break;
                         case "it":
+                            MessageBox.Show("Impossibile accedere ai file di lingua (dovrebbe esserci una dll da usare per CBP Setup).");
                             await DelayedClose("Impossibile accedere ai file di lingua (dovrebbe esserci una dll da usare per CBP Setup)." + "\n" + ex, -1);
                             break;
                         case "ja":
+                            MessageBox.Show("言語ファイルにアクセスできません（CBP Setupが使用するDLLがあるはずです）。");
                             await DelayedClose("言語ファイルにアクセスできません（CBP Setupが使用するDLLがあるはずです）。" + "\n" + ex, -1);
                             break;
                         case "ko":
+                            MessageBox.Show("언어 파일에 액세스 할 수 없습니다 (CBP Setup가 사용할 dll이 있어야 함). ");
                             await DelayedClose("언어 파일에 액세스 할 수 없습니다 (CBP Setup가 사용할 dll이 있어야 함). " + "\n" + ex, -1);
                             break;
                         case "pt":
+                            MessageBox.Show("Impossibilidade de aceder aos ficheiros linguísticos (deve haver um dll para o CBP Setup utilizar).");
                             await DelayedClose("Impossibilidade de aceder aos ficheiros linguísticos (deve haver um dll para o CBP Setup utilizar)." + "\n" + ex, -1);
                             break;
                         case "ru":
+                            MessageBox.Show("Невозможно получить доступ к языковым файлам (должна существовать dll для использования CBP Setup).");
                             await DelayedClose("Невозможно получить доступ к языковым файлам (должна существовать dll для использования CBP Setup)." + "\n" + ex, -1);
                             break;
                         case "es":
+                            MessageBox.Show("No se puede acceder a los archivos de idioma (debería haber un dll para que el CBP Setup lo utilice).");
                             await DelayedClose("No se puede acceder a los archivos de idioma (debería haber un dll para que el CBP Setup lo utilice)." + "\n" + ex, -1);
                             break;
                         default:
+                            MessageBox.Show("Unable to access language files (there should be a dll for CBP Setup to use).");
                             await DelayedClose("Unable to access language files (there should be a dll for CBP Setup to use)." + "\n" + ex, -1);
                             break;
                     }
