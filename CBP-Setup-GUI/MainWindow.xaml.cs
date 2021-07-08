@@ -45,19 +45,17 @@ namespace CBPSetupGUI
         private static string CBPLDllUpdate = "";
 
         private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Setup.exe"));
+        private static readonly string CBPS = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
 
-        private void Window_ContentRendered(object sender, EventArgs e)
+        private async void Window_ContentRendered(object sender, EventArgs e)
         {
-            Primary();
+            await Primary();
         }
 
-        async Task Primary()
+        private async Task Primary()
         {
-            PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected.ToString();
-            await SlowDown();
-            PrimaryLog.Text += "\n\n" + CBPSetupGUI.Language.Resources.StartupMessage.ToString();
-            await SlowDown();
+            //step -1: make sure we can actually load the language files
+            await VibeCheck();
 
             // Step 0: don't overlap the streams (check if already running)
             await MasculinityCheck();
@@ -78,10 +76,63 @@ namespace CBPSetupGUI
             await ProcessCheck("CBP Launcher");
             await Conclusion();
 
+            async Task VibeCheck()
+            {
+                try
+                {
+                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected.ToString();
+                }
+                catch (Exception ex)
+                {
+                    string lang = Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName;
+
+                    switch (lang)
+                    {
+                        case "en":
+                            MessageBox.Show("Unable to access language files (there should be a dll for CBP Setup to use).");
+                            await DelayedClose("Unable to access language files (there should be a dll for CBP Setup to use)." + "\n" + ex, -1);
+                            break;
+                        case "zh":
+                            await DelayedClose("无法访问语言文件（应该有一个dll供CBP Setup使用）。" + "\n" + ex, -1);
+                            break;
+                        case "fr":
+                            await DelayedClose("Impossible d'accéder aux fichiers de langue (il devrait y avoir une dll à utiliser par CBP Setup)." + "\n" + ex, -1);
+                            break;
+                        case "de":
+                            await DelayedClose("Zugriff auf Sprachdateien nicht möglich (es sollte eine dll für CBP Setup zur Verfügung stehen)." + "\n" + ex, -1);
+                            break;
+                        case "it":
+                            await DelayedClose("Impossibile accedere ai file di lingua (dovrebbe esserci una dll da usare per CBP Setup)." + "\n" + ex, -1);
+                            break;
+                        case "ja":
+                            await DelayedClose("言語ファイルにアクセスできません（CBP Setupが使用するDLLがあるはずです）。" + "\n" + ex, -1);
+                            break;
+                        case "ko":
+                            await DelayedClose("언어 파일에 액세스 할 수 없습니다 (CBP Setup가 사용할 dll이 있어야 함). " + "\n" + ex, -1);
+                            break;
+                        case "pt":
+                            await DelayedClose("Impossibilidade de aceder aos ficheiros linguísticos (deve haver um dll para o CBP Setup utilizar)." + "\n" + ex, -1);
+                            break;
+                        case "ru":
+                            await DelayedClose("Невозможно получить доступ к языковым файлам (должна существовать dll для использования CBP Setup)." + "\n" + ex, -1);
+                            break;
+                        case "es":
+                            await DelayedClose("No se puede acceder a los archivos de idioma (debería haber un dll para que el CBP Setup lo utilice)." + "\n" + ex, -1);
+                            break;
+                        default:
+                            await DelayedClose("Unable to access language files (there should be a dll for CBP Setup to use)." + "\n" + ex, -1);
+                            break;
+                    }
+                }
+                await SlowDown();
+                PrimaryLog.Text += "\n\n" + CBPSetupGUI.Language.Resources.StartupMessage.ToString();
+                await SlowDown();
+            }
+
             async Task MasculinityCheck()
             {
                 // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
-                if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location)).Count() > 1)
+                if (Process.GetProcessesByName(CBPS).Count() > 1)
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning);
                     await DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning, 1056);
@@ -89,45 +140,27 @@ namespace CBPSetupGUI
                 }
             }
 
-            async Task WhereTheBloodyHellAreYou()
+            async Task WhereTheBloodyHellAreYou()//not sure if this needs the async tag given that it has nothing to do and displays no message
             {
-
-                if (File.Exists
-                    (Path.GetFullPath
-                    (Path.Combine
-                        (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                        , "riseofnations.exe"))))
+                if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, "riseofnations.exe"))))
                 {
                     //RoN root folder
                     Location = 1;
                 }
 
-                if (Path.GetFullPath
-                    (Path.Combine
-                        (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                        , @"..\"
-                        , "2287791153")).ToString() == Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
+                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2287791153")).ToString() == Path.GetFullPath(CBPSFolder).ToString())
                 {
                     //workshop mods folder
                     Location = 2;
                 }
 
-                if (File.Exists
-                    (Path.GetFullPath
-                    (Path.Combine
-                        (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                        , @"..\"
-                        , "mod-status.txt"))))
+                if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "mod-status.txt"))))
                 {
                     //local mods folder
                     Location = 3;
                 }
 
-                if (Path.GetFullPath
-                    (Path.Combine
-                        (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                        , @"..\"
-                        , "2528425253")).ToString() == Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
+                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2528425253")).ToString() == Path.GetFullPath(CBPSFolder).ToString())
                 {
                     //workshop mods folder, but pre-release
                     Location = 4;
@@ -135,7 +168,7 @@ namespace CBPSetupGUI
             }
 
             // condenses multiple steps into one; slightly harder to read but easier to make for me /shrug
-            // just remember that each paths are heavily duplicated (but I don't think it's worth the trouble of making more sophisticated logic to avoid it right now)
+            // just remember that each of the paths are heavily duplicated (but I don't think it's worth the trouble of making more sophisticated logic to avoid it right now)
             async Task CheckForCBPL()
             {
                 // change the path it checks based on where it thinks it is
@@ -166,11 +199,7 @@ namespace CBPSetupGUI
                         }
                         await SlowDown();
 
-                        if (File.Exists
-                            (Path.GetFullPath
-                            (Path.Combine
-                                (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                                , "CBP Launcher.exe"))))
+                        if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"))))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
@@ -212,13 +241,7 @@ namespace CBPSetupGUI
                         }
 
                         await SlowDown();
-                        if (File.Exists
-                            (Path.GetFullPath
-                            (Path.Combine
-                                (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                                , @"..\..\..\.."
-                                , @"common\Rise of Nations"
-                                , "CBP Launcher.exe"))))
+                        if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"))))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
@@ -249,12 +272,7 @@ namespace CBPSetupGUI
 
                         await SlowDown();
 
-                        if (File.Exists
-                            (Path.GetFullPath
-                            (Path.Combine
-                                (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                                , @"..\.."
-                                , @"CBP Launcher.exe"))))
+                        if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"CBP Launcher.exe"))))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
