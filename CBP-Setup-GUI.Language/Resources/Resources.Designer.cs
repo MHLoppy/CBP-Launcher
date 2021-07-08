@@ -232,6 +232,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to First time run detected. An artificial delay has been added to messages so that they are easier to read. Afterwards, this will be disabled by default..
+        /// </summary>
+        public static string FirstTimeRun {
+            get {
+                return ResourceManager.GetString("FirstTimeRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t find CBP Launcher in RoN&apos;s root folder..
         /// </summary>
         public static string FoundRootNo {
@@ -250,7 +259,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Current folder location is unrecognised..
+        ///   Looks up a localized string similar to Error: Current folder location is unrecognised..
         /// </summary>
         public static string LocationCase0 {
             get {
@@ -295,7 +304,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Location result unexpected..
+        ///   Looks up a localized string similar to Error: Location result unexpected..
         /// </summary>
         public static string LocationCaseDefault {
             get {
@@ -367,7 +376,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There was a problem starting CBP Launcher: .
+        ///   Looks up a localized string similar to Error starting CBP Launcher: .
         /// </summary>
         public static string StartCBPLProblem {
             get {

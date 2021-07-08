@@ -174,6 +174,9 @@
   <data name="ErrorUnknown" xml:space="preserve">
     <value>Unknown error replacing CBP Launcher with new version.</value>
   </data>
+  <data name="FirstTimeRun" xml:space="preserve">
+    <value>First time run detected. An artificial delay has been added to messages so that they are easier to read. Afterwards, this will be disabled by default.</value>
+  </data>
   <data name="FoundRootNo" xml:space="preserve">
     <value>Can't find CBP Launcher in RoN's root folder.</value>
   </data>
@@ -181,7 +184,7 @@
     <value>Found CBP Launcher in RoN's root folder.</value>
   </data>
   <data name="LocationCase0" xml:space="preserve">
-    <value>Current folder location is unrecognised.</value>
+    <value>Error: Current folder location is unrecognised.</value>
   </data>
   <data name="LocationCase1" xml:space="preserve">
     <value>Looks like the root RoN folder.</value>
@@ -196,7 +199,7 @@
     <value>Looks like the Workshop mods folder for pre-release CBP.</value>
   </data>
   <data name="LocationCaseDefault" xml:space="preserve">
-    <value>Location result unexpected.</value>
+    <value>Error: Location result unexpected.</value>
   </data>
   <data name="LocationPathError" xml:space="preserve">
     <value>Error when assigning paths. This window will close in 5 seconds.</value>
@@ -221,7 +224,7 @@
     <value>It looks like CBP Launcher didn't start :(</value>
   </data>
   <data name="StartCBPLProblem" xml:space="preserve">
-    <value>There was a problem starting CBP Launcher: </value>
+    <value>Error starting CBP Launcher: </value>
   </data>
   <data name="StartCBPLSuccess" xml:space="preserve">
     <value>CBP Launcher detected as running; job complete.</value>
