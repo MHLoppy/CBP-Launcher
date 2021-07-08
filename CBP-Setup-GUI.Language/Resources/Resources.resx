@@ -156,12 +156,8 @@
   <data name="FoundRootYes" xml:space="preserve">
     <value>Found CBP Launcher in RoN's root folder.</value>
   </data>
-  <data name="FreezeNotification" xml:space="preserve">
-    <value>(during this delay the window may seem unresponsive)</value>
-    <comment>Not currently used</comment>
-  </data>
   <data name="LocationCase0" xml:space="preserve">
-    <value>Unable to ascertain current location. This window will close in 5 seconds.</value>
+    <value>Current location is unrecognised. This window will close in 5 seconds.</value>
   </data>
   <data name="LocationCase1" xml:space="preserve">
     <value>Looks like the root RoN folder.</value>
@@ -177,6 +173,9 @@
   </data>
   <data name="LocationCaseDefault" xml:space="preserve">
     <value>Location result unexpected. This window will close in 5 seconds.</value>
+  </data>
+  <data name="LocationPathError" xml:space="preserve">
+    <value>Error when assigning paths. This window will close in 5 seconds.</value>
   </data>
   <data name="OldVersionRestore" xml:space="preserve">
     <value>Trying to restore old versions...</value>
@@ -208,6 +207,9 @@
   </data>
   <data name="VersionCheckDifferent" xml:space="preserve">
     <value>CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Updating it...</value>
+  </data>
+  <data name="VersionCheckFail" xml:space="preserve">
+    <value>Unable to compare versions (are Workshop files missing?). This window will close in 5 seconds.</value>
   </data>
   <data name="VersionCheckSame" xml:space="preserve">
     <value>CBP Launcher in the RoN folder is the same as the downloaded Workshop version. Continuing...</value>

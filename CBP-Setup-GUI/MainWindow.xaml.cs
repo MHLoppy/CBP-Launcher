@@ -151,11 +151,19 @@ namespace CBPSetupGUI
                     case 1:
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase1;
 
-                        CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                        CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                        try
+                        {
+                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
+                            CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
 
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                        CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                            CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(CBPSetupGUI.Language.Resources.LocationPathError);
+                            await DelayedClose(CBPSetupGUI.Language.Resources.LocationPathError + "\n" + ex, 3);
+                        }
                         await SlowDown();
 
                         if (File.Exists
@@ -176,12 +184,22 @@ namespace CBPSetupGUI
 
                     case int _ when (Location == 2 || Location == 4)://parens just for my sake
 
-                        CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
-                        CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
+                        try
+                        {
+                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
+                            CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
 
-                        // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same location both on normal and pre-release versions
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                        CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                            // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same location both on normal and pre-release versions
+                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
+                            CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                        }
+
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(CBPSetupGUI.Language.Resources.LocationPathError);
+                            await DelayedClose(CBPSetupGUI.Language.Resources.LocationPathError + "\n" + ex, 3);
+                        }
+                        await SlowDown();
 
                         if (Location == 2)
                         {
@@ -194,7 +212,6 @@ namespace CBPSetupGUI
                         }
 
                         await SlowDown();
-
                         if (File.Exists
                             (Path.GetFullPath
                             (Path.Combine
@@ -216,11 +233,20 @@ namespace CBPSetupGUI
                     case 3:
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase3;
 
-                        CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
-                        CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
+                        try
+                        {
+                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
+                            CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
 
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                        CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                            CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(CBPSetupGUI.Language.Resources.LocationPathError);
+                            await DelayedClose(CBPSetupGUI.Language.Resources.LocationPathError + "\n" + ex, 3);
+                        }
+
                         await SlowDown();
 
                         if (File.Exists
@@ -252,81 +278,88 @@ namespace CBPSetupGUI
             {
                 if (CBPL == true)
                 {
-                    //https://stackoverflow.com/questions/11350008/how-to-get-exe-file-version-number-from-file-path/23325102#23325102
-                    var newVersionShort = FileVersionInfo.GetVersionInfo(CBPLExe);
-                    string newVersionFull = newVersionShort.FileVersion;
-
-                    var oldVersionShort = FileVersionInfo.GetVersionInfo(CBPSExe);
-                    string oldVersionFull = oldVersionShort.FileVersion;
-                    await SlowDown();
-
-                    if (newVersionFull == oldVersionFull)
+                    try
                     {
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckSame;
-                        return;
-                    }
-                    else
-                    {
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckDifferent;
+                        //https://stackoverflow.com/questions/11350008/how-to-get-exe-file-version-number-from-file-path/23325102#23325102
+                        var newVersionShort = FileVersionInfo.GetVersionInfo(CBPLExeUpdate);
+                        string newVersionFull = newVersionShort.FileVersion;
 
-                        try
+                        var oldVersionShort = FileVersionInfo.GetVersionInfo(CBPLExe);
+                        string oldVersionFull = oldVersionShort.FileVersion;
+                        await SlowDown();
+
+                        if (newVersionFull == oldVersionFull)
                         {
-                            File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
-                            File.Copy(CBPLExeUpdate, CBPLExe);
-
-                            File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
-                            File.Copy(CBPLDllUpdate, CBPLDll);
+                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckSame;
+                            return;
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            await SlowDown();
+                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckDifferent;
+
                             try
                             {
-                                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
-                                File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
-                                File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
-                            }
-                            catch (Exception ex2)
-                            {
-                                MessageBox.Show(CBPSetupGUI.Language.Resources.OldVersionRestoreError);
-                                PrimaryLog.Text += CBPSetupGUI.Language.Resources.OldVersionRestoreError + "\n" + ex2;
-                            }
+                                File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
+                                File.Copy(CBPLExeUpdate, CBPLExe);
 
-                            if (ex is UnauthorizedAccessException)
-                            {
-                                MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
-                                await DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex, -1);
+                                File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
+                                File.Copy(CBPLDllUpdate, CBPLDll);
                             }
-                            if (ex is FileNotFoundException)
+                            catch (Exception ex)
                             {
-                                MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
-                                await DelayedClose (CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex, -1);
-                            }
-                            if (ex is IOException)
-                            {
-                                MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
-                                await DelayedClose (CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex, -1);
-                            }
-                            else
-                            {
-                                MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
-                                await DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex, -1);
-                            }
-                        }
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
+                                await SlowDown();
+                                try
+                                {
+                                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
+                                    File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
+                                    File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
+                                }
+                                catch (Exception ex2)
+                                {
+                                    MessageBox.Show(CBPSetupGUI.Language.Resources.OldVersionRestoreError);
+                                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.OldVersionRestoreError + "\n" + ex2;
+                                }
 
-                        try
-                        {
-                            File.Delete(Path.Combine(CBPLExe + "old"));
-                            File.Delete(Path.Combine(CBPLDll + "old"));
-                            await SlowDown();
+                                if (ex is UnauthorizedAccessException)
+                                {
+                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
+                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex, -1);
+                                }
+                                if (ex is FileNotFoundException)
+                                {
+                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
+                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex, -1);
+                                }
+                                if (ex is IOException)
+                                {
+                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
+                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex, -1);
+                                }
+                                else
+                                {
+                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
+                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex, -1);
+                                }
+                            }
+                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
+
+                            try
+                            {
+                                File.Delete(Path.Combine(CBPLExe + "old"));
+                                File.Delete(Path.Combine(CBPLDll + "old"));
+                                await SlowDown();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
+                                await DelayedClose(CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex, -1);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
-                            PrimaryLog.Text += CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex;
-                            Environment.Exit(-1);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(CBPSetupGUI.Language.Resources.VersionCheckFail);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.VersionCheckFail + "\n" + ex, -1);
                     }
                 }
                 else if (CBPL == false)
@@ -339,8 +372,8 @@ namespace CBPSetupGUI
                     catch (Exception ex)
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootError);
-                        PrimaryLog.Text += CBPSetupGUI.Language.Resources.CopyToRootError + "\n" + ex;
-                        Environment.Exit(-1);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.CopyToRootError + "\n" + ex, -1);
+                        return;
                     }
                 }
             }
@@ -395,7 +428,8 @@ namespace CBPSetupGUI
             {
                 PrimaryLog.Text += "\n" + str;
                 await Delay(5000);
-                Environment.Exit(code);
+                Application.Current.Shutdown(code);
+                return;
             }
 
             async Task Delay(int ms)

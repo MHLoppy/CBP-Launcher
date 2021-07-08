@@ -178,16 +178,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to (during this delay the window may seem unresponsive).
-        /// </summary>
-        public static string FreezeNotification {
-            get {
-                return ResourceManager.GetString("FreezeNotification", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to ascertain current location. This window will close in 5 seconds..
+        ///   Looks up a localized string similar to Current location is unrecognised. This window will close in 5 seconds..
         /// </summary>
         public static string LocationCase0 {
             get {
@@ -237,6 +228,15 @@ namespace CBPSetupGUI.Language {
         public static string LocationCaseDefault {
             get {
                 return ResourceManager.GetString("LocationCaseDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error when assigning paths. This window will close in 5 seconds..
+        /// </summary>
+        public static string LocationPathError {
+            get {
+                return ResourceManager.GetString("LocationPathError", resourceCulture);
             }
         }
         
@@ -327,6 +327,15 @@ namespace CBPSetupGUI.Language {
         public static string VersionCheckDifferent {
             get {
                 return ResourceManager.GetString("VersionCheckDifferent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to compare versions (are Workshop files missing?). This window will close in 5 seconds..
+        /// </summary>
+        public static string VersionCheckFail {
+            get {
+                return ResourceManager.GetString("VersionCheckFail", resourceCulture);
             }
         }
         
