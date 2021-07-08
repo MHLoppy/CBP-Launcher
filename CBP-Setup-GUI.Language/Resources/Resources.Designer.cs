@@ -61,6 +61,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CBP Launcher is currently running. Please close it and then run this again..
+        /// </summary>
+        public static string CBPLCurrentlyRunning {
+            get {
+                return ResourceManager.GetString("CBPLCurrentlyRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Is this okay?.
         /// </summary>
         public static string ConsentIsCool {
@@ -115,7 +124,61 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to It looks like CBP Setup is already running in another thread. This window will close in 5 seconds..
+        ///   Looks up a localized string similar to The language files look like they might be old. You can try running CBL Launcher to update them..
+        /// </summary>
+        public static string DLLDifference {
+            get {
+                return ResourceManager.GetString("DLLDifference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you want to try using the existing files?.
+        /// </summary>
+        public static string DLLOfferQuestion {
+            get {
+                return ResourceManager.GetString("DLLOfferQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error checking the language files..
+        /// </summary>
+        public static string DLLPathError {
+            get {
+                return ResourceManager.GetString("DLLPathError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The langauge files look up to date. Continuing....
+        /// </summary>
+        public static string DLLSame {
+            get {
+                return ResourceManager.GetString("DLLSame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error updating the langauge files..
+        /// </summary>
+        public static string DLLUpdateFail {
+            get {
+                return ResourceManager.GetString("DLLUpdateFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language files updated..
+        /// </summary>
+        public static string DLLUpdateSuccess {
+            get {
+                return ResourceManager.GetString("DLLUpdateSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It looks like CBP Setup is already running in another thread..
         /// </summary>
         public static string ErrorAlreadyRunning {
             get {
@@ -178,7 +241,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Current location is unrecognised. This window will close in 5 seconds..
+        ///   Looks up a localized string similar to Current location is unrecognised..
         /// </summary>
         public static string LocationCase0 {
             get {
@@ -223,7 +286,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Location result unexpected. This window will close in 5 seconds..
+        ///   Looks up a localized string similar to Location result unexpected..
         /// </summary>
         public static string LocationCaseDefault {
             get {
@@ -277,6 +340,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CBP Launcher is already running (maybe close it and run this again?)..
+        /// </summary>
+        public static string StartCBPLAlreadyRunning {
+            get {
+                return ResourceManager.GetString("StartCBPLAlreadyRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to It looks like CBP Launcher didn&apos;t start :(.
         /// </summary>
         public static string StartCBPLFail {
@@ -295,7 +367,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CBP Launcher detected as running; job complete. This window will close in 5 seconds..
+        ///   Looks up a localized string similar to CBP Launcher detected as running; job complete..
         /// </summary>
         public static string StartCBPLSuccess {
             get {
@@ -322,6 +394,24 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to  (User said no).
+        /// </summary>
+        public static string UserNo {
+            get {
+                return ResourceManager.GetString("UserNo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (User said yes).
+        /// </summary>
+        public static string UserYes {
+            get {
+                return ResourceManager.GetString("UserYes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Updating it....
         /// </summary>
         public static string VersionCheckDifferent {
@@ -331,7 +421,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to compare versions (are Workshop files missing?). This window will close in 5 seconds..
+        ///   Looks up a localized string similar to Unable to compare versions (are Workshop files missing?)..
         /// </summary>
         public static string VersionCheckFail {
             get {
@@ -345,6 +435,15 @@ namespace CBPSetupGUI.Language {
         public static string VersionCheckSame {
             get {
                 return ResourceManager.GetString("VersionCheckSame", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This window will close in 5 seconds..
+        /// </summary>
+        public static string WindowWillClose {
+            get {
+                return ResourceManager.GetString("WindowWillClose", resourceCulture);
             }
         }
     }

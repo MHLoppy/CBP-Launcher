@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CBPLCurrentlyRunning" xml:space="preserve">
+    <value>CBP Launcher is currently running. Please close it and then run this again.</value>
+  </data>
   <data name="ConsentIsCool" xml:space="preserve">
     <value>Is this okay?</value>
   </data>
@@ -135,8 +138,26 @@
   <data name="DeletingFilesError" xml:space="preserve">
     <value>Error deleting the old files.</value>
   </data>
+  <data name="DLLDifference" xml:space="preserve">
+    <value>The language files look like they might be old. You can try running CBL Launcher to update them.</value>
+  </data>
+  <data name="DLLOfferQuestion" xml:space="preserve">
+    <value>Do you want to try using the existing files?</value>
+  </data>
+  <data name="DLLPathError" xml:space="preserve">
+    <value>Error checking the language files.</value>
+  </data>
+  <data name="DLLSame" xml:space="preserve">
+    <value>The langauge files look up to date. Continuing...</value>
+  </data>
+  <data name="DLLUpdateFail" xml:space="preserve">
+    <value>Error updating the langauge files.</value>
+  </data>
+  <data name="DLLUpdateSuccess" xml:space="preserve">
+    <value>Language files updated.</value>
+  </data>
   <data name="ErrorAlreadyRunning" xml:space="preserve">
-    <value>It looks like CBP Setup is already running in another thread. This window will close in 5 seconds.</value>
+    <value>It looks like CBP Setup is already running in another thread.</value>
   </data>
   <data name="ErrorFileNotFound" xml:space="preserve">
     <value>Error replacing CBP Launcher with new version - file not found.</value>
@@ -157,7 +178,7 @@
     <value>Found CBP Launcher in RoN's root folder.</value>
   </data>
   <data name="LocationCase0" xml:space="preserve">
-    <value>Current location is unrecognised. This window will close in 5 seconds.</value>
+    <value>Current location is unrecognised.</value>
   </data>
   <data name="LocationCase1" xml:space="preserve">
     <value>Looks like the root RoN folder.</value>
@@ -172,7 +193,7 @@
     <value>Looks like the Workshop mods folder for pre-release CBP.</value>
   </data>
   <data name="LocationCaseDefault" xml:space="preserve">
-    <value>Location result unexpected. This window will close in 5 seconds.</value>
+    <value>Location result unexpected.</value>
   </data>
   <data name="LocationPathError" xml:space="preserve">
     <value>Error when assigning paths. This window will close in 5 seconds.</value>
@@ -190,6 +211,9 @@
   <data name="StartCBPL" xml:space="preserve">
     <value>All done! Time to start CBP Launcher...</value>
   </data>
+  <data name="StartCBPLAlreadyRunning" xml:space="preserve">
+    <value>CBP Launcher is already running (maybe close it and run this again?).</value>
+  </data>
   <data name="StartCBPLFail" xml:space="preserve">
     <value>It looks like CBP Launcher didn't start :(</value>
   </data>
@@ -197,7 +221,7 @@
     <value>There was a problem starting CBP Launcher: </value>
   </data>
   <data name="StartCBPLSuccess" xml:space="preserve">
-    <value>CBP Launcher detected as running; job complete. This window will close in 5 seconds.</value>
+    <value>CBP Launcher detected as running; job complete.</value>
   </data>
   <data name="StartupLanguageDetected" xml:space="preserve">
     <value>English text has been loaded.</value>
@@ -205,13 +229,22 @@
   <data name="StartupMessage" xml:space="preserve">
     <value>CBP Setup will prepare/update CBP Launcher.</value>
   </data>
+  <data name="UserNo" xml:space="preserve">
+    <value> (User said no)</value>
+  </data>
+  <data name="UserYes" xml:space="preserve">
+    <value> (User said yes)</value>
+  </data>
   <data name="VersionCheckDifferent" xml:space="preserve">
     <value>CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Updating it...</value>
   </data>
   <data name="VersionCheckFail" xml:space="preserve">
-    <value>Unable to compare versions (are Workshop files missing?). This window will close in 5 seconds.</value>
+    <value>Unable to compare versions (are Workshop files missing?).</value>
   </data>
   <data name="VersionCheckSame" xml:space="preserve">
     <value>CBP Launcher in the RoN folder is the same as the downloaded Workshop version. Continuing...</value>
+  </data>
+  <data name="WindowWillClose" xml:space="preserve">
+    <value>This window will close in 5 seconds.</value>
   </data>
 </root>
