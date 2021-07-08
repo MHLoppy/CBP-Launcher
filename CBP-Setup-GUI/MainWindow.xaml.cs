@@ -27,6 +27,7 @@ namespace CBPSetupGUI
             }
 
             DefaultChecker();
+            FirstTimeSlow();
         }
 
         private static int Location = 0;
@@ -143,6 +144,11 @@ namespace CBPSetupGUI
                 await SlowDown();
                 PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartupMessage + "\n";
                 await SlowDown();
+                if (Properties.Settings.Default.FirstTimeRun == true)
+                {
+                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FirstTimeRun + "\n";
+                    await SlowDown();
+                }
             }
 
             async Task MasculinityCheck()
@@ -569,7 +575,7 @@ namespace CBPSetupGUI
 
             async Task SlowDown()
             {
-                if (Properties.Settings.Default.SlowMode == true)
+                if (Properties.Settings.Default.SlowMode == true || Properties.Settings.Default.FirstTimeRun == true)
                 {
                     await Delay(2250);
                 }
@@ -589,6 +595,14 @@ namespace CBPSetupGUI
                 CultureInfo.DefaultThreadCurrentCulture = culture;
                 Thread.CurrentThread.CurrentCulture = culture;
                 SetLanguageDictionary();
+            }
+        }
+
+        private void FirstTimeSlow()
+        {
+            if (Properties.Settings.Default.FirstTimeRun == true)
+            {
+                Properties.Settings.Default.FirstTimeRun = false;
             }
         }
 

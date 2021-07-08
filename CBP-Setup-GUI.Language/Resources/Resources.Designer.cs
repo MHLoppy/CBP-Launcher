@@ -232,6 +232,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to First time run detected. An artificial delay has been added to messages so that they are easier to read. Afterwards, this will be disabled by default..
+        /// </summary>
+        public static string FirstTimeRun {
+            get {
+                return ResourceManager.GetString("FirstTimeRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t find CBP Launcher in RoN&apos;s root folder..
         /// </summary>
         public static string FoundRootNo {
