@@ -178,6 +178,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Override language to English.
+        /// </summary>
+        public static string EnglishOverrideText {
+            get {
+                return ResourceManager.GetString("EnglishOverrideText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to It looks like CBP Setup is already running in another thread..
         /// </summary>
         public static string ErrorAlreadyRunning {
@@ -241,7 +250,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Current location is unrecognised..
+        ///   Looks up a localized string similar to Current folder location is unrecognised..
         /// </summary>
         public static string LocationCase0 {
             get {

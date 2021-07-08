@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+//using static CBPSetupGUI.Container;
 using CBPSetupGUI.Language;
 
 namespace CBPSetupGUI
@@ -21,9 +22,9 @@ namespace CBPSetupGUI
             SetLanguageDictionary();
         }
 
-        private void SetLanguageDictionary()
+        public static void SetLanguageDictionary()
         {
-            switch (Thread.CurrentThread.CurrentCulture.ToString())
+            switch (Thread.CurrentThread.CurrentCulture.ToString().Substring(0, 2))
             {
                 //english, chinese, french, german, italian, japanese, korean, portugese, russian, spanish
                 //codes ref https://www.w3schools.com/tags/ref_language_codes.asp

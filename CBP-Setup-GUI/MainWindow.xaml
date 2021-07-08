@@ -15,9 +15,12 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <TextBox Name="PrimaryLog" Grid.Row="0" Margin="3,4,3,2" Text="" FontSize="12" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
-        <CheckBox Name="SlowModeCheckBox" Grid.Row="1" Content="{x:Static lang:Resources.SlowModeButtonText}" VerticalAlignment="Center" Margin="8,0,0,0" Checked="SlowModeCheckBox_Checked" Unchecked="SlowModeCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+        <StackPanel Grid.Row="1" Margin="8,4,0,0">
+            <CheckBox Name="SlowModeCheckBox" Margin="0,0,0,0" Content="{x:Static lang:Resources.SlowModeButtonText}" VerticalAlignment="Center" Checked="SlowModeCheckBox_Checked" Unchecked="SlowModeCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+            <CheckBox Name="EnglishCheckBox" Margin="0,8,0,0" Content="{x:Static lang:Resources.EnglishOverrideText}" VerticalAlignment="Center" Checked="EnglishCheckBox_Checked" Unchecked="EnglishCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+        </StackPanel>
     </Grid>
 </Window>

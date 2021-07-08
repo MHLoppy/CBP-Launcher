@@ -42,10 +42,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Resources.de.resx" />
     <EmbeddedResource Include="Resources\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <CustomToolNamespace>CBPSetupGUI.Language</CustomToolNamespace>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

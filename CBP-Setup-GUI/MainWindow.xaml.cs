@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using CBPSetupGUI.Language;
+using static CBPSetupGUI.App;//for SetLanguageDictionary
 
 namespace CBPSetupGUI
 {
@@ -141,7 +141,7 @@ namespace CBPSetupGUI
                     }
                 }
                 await SlowDown();
-                PrimaryLog.Text += "\n\n" + CBPSetupGUI.Language.Resources.StartupMessage.ToString();
+                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartupMessage + "\n";
                 await SlowDown();
             }
 
@@ -575,9 +575,20 @@ namespace CBPSetupGUI
                 }
             }
 
-            async Task<bool> ProcessCheck(string processName) //currently runs sync (not async)
+            async Task<bool> ProcessCheck(string processName) //not really anything to run async here
             {
                 return Process.GetProcessesByName(processName).Length > 0;
+            }
+        }
+
+        private static void RuleTheWaves()
+        {
+            if (Properties.Settings.Default.EnglishOverride == true)
+            {
+                CultureInfo culture = CultureInfo.CreateSpecificCulture("en");
+                CultureInfo.DefaultThreadCurrentCulture = culture;
+                Thread.CurrentThread.CurrentCulture = culture;
+                SetLanguageDictionary();
             }
         }
 
@@ -590,6 +601,18 @@ namespace CBPSetupGUI
         private void SlowModeCheckBox_UnChecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.SlowMode = false;
+            SaveSettings();
+        }
+        private void EnglishCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.EnglishOverride = true;
+            SaveSettings();
+            RuleTheWaves();
+        }
+
+        private void EnglishCheckBox_UnChecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.EnglishOverride = false;
             SaveSettings();
         }
 
@@ -613,6 +636,14 @@ namespace CBPSetupGUI
             else if (Properties.Settings.Default.SlowMode == false)
             {
                 SlowModeCheckBox.IsChecked = false;
+            }
+            if (Properties.Settings.Default.EnglishOverride == true)
+            {
+                EnglishCheckBox.IsChecked = true;
+            }
+            else if (Properties.Settings.Default.EnglishOverride == false)
+            {
+                EnglishCheckBox.IsChecked = false;
             }
         }
     }

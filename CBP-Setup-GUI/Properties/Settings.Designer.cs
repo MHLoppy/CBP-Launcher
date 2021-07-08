@@ -46,5 +46,17 @@ namespace CBPSetupGUI.Properties {
                 this["SlowMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EnglishOverride {
+            get {
+                return ((bool)(this["EnglishOverride"]));
+            }
+            set {
+                this["EnglishOverride"] = value;
+            }
+        }
     }
 }
