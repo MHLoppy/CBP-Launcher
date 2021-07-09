@@ -157,7 +157,7 @@
     <value>Error checking the language files.</value>
   </data>
   <data name="DLLSame" xml:space="preserve">
-    <value>The langauge files look up to date. Continuing...</value>
+    <value>The language files look up to date. Continuing...</value>
   </data>
   <data name="DLLUpdateFail" xml:space="preserve">
     <value>Error updating the langauge files.</value>
@@ -185,6 +185,12 @@
   </data>
   <data name="FirstTimeRun" xml:space="preserve">
     <value>First time run detected. An artificial delay has been added to messages so that they are easier to read. Afterwards, this will be disabled by default.</value>
+  </data>
+  <data name="FontSize" xml:space="preserve">
+    <value>Font Size</value>
+  </data>
+  <data name="FontSizeNotice" xml:space="preserve">
+    <value>Press F9 to adjust font size (you may need to press twice).</value>
   </data>
   <data name="FoundRootNo" xml:space="preserve">
     <value>Can't find CBP Launcher in RoN's root folder.</value>
@@ -218,6 +224,9 @@
   </data>
   <data name="OldVersionRestoreError" xml:space="preserve">
     <value>Error restoring old versions: </value>
+  </data>
+  <data name="ResetButtonText" xml:space="preserve">
+    <value>Reset settings</value>
   </data>
   <data name="SlowModeButtonText" xml:space="preserve">
     <value>Add artificial delay to messages</value>

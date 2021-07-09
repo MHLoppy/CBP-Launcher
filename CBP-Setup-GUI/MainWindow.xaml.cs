@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using static CBPSetupGUI.App;//for SetLanguageDictionary, used for the English override
 
 namespace CBPSetupGUI
@@ -54,6 +55,9 @@ namespace CBPSetupGUI
 
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
+            var window = Window.GetWindow(this);
+            window.KeyDown += HandleKeyPressF9;
+
             await Primary();
         }
 
@@ -71,7 +75,7 @@ namespace CBPSetupGUI
             await WhereTheBloodyHellAreYou();
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
-            await CheckForCBPL ();
+            await CheckForCBPL();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
             await CBPLVersionCheck();
@@ -87,7 +91,7 @@ namespace CBPSetupGUI
             {
                 try
                 {
-                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected.ToString();
+                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected + " " + CBPSetupGUI.Language.Resources.FontSizeNotice;
                 }
                 catch (Exception ex)
                 {
@@ -306,7 +310,7 @@ namespace CBPSetupGUI
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
                             CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
 
-                            // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same location both on normal and pre-release versions
+                            // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
                             CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
                         }
@@ -427,7 +431,7 @@ namespace CBPSetupGUI
                     catch (Exception ex)
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.VersionCheckFail);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.VersionCheckFail + "\n" + ex  + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.VersionCheckFail + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
                         return;
                     }
                 }
@@ -461,6 +465,7 @@ namespace CBPSetupGUI
 
             async Task StartCBPL()
             {
+                FirstTimeSlow();
                 await SlowDown();
                 PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPL;
                 await SlowDown();
@@ -499,7 +504,6 @@ namespace CBPSetupGUI
 
             async Task Conclusion()
             {
-                FirstTimeSlow();
                 await Delay(600); //wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
                 if (await ProcessCheck("CBP Launcher") == false)
                 {
@@ -738,6 +742,59 @@ namespace CBPSetupGUI
             {
                 AutoConsentCheckBox.IsChecked = false;
             }
+        }
+
+        // toggle between the font size controls and the reset button being visible in the bottom right of main window
+        private void HandleKeyPressF9(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F9 && Properties.Settings.Default.FontSizeVisible == true)
+            {
+                Properties.Settings.Default.FontSizeVisible = false;
+                FontSizeGrid.Visibility = Visibility.Hidden;
+                FontSizeAltGrid.Visibility = Visibility.Visible;
+                SaveSettings();
+            }
+            else if (e.Key == Key.F9 && Properties.Settings.Default.FontSizeVisible == false)
+            {
+                Properties.Settings.Default.FontSizeVisible = true;
+                FontSizeGrid.Visibility = Visibility.Visible;
+                FontSizeAltGrid.Visibility = Visibility.Hidden;
+                SaveSettings();
+            }
+        }
+
+        // not sure if automatically increasing the window size is a good idea or not
+
+        private void FontSizeIncreasePress(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.FontSize += 2;
+            ///if (Properties.Settings.Default.Height <= 1500 && Properties.Settings.Default.Width <= 2250)
+            ///{
+            ///    Properties.Settings.Default.Height += 30;
+            ///    Properties.Settings.Default.Width += 44;
+            ///}
+            SaveSettings();
+        }
+
+        private void FontSizeDecreasePress(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.FontSize -= 2;
+            ///if (Properties.Settings.Default.Height >= 120 && Properties.Settings.Default.Width >= 200)
+            ///{
+            ///    Properties.Settings.Default.Height -= 30;
+            ///    Properties.Settings.Default.Width -= 44;
+            ///}
+            SaveSettings();
+        }
+
+        private void ResetPressed(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.Reset();
+            // for some reason height doesn't reset properly by default?
+            Properties.Settings.Default.Height = 420;
+            Properties.Settings.Default.Width = 600;
+            // neither does the grid height????
+            SaveSettings();
         }
     }
 }
