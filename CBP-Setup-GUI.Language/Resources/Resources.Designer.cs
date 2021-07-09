@@ -178,7 +178,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The langauge files look up to date. Continuing....
+        ///   Looks up a localized string similar to The language files look up to date. Continuing....
         /// </summary>
         public static string DLLSame {
             get {
@@ -264,6 +264,24 @@ namespace CBPSetupGUI.Language {
         public static string FirstTimeRun {
             get {
                 return ResourceManager.GetString("FirstTimeRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Font Size.
+        /// </summary>
+        public static string FontSize {
+            get {
+                return ResourceManager.GetString("FontSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Press F9 to adjust font size (you may need to press twice)..
+        /// </summary>
+        public static string FontSizeNotice {
+            get {
+                return ResourceManager.GetString("FontSizeNotice", resourceCulture);
             }
         }
         
@@ -363,6 +381,15 @@ namespace CBPSetupGUI.Language {
         public static string OldVersionRestoreError {
             get {
                 return ResourceManager.GetString("OldVersionRestoreError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset settings.
+        /// </summary>
+        public static string ResetButtonText {
+            get {
+                return ResourceManager.GetString("ResetButtonText", resourceCulture);
             }
         }
         

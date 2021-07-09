@@ -5,8 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CBPSetupGUI"
         xmlns:lang="clr-namespace:CBPSetupGUI.Language;assembly=CBPSetupGUI.Language"
+        xmlns:properties="clr-namespace:CBPSetupGUI.Properties"
         mc:Ignorable="d"
-        Title="CBP Setup (GUI)" Height="380" Width="550"
+        Title="CBP Setup (GUI)"
+        Height="{Binding Source={x:Static properties:Settings.Default}, Path=Height, Mode=TwoWay}"
+        Width="{Binding Source={x:Static properties:Settings.Default}, Path=Width, Mode=TwoWay}"
         Background="#FF191923"
         WindowStartupLocation="CenterScreen"
         ContentRendered="Window_ContentRendered"
@@ -15,13 +18,29 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="67"/>
+            <RowDefinition Name="DumbRow" Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBox Name="PrimaryLog" Grid.Row="0" Margin="3,4,3,2" Text="" FontSize="12" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
-        <StackPanel Grid.Row="1" Margin="8,4,0,0">
-            <CheckBox Name="AutoConsentCheckBox" Margin="0,0,0,0" Content="{x:Static lang:Resources.AutoConsentText}" VerticalAlignment="Center" Checked="AutoConsentCheckBox_Checked" Unchecked="AutoConsentCheckBox_UnChecked" Foreground="WhiteSmoke"/>
-            <CheckBox Name="SlowModeCheckBox" Margin="0,5,0,0" Content="{x:Static lang:Resources.SlowModeButtonText}" VerticalAlignment="Center" Checked="SlowModeCheckBox_Checked" Unchecked="SlowModeCheckBox_UnChecked" Foreground="WhiteSmoke"/>
-            <CheckBox Name="EnglishCheckBox" Margin="0,5,0,0" Content="{x:Static lang:Resources.EnglishOverrideText}" VerticalAlignment="Center" Checked="EnglishCheckBox_Checked" Unchecked="EnglishCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Name="DumbColumn" Width="100"/>
+        </Grid.ColumnDefinitions>
+        <TextBox Name="PrimaryLog" Grid.Row="0" Grid.ColumnSpan="2" Margin="3,4,3,2" Text="" FontSize="{Binding Source={x:Static properties:Settings.Default}, Path=FontSize}" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="1" Margin="8,0,0,8">
+            <CheckBox Name="AutoConsentCheckBox" Margin="0,5,0,0" Content="{x:Static lang:Resources.AutoConsentText}" FontSize="{Binding Source={x:Static properties:Settings.Default}, Path=FontSize}" VerticalAlignment="Center" Checked="AutoConsentCheckBox_Checked" Unchecked="AutoConsentCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+            <CheckBox Name="SlowModeCheckBox" Margin="0,5,0,0" Content="{x:Static lang:Resources.SlowModeButtonText}" FontSize="{Binding Source={x:Static properties:Settings.Default}, Path=FontSize}" VerticalAlignment="Center" Checked="SlowModeCheckBox_Checked" Unchecked="SlowModeCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+            <CheckBox Name="EnglishCheckBox" Margin="0,5,0,0" Content="{x:Static lang:Resources.EnglishOverrideText}" FontSize="{Binding Source={x:Static properties:Settings.Default}, Path=FontSize}" VerticalAlignment="Center" Checked="EnglishCheckBox_Checked" Unchecked="EnglishCheckBox_UnChecked" Foreground="WhiteSmoke"/>
         </StackPanel>
+        <Grid Name="FontSizeGrid" Grid.Row="1" Grid.Column="1" Visibility="Hidden">
+            <TextBlock Name="FontSizeLabel" Grid.Row="1" Grid.Column="1" Text="{x:Static lang:Resources.FontSize}" FontSize="18" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,16,43" Foreground="WhiteSmoke"/>
+            <Button Name="FontSizeIncreaseButton" Grid.Row="1" Grid.Column="1" FontSize="30" FontWeight="Black" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="30" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,57,12" Background="Coral" Click="FontSizeIncreasePress">
+                <TextBlock Text="+" FontSize="30" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,5"/>
+            </Button>
+            <Button Name="FontSizeDecreaseButton" Grid.Row="1" Grid.Column="1" FontSize="30" FontWeight="Black" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="30" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,17,12" Background="Coral" Click="FontSizeDecreasePress">
+                <TextBlock Text="-" FontSize="30" FontWeight="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,5"/>
+         </Button>
+        </Grid>
+        <Grid Name="FontSizeAltGrid" Grid.Row="1" Grid.Column="1" Visibility="Visible">
+            <Button Margin="-30,20,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="120" Height="32" Background="#FF282837" BorderThickness="0" FontSize="{Binding Source={x:Static properties:Settings.Default}, Path=FontSize}" Content="{x:Static lang:Resources.ResetButtonText}" Foreground="WhiteSmoke" Click="ResetPressed"/>
+        </Grid>
     </Grid>
 </Window>
