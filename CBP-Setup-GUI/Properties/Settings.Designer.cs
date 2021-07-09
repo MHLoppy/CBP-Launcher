@@ -70,5 +70,17 @@ namespace CBPSetupGUI.Properties {
                 this["FirstTimeRun"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoConsent {
+            get {
+                return ((bool)(this["AutoConsent"]));
+            }
+            set {
+                this["AutoConsent"] = value;
+            }
+        }
     }
 }

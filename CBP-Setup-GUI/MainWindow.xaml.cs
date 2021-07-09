@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using static CBPSetupGUI.App;//for SetLanguageDictionary
+using static CBPSetupGUI.App;//for SetLanguageDictionary, used for the English override
 
 namespace CBPSetupGUI
 {
@@ -27,7 +27,6 @@ namespace CBPSetupGUI
             }
 
             DefaultChecker();
-            FirstTimeSlow();
         }
 
         private static int Location = 0;
@@ -49,7 +48,8 @@ namespace CBPSetupGUI
 
         private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
         private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
-        private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Setup GUI.exe"));
+        private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
+        private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName));
         private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
 
         private async void Window_ContentRendered(object sender, EventArgs e)
@@ -190,37 +190,8 @@ namespace CBPSetupGUI
                         DLLOfferTryAnyway = true;
                         return;
 
-                        // since it's supposed to be CBPL's responsibility to keep both CBP Setup *and* its language files updated,
-                        // it seems like it actually makes sense NOT try to update if different; just note it and offer to continue anyway instead
-                        /*try
-                        {
-                            //update the values to be for CBPS dlls
-                            //File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
-                            //File.Copy(CBPLExeUpdate, CBPLExe);
-
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DLLUpdateSuccess;
-                        }
-                        catch (Exception ex)
-                        {
-                            //error
-                            DLLOfferTryAnyway = true;
-                            return;
-                        }
-
-                        try
-                        {
-                            //update the values to be for CBPS dlls
-                            //File.Delete(Path.Combine(CBPLExe + "old"));
-                            await SlowDown();
-                        }
-                        catch (Exception ex)
-                        {
-                            //update these strings
-                            MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
-                            await DelayedClose(CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex, -1);
-                        }
-
-                        // maybe check the dll versions again? if they're *still* not the same, just <light error (unique - need new string)> and DLLOFferTryAanyway = True*/
+                        // Since it's supposed to be CBPL's responsibility to keep CBP Setup updated,
+                        // CBP Setup intentionally excludes updating its own language files, and these are assigned to CBPL instead.
                     }
                 }
                 catch (Exception ex)
@@ -237,8 +208,8 @@ namespace CBPSetupGUI
                 if (DLLOfferTryAnyway == true)
                 {
                     //TODO: allow user to try using existing files
-                    MessageBox.Show(CBPSetupGUI.Language.Resources.DLLOfferQuestion);
-                    if (CBPLExeUpdate == CBPLExe)//UPDATE THIS to if user says yes
+                    ;
+                    if (MessageBox.Show(CBPSetupGUI.Language.Resources.DLLOfferQuestion, null, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DLLOfferQuestion + CBPSetupGUI.Language.Resources.UserYes;
                         return;
@@ -430,64 +401,26 @@ namespace CBPSetupGUI
                         }
                         else
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckDifferent;
-
-                            try
+                            //ask user if it's okay to update [can autoconsent]
+                            if (Properties.Settings.Default.AutoConsent == false)
                             {
-                                File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
-                                File.Copy(CBPLExeUpdate, CBPLExe);
-
-                                File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
-                                File.Copy(CBPLDllUpdate, CBPLDll);
-                            }
-                            catch (Exception ex)
-                            {
-                                await SlowDown();
-                                try
+                                if (MessageBox.Show(CBPSetupGUI.Language.Resources.VersionCheckDifferent, CBPSetupGUI.Language.Resources.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                 {
-                                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
-                                    File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
-                                    File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
-                                }
-                                catch (Exception ex2)
-                                {
-                                    MessageBox.Show(CBPSetupGUI.Language.Resources.OldVersionRestoreError);
-                                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.OldVersionRestoreError + "\n" + ex2;
-                                }
-
-                                if (ex is UnauthorizedAccessException)
-                                {
-                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
-                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
-                                }
-                                if (ex is FileNotFoundException)
-                                {
-                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
-                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
-                                }
-                                if (ex is IOException)
-                                {
-                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
-                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckDifferent + CBPSetupGUI.Language.Resources.ConsentYes;
+                                    await UpdateCBPL();
+                                    return;
                                 }
                                 else
                                 {
-                                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
-                                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                                    await DelayedClose(CBPSetupGUI.Language.Resources.VersionCheckDifferent + CBPSetupGUI.Language.Resources.ConsentNo + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                                    return;
                                 }
                             }
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
-
-                            try
+                            else
                             {
-                                File.Delete(Path.Combine(CBPLExe + "old"));
-                                File.Delete(Path.Combine(CBPLDll + "old"));
-                                await SlowDown();
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
-                                await DelayedClose(CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckDifferent + CBPSetupGUI.Language.Resources.ConsentIsCool;
+                                await UpdateCBPL();
+                                return;
                             }
                         }
                     }
@@ -495,19 +428,32 @@ namespace CBPSetupGUI
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.VersionCheckFail);
                         await DelayedClose(CBPSetupGUI.Language.Resources.VersionCheckFail + "\n" + ex  + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        return;
                     }
                 }
-                else if (CBPL == false)
+                else if (CBPL == false)//reasonably one could expect a bool to never return anything except a true or not-true-therefore-false value, but this is actually a sermon on the world not always being reasonable T_T
                 {
                     await SlowDown();
-                    try
+
+                    // ask user if it's okay to copy CBPL to RoN folder [can autoconsent]
+                    if (Properties.Settings.Default.AutoConsent == false)
                     {
-                        File.Copy(CBPLExeUpdate, CBPLExe);
+                        if (MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootConsent, CBPSetupGUI.Language.Resources.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        {
+                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.CopyToRootConsent + CBPSetupGUI.Language.Resources.ConsentYes;
+                            await CopyToRoot();
+                            return;
+                        }
+                        else
+                        {
+                            await DelayedClose(CBPSetupGUI.Language.Resources.CopyToRootConsent + CBPSetupGUI.Language.Resources.ConsentNo + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                            return;
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootError);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.CopyToRootError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.CopyToRootConsent + CBPSetupGUI.Language.Resources.ConsentIsCool;
+                        await CopyToRoot();
                         return;
                     }
                 }
@@ -521,19 +467,26 @@ namespace CBPSetupGUI
 
                 if (await ProcessCheck("CBP Launcher") == false)
                 {
-                    try
+                    //ask user if it's okay to run CBP Launcher [can autoconsent]
+                    if (Properties.Settings.Default.AutoConsent == false)
                     {
-                        // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
-                        ProcessStartInfo _ = new ProcessStartInfo(CBPLExe)
+                        if (MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLConsent, CBPSetupGUI.Language.Resources.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
-                            WorkingDirectory = CBPLExe + @"..\"
-                        };
-                        Process.Start(CBPLExe);
+                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPLConsent + CBPSetupGUI.Language.Resources.ConsentYes;
+                            await StartCBPLProcess();
+                            return;
+                        }
+                        else
+                        {
+                            await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLConsent + CBPSetupGUI.Language.Resources.ConsentNo + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                            return;
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLProblem);
-                        PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartCBPLProblem + "\n" + ex;
+                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPLConsent + CBPSetupGUI.Language.Resources.ConsentIsCool;
+                        await StartCBPLProcess();
+                        return;
                     }
                 }
                 else
@@ -546,12 +499,20 @@ namespace CBPSetupGUI
 
             async Task Conclusion()
             {
+                FirstTimeSlow();
                 await Delay(600); //wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
                 if (await ProcessCheck("CBP Launcher") == false)
                 {
-                    await SlowDown();
-                    MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
-                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    // second try, reduce false negatives for slower systems (or just random OS hitches)
+                    await Delay(3200);
+                    if (await ProcessCheck("CBP Launcher") == false)
+                    {
+                        MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        return;
+                    }
+                    //no need for the slowdown since the delay is already long
+                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLSuccess + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
                     return;
                 }
                 else
@@ -588,6 +549,99 @@ namespace CBPSetupGUI
             {
                 return Process.GetProcessesByName(processName).Length > 0;
             }
+
+            async Task UpdateCBPL()
+            {
+                try
+                {
+                    File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
+                    File.Copy(CBPLExeUpdate, CBPLExe);
+
+                    File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
+                    File.Copy(CBPLDllUpdate, CBPLDll);
+                }
+                catch (Exception ex)
+                {
+                    await SlowDown();
+                    try
+                    {
+                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
+                        File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
+                        File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
+                    }
+                    catch (Exception ex2)
+                    {
+                        MessageBox.Show(CBPSetupGUI.Language.Resources.OldVersionRestoreError);
+                        PrimaryLog.Text += CBPSetupGUI.Language.Resources.OldVersionRestoreError + "\n" + ex2;
+                    }
+
+                    if (ex is UnauthorizedAccessException)
+                    {
+                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    }
+                    if (ex is FileNotFoundException)
+                    {
+                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    }
+                    if (ex is IOException)
+                    {
+                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    }
+                    else
+                    {
+                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
+                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    }
+                }
+                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
+
+                try
+                {
+                    File.Delete(Path.Combine(CBPLExe + "old"));
+                    File.Delete(Path.Combine(CBPLDll + "old"));
+                    await SlowDown();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
+                    await DelayedClose(CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                }
+            }
+
+            async Task StartCBPLProcess()
+            {
+                try
+                {
+                    // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
+                    ProcessStartInfo _ = new ProcessStartInfo(CBPLExe)
+                    {
+                        WorkingDirectory = CBPLExe + @"..\"
+                    };
+                    Process.Start(CBPLExe);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLProblem);
+                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLProblem + "\n" + ex, -1);
+                }
+            }
+
+            async Task CopyToRoot()
+            {
+                try
+                {
+                    File.Copy(CBPLExeUpdate, CBPLExe);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootError);
+                    await DelayedClose(CBPSetupGUI.Language.Resources.CopyToRootError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    return;
+                }
+            }
         }
 
         private static void RuleTheWaves()
@@ -606,6 +660,7 @@ namespace CBPSetupGUI
             if (Properties.Settings.Default.FirstTimeRun == true)
             {
                 Properties.Settings.Default.FirstTimeRun = false;
+                SaveSettings();
             }
         }
 
@@ -630,6 +685,19 @@ namespace CBPSetupGUI
         private void EnglishCheckBox_UnChecked(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.EnglishOverride = false;
+            SaveSettings();
+        }
+
+        private void AutoConsentCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.AutoConsent = true;
+            SaveSettings();
+            RuleTheWaves();
+        }
+
+        private void AutoConsentCheckBox_UnChecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.AutoConsent = false;
             SaveSettings();
         }
 
@@ -661,6 +729,14 @@ namespace CBPSetupGUI
             else if (Properties.Settings.Default.EnglishOverride == false)
             {
                 EnglishCheckBox.IsChecked = false;
+            }
+            if (Properties.Settings.Default.AutoConsent == true)
+            {
+                AutoConsentCheckBox.IsChecked = true;
+            }
+            else if (Properties.Settings.Default.AutoConsent == false)
+            {
+                AutoConsentCheckBox.IsChecked = false;
             }
         }
     }

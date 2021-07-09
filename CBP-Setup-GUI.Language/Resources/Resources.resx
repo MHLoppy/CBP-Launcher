@@ -117,17 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AutoConsentText" xml:space="preserve">
+    <value>Auto-allow update and launch procedures (faster)</value>
+  </data>
   <data name="CBPLCurrentlyRunning" xml:space="preserve">
     <value>CBP Launcher is currently running. Please close it and then run this again.</value>
   </data>
   <data name="ConsentIsCool" xml:space="preserve">
-    <value>Is this okay?</value>
+    <value> (user auto-consented)</value>
+  </data>
+  <data name="ConsentNeeded" xml:space="preserve">
+    <value>Consent needed</value>
   </data>
   <data name="ConsentNo" xml:space="preserve">
-    <value>No (close CBP Setup)</value>
+    <value> (user said no)</value>
   </data>
   <data name="ConsentYes" xml:space="preserve">
-    <value>Yes</value>
+    <value> (user said yes)</value>
+  </data>
+  <data name="CopyToRootConsent" xml:space="preserve">
+    <value>Is it okay to copy CBP Launcher into the RoN directory?</value>
   </data>
   <data name="CopyToRootError" xml:space="preserve">
     <value>Error copying CBP Launcher into RoN root folder: </value>
@@ -139,10 +148,10 @@
     <value>Error deleting the old files.</value>
   </data>
   <data name="DLLDifference" xml:space="preserve">
-    <value>The language files look like they might be old. You can try running CBL Launcher to update them.</value>
+    <value>The language files aren't the same version as CBP Setup. You can try running CBL Launcher to update them.</value>
   </data>
   <data name="DLLOfferQuestion" xml:space="preserve">
-    <value>Do you want to try using the existing files?</value>
+    <value>Do you want to try using the existing language files?</value>
   </data>
   <data name="DLLPathError" xml:space="preserve">
     <value>Error checking the language files.</value>
@@ -211,7 +220,7 @@
     <value>Error restoring old versions: </value>
   </data>
   <data name="SlowModeButtonText" xml:space="preserve">
-    <value>Add artificial delay during process (to make reading easier)</value>
+    <value>Add artificial delay to messages</value>
     <comment>Used in xaml</comment>
   </data>
   <data name="StartCBPL" xml:space="preserve">
@@ -219,6 +228,9 @@
   </data>
   <data name="StartCBPLAlreadyRunning" xml:space="preserve">
     <value>CBP Launcher is already running (maybe close it and run this again?).</value>
+  </data>
+  <data name="StartCBPLConsent" xml:space="preserve">
+    <value>Start CBP Launcher now?</value>
   </data>
   <data name="StartCBPLFail" xml:space="preserve">
     <value>It looks like CBP Launcher didn't start :(</value>
@@ -242,7 +254,7 @@
     <value> (User said yes)</value>
   </data>
   <data name="VersionCheckDifferent" xml:space="preserve">
-    <value>CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Updating it...</value>
+    <value>CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Is it okay to update it?</value>
   </data>
   <data name="VersionCheckFail" xml:space="preserve">
     <value>Unable to compare versions (are Workshop files missing?).</value>

@@ -15,12 +15,13 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="67"/>
         </Grid.RowDefinitions>
         <TextBox Name="PrimaryLog" Grid.Row="0" Margin="3,4,3,2" Text="" FontSize="12" Background="Transparent" Foreground="White" BorderThickness="0" TextWrapping="Wrap"/>
         <StackPanel Grid.Row="1" Margin="8,4,0,0">
-            <CheckBox Name="SlowModeCheckBox" Margin="0,0,0,0" Content="{x:Static lang:Resources.SlowModeButtonText}" VerticalAlignment="Center" Checked="SlowModeCheckBox_Checked" Unchecked="SlowModeCheckBox_UnChecked" Foreground="WhiteSmoke"/>
-            <CheckBox Name="EnglishCheckBox" Margin="0,8,0,0" Content="{x:Static lang:Resources.EnglishOverrideText}" VerticalAlignment="Center" Checked="EnglishCheckBox_Checked" Unchecked="EnglishCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+            <CheckBox Name="AutoConsentCheckBox" Margin="0,0,0,0" Content="{x:Static lang:Resources.AutoConsentText}" VerticalAlignment="Center" Checked="AutoConsentCheckBox_Checked" Unchecked="AutoConsentCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+            <CheckBox Name="SlowModeCheckBox" Margin="0,5,0,0" Content="{x:Static lang:Resources.SlowModeButtonText}" VerticalAlignment="Center" Checked="SlowModeCheckBox_Checked" Unchecked="SlowModeCheckBox_UnChecked" Foreground="WhiteSmoke"/>
+            <CheckBox Name="EnglishCheckBox" Margin="0,5,0,0" Content="{x:Static lang:Resources.EnglishOverrideText}" VerticalAlignment="Center" Checked="EnglishCheckBox_Checked" Unchecked="EnglishCheckBox_UnChecked" Foreground="WhiteSmoke"/>
         </StackPanel>
     </Grid>
 </Window>

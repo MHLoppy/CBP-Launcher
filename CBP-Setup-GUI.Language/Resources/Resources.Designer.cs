@@ -61,6 +61,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Auto-allow update and launch procedures (faster).
+        /// </summary>
+        public static string AutoConsentText {
+            get {
+                return ResourceManager.GetString("AutoConsentText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CBP Launcher is currently running. Please close it and then run this again..
         /// </summary>
         public static string CBPLCurrentlyRunning {
@@ -70,7 +79,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Is this okay?.
+        ///   Looks up a localized string similar to  (user auto-consented).
         /// </summary>
         public static string ConsentIsCool {
             get {
@@ -79,7 +88,16 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No (close CBP Setup).
+        ///   Looks up a localized string similar to Consent needed.
+        /// </summary>
+        public static string ConsentNeeded {
+            get {
+                return ResourceManager.GetString("ConsentNeeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (user said no).
         /// </summary>
         public static string ConsentNo {
             get {
@@ -88,11 +106,20 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Yes.
+        ///   Looks up a localized string similar to  (user said yes).
         /// </summary>
         public static string ConsentYes {
             get {
                 return ResourceManager.GetString("ConsentYes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Is it okay to copy CBP Launcher into the RoN directory?.
+        /// </summary>
+        public static string CopyToRootConsent {
+            get {
+                return ResourceManager.GetString("CopyToRootConsent", resourceCulture);
             }
         }
         
@@ -124,7 +151,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The language files look like they might be old. You can try running CBL Launcher to update them..
+        ///   Looks up a localized string similar to The language files aren&apos;t the same version as CBP Setup. You can try running CBL Launcher to update them..
         /// </summary>
         public static string DLLDifference {
             get {
@@ -133,7 +160,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Do you want to try using the existing files?.
+        ///   Looks up a localized string similar to Do you want to try using the existing language files?.
         /// </summary>
         public static string DLLOfferQuestion {
             get {
@@ -340,7 +367,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add artificial delay during process (to make reading easier).
+        ///   Looks up a localized string similar to Add artificial delay to messages.
         /// </summary>
         public static string SlowModeButtonText {
             get {
@@ -363,6 +390,15 @@ namespace CBPSetupGUI.Language {
         public static string StartCBPLAlreadyRunning {
             get {
                 return ResourceManager.GetString("StartCBPLAlreadyRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start CBP Launcher now?.
+        /// </summary>
+        public static string StartCBPLConsent {
+            get {
+                return ResourceManager.GetString("StartCBPLConsent", resourceCulture);
             }
         }
         
@@ -430,7 +466,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Updating it....
+        ///   Looks up a localized string similar to CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Is it okay to update it?.
         /// </summary>
         public static string VersionCheckDifferent {
             get {
