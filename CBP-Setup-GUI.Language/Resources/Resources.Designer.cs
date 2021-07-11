@@ -205,7 +205,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Override language to English.
+        ///   Looks up a localized string similar to Override language to English (requires app restart).
         /// </summary>
         public static string EnglishOverrideText {
             get {

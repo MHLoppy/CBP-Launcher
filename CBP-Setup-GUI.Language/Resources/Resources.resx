@@ -166,7 +166,7 @@
     <value>Language files updated.</value>
   </data>
   <data name="EnglishOverrideText" xml:space="preserve">
-    <value>Override language to English</value>
+    <value>Override language to English (requires app restart)</value>
   </data>
   <data name="ErrorAlreadyRunning" xml:space="preserve">
     <value>It looks like CBP Setup is already running in another thread.</value>
