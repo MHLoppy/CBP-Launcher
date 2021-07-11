@@ -493,6 +493,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (System langauge not supported, falling back to English).
+        /// </summary>
+        public static string UsingFallbackLanguage {
+            get {
+                return ResourceManager.GetString("UsingFallbackLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Is it okay to update it?.
         /// </summary>
         public static string VersionCheckDifferent {

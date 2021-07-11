@@ -39,20 +39,21 @@ namespace CBPSetupGUI
         // 4 = Workshop mods folder, but pre-release
 
         private static bool CBPL = false;
-        private static bool DLLOfferTryAnyway = false;
+        //private static bool DLLOfferTryAnyway = false;
 
         private static string CBPLExe = "";
         private static string CBPLExeUpdate = "";
 
         // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
-        private static string CBPLDll = "";
-        private static string CBPLDllUpdate = "";
+        // HOWEVER with the port to .NET Core 5.0 the language files are all self-contained, so all the dll check/update stuff is unnecessary
+        // private static string CBPLDll = "";
+        // private static string CBPLDllUpdate = "";
 
-        private static readonly string CBPSFolder = AppDomain.CurrentDomain.BaseDirectory; /// 
+        private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory)); /// 
         private static readonly string CBPSName = Process.GetCurrentProcess().ProcessName; /// hope these three work reliably enough, had to change them when porting to .net core
         private static readonly string CBPSExeName = string.Concat(CBPSName, ".exe");      /// Environment.GetCommandLineArgs()[0] (MS rec. replacement) was always returning with the path included >_>
         private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName));
-        private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
+        //private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
 
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
@@ -71,8 +72,8 @@ namespace CBPSetupGUI
 
             // Step 0: don't overlap the streams (check if CBPS and CBPL are already running, then check that language dll is up-to-date)
             await MasculinityCheck();
-            await DllCheck();
-            await DllOffer();
+            //await DllCheck();
+            //await DllOffer();
 
             // Step 1: figure out what location exe is running from
             await WhereTheBloodyHellAreYou();
@@ -95,6 +96,11 @@ namespace CBPSetupGUI
                 try
                 {
                     PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected + " " + CBPSetupGUI.Language.Resources.FontSizeNotice;
+
+                    if (LangFallback == true)
+                    {
+                        PrimaryLog.Text += " " + CBPSetupGUI.Language.Resources.UsingFallbackLanguage;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -178,7 +184,8 @@ namespace CBPSetupGUI
                 }
             }
 
-            async Task DllCheck()
+            // removed these because the final version just packages everything into one .exe (can't really update the dll, even if there's a way to check it)
+            /*async Task DllCheck()
             {
                 try
                 {
@@ -233,8 +240,9 @@ namespace CBPSetupGUI
                     PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DLLSame;
                 }
                 await SlowDown();
-            }
+            }*/
 
+            // IF THE LOCATION CHECK EVER FAILS, CHECK THAT .NET CORE DIDN"T DECIDE TO FUCK YOU AGAIN
             async Task WhereTheBloodyHellAreYou()//there's not really anything to run async here
             {
                 if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, "riseofnations.exe"))))
@@ -243,7 +251,8 @@ namespace CBPSetupGUI
                     Location = 1;
                 }
 
-                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2287791153")).ToString() == Path.GetFullPath(CBPSFolder).ToString())
+                // it looks like that when porting to .net framework to .net core that this compare changed (!!) because a slash is no longer appended to the left result by fullpath+combine
+                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", @"2287791153\")) == CBPSFolder)
                 {
                     //workshop mods folder
                     Location = 2;
@@ -255,7 +264,8 @@ namespace CBPSetupGUI
                     Location = 3;
                 }
 
-                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2528425253")).ToString() == Path.GetFullPath(CBPSFolder).ToString())
+                // it looks like that when porting to .net framework to .net core that this compare changed (!!) because a slash is no longer appended to the left result by fullpath+combine
+                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", @"2528425253\")) == CBPSFolder)
                 {
                     //workshop mods folder, but pre-release
                     Location = 4;
@@ -282,10 +292,10 @@ namespace CBPSetupGUI
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                            CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                            //CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
 
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                            CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                            //CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
                         }
                         catch (Exception ex)
                         {
@@ -311,11 +321,11 @@ namespace CBPSetupGUI
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
-                            CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
+                            //CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
 
                             // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                            CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                            //CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
                         }
 
                         catch (Exception ex)
@@ -354,10 +364,10 @@ namespace CBPSetupGUI
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
-                            CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
+                            //CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
 
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                            CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                            //CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
                         }
                         catch (Exception ex)
                         {
@@ -564,8 +574,8 @@ namespace CBPSetupGUI
                     File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
                     File.Copy(CBPLExeUpdate, CBPLExe);
 
-                    File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
-                    File.Copy(CBPLDllUpdate, CBPLDll);
+                    //File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
+                    //File.Copy(CBPLDllUpdate, CBPLDll);
                 }
                 catch (Exception ex)
                 {
@@ -574,7 +584,7 @@ namespace CBPSetupGUI
                     {
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
                         File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
-                        File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
+                        //File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
                     }
                     catch (Exception ex2)
                     {
@@ -608,7 +618,7 @@ namespace CBPSetupGUI
                 try
                 {
                     File.Delete(Path.Combine(CBPLExe + "old"));
-                    File.Delete(Path.Combine(CBPLDll + "old"));
+                    //File.Delete(Path.Combine(CBPLDll + "old"));
                     await SlowDown();
                 }
                 catch (Exception ex)
