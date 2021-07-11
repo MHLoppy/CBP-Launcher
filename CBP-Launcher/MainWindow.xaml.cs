@@ -4,13 +4,13 @@
 
 // sometimes comments will refer to a "reference [program]" which refers to https://github.com/tom-weiland/csharp-game-launcher
 
-using Microsoft.Win32;          /// this project was made with .NET framework 4.6.1 (at least as of near the start when I'm writing this comment)
-using System;                   /// idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
+using Microsoft.Win32;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;    // System.IO.Compression.FileSystem added in project References instead (per stackexchange suggestion - I don't actually fully understand it ::fingerguns::)
-using System.Net;           
+using System.IO.Compression;
+using System.Net;
 using System.Windows;
 using System.Windows.Media;     // used for selecting brushes (used for coloring in e.g. textboxes)
 using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path; I doubt it's efficient but it doesn't seem to be *too* resource intensive pending a replacement

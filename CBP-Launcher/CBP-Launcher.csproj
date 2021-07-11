@@ -19,6 +19,8 @@
     <Version>0.5.0</Version>
     <ApplicationIcon>images\RoN CBP launcher logo 01.ico</ApplicationIcon>
     <NeutralLanguage>en</NeutralLanguage>
+    <PackageId>CBP Launcher</PackageId>
+    <AssemblyName>CBP-Launcher</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
