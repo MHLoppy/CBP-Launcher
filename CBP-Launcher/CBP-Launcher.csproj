@@ -21,6 +21,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <PackageId>CBP Launcher</PackageId>
     <AssemblyName>CBP-Launcher</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>

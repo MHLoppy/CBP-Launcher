@@ -5,17 +5,36 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>CBPSetupGUI.Language</RootNamespace>
-    <Authors>Mark Heath</Authors>
+    <AssemblyName>CBPSetupGUI.Language</AssemblyName>
+    <!-- If these are kept, it's fine when compiled individually but throws a tantrum about assemblyinfo.cs files (which don't exist outside of the compiled stuff, so can't be fixed)-->
+    <!-- I guess the single-exe logic doesn't handle this on its own -->
+    <!--<Authors>Mark Heath</Authors>
     <Company>MHLoppy</Company>
     <Product>CBPSetup GUI.Language</Product>
     <PackageId>CBP Setup GUI.Language</PackageId>
     <AssemblyVersion>0.5.0.0</AssemblyVersion>
     <FileVersion>0.5.0.0</FileVersion>
-    <Version>0.5.0</Version>
+    <Version>0.5.0</Version>-->
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>CBPSetupGUI.Language</CustomToolNamespace>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

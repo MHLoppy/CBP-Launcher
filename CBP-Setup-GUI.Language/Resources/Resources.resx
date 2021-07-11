@@ -208,7 +208,7 @@
     <value>Looks like the Workshop mods folder for normal CBP.</value>
   </data>
   <data name="LocationCase3" xml:space="preserve">
-    <value>Looks like the local mods folder (it probably shouldn't be here except for testing).</value>
+    <value>Looks like the local mods folder.</value>
   </data>
   <data name="LocationCase4" xml:space="preserve">
     <value>Looks like the Workshop mods folder for pre-release CBP.</value>

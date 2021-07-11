@@ -12,6 +12,7 @@ using static CBPSetupGUI.App;//for SetLanguageDictionary, used for the English o
 
 namespace CBPSetupGUI
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Only targeting Windows; not below Win7")]
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -47,9 +48,9 @@ namespace CBPSetupGUI
         private static string CBPLDll = "";
         private static string CBPLDllUpdate = "";
 
-        private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
-        private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
+        private static readonly string CBPSFolder = AppDomain.CurrentDomain.BaseDirectory; /// 
+        private static readonly string CBPSName = Process.GetCurrentProcess().ProcessName; /// hope these three work reliably enough, had to change them when porting to .net core
+        private static readonly string CBPSExeName = string.Concat(CBPSName, ".exe");      /// Environment.GetCommandLineArgs()[0] (MS rec. replacement) was always returning with the path included >_>
         private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName));
         private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
 
@@ -63,6 +64,8 @@ namespace CBPSetupGUI
 
         private async Task Primary()
         {
+            //MessageBox.Show(;
+
             //step -1: make sure we can actually load the language files
             await VibeCheck();
 
@@ -161,7 +164,7 @@ namespace CBPSetupGUI
             async Task MasculinityCheck()
             {
                 // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
-                if (Process.GetProcessesByName(CBPSName).Count() > 1)
+                if (Process.GetProcessesByName(CBPSName).Length > 1)
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning);
                     await DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
@@ -291,7 +294,7 @@ namespace CBPSetupGUI
                         }
                         await SlowDown();
 
-                        if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"))))
+                        if (File.Exists(CBPSExe))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
@@ -620,7 +623,7 @@ namespace CBPSetupGUI
                 try
                 {
                     // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
-                    ProcessStartInfo _ = new ProcessStartInfo(CBPLExe)
+                    ProcessStartInfo _ = new(CBPLExe)
                     {
                         WorkingDirectory = CBPLExe + @"..\"
                     };
@@ -659,7 +662,7 @@ namespace CBPSetupGUI
             }
         }
 
-        private void FirstTimeSlow()
+        private static void FirstTimeSlow()
         {
             if (Properties.Settings.Default.FirstTimeRun == true)
             {
@@ -705,12 +708,12 @@ namespace CBPSetupGUI
             SaveSettings();
         }
 
-        private void SaveSettings()
+        private static void SaveSettings()
         {
             Properties.Settings.Default.Save();
         }
 
-        private void UpgradeSettings()
+        private static void UpgradeSettings()
         {
             Properties.Settings.Default.Upgrade();
             Properties.Settings.Default.UpgradeRequired = false;

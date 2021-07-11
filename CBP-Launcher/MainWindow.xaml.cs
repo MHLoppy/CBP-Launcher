@@ -352,7 +352,7 @@ namespace CBPLauncher
                 VersionTextLatest.Text = "Checking latest version...";
                 VersionTextInstalled.Text = "Checking installed version...";
 
-                WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
+                WebClient webClient = new();                                                                         /// Moved this section from reference to here in order to display
                 Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
 
                 VersionTextLatest.Text = "Latest CBP version: "
@@ -363,7 +363,7 @@ namespace CBPLauncher
 
                 if (File.Exists(versionFileCBP)) //If there's already a version.txt in the local-mods CBP folder, then...
                 {
-                    Version localVersion = new Version(File.ReadAllText(versionFileCBP)); // this doesn't use UpdateLocalVersionNumber() because of the compare done below it - will break if replaced without modification
+                    Version localVersion = new(File.ReadAllText(versionFileCBP)); // this doesn't use UpdateLocalVersionNumber() because of the compare done below it - will break if replaced without modification
 
                     VersionTextInstalled.Text = "Installed CBP version: "
                                             + VersionArray.versionStart[localVersion.major]

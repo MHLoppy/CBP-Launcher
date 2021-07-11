@@ -1,8 +1,10 @@
 ﻿using System.Threading;
 using System.Windows;
+using CBPSetupGUI.Language;
 
 namespace CBPSetupGUI
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Only targeting Windows; not below Win7")]
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
