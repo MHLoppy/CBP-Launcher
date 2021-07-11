@@ -93,6 +93,7 @@ namespace CBPSetupGUI
                     if (LangFallback == true)
                     {
                         PrimaryLog.Text += CBPSetupGUI.Language.Resources.UsingFallbackLanguage + "\n";
+                        await SlowDown();
                     }
 
                     PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected + " " + CBPSetupGUI.Language.Resources.FontSizeNotice;
