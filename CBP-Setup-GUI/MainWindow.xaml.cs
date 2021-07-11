@@ -90,12 +90,12 @@ namespace CBPSetupGUI
             {
                 try
                 {
-                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected + " " + CBPSetupGUI.Language.Resources.FontSizeNotice;
-
                     if (LangFallback == true)
                     {
-                        PrimaryLog.Text += " " + CBPSetupGUI.Language.Resources.UsingFallbackLanguage;
+                        PrimaryLog.Text += CBPSetupGUI.Language.Resources.UsingFallbackLanguage + "\n";
                     }
+
+                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected + " " + CBPSetupGUI.Language.Resources.FontSizeNotice;
                 }
                 catch (Exception ex)
                 {
@@ -624,7 +624,7 @@ namespace CBPSetupGUI
                 try
                 {
                     // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
-                    ProcessStartInfo _ = new ProcessStartInfo(CBPLExe)
+                    _ = new ProcessStartInfo(CBPLExe)
                     {
                         WorkingDirectory = CBPLExe + @"..\"
                     };
