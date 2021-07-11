@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using System.Windows;
-//using static CBPSetupGUI.Container;
 using CBPSetupGUI.Language;
 
 namespace CBPSetupGUI
@@ -22,6 +15,7 @@ namespace CBPSetupGUI
             SetLanguageDictionary();
         }
 
+        public static bool LangFallback = false;
         public static void SetLanguageDictionary()
         {
             switch (Thread.CurrentThread.CurrentCulture.ToString().Substring(0, 2))
@@ -60,9 +54,9 @@ namespace CBPSetupGUI
                     break;
                 default://default to the language of freedom, just like rms would've wanted
                     Language.Resources.Culture = new System.Globalization.CultureInfo("en");
+                    LangFallback = true;
                     break;
             }
-
         }
     }
 }

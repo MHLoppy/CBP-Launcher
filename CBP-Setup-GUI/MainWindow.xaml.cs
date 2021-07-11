@@ -48,9 +48,9 @@ namespace CBPSetupGUI
         private static string CBPLDllUpdate = "";
 
         private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
-        private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location);
-        private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName));
+        private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
+        private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location); //CBP Setup.exe; this way even if by some miracle someone renames the file extension it still works
+        private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName)); //<path>/CBP Setup.exe
         private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
 
         private async void Window_ContentRendered(object sender, EventArgs e)
@@ -84,7 +84,6 @@ namespace CBPSetupGUI
             await StartCBPL();
 
             //CBPS exits if CBP Launcher is running
-            await ProcessCheck("CBP Launcher");
             await Conclusion();
 
             async Task VibeCheck()
@@ -92,6 +91,11 @@ namespace CBPSetupGUI
                 try
                 {
                     PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected + " " + CBPSetupGUI.Language.Resources.FontSizeNotice;
+
+                    if (LangFallback == true)
+                    {
+                        PrimaryLog.Text += " " + CBPSetupGUI.Language.Resources.UsingFallbackLanguage;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -161,13 +165,13 @@ namespace CBPSetupGUI
             async Task MasculinityCheck()
             {
                 // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
-                if (Process.GetProcessesByName(CBPSName).Count() > 1)
+                if (await ProcessCheck(CBPSName, 1) == true)
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning);
                     await DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
                     return;
                 }
-                if (await ProcessCheck("CBP Launcher") == true)
+                if (await ProcessCheck("CBP Launcher", 1) == true)
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.CBPLCurrentlyRunning);
                     await DelayedClose(CBPSetupGUI.Language.Resources.CBPLCurrentlyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
@@ -240,7 +244,7 @@ namespace CBPSetupGUI
                     Location = 1;
                 }
 
-                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2287791153")).ToString() == Path.GetFullPath(CBPSFolder).ToString())
+                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2287791153")) == CBPSFolder)
                 {
                     //workshop mods folder
                     Location = 2;
@@ -252,7 +256,7 @@ namespace CBPSetupGUI
                     Location = 3;
                 }
 
-                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2528425253")).ToString() == Path.GetFullPath(CBPSFolder).ToString())
+                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2528425253")) == CBPSFolder)
                 {
                     //workshop mods folder, but pre-release
                     Location = 4;
@@ -291,7 +295,7 @@ namespace CBPSetupGUI
                         }
                         await SlowDown();
 
-                        if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"))))
+                        if (File.Exists(CBPSExe))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
@@ -465,12 +469,12 @@ namespace CBPSetupGUI
 
             async Task StartCBPL()
             {
-                FirstTimeSlow();
                 await SlowDown();
                 PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPL;
                 await SlowDown();
+                FirstTimeSlow();
 
-                if (await ProcessCheck("CBP Launcher") == false)
+                if (await ProcessCheck("CBP Launcher", 0) == false)
                 {
                     //ask user if it's okay to run CBP Launcher [can autoconsent]
                     if (Properties.Settings.Default.AutoConsent == false)
@@ -505,11 +509,11 @@ namespace CBPSetupGUI
             async Task Conclusion()
             {
                 await Delay(600); //wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
-                if (await ProcessCheck("CBP Launcher") == false)
+                if (await ProcessCheck("CBP Launcher", 0) == false)
                 {
                     // second try, reduce false negatives for slower systems (or just random OS hitches)
                     await Delay(3200);
-                    if (await ProcessCheck("CBP Launcher") == false)
+                    if (await ProcessCheck("CBP Launcher", 0) == false)
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
                         await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
@@ -549,9 +553,9 @@ namespace CBPSetupGUI
                 }
             }
 
-            async Task<bool> ProcessCheck(string processName) //not really anything to run async here
+            async Task<bool> ProcessCheck(string processName, int qty) //not really anything to run async here
             {
-                return Process.GetProcessesByName(processName).Length > 0;
+                return Process.GetProcessesByName(processName).Length > qty;
             }
 
             async Task UpdateCBPL()
@@ -659,7 +663,7 @@ namespace CBPSetupGUI
             }
         }
 
-        private void FirstTimeSlow()
+        private static void FirstTimeSlow()
         {
             if (Properties.Settings.Default.FirstTimeRun == true)
             {
@@ -705,12 +709,12 @@ namespace CBPSetupGUI
             SaveSettings();
         }
 
-        private void SaveSettings()
+        private static void SaveSettings()
         {
             Properties.Settings.Default.Save();
         }
 
-        private void UpgradeSettings()
+        private static void UpgradeSettings()
         {
             Properties.Settings.Default.Upgrade();
             Properties.Settings.Default.UpgradeRequired = false;

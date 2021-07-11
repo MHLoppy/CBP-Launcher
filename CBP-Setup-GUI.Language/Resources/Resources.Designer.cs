@@ -205,7 +205,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Override language to English.
+        ///   Looks up a localized string similar to Override language to English (requires app restart).
         /// </summary>
         public static string EnglishOverrideText {
             get {
@@ -331,7 +331,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Looks like the local mods folder (it probably shouldn&apos;t be here except for testing)..
+        ///   Looks up a localized string similar to Looks like the local mods folder..
         /// </summary>
         public static string LocationCase3 {
             get {
@@ -489,6 +489,15 @@ namespace CBPSetupGUI.Language {
         public static string UserYes {
             get {
                 return ResourceManager.GetString("UserYes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (System language not supported, falling back to English).
+        /// </summary>
+        public static string UsingFallbackLanguage {
+            get {
+                return ResourceManager.GetString("UsingFallbackLanguage", resourceCulture);
             }
         }
         

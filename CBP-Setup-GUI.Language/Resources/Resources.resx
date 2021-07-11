@@ -166,7 +166,7 @@
     <value>Language files updated.</value>
   </data>
   <data name="EnglishOverrideText" xml:space="preserve">
-    <value>Override language to English</value>
+    <value>Override language to English (requires app restart)</value>
   </data>
   <data name="ErrorAlreadyRunning" xml:space="preserve">
     <value>It looks like CBP Setup is already running in another thread.</value>
@@ -208,7 +208,7 @@
     <value>Looks like the Workshop mods folder for normal CBP.</value>
   </data>
   <data name="LocationCase3" xml:space="preserve">
-    <value>Looks like the local mods folder (it probably shouldn't be here except for testing).</value>
+    <value>Looks like the local mods folder.</value>
   </data>
   <data name="LocationCase4" xml:space="preserve">
     <value>Looks like the Workshop mods folder for pre-release CBP.</value>
@@ -261,6 +261,9 @@
   </data>
   <data name="UserYes" xml:space="preserve">
     <value> (User said yes)</value>
+  </data>
+  <data name="UsingFallbackLanguage" xml:space="preserve">
+    <value>(System language not supported, falling back to English)</value>
   </data>
   <data name="VersionCheckDifferent" xml:space="preserve">
     <value>CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Is it okay to update it?</value>
