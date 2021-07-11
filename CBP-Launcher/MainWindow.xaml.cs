@@ -12,7 +12,6 @@ using System.IO;
 using System.IO.Compression;    // System.IO.Compression.FileSystem added in project References instead (per stackexchange suggestion - I don't actually fully understand it ::fingerguns::)
 using System.Net;           
 using System.Windows;
-using System.Windows.Forms;     // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
 using System.Windows.Media;     // used for selecting brushes (used for coloring in e.g. textboxes)
 using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path; I doubt it's efficient but it doesn't seem to be *too* resource intensive pending a replacement
 using CBPLauncher.logic;
@@ -157,7 +156,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error during initialization: {ex}");
+                MessageBox.Show($"Error during initialization: {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -233,16 +232,17 @@ namespace CBPLauncher
                                     else
                                     {
                                         // tell user invalid path, ask if they want to try again
-                                        DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Rise of Nations install not detected in that location. "
-                                                                                                        + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
-                                                                                                        + "\n\n Would you like to try entering a path again?", "Invalid Path", MessageBoxButtons.YesNo);
-                                        if (dialogResult == System.Windows.Forms.DialogResult.Yes)
+                                        string message = $"Rise of Nations install not detected in that location. "
+                                                       + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
+                                                       + "\n\n Would you like to try entering a path again?";
+
+                                        if (MessageBox.Show(message, "Invalid Path", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                         {
                                             goto AskManualPath;
                                         }
-                                        else if (dialogResult == System.Windows.Forms.DialogResult.No)
+                                        else
                                         {
-                                            System.Windows.MessageBox.Show($"Launcher will now close.");
+                                            MessageBox.Show("Launcher will now close.");
                                             Environment.Exit(0);
                                         }
                                     }
@@ -309,7 +309,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error creating paths: {ex}");
+                MessageBox.Show($"Error creating paths: {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -322,7 +322,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error displaying paths in UI {ex}");
+                MessageBox.Show($"Error displaying paths in UI {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -337,7 +337,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error creating directories {ex}");
+                MessageBox.Show($"Error creating directories {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -387,7 +387,7 @@ namespace CBPLauncher
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
-                        System.Windows.MessageBox.Show($"Error installing patch files: {ex}");
+                        MessageBox.Show($"Error installing patch files: {ex}");
                     }
                 }
 
@@ -415,7 +415,7 @@ namespace CBPLauncher
 
                 UpdateLocalVersionNumber();
                 VersionTextLatest.Text = "Unable to check latest version";
-                System.Windows.MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
+                MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
             }
         }
 
@@ -450,7 +450,7 @@ namespace CBPLauncher
 
                                 else
                                 {
-                                    System.Windows.MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive.");
+                                    MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive.");
                                 }
                             }
                         }
@@ -475,13 +475,13 @@ namespace CBPLauncher
                         catch (Exception ex)
                         {
                             Status = LauncherStatus.loadFailed;
-                            System.Windows.MessageBox.Show($"Error loading CBP: {ex}");
+                            MessageBox.Show($"Error loading CBP: {ex}");
                         }
                     }
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
-                        System.Windows.MessageBox.Show($"Error installing CBP from Workshop files: {ex}");
+                        MessageBox.Show($"Error installing CBP from Workshop files: {ex}");
                     }
                 }
 
@@ -508,7 +508,7 @@ namespace CBPLauncher
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
-                        System.Windows.MessageBox.Show($"Error retrieving patch files: {ex}");
+                        MessageBox.Show($"Error retrieving patch files: {ex}");
                     }
                 }
 
@@ -531,7 +531,7 @@ namespace CBPLauncher
                 catch (Exception ex)
                 {
                     Status = LauncherStatus.loadFailed;
-                    System.Windows.MessageBox.Show($"Error loading CBP: {ex}");
+                    MessageBox.Show($"Error loading CBP: {ex}");
                 }
             }
         }
@@ -560,28 +560,22 @@ namespace CBPLauncher
                     // show a message asking user if they want to ignore the error (and unlock the launch button)
                     string message = $"If you've already installed CBP this error might be okay to ignore. It may occur if you have the CBP files but no version.txt file to read from, causing the launcher to incorrectly think CBP is not installed. "
                                      + "It's also *probably* okay to ignore this if you want to just play non-CBP for now."
-                                     + Environment.NewLine + Environment.NewLine + "Full error: " + Environment.NewLine + $"{ex}"
-                                     + Environment.NewLine + Environment.NewLine + "Ignore error and continue?";
-                    string caption = "Error installing new patch files";
-                    MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                    DialogResult result;
-
-                    result = System.Windows.Forms.MessageBox.Show(message, caption, buttons);
+                                     + "\n\nFull error: \n" + $"{ex}"
+                                     + "\n\nIgnore error and continue?";
+                    string title = "Error installing new patch files";
 
                     // if they say yes, then also ask if they want to write a new version.txt file where the mod is supposed to be installed:
-                    if (result == System.Windows.Forms.DialogResult.Yes)
+                    if (MessageBox.Show(message, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         Status = LauncherStatus.installProblem;
 
                         string message2 = $"If you're very confident that CBP is actually installed and the problem is just the version.txt file, you can write a new file to resolve this issue."
-                                          + Environment.NewLine + Environment.NewLine + "Would you like to write a new version.txt file?"
-                                          + Environment.NewLine + "(AVOID DOING THIS IF YOU'RE NOT SURE!!)";
-                        string caption2 = "Write new version.txt file?";
-                        MessageBoxButtons buttons2 = MessageBoxButtons.YesNo;
-                        DialogResult result2;
+                                          + "\n\nWould you like to write a new version.txt file?"
+                                          + "\n(AVOID DOING THIS IF YOU'RE NOT SURE!!)";
 
-                        result2 = System.Windows.Forms.MessageBox.Show(message2, caption2, buttons2);
-                        if (result2 == System.Windows.Forms.DialogResult.Yes)
+                        string title2 = "Write new version.txt file?";
+
+                        if (MessageBox.Show(message2, title2, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
                             // currently do nothing; explicitly preferred over using if-not-yes-then-return in case I change this later
                         }
@@ -593,7 +587,7 @@ namespace CBPLauncher
                     else
                     {
                         Environment.Exit(0); /// if they say no, then application is kill;
-                    }                        /// Env.Exit used instead of App.Exit because it prevents more code from running
+                    }                        /// Env.Exit used instead of App.Exit because it prevents more code from running                     
                 }                            /// App.Exit was writing the new version file even if you said no on the prompt - maybe could be resolved, but this is okay I think
 
                 File.WriteAllText(versionFileCBP, onlineVersionString); // I thought this is where return would go, but it doesn't, so I evidently don't know what I'm doing
@@ -608,7 +602,7 @@ namespace CBPLauncher
             {
                 Status = LauncherStatus.installFailed;
                 File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
-                System.Windows.MessageBox.Show($"Error installing new patch files: {ex}"); 
+                MessageBox.Show($"Error installing new patch files: {ex}"); 
             }
         }
 
@@ -618,7 +612,7 @@ namespace CBPLauncher
             {
                 try
                 {
-                    System.IO.Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
+                    Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
                     Properties.Settings.Default.CBPUnloaded = true;
                     Properties.Settings.Default.CBPLoaded = false;
                     SaveSettings();
@@ -629,7 +623,7 @@ namespace CBPLauncher
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show($"Error unloading mod: {ex}");
+                    MessageBox.Show($"Error unloading mod: {ex}");
                     Status = LauncherStatus.unloadFailed;
                 }
 
@@ -641,7 +635,7 @@ namespace CBPLauncher
                     }
                     catch (Exception ex)
                     {
-                        System.Windows.MessageBox.Show($"Error unloading Workshop mod: {ex}");
+                        MessageBox.Show($"Error unloading Workshop mod: {ex}");
                         Status = LauncherStatus.unloadFailed;
                     }
                 }
@@ -649,7 +643,7 @@ namespace CBPLauncher
             }
             else
             {
-                System.Windows.MessageBox.Show($"CBP is already unloaded.");
+                MessageBox.Show($"CBP is already unloaded.");
             }
         }
 
@@ -731,7 +725,7 @@ namespace CBPLauncher
         {
             Properties.Settings.Default.Reset();
 
-            System.Windows.MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
+            MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
         }
 
         private void CBPDefaultCheckbox_Checked(object sender, RoutedEventArgs e)
@@ -806,7 +800,7 @@ namespace CBPLauncher
         {
             if (RoNPathFinal == $"no path")
             {
-                System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathCheck);
+                MessageBox.Show($"Rise of Nations detected in " + RoNPathCheck);
             }
             RoNPathFinal = RoNPathCheck;
 
@@ -829,12 +823,12 @@ namespace CBPLauncher
                                          + VersionArray.versionHotfix[archiveVersion.hotfix];
 
                 Directory.Move(Path.Combine(archiveCBP, "Community Balance Patch"), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
-                System.Windows.MessageBox.Show(archiveVersionNew + " has been archived.");
+                MessageBox.Show(archiveVersionNew + " has been archived.");
             }
             catch (Exception ex)
             {
                 Status = LauncherStatus.loadFailed;
-                System.Windows.MessageBox.Show($"Error archiving previous CBP version: {ex}");
+                MessageBox.Show($"Error archiving previous CBP version: {ex}");
             }
         }
 
@@ -845,12 +839,12 @@ namespace CBPLauncher
             {
                 //rename it after moving it
                 Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
-                System.Windows.MessageBox.Show("Alpha 6c has been archived.");
+                MessageBox.Show("Alpha 6c has been archived.");
             }
             catch (Exception ex)
             {
                 Status = LauncherStatus.loadFailed;
-                System.Windows.MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
+                MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
             }
         }
     }

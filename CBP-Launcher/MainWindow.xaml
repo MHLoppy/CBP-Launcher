@@ -13,7 +13,7 @@
         ContentRendered="Window_ContentRendered"
         Title="CBP Launcher" Width="800" Height="500">
     <Grid>
-        <Image Stretch="UniformToFill" Source="images/CBP launcher background 01.jpg"/>
+        <Image Stretch="UniformToFill" Source="/images/CBP launcher background 01.jpg" />
         <TextBlock Name="VersionTextLatest" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="18" Foreground="#FFE9E9E9" Margin="0,0,5,24" Background="#7F000000" Padding="2,0"/>
         <TextBlock Name="VersionTextInstalled" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="18" Foreground="#FFE9E9E9" Margin="0, 0, 5, 0" Background="#7F000000" Padding="2,0"/>
         <Button Name="PlayButton" Content="Launch Game" Click="PlayButton_Click" Height="60" FontSize="28" FontWeight="Bold" Foreground="#DDFFFFFF" Margin="10,0,10,30" VerticalAlignment="Bottom" HorizontalAlignment="Center" MinWidth="192" Background="#FF016AC1" Padding="3,1" IsEnabled="False"/>
