@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Setup-GUI", "CBP-Setup-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Setup-GUI.Language", "CBP-Setup-GUI.Language\CBP-Setup-GUI.Language.csproj", "{54B68121-A258-4C03-8322-9F79ABB78005}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-patriots", "CBP-patriots\CBP-patriots.csproj", "{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,26 @@ Global
 		{54B68121-A258-4C03-8322-9F79ABB78005}.Release|x64.Build.0 = Release|Any CPU
 		{54B68121-A258-4C03-8322-9F79ABB78005}.Release|x86.ActiveCfg = Release|Any CPU
 		{54B68121-A258-4C03-8322-9F79ABB78005}.Release|x86.Build.0 = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|ARM.Build.0 = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|x64.Build.0 = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Debug|x86.Build.0 = Debug|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|ARM.ActiveCfg = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|ARM.Build.0 = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|ARM64.Build.0 = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|x64.ActiveCfg = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|x64.Build.0 = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|x86.ActiveCfg = Release|Any CPU
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
