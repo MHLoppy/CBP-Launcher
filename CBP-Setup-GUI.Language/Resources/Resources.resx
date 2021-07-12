@@ -262,6 +262,9 @@
   <data name="UserYes" xml:space="preserve">
     <value> (User said yes)</value>
   </data>
+  <data name="UsingFallbackLanguage" xml:space="preserve">
+    <value>(System language not supported, falling back to English)</value>
+  </data>
   <data name="VersionCheckDifferent" xml:space="preserve">
     <value>CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Is it okay to update it?</value>
   </data>
