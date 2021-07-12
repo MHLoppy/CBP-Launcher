@@ -5,7 +5,7 @@ using CBPSetupGUI.Language;
 namespace CBPSetupGUI
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Just deals with the default language to use for the resources, and notes whether using fallback (default switch) or not
     /// </summary>
     public partial class App : Application
     {
