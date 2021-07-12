@@ -29,7 +29,7 @@ namespace CBPSetupGUI
 
         private static int Location = 0;
         // 0 = unknown
-        // 1 = RoN root folder (where we want it)
+        // 1 = RoN root folder
         // 2 = Workshop mods folder (where we expect it to be the first time)
         // 3 = local mods folder
         // 4 = Workshop mods folder, but pre-release
@@ -101,6 +101,7 @@ namespace CBPSetupGUI
 
                     switch (lang)
                     {
+                        //hardcoded error string for when language files are inaccessible
                         case "en":
                             MessageBox.Show("Unable to access language files (there should be a dll for CBP Setup to use).");
                             await DelayedClose("Unable to access language files (there should be a dll for CBP Setup to use)." + "\n" + ex, -1);
@@ -269,15 +270,17 @@ namespace CBPSetupGUI
                 // pretty sure this isn't a particularly efficient way of doing this, but it shouldn't really matter
                 switch (Location)
                 {
-                    case 0:
+                    case 0: // 0 = unknown
 
                         MessageBox.Show(CBPSetupGUI.Language.Resources.LocationCase0);
                         await DelayedClose(CBPSetupGUI.Language.Resources.LocationCase0 + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 3);
                         break;
 
-                    case 1:
+                    case 1: // 1 = RoN root folder
+
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase1;
 
+                        // no longer want it to be run from here, since it needs its language files
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
@@ -306,7 +309,7 @@ namespace CBPSetupGUI
                         break;
 
                     case int _ when (Location == 2 || Location == 4)://parens just for my sake
-
+                        // 2 = Workshop mods folder (where we expect it to be the first time); 4 is pre-release
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
@@ -347,7 +350,8 @@ namespace CBPSetupGUI
                         }
                         break;
 
-                    case 3:
+                    case 3: // 3 = local mods folder
+
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase3;
 
                         try
@@ -388,6 +392,11 @@ namespace CBPSetupGUI
 
             async Task CBPLVersionCheck()
             {
+                //debug
+                //MessageBox.Show(CBPSFolder);
+                //MessageBox.Show(CBPSName);
+                //MessageBox.Show(CBPSExeName);
+                //MessageBox.Show(CBPSExe);
                 if (CBPL == true)
                 {
                     try
@@ -560,6 +569,7 @@ namespace CBPSetupGUI
             {
                 try
                 {
+                    // instead of deleting the old files, rename them (so that if the copy fails we haven't lost the originals)
                     File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
                     File.Copy(CBPLExeUpdate, CBPLExe);
 
@@ -606,6 +616,7 @@ namespace CBPSetupGUI
 
                 try
                 {
+                    //if copy is successful, don't need the old versions anymore
                     File.Delete(Path.Combine(CBPLExe + "old"));
                     //File.Delete(Path.Combine(CBPLDll + "old"));
                     await SlowDown();
