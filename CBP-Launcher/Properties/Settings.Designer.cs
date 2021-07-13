@@ -142,5 +142,17 @@ namespace CBPLauncher.Properties {
                 this["UsePrerelease"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OldFilesRenamed {
+            get {
+                return ((bool)(this["OldFilesRenamed"]));
+            }
+            set {
+                this["OldFilesRenamed"] = value;
+            }
+        }
     }
 }

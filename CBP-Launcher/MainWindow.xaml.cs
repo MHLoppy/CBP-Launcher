@@ -4,15 +4,14 @@
 
 // sometimes comments will refer to a "reference [program]" which refers to https://github.com/tom-weiland/csharp-game-launcher
 
-using Microsoft.Win32;          /// this project was made with .NET framework 4.6.1 (at least as of near the start when I'm writing this comment)
-using System;                   /// idk *how much* that changes things, but it does influence a few things like what you have to include here compared to using e.g. .NET core 5.0 apparently
+using Microsoft.Win32;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;    // System.IO.Compression.FileSystem added in project References instead (per stackexchange suggestion - I don't actually fully understand it ::fingerguns::)
-using System.Net;           
+using System.IO.Compression;
+using System.Net;
 using System.Windows;
-using System.Windows.Forms;     // this thing makes message boxes messy, since now there's one from .Windows and one from .Windows.Forms @_@
 using System.Windows.Media;     // used for selecting brushes (used for coloring in e.g. textboxes)
 using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path; I doubt it's efficient but it doesn't seem to be *too* resource intensive pending a replacement
 using CBPLauncher.logic;
@@ -46,6 +45,17 @@ namespace CBPLauncher
         private string RoNPathCheck;
         private string workshopPath;
         private string unloadedModsPath;
+
+        //a7 temp
+        private string helpXML = "help.xml";
+        private string interfaceXML = "interface.xml";
+        private string setupwinXML = "setupwin.xml";
+
+        private string helpXMLOrig = "";
+        private string interfaceXMLOrig = "";
+        private string setupwinXMLOrig = "";
+
+        private string patriotsOrig = "";
 
         /// ===== START OF MOD LIST =====
 
@@ -157,7 +167,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error during initialization: {ex}");
+                MessageBox.Show($"Error during initialization: {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -233,16 +243,17 @@ namespace CBPLauncher
                                     else
                                     {
                                         // tell user invalid path, ask if they want to try again
-                                        DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Rise of Nations install not detected in that location. "
-                                                                                                        + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
-                                                                                                        + "\n\n Would you like to try entering a path again?", "Invalid Path", MessageBoxButtons.YesNo);
-                                        if (dialogResult == System.Windows.Forms.DialogResult.Yes)
+                                        string message = $"Rise of Nations install not detected in that location. "
+                                                       + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
+                                                       + "\n\n Would you like to try entering a path again?";
+
+                                        if (MessageBox.Show(message, "Invalid Path", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                         {
                                             goto AskManualPath;
                                         }
-                                        else if (dialogResult == System.Windows.Forms.DialogResult.No)
+                                        else
                                         {
-                                            System.Windows.MessageBox.Show($"Launcher will now close.");
+                                            MessageBox.Show("Launcher will now close.");
                                             Environment.Exit(0);
                                         }
                                     }
@@ -256,6 +267,15 @@ namespace CBPLauncher
                 //{
                 //    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
                 //}
+
+                else
+                {
+                    //a7 temp
+                    helpXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", helpXML));
+                    interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", interfaceXML));
+                    setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", setupwinXML));
+                    patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
+                }
 
                 gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
                 localMods = Path.Combine(RoNPathFinal, "mods");
@@ -309,7 +329,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error creating paths: {ex}");
+                MessageBox.Show($"Error creating paths: {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -322,7 +342,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error displaying paths in UI {ex}");
+                MessageBox.Show($"Error displaying paths in UI {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -337,7 +357,7 @@ namespace CBPLauncher
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error creating directories {ex}");
+                MessageBox.Show($"Error creating directories {ex}");
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -354,6 +374,11 @@ namespace CBPLauncher
 
                 WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
                 Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
+
+                if (Properties.Settings.Default.UsePrerelease == true)//pr
+                {
+                    onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
+                }
 
                 VersionTextLatest.Text = "Latest CBP version: "
                      + VersionArray.versionStart[onlineVersion.major]
@@ -387,7 +412,7 @@ namespace CBPLauncher
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
-                        System.Windows.MessageBox.Show($"Error installing patch files: {ex}");
+                        MessageBox.Show($"Error installing patch files: {ex}");
                     }
                 }
 
@@ -415,7 +440,7 @@ namespace CBPLauncher
 
                 UpdateLocalVersionNumber();
                 VersionTextLatest.Text = "Unable to check latest version";
-                System.Windows.MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
+                MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
             }
         }
 
@@ -443,15 +468,19 @@ namespace CBPLauncher
                                 }
                                 
                                 // compatibility with archiving a6c
-                                if(Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
+                                else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
                                 {
                                     ArchiveA6c();
                                 }
 
                                 else
                                 {
-                                    System.Windows.MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive.");
+                                    MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive.");
                                 }
+                            }
+                            else
+                            {
+                                //just delete the old files instead
                             }
                         }
                         else
@@ -461,6 +490,46 @@ namespace CBPLauncher
 
                         // perhaps this is a chance to use async, but the benefits are minor given the limited IO, and my half-hour attempt wasn't adequate to get it working
                         FileIO.DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
+
+                        //temporary a7-structure copy feature for e.g. help.xml; should be redone (or at least re-examined) with CBPL re-do
+                        // part pre-A: strings so that both A and C can access them
+                        // part A: backup old files you're about to override
+                        // part B: copy contents of <workshopIDfolder>/<Secondary> to RoN/data
+                        // part C: (not here, search for PART C) when mod is unloaded, restore the old files
+
+                        if (Properties.Settings.Default.OldFilesRenamed == false)
+                        {
+                            try
+                            {
+                                //PART A
+                                File.Move(helpXMLOrig, helpXMLOrig + " (old)");
+                                File.Move(interfaceXMLOrig, interfaceXMLOrig + " (old)");
+                                File.Move(setupwinXMLOrig, setupwinXMLOrig + " (old)");
+                                File.Move(patriotsOrig, patriotsOrig + " (original)");
+
+                                Properties.Settings.Default.OldFilesRenamed = true;
+
+                                try
+                                {
+                                    //PART B
+                                    File.Copy(Path.Combine(localPathCBP, "Secondary", helpXML), helpXMLOrig);
+                                    File.Copy(Path.Combine(localPathCBP, "Secondary", interfaceXML), interfaceXMLOrig);
+                                    File.Copy(Path.Combine(localPathCBP, "Secondary", setupwinXML), setupwinXMLOrig);
+                                    File.Copy(Path.Combine(workshopPathCBP, "CBP Setup GUI.exe"), patriotsOrig);
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("error with part B1 of the temp a7 logic:\n" + ex);
+                                }
+
+
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("error with the temp a7 logic:\n" + ex);
+                            }
+                            //end of temp
+                        }
 
                         try
                         {
@@ -475,13 +544,13 @@ namespace CBPLauncher
                         catch (Exception ex)
                         {
                             Status = LauncherStatus.loadFailed;
-                            System.Windows.MessageBox.Show($"Error loading CBP: {ex}");
+                            MessageBox.Show($"Error loading CBP: {ex}");
                         }
                     }
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
-                        System.Windows.MessageBox.Show($"Error installing CBP from Workshop files: {ex}");
+                        MessageBox.Show($"Error installing CBP from Workshop files: {ex}");
                     }
                 }
 
@@ -508,7 +577,7 @@ namespace CBPLauncher
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
-                        System.Windows.MessageBox.Show($"Error retrieving patch files: {ex}");
+                        MessageBox.Show($"Error retrieving patch files: {ex}");
                     }
                 }
 
@@ -519,6 +588,36 @@ namespace CBPLauncher
                 try
                 {
                     Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP)); //this will still currently fail if the folder already exists though
+
+                    try
+                    {
+                        //PART A
+                        File.Move(helpXMLOrig, helpXMLOrig + " (old)");
+                        File.Move(interfaceXMLOrig, interfaceXMLOrig + " (old)");
+                        File.Move(setupwinXMLOrig, setupwinXMLOrig + " (old)");
+                        File.Move(patriotsOrig, patriotsOrig + " (original)");
+
+                        Properties.Settings.Default.OldFilesRenamed = true;
+
+                        try
+                        {
+                            //PART B
+                            File.Copy(Path.Combine(localPathCBP, "Secondary", helpXML), helpXMLOrig);
+                            File.Copy(Path.Combine(localPathCBP, "Secondary", interfaceXML), interfaceXMLOrig);
+                            File.Copy(Path.Combine(localPathCBP, "Secondary", setupwinXML), setupwinXMLOrig);
+                            File.Copy(Path.Combine(workshopPathCBP, "CBP Setup GUI.exe"), patriotsOrig);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("error with part B1 of the temp a7 logic:\n" + ex);
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("error with the temp a7 logic:\n" + ex);
+                    }
 
                     UpdateLocalVersionNumber();
 
@@ -531,7 +630,7 @@ namespace CBPLauncher
                 catch (Exception ex)
                 {
                     Status = LauncherStatus.loadFailed;
-                    System.Windows.MessageBox.Show($"Error loading CBP: {ex}");
+                    MessageBox.Show($"Error loading CBP: {ex}");
                 }
             }
         }
@@ -560,28 +659,22 @@ namespace CBPLauncher
                     // show a message asking user if they want to ignore the error (and unlock the launch button)
                     string message = $"If you've already installed CBP this error might be okay to ignore. It may occur if you have the CBP files but no version.txt file to read from, causing the launcher to incorrectly think CBP is not installed. "
                                      + "It's also *probably* okay to ignore this if you want to just play non-CBP for now."
-                                     + Environment.NewLine + Environment.NewLine + "Full error: " + Environment.NewLine + $"{ex}"
-                                     + Environment.NewLine + Environment.NewLine + "Ignore error and continue?";
-                    string caption = "Error installing new patch files";
-                    MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                    DialogResult result;
-
-                    result = System.Windows.Forms.MessageBox.Show(message, caption, buttons);
+                                     + "\n\nFull error: \n" + $"{ex}"
+                                     + "\n\nIgnore error and continue?";
+                    string title = "Error installing new patch files";
 
                     // if they say yes, then also ask if they want to write a new version.txt file where the mod is supposed to be installed:
-                    if (result == System.Windows.Forms.DialogResult.Yes)
+                    if (MessageBox.Show(message, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         Status = LauncherStatus.installProblem;
 
                         string message2 = $"If you're very confident that CBP is actually installed and the problem is just the version.txt file, you can write a new file to resolve this issue."
-                                          + Environment.NewLine + Environment.NewLine + "Would you like to write a new version.txt file?"
-                                          + Environment.NewLine + "(AVOID DOING THIS IF YOU'RE NOT SURE!!)";
-                        string caption2 = "Write new version.txt file?";
-                        MessageBoxButtons buttons2 = MessageBoxButtons.YesNo;
-                        DialogResult result2;
+                                          + "\n\nWould you like to write a new version.txt file?"
+                                          + "\n(AVOID DOING THIS IF YOU'RE NOT SURE!!)";
 
-                        result2 = System.Windows.Forms.MessageBox.Show(message2, caption2, buttons2);
-                        if (result2 == System.Windows.Forms.DialogResult.Yes)
+                        string title2 = "Write new version.txt file?";
+
+                        if (MessageBox.Show(message2, title2, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
                             // currently do nothing; explicitly preferred over using if-not-yes-then-return in case I change this later
                         }
@@ -608,7 +701,7 @@ namespace CBPLauncher
             {
                 Status = LauncherStatus.installFailed;
                 File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
-                System.Windows.MessageBox.Show($"Error installing new patch files: {ex}"); 
+                MessageBox.Show($"Error installing new patch files: {ex}"); 
             }
         }
 
@@ -618,18 +711,31 @@ namespace CBPLauncher
             {
                 try
                 {
-                    System.IO.Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
+                    Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
                     Properties.Settings.Default.CBPUnloaded = true;
                     Properties.Settings.Default.CBPLoaded = false;
                     SaveSettings();
 
                     VersionTextInstalled.Text = "Installed CBP version: not loaded";
 
+                    //PART C
+                    File.Delete(helpXMLOrig);
+                    File.Delete(interfaceXMLOrig);
+                    File.Delete(setupwinXMLOrig);
+                    File.Delete(patriotsOrig);
+                    File.Move(helpXMLOrig + " (old)", helpXMLOrig);
+                    File.Move(interfaceXMLOrig + " (old)", interfaceXMLOrig);
+                    File.Move(setupwinXMLOrig + " (old)", setupwinXMLOrig);
+                    File.Move(patriotsOrig + " (original)", patriotsOrig);
+
+                    Properties.Settings.Default.OldFilesRenamed = false;
+                    //end of c
+
                     Status = LauncherStatus.readyCBPDisabled;
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show($"Error unloading mod: {ex}");
+                    MessageBox.Show($"Error unloading mod: {ex}");
                     Status = LauncherStatus.unloadFailed;
                 }
 
@@ -641,7 +747,7 @@ namespace CBPLauncher
                     }
                     catch (Exception ex)
                     {
-                        System.Windows.MessageBox.Show($"Error unloading Workshop mod: {ex}");
+                        MessageBox.Show($"Error unloading Workshop mod: {ex}");
                         Status = LauncherStatus.unloadFailed;
                     }
                 }
@@ -649,7 +755,7 @@ namespace CBPLauncher
             }
             else
             {
-                System.Windows.MessageBox.Show($"CBP is already unloaded.");
+                MessageBox.Show($"CBP is already unloaded.");
             }
         }
 
@@ -731,7 +837,7 @@ namespace CBPLauncher
         {
             Properties.Settings.Default.Reset();
 
-            System.Windows.MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
+            MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
         }
 
         private void CBPDefaultCheckbox_Checked(object sender, RoutedEventArgs e)
@@ -754,7 +860,7 @@ namespace CBPLauncher
 
         private void UsePrereleaseCheckbox_Checked(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.DefaultCBP = true;
+            Properties.Settings.Default.UsePrerelease = true;
 
             SaveSettings();
 
@@ -763,7 +869,7 @@ namespace CBPLauncher
 
         private void UsePrereleaseCheckbox_UnChecked(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.DefaultCBP = false;
+            Properties.Settings.Default.UsePrerelease = false;
 
             SaveSettings();
 
@@ -806,12 +912,18 @@ namespace CBPLauncher
         {
             if (RoNPathFinal == $"no path")
             {
-                System.Windows.MessageBox.Show($"Rise of Nations detected in " + RoNPathCheck);
+                MessageBox.Show($"Rise of Nations detected in " + RoNPathCheck);
             }
             RoNPathFinal = RoNPathCheck;
 
             Properties.Settings.Default.RoNPathSetting = RoNPathFinal;
             SaveSettings();
+
+            //a7 temp
+            helpXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", helpXML));
+            interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", interfaceXML));
+            setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", setupwinXML));
+            patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
         }
 
         private void ArchiveNormal()
@@ -829,12 +941,12 @@ namespace CBPLauncher
                                          + VersionArray.versionHotfix[archiveVersion.hotfix];
 
                 Directory.Move(Path.Combine(archiveCBP, "Community Balance Patch"), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
-                System.Windows.MessageBox.Show(archiveVersionNew + " has been archived.");
+                MessageBox.Show(archiveVersionNew + " has been archived.");
             }
             catch (Exception ex)
             {
                 Status = LauncherStatus.loadFailed;
-                System.Windows.MessageBox.Show($"Error archiving previous CBP version: {ex}");
+                MessageBox.Show($"Error archiving previous CBP version: {ex}");
             }
         }
 
@@ -845,12 +957,12 @@ namespace CBPLauncher
             {
                 //rename it after moving it
                 Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
-                System.Windows.MessageBox.Show("Alpha 6c has been archived.");
+                MessageBox.Show("Alpha 6c has been archived.");
             }
             catch (Exception ex)
             {
                 Status = LauncherStatus.loadFailed;
-                System.Windows.MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
+                MessageBox.Show($"Error archiving previous CBP version (compatbility for a6c): {ex}");
             }
         }
     }
@@ -933,6 +1045,8 @@ namespace CBPLauncher
         public static string[] versionStart = new string[11] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate ", "1.", "2.", "3.", "4.", "5.", "6." }; // I am a fucking god figuring out how to properly use these arrays based on 10 fragments of 5% knowledge each
         public static string[] versionMiddle = new string[16] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }; // I don't even know what "static" means in this context, I just know what I need to use it
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
-        public static string[] versionHotfix = new string[10] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)"}; //e.g. can optionally just skip the hotfix by intentionally using [0]
+        public static string[] versionHotfix = new string[16] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)"
+                                                              , " (special)" // 10
+                                                              , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)"}; // 11, 12, 13, 14, 15 respectively
     }
 }

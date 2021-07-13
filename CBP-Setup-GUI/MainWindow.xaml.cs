@@ -52,10 +52,10 @@ namespace CBPSetupGUI
 
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
-            var window = GetWindow(this);
-            window.KeyDown += HandleKeyPressF9;
+                var window = GetWindow(this);
+                window.KeyDown += HandleKeyPressF9;
 
-            await Primary();
+                await Primary();
         }
 
         private async Task Primary()
