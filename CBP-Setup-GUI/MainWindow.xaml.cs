@@ -41,14 +41,14 @@ namespace CBPSetupGUI
         private static string CBPLExeUpdate = "";
 
         // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
-        //private static string CBPLDll = "";
-        //private static string CBPLDllUpdate = "";
+        ///private static string CBPLDll = "";
+        ///private static string CBPLDllUpdate = "";
 
         private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //CBP Setup
-        private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location); //CBP Setup.exe
-        private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName)); //<path>/CBP Setup.exe
-        //private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
+        private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
+        ///private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location); //CBP Setup.exe, only used to make CBPSExe string
+        ///private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName)); //<path>/CBP Setup.exe, used in DllCheck()
+        ///private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
 
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
@@ -284,10 +284,10 @@ namespace CBPSetupGUI
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                            //CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                            ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
 
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                            //CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                            ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
                         }
                         catch (Exception ex)
                         {
@@ -313,11 +313,11 @@ namespace CBPSetupGUI
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
-                            //CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
+                            ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
 
                             // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                            //CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                            ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
                         }
 
                         catch (Exception ex)
@@ -357,10 +357,10 @@ namespace CBPSetupGUI
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
-                            //CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
+                            ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
 
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                            //CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+                            ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
                         }
                         catch (Exception ex)
                         {
@@ -392,11 +392,6 @@ namespace CBPSetupGUI
 
             async Task CBPLVersionCheck()
             {
-                //debug
-                //MessageBox.Show(CBPSFolder);
-                //MessageBox.Show(CBPSName);
-                //MessageBox.Show(CBPSExeName);
-                //MessageBox.Show(CBPSExe);
                 if (CBPL == true)
                 {
                     try
@@ -573,8 +568,8 @@ namespace CBPSetupGUI
                     File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
                     File.Copy(CBPLExeUpdate, CBPLExe);
 
-                    //File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
-                    //File.Copy(CBPLDllUpdate, CBPLDll);
+                    ///File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
+                    ///File.Copy(CBPLDllUpdate, CBPLDll);
                 }
                 catch (Exception ex)
                 {
@@ -583,7 +578,7 @@ namespace CBPSetupGUI
                     {
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
                         File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
-                        //File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
+                        ///File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
                     }
                     catch (Exception ex2)
                     {
@@ -618,7 +613,7 @@ namespace CBPSetupGUI
                 {
                     //if copy is successful, don't need the old versions anymore
                     File.Delete(Path.Combine(CBPLExe + "old"));
-                    //File.Delete(Path.Combine(CBPLDll + "old"));
+                    ///File.Delete(Path.Combine(CBPLDll + "old"));
                     await SlowDown();
                 }
                 catch (Exception ex)
