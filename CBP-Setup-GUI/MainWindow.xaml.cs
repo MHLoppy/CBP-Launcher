@@ -53,6 +53,10 @@ namespace CBPSetupGUI
         ///private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location); //CBP Setup.exe, only used to make CBPSExe string
         ///private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName)); //<path>/CBP Setup.exe, used in DllCheck()
         ///private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
+        
+        private static string CBPVersionFile = "";
+        private static int CBPVersion = 0;
+        private static bool CBPPR = false;
 
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
@@ -292,6 +296,17 @@ namespace CBPSetupGUI
 
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+
+                            // check if using PR by reading local mods version.txt file and take the last 2 digits; if TryParse fails, its result is false
+                            // this check should only be required for location 1
+                            CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")));
+                            string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
+
+                            if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
+                            {
+                                CBPPR = true;//not currently utilised much beyond a sanity check
+                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBP Launcher.exe"));
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -322,6 +337,8 @@ namespace CBPSetupGUI
                             // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                            
+                            CBPVersionFile = File.ReadAllText(CBPSFolder + @"mods\Community Balance Patch\version.txt");
                         }
 
                         catch (Exception ex)
@@ -406,6 +423,7 @@ namespace CBPSetupGUI
 
                         var oldVersionShort = FileVersionInfo.GetVersionInfo(CBPLExe);
                         string oldVersionFull = oldVersionShort.FileVersion;
+
                         await SlowDown();
 
                         if (newVersionFull == oldVersionFull)
