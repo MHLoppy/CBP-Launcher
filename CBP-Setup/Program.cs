@@ -4,6 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading; // Task.Delay would be nicer but seems harder to use for a simple non-async delay
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
 using CBPLauncher; // in case I need to move dirs
 using CBPSetup.Language;
 
