@@ -338,7 +338,7 @@ namespace CBPSetupGUI
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
                             
-                            CBPVersionFile = File.ReadAllText(CBPSFolder + @"mods\Community Balance Patch\version.txt");
+                            CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"Community Balance Patch\version.txt")));
                         }
 
                         catch (Exception ex)
@@ -382,6 +382,15 @@ namespace CBPSetupGUI
 
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
+
+                            CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, "version.txt")));
+                            string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
+
+                            if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
+                            {
+                                CBPPR = true;//not currently utilised much beyond a sanity check
+                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2528425253", "CBP Launcher.exe"));
+                            }
                         }
                         catch (Exception ex)
                         {
