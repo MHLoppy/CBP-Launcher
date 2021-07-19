@@ -711,27 +711,34 @@ namespace CBPLauncher
             {
                 try
                 {
-                    Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
-                    Properties.Settings.Default.CBPUnloaded = true;
-                    Properties.Settings.Default.CBPLoaded = false;
-                    SaveSettings();
+                    if (Process.GetProcessesByName("patriots").Length > 0)
+                    {
+                        MessageBox.Show($"CBP Setup GUI (patriots.exe) has to be closed before CBP can be unloaded.");
+                    }
+                    else
+                    {
+                        Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
+                        Properties.Settings.Default.CBPUnloaded = true;
+                        Properties.Settings.Default.CBPLoaded = false;
+                        SaveSettings();
 
-                    VersionTextInstalled.Text = "Installed CBP version: not loaded";
+                        VersionTextInstalled.Text = "Installed CBP version: not loaded";
 
-                    //PART C
-                    File.Delete(helpXMLOrig);
-                    File.Delete(interfaceXMLOrig);
-                    File.Delete(setupwinXMLOrig);
-                    File.Delete(patriotsOrig);
-                    File.Move(helpXMLOrig + " (old)", helpXMLOrig);
-                    File.Move(interfaceXMLOrig + " (old)", interfaceXMLOrig);
-                    File.Move(setupwinXMLOrig + " (old)", setupwinXMLOrig);
-                    File.Move(patriotsOrig + " (original)", patriotsOrig);
+                        //PART C
+                        File.Delete(helpXMLOrig);
+                        File.Delete(interfaceXMLOrig);
+                        File.Delete(setupwinXMLOrig);
+                        File.Delete(patriotsOrig);
+                        File.Move(helpXMLOrig + " (old)", helpXMLOrig);
+                        File.Move(interfaceXMLOrig + " (old)", interfaceXMLOrig);
+                        File.Move(setupwinXMLOrig + " (old)", setupwinXMLOrig);
+                        File.Move(patriotsOrig + " (original)", patriotsOrig);
 
-                    Properties.Settings.Default.OldFilesRenamed = false;
-                    //end of c
+                        Properties.Settings.Default.OldFilesRenamed = false;
+                        //end of c
 
-                    Status = LauncherStatus.readyCBPDisabled;
+                        Status = LauncherStatus.readyCBPDisabled;
+                    }
                 }
                 catch (Exception ex)
                 {
