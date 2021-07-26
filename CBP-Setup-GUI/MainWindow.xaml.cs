@@ -288,7 +288,6 @@ namespace CBPSetupGUI
 
                         PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase1;
 
-                        // no longer want it to be run from here, since it needs its language files
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
