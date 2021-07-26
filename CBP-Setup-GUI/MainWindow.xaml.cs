@@ -41,10 +41,9 @@ namespace CBPSetupGUI
         private static bool CBPL = false;
         //private static bool DLLOfferTryAnyway = false;
 
+        // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
         private static string CBPLExe = "";
         private static string CBPLExeUpdate = "";
-
-        // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
         ///private static string CBPLDll = "";
         ///private static string CBPLDllUpdate = "";
 
@@ -56,7 +55,7 @@ namespace CBPSetupGUI
         
         private static string CBPVersionFile = "";
         private static int CBPVersion = 0;
-        private static bool CBPPR = false;
+        private static bool CBPPR = false;//used for debugging
 
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
