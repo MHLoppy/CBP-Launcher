@@ -289,10 +289,10 @@ namespace CBPSetupGUI
 
                         try
                         {
-                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
+                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPLauncher.exe"));
                             ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
 
-                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
 
                             // check if using PR by reading local mods version.txt file and take the last 2 digits; if TryParse fails, its result is false
@@ -303,7 +303,7 @@ namespace CBPSetupGUI
                             if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
                             {
                                 CBPPR = true;//not currently utilised much beyond a sanity check
-                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBP Launcher.exe"));
+                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
                             }
                         }
                         catch (Exception ex)
@@ -313,7 +313,7 @@ namespace CBPSetupGUI
                         }
                         await SlowDown();
 
-                        if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBP Launcher.exe"))))
+                        if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBPLauncher.exe"))))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
@@ -329,11 +329,11 @@ namespace CBPSetupGUI
                         // 2 = Workshop mods folder (where we expect it to be the first time); 4 is pre-release
                         try
                         {
-                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
+                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"));
                             ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
 
                             // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
-                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
+                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPLauncher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
                             
                             CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"Community Balance Patch\version.txt")));
@@ -357,7 +357,7 @@ namespace CBPSetupGUI
                         }
 
                         await SlowDown();
-                        if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"))))
+                        if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"))))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
@@ -375,10 +375,10 @@ namespace CBPSetupGUI
 
                         try
                         {
-                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
+                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBPLauncher.exe"));
                             ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
 
-                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
+                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
 
                             CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, "version.txt")));
@@ -387,7 +387,7 @@ namespace CBPSetupGUI
                             if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
                             {
                                 CBPPR = true;//not currently utilised much beyond a sanity check
-                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2528425253", "CBP Launcher.exe"));
+                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
                             }
                         }
                         catch (Exception ex)
@@ -398,7 +398,7 @@ namespace CBPSetupGUI
 
                         await SlowDown();
 
-                        if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"CBP Launcher.exe"))))
+                        if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"CBPLauncher.exe"))))
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
                             CBPL = true;
@@ -543,7 +543,7 @@ namespace CBPSetupGUI
                 if (await ProcessCheck("CBP Launcher", 0) == false)
                 {
                     // second try, reduce false negatives for slower systems (or just random OS hitches)
-                    await Delay(3200);
+                    await Delay(6200);//3200 was originally used, but can cause problems on first-time-run of CBP Launcher due to synchronous code
                     if (await ProcessCheck("CBP Launcher", 0) == false)
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);

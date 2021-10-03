@@ -154,5 +154,41 @@ namespace CBPLauncher.Properties {
                 this["OldFilesRenamed"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseDefaultLauncher {
+            get {
+                return ((bool)(this["UseDefaultLauncher"]));
+            }
+            set {
+                this["UseDefaultLauncher"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SkinSpV1 {
+            get {
+                return ((bool)(this["SkinSpV1"]));
+            }
+            set {
+                this["SkinSpV1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DefaultLauncherAnswered {
+            get {
+                return ((bool)(this["DefaultLauncherAnswered"]));
+            }
+            set {
+                this["DefaultLauncherAnswered"] = value;
+            }
+        }
     }
 }

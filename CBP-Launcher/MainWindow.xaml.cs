@@ -14,13 +14,33 @@ using System.Net;
 using System.Windows;
 using System.Windows.Media;     // used for selecting brushes (used for coloring in e.g. textboxes)
 using Microsoft.VisualBasic;    // used for the current (temporary?) popup user text input for manual path; I doubt it's efficient but it doesn't seem to be *too* resource intensive pending a replacement
-using CBPLauncher.logic;
+using CBPLauncher.Logic;
+using static CBPLauncher.Logic.BasicIOLogic;
+using System.Windows.Input;
 
 namespace CBPLauncher
 {
-
-    enum LauncherStatus
+    public partial class MainWindow : Window
     {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
+        }
+    }
+
+
+
+    /*enum LauncherStatus
+    {
+        gettingReady,
         readyCBPEnabled,
         readyCBPDisabled,
         loadFailed,
@@ -78,6 +98,12 @@ namespace CBPLauncher
                 _status = value;
                 switch (_status)
                 {
+                    case LauncherStatus.gettingReady:
+                        StatusReadout.Text = "Initializing...";
+                        StatusReadout.Foreground = Brushes.White;
+                        PlayButton.Content = "Launch Game";
+                        PlayButton.IsEnabled = false;
+                        break;
                     case LauncherStatus.readyCBPEnabled:
                         StatusReadout.Text = "Ready: CBP enabled";
                         StatusReadout.Foreground = Brushes.LimeGreen;
@@ -110,7 +136,7 @@ namespace CBPLauncher
                         break;
                     // I tried renaming the *Local to *Workshop and VS2019 literally did the opposite of that (by renaming what I just changed) instead of doing what it said it would wtf
                     case LauncherStatus.installingFirstTimeLocal:                       /// primary method: use workshop files;
-                        StatusReadout.Text = "Installing patch from local files...";    /// means no local-mods CBP detected
+                        StatusReadout.Text = "Installing CBP from local files...";      /// means no local-mods CBP detected
                         StatusReadout.Foreground = Brushes.White;
                         PlayButton.IsEnabled = false;
                         break;
@@ -120,7 +146,7 @@ namespace CBPLauncher
                         PlayButton.IsEnabled = false;
                         break;
                     case LauncherStatus.installingFirstTimeOnline:                      /// backup method: use online files;
-                        StatusReadout.Text = "Installing patch from online files...";   /// means no local-mods CBP detected but can't find workshop files either
+                        StatusReadout.Text = "Installing CBP from online files...";     /// means no local-mods CBP detected but can't find workshop files either
                         StatusReadout.Foreground = Brushes.White;
                         PlayButton.IsEnabled = false;
                         break;
@@ -171,166 +197,33 @@ namespace CBPLauncher
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
-            RegistryKey regPath; //this part (and related below) is to find the install location for RoN:EE (Steam)
- //!!!!!!           // apparently this is not a good method for the registry part? use using instead? (but I don't know how to make that work with the bit-check :( ) https://stackoverflow.com/questions/1675864/read-a-registry-key
-            if (Environment.Is64BitOperatingSystem) //I don't *fully* understand what's going on here (ported from stackexchange), but this block seems to be needed to prevent null value return due to 32/64 bit differences???
-            {
-                regPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-            }
-            else
-            {
-                regPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-            }
+            regPathDebug.Text = "Debug: registry read as " + RegPath;
 
-            regPathDebug.Text = "Debug: registry read as " + regPath;
+            /// TODO
+            /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
+            /// (at the moment it just assumes they exist and eventually errors later on if they don't)
 
-            // create / find paths for RoN, Steam Workshop, and relevant mods
             try
             {
-                // core paths
-                rootPath = Directory.GetCurrentDirectory();
-                gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
+                AssignZipPath();
 
-                if (Properties.Settings.Default.RoNPathSetting == "no path")
-                {
-                    // debug: System.Windows.MessageBox.Show($"path" + RoNPathFinal);
-
-                    using (RegistryKey ronReg = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
-                    {
-                        if (ronReg != null) // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
-                        {
-                            // success: automated primary
-                            RoNPathCheck = regPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
-                            RoNPathFound();
-                        }
-
-                        else
-                        {
-                            // try a default 64-bit install path, since that should probably work for most of the users with cursed registries
-                            RoNPathCheck = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\steamapps\common\Rise of Nations";
-
-                            if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
-                            {
-                                // success: automated secondary 1
-                                RoNPathFound();
-                            }
-                            else
-                            {
-                                // old way of doing it, but used as as backup because I don't know if the environment call method ever fails or not
-                                RoNPathCheck = @"C:\Program Files (x86)\Steam\steamapps\common\Rise of Nations";
-
-                                if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
-                                {
-                                    // success: automated secondary 2
-                                    RoNPathFound();
-                                }
-
-                                // automated methods unable to locate RoN install path - ask user for path
-                                else
-                                {
-                                    //people hate gotos (less so in C# but still) but this seems like a very reasonable substitute for a while-not-true loop that I haven't figured out how to implement here
-                                    AskManualPath:
-
-                                    RoNPathCheck = Interaction.InputBox($"Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
-                                                                       + "\n\n" + @"e.g. D:\Steamgames\common\Rise of Nations", "Unable to detect RoN install");
-
-                                    // check that the user has input a seemingly valid location
-                                    if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
-                                    {
-                                        // success: manual path
-                                        RoNPathFound();
-                                    }
-                                    else
-                                    {
-                                        // tell user invalid path, ask if they want to try again
-                                        string message = $"Rise of Nations install not detected in that location. "
-                                                       + "The path needs to be the folder that riseofnations.exe is located in, not including the executable itself."
-                                                       + "\n\n Would you like to try entering a path again?";
-
-                                        if (MessageBox.Show(message, "Invalid Path", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                                        {
-                                            goto AskManualPath;
-                                        }
-                                        else
-                                        {
-                                            MessageBox.Show("Launcher will now close.");
-                                            Environment.Exit(0);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                //frequent usage probably doesn't need this popup
-                //else
-                //{
-                //    RoNPathFinal = Properties.Settings.Default.RoNPathSetting;
-                //}
-
-                else
-                {
-                    //a7 temp
-                    helpXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", helpXML));
-                    interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", interfaceXML));
-                    setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", setupwinXML));
-                    patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
-                }
-
-                gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
-                localMods = Path.Combine(RoNPathFinal, "mods");
-                workshopPath = Path.GetFullPath(Path.Combine(RoNPathFinal, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
-
-                /// ===== START OF MOD LIST =====
-
-                // Community Balance Patch
-                modnameCBP = "Community Balance Patch"; // this has to be static, which loses the benefit of having the version display in in-game mod manager, but acceptable because it will display in CBP Launcher instead
-
-                // for testing purposes, access pre-elease (of a7)
-                if (Properties.Settings.Default.UsePrerelease == true)
-                {
-                    workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-                }
-                else
-                {
-                    workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-                }
-                //workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-
-                workshopPathCBP = Path.Combine(Path.GetFullPath(workshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
-                localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
-                versionFileCBP = Path.Combine(localPathCBP, "Version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
-
-                /// TODO
-                /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
-                /// (at the moment it just assumes they exist and eventually errors later on if they don't)
-
-                // Example New Mod
-                // modname<MOD> = A
-                // workshopID<MOD> = B
-
-                // workshopPath<MOD> = X
-                // localPath<MOD> = Y // remember to declare (?) these new strings at the top ("private string = ") as well
-                // versionFile<MOD> = Path.Combine(localPath<MOD>, "Version.txt"
-
-                /// Ideally in future these values can be dynamically loaded/added/edited etc from
-                /// within the program's UI (using e.g. external files), meaning that these values no longer need to be hardcoded like this.
-                /// I guess it might involve a Steam Workshop api call/request(?) for a string the user inputs (e.g. "Community Balance Patch")
-                /// and then it comes back with the ID and description so that the user can decide if that's the one they want.
-                /// If it is, then its details are populated into new strings within CBP Launcher.
-                /// No idea how to actually do that yet though :HnZdead:
-                /// And even if I did, I suspect it might be more work than it's worth - very few people seem to care enough to put in the effort on this
-                /// so it's probably not viable for *me* to put in the effort to make the program go from an 8/10 to a 10/10 - 
-                /// it sure would be nice to avoid half-duplicating these here though.
-                /// 
-                /// Also this list should probably be moved to a different file if implemented so it doesn't clog this thing up once it supports more mods
-
-                /// ===== END OF MOD LIST =====
+                // this starts a cycle through each of the automatic find-path attempts - if all fail, it just prompts user to input the path into a popup box instead
+                FindPathAuto1();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error creating paths: {ex}");
-                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+                MessageBox.Show($"Error creating paths (part 1): {ex}");
+                Environment.Exit(0);
+            }
+
+            try
+            {
+                AssignPaths();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error assigning paths (path 2):" + ex);
+                Environment.Exit(0);
             }
 
             // show detected paths in the UI
@@ -362,7 +255,136 @@ namespace CBPLauncher
             }
 
             CBPDefaultChecker();
+        }
 
+        private void AssignZipPath()
+        {
+            // core paths
+            rootPath = Directory.GetCurrentDirectory();
+            gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
+        }
+
+        private void FindPathAuto1()
+        {
+            if (Properties.Settings.Default.RoNPathSetting == "no path")
+            {
+                //I'm unsure if registry in non-English will actually have this exact path - do the names change per language?
+                using (RegistryKey ronReg = RegPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
+                {
+                    // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
+                    if (ronReg != null)
+                    {
+                        // success: automated primary
+                        RoNPathCheck = RegPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
+                        RoNPathFound();
+                    }
+
+                    else
+                    {
+                        FindPathAuto2();
+                    }
+                }
+            }
+            else
+            {
+                //a7 temp
+                helpXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", helpXML));
+                interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", interfaceXML));
+                setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "Data", setupwinXML));
+                patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
+            }
+        }
+
+        private void FindPathAuto2()
+        {
+            // try a default 64-bit install path, since that should probably work for most of the users with cursed registries
+            RoNPathCheck = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\SteamApps\common\Rise of Nations";
+
+            if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
+            {
+                // success: automated secondary 1
+                RoNPathFound();
+            }
+            else
+            {
+                FindPathAuto3();
+            }
+        }
+
+        private void FindPathAuto3()
+        {
+            // old way of doing it, but used as as backup because I don't know if the environment call method ever fails or not
+            RoNPathCheck = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations";
+
+            if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
+            {
+                // success: automated secondary 2
+                RoNPathFound();
+            }
+
+            // automated methods unable to locate RoN install path - ask user for path
+            else
+            {
+                FindPathManual();
+            }
+        }
+
+        private void FindPathManual()
+        {
+            //people hate gotos (less so in C# but still) but this seems like a very reasonable substitute for a while-not-true loop that I haven't figured out how to implement here
+            AskManualPath:
+
+            RoNPathCheck = Interaction.InputBox($"Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
+                                               + "\n\n" + @"e.g. D:\Steamgames\common\Rise of Nations", "Unable to detect RoN install");
+
+            // check that the user has input a seemingly valid location
+            if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
+            {
+                // success: manual path
+                RoNPathFound();
+            }
+            else
+            {
+                // tell user invalid path, ask if they want to try again
+                string message = $"Rise of Nations install not detected in that location. "
+                               + "The path needs to be the folder that riseofnations.exe is located in (but not including the executable itself in that path)."
+                               + "\n\n Would you like to try entering a path again?";
+
+                if (MessageBox.Show(message, "Invalid Path", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    goto AskManualPath;
+                }
+                else
+                {
+                    MessageBox.Show("Launcher will now close.");
+                    Environment.Exit(0);
+                }
+            }
+        }
+
+        private void AssignPaths()
+        {
+            // create / find paths for RoN, Steam Workshop, and relevant mods
+            gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
+            localMods = Path.Combine(RoNPathFinal, "mods");
+            workshopPath = Path.GetFullPath(Path.Combine(RoNPathFinal, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
+
+            modnameCBP = "Community Balance Patch"; // this has to be static, which loses the benefit of having the version display in in-game mod manager, but acceptable because it will display in CBP Launcher instead
+
+            // for testing purposes, access pre-elease (of a7)
+            if (Properties.Settings.Default.UsePrerelease == true)
+            {
+                workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+            }
+            else
+            {
+                workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+            }
+            //workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+
+            workshopPathCBP = Path.Combine(Path.GetFullPath(workshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
+            localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
+            versionFileCBP = Path.Combine(localPathCBP, "Version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
         }
 
         private void CheckForUpdates()
@@ -489,7 +511,7 @@ namespace CBPLauncher
                         }
 
                         // perhaps this is a chance to use async, but the benefits are minor given the limited IO, and my half-hour attempt wasn't adequate to get it working
-                        FileIO.DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
+                        DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
 
                         //temporary a7-structure copy feature for e.g. help.xml; should be redone (or at least re-examined) with CBPL re-do
                         // part pre-A: strings so that both A and C can access them
@@ -1052,8 +1074,8 @@ namespace CBPLauncher
         public static string[] versionStart = new string[11] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate ", "1.", "2.", "3.", "4.", "5.", "6." }; // I am a fucking god figuring out how to properly use these arrays based on 10 fragments of 5% knowledge each
         public static string[] versionMiddle = new string[16] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }; // I don't even know what "static" means in this context, I just know what I need to use it
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
-        public static string[] versionHotfix = new string[16] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)"
+        public static string[] versionHotfix = new string[20] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)" // 0-9 respectively
                                                               , " (special)" // 10
-                                                              , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)"}; // 11, 12, 13, 14, 15 respectively
-    }
+                                                              , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5),", "(PR6)", "(PR7)", "(PR8)", "(PR9)" }; // 11-19 respectively
+    }*/
 }

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Costura.Fody.5.3.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.3.0\build\Costura.Fody.props')" />
+  <Import Project="..\packages\Costura.Fody.5.6.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.6.0\build\Costura.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -8,7 +8,7 @@
     <ProjectGuid>{81AD6FDC-5DB4-403A-82DD-BBB875795CF4}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>CBPLauncher</RootNamespace>
-    <AssemblyName>CBP Launcher</AssemblyName>
+    <AssemblyName>CBPLauncher</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -20,7 +20,7 @@
     </TargetFrameworkProfile>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>publish\</PublishUrl>
+    <PublishUrl>C:\cbptemp\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -30,9 +30,10 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.0.1</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -57,7 +58,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>images\RoN CBP launcher logo 01.ico</ApplicationIcon>
+    <ApplicationIcon>Images\RoN CBP launcher logo 01.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -68,9 +69,24 @@
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>833C1CCA58D8B49D177F3B792701F9D49F4F1F59</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>CBP-Launcher_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Costura, Version=5.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Costura.Fody.5.3.0\lib\netstandard1.0\Costura.dll</HintPath>
+    <Reference Include="CodeKicker.BBCode, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PoLaKoSz.CodeKicker.BBCode.5.2.0\lib\netstandard2.0\CodeKicker.BBCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Costura, Version=5.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Costura.Fody.5.6.0\lib\netstandard1.0\Costura.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlToXamlConverter, Version=1.0.5727.24510, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlToXamlConverter.1.0.5727.24510\lib\net45\HtmlToXamlConverter.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -225,6 +241,70 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Logic\BasicIO.cs" />
+    <Compile Include="Logic\ClassicPlusLogVM.cs" />
+    <Compile Include="Logic\ClassicPlusMiniVM.cs" />
+    <Compile Include="Logic\ClassicPlusModManagerVM.cs" />
+    <Compile Include="Logic\ClassicPlusOptionsVM.cs" />
+    <Compile Include="Logic\ClassicPlusPatchNotesVM.cs" />
+    <Compile Include="Logic\ClassicPlusVM.cs" />
+    <Compile Include="Logic\MainCode.cs" />
+    <Compile Include="Logic\SpartanV1LogVM.cs" />
+    <Compile Include="Logic\SpartanV1ModManagerVM.cs" />
+    <Compile Include="Logic\SpartanV1OptionsVM.cs" />
+    <Compile Include="Logic\SpartanV1PatchNotesVM.cs" />
+    <Compile Include="Logic\SpartanV1MiniVM.cs" />
+    <Compile Include="Logic\SpartanV1VM.cs" />
+    <Compile Include="Old %28Maniac%29\MVVM\ViewModel\ViewModel-Primary.cs" />
+    <Compile Include="Old %28Maniac%29\MVVM\View\Skins\Skin-ClassicPlus.xaml.cs">
+      <DependentUpon>Skin-ClassicPlus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Old %28Maniac%29\MVVM\View\Skins\Skin-Spartan1.xaml.cs">
+      <DependentUpon>Skin-Spartan1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Old %28Maniac%29\MVVM\View\View-PrimaryWindow.xaml.cs">
+      <DependentUpon>View-PrimaryWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\ClassicPlus.xaml.cs">
+      <DependentUpon>ClassicPlus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\ClassicPlusLog.xaml.cs">
+      <DependentUpon>ClassicPlusLog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\ClassicPlusMini.xaml.cs">
+      <DependentUpon>ClassicPlusMini.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\ClassicPlusModManager.xaml.cs">
+      <DependentUpon>ClassicPlusModManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\ClassicPlusOptions.xaml.cs">
+      <DependentUpon>ClassicPlusOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1.xaml.cs">
+      <DependentUpon>SpartanV1.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Old %28Maniac%29\Wrappers\BindingWrapper.cs" />
+    <Compile Include="Old %28Maniac%29\Wrappers\SkinWrapper.xaml.cs">
+      <DependentUpon>SkinWrapper.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1Log.xaml.cs">
+      <DependentUpon>SpartanV1Log.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1Mini.xaml.cs">
+      <DependentUpon>SpartanV1Mini.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1ModManager.xaml.cs">
+      <DependentUpon>SpartanV1ModManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1Options.xaml.cs">
+      <DependentUpon>SpartanV1Options.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\ClassicPlusPatchNotes.xaml.cs">
+      <DependentUpon>ClassicPlusPatchNotes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1PatchNotes.xaml.cs">
+      <DependentUpon>SpartanV1PatchNotes.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -233,41 +313,102 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="logic\FileIO.cs" />
+    <Compile Include="Core\ObservableObject.cs" />
+    <Compile Include="Core\RelayCommand.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="MVVM\View\Skins\Skin-ClassicPlus.xaml">
+    <Page Include="Old %28Maniac%29\MVVM\View\Skins\Skin-ClassicPlus.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Old %28Maniac%29\MVVM\View\Skins\Skin-Spartan1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Old %28Maniac%29\MVVM\View\View-PrimaryWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Skins\ClassicPlus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MVVM\View\Skins\Skin-Spartan1.xaml">
+    <Page Include="Skins\ClassicPlusLog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MVVM\View\View-PrimaryWindow.xaml">
+    <Page Include="Skins\ClassicPlusMini.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\ClassicPlusModManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\ClassicPlusOptions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Old %28Maniac%29\Wrappers\SkinWrapper.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1Log.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1Mini.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1ModManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1Options.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\ClassicPlusPatchNotes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Skins\SpartanV1PatchNotes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Theme\BBRadioButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Theme\BBScrollbar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Theme\ImageButtonHoverFix.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Theme\LauncherPrimaryButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MVVM\Model\Model-Archive.cs" />
-    <Compile Include="MVVM\Model\Model-BasicIO.cs" />
-    <Compile Include="MVVM\Model\Model-GetPaths.cs" />
-    <Compile Include="MVVM\Model\Model-LauncherStatus.cs" />
-    <Compile Include="MVVM\Model\Model-Settings.cs" />
-    <Compile Include="MVVM\Model\Model-UpdateInstall.cs" />
-    <Compile Include="MVVM\ViewModel\ViewModel-Primary.cs" />
-    <Compile Include="MVVM\View\Skins\Skin-ClassicPlus.xaml.cs">
-      <DependentUpon>Skin-ClassicPlus.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MVVM\View\Skins\Skin-Spartan1.xaml.cs">
-      <DependentUpon>Skin-Spartan1.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MVVM\View\View-PrimaryWindow.xaml.cs">
-      <DependentUpon>View-PrimaryWindow.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Old %28Maniac%29\Logic\ArchiveLogic.cs" />
+    <Compile Include="Old %28Maniac%29\Logic\BasicIOLogic.cs" />
+    <Compile Include="Old %28Maniac%29\Logic\GetPathsLogic.cs" />
+    <Compile Include="Old %28Maniac%29\Logic\LauncherStatusLogic.cs" />
+    <Compile Include="Old %28Maniac%29\Logic\RegistryLogic.cs" />
+    <Compile Include="Old %28Maniac%29\Logic\SettingsLogic.cs" />
+    <Compile Include="Old %28Maniac%29\Logic\UpdateInstallLogic.cs" />
+    <Compile Include="Old %28Maniac%29\Logic\VersionLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -285,6 +426,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="CBP-Launcher_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\app.manifest">
       <SubType>Designer</SubType>
@@ -298,10 +440,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\RoN CBP launcher logo 01.png" />
+    <Resource Include="Images\RoN CBP launcher logo 01.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\RoN CBP launcher logo 01.ico" />
+    <Resource Include="Images\RoN CBP launcher logo 01.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
@@ -319,21 +461,82 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\CBP launcher background 01.jpg" />
+    <Resource Include="Images\CBP launcher background 01.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Old %28Maniac%29\MVVM\Model\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CBP Launcher left side background.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CBP Launcher extend button 15x50 %28flat%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CBP launcher original background recreated.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\IDB_MINIMIZE_U.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\IDB_CLOSE_U.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RoN EE logo steam cdn logo %28minor cleanup%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\button up minor edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\button down minor edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RoN EE logo %28touchup%29 from game files.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\IDB_CLOSE_U orangered highlight.png" />
+    <Resource Include="Images\IDB_MINIMIZE_U highlight.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RoN CBP logo %28no rivets%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RoN CBP logo 01.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RoN CBP Launcher recreation small version.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CBP launcher background mini.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RoN CBP Launcher button down long highlight.png" />
+    <Resource Include="Images\RoN CBP Launcher button down long pressed.png" />
+    <Resource Include="Images\RoN CBP Launcher button down long.png" />
+    <Resource Include="Images\RoN CBP Launcher button up long highlight.png" />
+    <Resource Include="Images\RoN CBP Launcher button up long pressed.png" />
+    <Resource Include="Images\RoN CBP Launcher button up long.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\RoN CBP Launcher button left long highlight.png" />
+    <Resource Include="Images\RoN CBP Launcher button left long pressed.png" />
+    <Resource Include="Images\RoN CBP Launcher button left long.png" />
+    <Resource Include="Images\RoN CBP Launcher button right long highlight.png" />
+    <Resource Include="Images\RoN CBP Launcher button right long pressed.png" />
+    <Resource Include="Images\RoN CBP Launcher button right long.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\Fody.6.5.1\build\Fody.targets" Condition="Exists('..\packages\Fody.6.5.1\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.6.5.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.5.1\build\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.5.3.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.3.0\build\Costura.Fody.props'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.5.3.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.3.0\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.6.5.3\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.5.3\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.5.6.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.6.0\build\Costura.Fody.props'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.5.6.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.6.0\build\Costura.Fody.targets'))" />
   </Target>
-  <Import Project="..\packages\Costura.Fody.5.3.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.5.3.0\build\Costura.Fody.targets')" />
+  <Import Project="..\packages\Fody.6.5.3\build\Fody.targets" Condition="Exists('..\packages\Fody.6.5.3\build\Fody.targets')" />
+  <Import Project="..\packages\Costura.Fody.5.6.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.5.6.0\build\Costura.Fody.targets')" />
 </Project>

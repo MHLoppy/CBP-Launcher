@@ -6,8 +6,81 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CBPLauncher"
+             xmlns:logic="clr-namespace:CBPLauncher.Logic"
+             xmlns:skins="clr-namespace:CBPLauncher.Skins"
              StartupUri="MainWindow.xaml">
+
+    <!--     xmlns:v="clr-namespace:CBPLauncher.MVVM.View"
+             xmlns:vm="clr-namespace:CBPLauncher.MVVM.ViewModel"
+             xmlns:wrappers="clr-namespace:CBPLauncher.Wrappers"-->
     <Application.Resources>
-         
+        <ResourceDictionary>
+            
+            <!--<vm:ViewModel_Primary x:Key="vmPrimary"/>-->
+
+            <!--<wrappers:BindingWrapper x:Key="BindingWrapper"/>-->
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme/BBRadioButton.xaml"/>
+                <!--<ResourceDictionary Source="Theme/BBScrollbar.xaml"/>-->
+                <ResourceDictionary Source="Theme/LauncherPrimaryButton.xaml"/>
+                <ResourceDictionary Source="Theme/ImageButtonHoverFix.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <logic:MainCode x:Key="MC"/>
+
+            <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+            <!-- Spartan V1 skin-->
+            <DataTemplate DataType="{x:Type logic:SpartanV1VM}">
+                <skins:SpartanV1/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:SpartanV1MiniVM}">
+                <skins:SpartanV1Mini/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:SpartanV1PatchNotesVM}">
+                <skins:SpartanV1PatchNotes/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:SpartanV1ModManagerVM}">
+                <skins:SpartanV1ModManager/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:SpartanV1OptionsVM}">
+                <skins:SpartanV1Options/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:SpartanV1LogVM}">
+                <skins:SpartanV1Log/>
+            </DataTemplate>
+
+            <!-- Classic Plus skin -->
+            <DataTemplate DataType="{x:Type logic:ClassicPlusVM}">
+                <skins:ClassicPlus/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:ClassicPlusMiniVM}">
+                <skins:ClassicPlusMini/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:ClassicPlusPatchNotesVM}">
+                <skins:ClassicPlusPatchNotes/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:ClassicPlusModManagerVM}">
+                <skins:ClassicPlusModManager/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:ClassicPlusOptionsVM}">
+                <skins:ClassicPlusOptions/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:ClassicPlusLogVM}">
+                <skins:ClassicPlusLog/>
+            </DataTemplate>
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
