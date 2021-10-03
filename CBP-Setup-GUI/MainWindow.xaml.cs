@@ -177,7 +177,7 @@ namespace CBPSetupGUI
                     await DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
                     return;
                 }
-                if (await ProcessCheck("CBP Launcher", 1) == true)
+                if (await ProcessCheck("CBPLauncher", 1) == true)
                 {
                     MessageBox.Show(CBPSetupGUI.Language.Resources.CBPLCurrentlyRunning);
                     await DelayedClose(CBPSetupGUI.Language.Resources.CBPLCurrentlyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
@@ -505,7 +505,7 @@ namespace CBPSetupGUI
                 await SlowDown();
                 FirstTimeSlow();
 
-                if (await ProcessCheck("CBP Launcher", 0) == false)
+                if (await ProcessCheck("CBPLauncher", 0) == false)
                 {
                     //ask user if it's okay to run CBP Launcher [can autoconsent]
                     if (Properties.Settings.Default.AutoConsent == false)
@@ -540,11 +540,11 @@ namespace CBPSetupGUI
             async Task Conclusion()
             {
                 await Delay(600); //wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
-                if (await ProcessCheck("CBP Launcher", 0) == false)
+                if (await ProcessCheck("CBPLauncher", 0) == false)
                 {
                     // second try, reduce false negatives for slower systems (or just random OS hitches)
-                    await Delay(6200);//3200 was originally used, but can cause problems on first-time-run of CBP Launcher due to synchronous code
-                    if (await ProcessCheck("CBP Launcher", 0) == false)
+                    await Delay(3200);
+                    if (await ProcessCheck("CBPLauncher", 0) == false)
                     {
                         MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
                         await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
