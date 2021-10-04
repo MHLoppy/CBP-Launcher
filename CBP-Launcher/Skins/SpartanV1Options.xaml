@@ -64,7 +64,7 @@
                         </Button.Resources>
                     </Button>
 
-                    <CheckBox Name="DefaultLauncherCheckbox" Grid.Row="0" Grid.Column="0" Content="Use default launcher, NOT CBP Launcher" HorizontalAlignment="Left" Margin="12,144,0,0" VerticalAlignment="Top" IsChecked="{Binding UseDefaultLauncherCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseDefaultLauncherCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
+                    <CheckBox Name="DefaultLauncherCheckbox" Grid.Row="0" Grid.Column="0" Content="Use default RoN launcher, NOT CBP Launcher" HorizontalAlignment="Left" Margin="12,144,0,0" VerticalAlignment="Top" IsChecked="{Binding UseDefaultLauncherCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseDefaultLauncherCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
                 </Grid>
 
                 <!-- other setting "area"s -->

@@ -17,9 +17,9 @@ using System.Windows.Navigation;
 
 namespace CBPLauncher.Skins
 {
-    /// <summary>
-    /// Interaction logic for SpartanV1PatchNotes.xaml
-    /// </summary>
+    /// WARNING
+    /// DO NOT use messagebox.show here - it will interrupt the flowdocument and crash it
+    /// WARNING
     public partial class SpartanV1PatchNotes : UserControl//TODO: check for patch notes file before continuing
     {
         // tried to reduce memory usage by assigning this a single time here (except for again in the catch exception) instead of once in each block of relevant code, but it didn't seem to change memory usage
@@ -88,7 +88,7 @@ namespace CBPLauncher.Skins
             //Console.WriteLine(formattedPatchNotes);
 
             //first check if file exists
-            if (File.Exists(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/CBPpatchnotes.txt"))))
+            if (File.Exists(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"mods/Community Balance Patch/patchnotes.txt"))))
             {
                 try
                 {
@@ -107,7 +107,7 @@ namespace CBPLauncher.Skins
                     paragraph.Inlines.Add(normaltext2);
 
                     // patch notes - the main part of the flowdocument
-                    string patchnotes = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/CBP patch notes.txt"));//relies on CBP Launcher being in root folder (as expected)
+                    string patchnotes = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"mods/Community Balance Patch/patchnotes.txt"));//relies on CBP Launcher being in root folder (as expected)
                     string formattedPatchNotes = "<html><body style='background-color: #DFF3F3F3; font-family: sans-serif; color: #FF1A1A1A;'>" + ProcessBBCodeFromTxtFile(patchnotes) + "</body></html>";//#D6FBFBFB for background that's lighter than page, #D0F3F3F3 for same color
 
                     string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedPatchNotes, false);

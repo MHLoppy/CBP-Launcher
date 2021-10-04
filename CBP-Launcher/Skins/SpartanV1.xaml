@@ -85,7 +85,7 @@
 
             <!-- left side: bottom left launch button + status -->
             <Grid Grid.Column="0" Grid.Row="1" Grid.RowSpan="2">
-                <Button Content="{Binding LaunchButtonText}" HorizontalAlignment="Center" Margin="80,34,80,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="168" Height="50" FontSize="24" FontWeight="Bold" Foreground="#DDFFFFFF" Background="#FF016AC1"/>
+                <Button Content="{Binding LaunchButtonText}" Command="{Binding PlayButtonCommand}" HorizontalAlignment="Center" Margin="80,34,80,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="168" Height="50" FontSize="24" FontWeight="Bold" Foreground="#DDFFFFFF" Background="#FF016AC1"/>
                 <TextBlock Text="{Binding LaunchStatusText}" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="82,83,82,0" VerticalAlignment="Top" MinWidth="0" Foreground="{Binding LaunchStatusColor}" Background="#66000000" Padding="2,0,2,0"/>
                 <Button Width="50" Height="50" Command="{Binding ChangeSkinCommand}" Margin="35,63,235,37" Visibility="Hidden"/>
             </Grid>

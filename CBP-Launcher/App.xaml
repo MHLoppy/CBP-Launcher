@@ -25,6 +25,7 @@
                 <!--<ResourceDictionary Source="Theme/BBScrollbar.xaml"/>-->
                 <ResourceDictionary Source="Theme/LauncherPrimaryButton.xaml"/>
                 <ResourceDictionary Source="Theme/ImageButtonHoverFix.xaml"/>
+                <ResourceDictionary Source="Theme/RoNCheckbox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <logic:MainCode x:Key="MC"/>

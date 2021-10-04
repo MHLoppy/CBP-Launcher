@@ -852,6 +852,9 @@ namespace CBPLauncher.Logic
             //just in case the directory doesn't already exist - I'm actually not sure if it's ALWAYS created in a COMPLETELY FRESH install of RoN:EE
             Directory.CreateDirectory(Path.Combine(RoNPathFinal, "mods"));
 
+            //debug (problems with paths seemingly being either 1) no path (as in string "no path", which is the default value), or 2) somehow thinking workshop folder is in steamapps/common/workshop instead of steamapps/workshop
+            //MessageBox.Show(RoNPathFinal);
+
             localMods = Path.Combine(RoNPathFinal, "mods");
             workshopPath = Path.GetFullPath(Path.Combine(RoNPathFinal, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
 

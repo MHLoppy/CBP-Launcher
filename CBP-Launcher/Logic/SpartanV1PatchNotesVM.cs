@@ -10,11 +10,8 @@ using CBPLauncher.Core;
 
 namespace CBPLauncher.Logic
 {
-    public class SpartanV1PatchNotesVM : ObservableObject
+    public class SpartanV1PatchNotesVM
     {
-        public SpartanV1PatchNotesVM()
-        {
-            //seems like webbrowser control can't be used easily in MVVVM X_X so I've moved all the logic of this class into the patchnotesVM codebehind
-        }
+        //seems like webbrowser control can't be used easily in MVVVM X_X so I've moved all the logic of this class into the patchnotesVM codebehind
     }
 }

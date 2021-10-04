@@ -46,7 +46,7 @@
                 <Grid Grid.Row="0" Grid.Column="0">
                     <!-- Checkboxes -->
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="CBP Options" Foreground="#EEEEEE" FontSize="14" Margin="10,10,0,0" FontWeight="SemiBold"/>
-                    <CheckBox Name="CBPDefaultCheckbox" Grid.Row="0" Grid.Column="0" Content="Default to CBP" HorizontalAlignment="Left" Margin="12,32,0,0" VerticalAlignment="Top" IsChecked="{Binding CBPDefaultCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding CBPDefaultCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
+                    <CheckBox Name="CBPDefaultCheckbox" Grid.Row="0" Grid.Column="0" Content="Default to CBP" HorizontalAlignment="Left" Margin="12,32,0,0" VerticalAlignment="Top" IsChecked="{Binding CBPDefaultCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding CBPDefaultCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0" Style="{DynamicResource RoNCheckbox}"/>
                     <CheckBox Name="UsePrereleaseCheckbox" Grid.Row="0" Grid.Column="0" Content="Use a7 prerelease" HorizontalAlignment="Left" Margin="12,52,0,0" VerticalAlignment="Top" IsChecked="{Binding UsePrereleaseCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UsePrereleaseCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
 
                     <!-- Skin change -->
@@ -73,7 +73,7 @@
                         </Button.Resources>
                     </Button>
                     
-                    <CheckBox Name="DefaultLauncherCheckbox" Grid.Row="0" Grid.Column="0" Content="Use default launcher, NOT CBP Launcher" HorizontalAlignment="Left" Margin="12,144,0,0" VerticalAlignment="Top" IsChecked="{Binding UseDefaultLauncherCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseDefaultLauncherCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
+                    <CheckBox Name="DefaultLauncherCheckbox" Grid.Row="0" Grid.Column="0" Content="Use default RoN launcher, NOT CBP Launcher" HorizontalAlignment="Left" Margin="12,144,0,0" VerticalAlignment="Top" IsChecked="{Binding UseDefaultLauncherCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseDefaultLauncherCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
                 </Grid>
 
                 <!-- other setting "area"s -->
