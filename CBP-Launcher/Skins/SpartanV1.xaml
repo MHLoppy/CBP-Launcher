@@ -187,7 +187,7 @@
             </Grid>
 
             <!-- right side: launcher version + background effect -->
-            <TextBlock Name="LauncherVersionText" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,6" TextWrapping="Wrap" Text="CBP Launcher v0.5" Foreground="WhiteSmoke" FontFamily="Segoe UI Semilight" FontSize="14" Panel.ZIndex="1">
+            <TextBlock Name="LauncherVersionText" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,6" TextWrapping="Wrap" Text="{Binding LauncherVersion}" Foreground="WhiteSmoke" FontFamily="Segoe UI Semilight" FontSize="14" Panel.ZIndex="1">
             </TextBlock>
             <Grid Grid.Row="2" Grid.Column="1">
                 <Border CornerRadius="30,30,30,30" Opacity="0.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-45,-40" Width="180" Height="64" Panel.ZIndex="-2">

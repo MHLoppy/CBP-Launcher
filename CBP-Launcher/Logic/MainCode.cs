@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -68,7 +69,9 @@ namespace CBPLauncher.Logic
         private string folderCBProot;
         private string folderCBPmodded;
         private string folderCBPoriginal;
-        private List<string> CBPFileList = new List<string>();//the empty list seems to have a null error (in app.xaml of all places) in VS2019..... except it doesn't seem to matter at all ? ? ? ? ?
+        private List<string> CBPFileListAll = new List<string>();//the empty list seems to sometimes have a null error (in app.xaml of all places) in VS2019..... except it doesn't seem to matter at all ? ? ? ? ?
+        private List<string> CBPFileListModded = new List<string>();
+        private List<string> CBPFileListOriginal = new List<string>();
         private bool updateSetupLater = false;
         
         //private string patchNotesCBP; //moved out to its own VM instead
@@ -243,6 +246,17 @@ namespace CBPLauncher.Logic
             {
                 useDefaultLauncherCheckbox = value;
                 OnPropertyChanged();
+            }
+        }
+
+        private string launcherVersion = "CBP Launcher vX.Y.Z";
+        public string LauncherVersion
+        {
+            get => launcherVersion;
+            set
+            {
+                launcherVersion = value;
+                OnPropertyChanged();//this may not be needed, not sure
             }
         }
 
@@ -496,6 +510,7 @@ namespace CBPLauncher.Logic
                     EEPath = RoNPathFinal;
                     WorkshopPathDebug = workshopPath;
                     WorkshopPathCBPDebug = workshopPathCBP;
+                    GetLauncherVersion();
                 }
                 catch (Exception ex)
                 {
@@ -512,14 +527,31 @@ namespace CBPLauncher.Logic
                     Directory.CreateDirectory(Path.Combine(unloadedModsPath, "CBP Archive")); // will be used for archiving old CBP versions
                     archiveCBP = Path.Combine(unloadedModsPath, "CBP Archive");
 
-                    //new for late alpha 7
+                    //new for late alpha 7; doing some path assigning too because this is the first time directories are created *after* the normal path assignment function
                     Directory.CreateDirectory(Path.Combine(EEPath, "CBP")); //used for CBP file storage going forward
-                    folderCBProot = Path.Combine(EEPath, "CBP");
+                    folderCBProot = Path.Combine(RoNPathFinal, "CBP");
 
-                    Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files
+                    //Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files //decided to just use the existing CBP local mod directory
                     Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
-                    folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
+                    folderCBPmodded = localPathCBP; //Path.Combine(folderCBProot, "CBP files");
                     folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
+
+                    /*MessageBox.Show("new function!");
+                    GenerateFileListAll();
+                    GenerateFileListModded();
+                    GenerateFileListOriginal();
+
+                    foreach (string name in CBPFileListAll)
+                        Console.WriteLine("all "+name);
+                    foreach (string name in CBPFileListModded)
+                        Console.WriteLine("modded "+name);
+                    foreach (string name in CBPFileListOriginal)
+                        Console.WriteLine("original "+name);*/
+
+                    /*MessageBox.Show("doing the new functions!");
+                    GenerateBackupFileList();
+                    BackupOriginalFiles();
+                    MessageBox.Show("new functions finished!");*/
                 }
                 catch (Exception ex)
                 {
@@ -530,7 +562,6 @@ namespace CBPLauncher.Logic
                 try
                 {
                     AskDefaultLauncher();
-
 
                     // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
                     if (Properties.Settings.Default.DefaultCBP == true)
@@ -562,7 +593,7 @@ namespace CBPLauncher.Logic
                 //designtime baybeeee
 
                 //to stop A N G E R Y VS2019 error messages which don't actually matter
-                CBPFileList.Add("uwu");
+                CBPFileListAll.Add("uwu");
 
                 //(turns out that didn't stop the messages  n w n
             }
@@ -581,7 +612,7 @@ namespace CBPLauncher.Logic
             UseDefaultLauncherCommand = new RelayCommand(o =>
             {
                 UseDefaultLauncher_Inversion();
-                RestoreDefaultLauncher();
+                ReplaceRestoreDefaultLauncher();
             });
 
             ResetSettingsCommand = new RelayCommand(o =>
@@ -970,7 +1001,7 @@ namespace CBPLauncher.Logic
         }
 
         /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one, meaning that some stuff such as archiving doesn't need to be here too
-        {         
+        {         //later on can refactor the whole thing maybe
             if (Properties.Settings.Default.CBPUnloaded == false)
             {
                 if (Properties.Settings.Default.NoWorkshopFiles == false)
@@ -996,58 +1027,54 @@ namespace CBPLauncher.Logic
 
         private void LoadDirectFiles()
         {
-
+            //using the generated modded and original lists, check then (if needed) load each (appropriate modded or original) file in each list
         }
 
         private void UnloadDirectFiles()
         {
-
+            //for every file (or just modded list? it would save computation time), check and then (if needed) load the original file
         }
 
         // just dumping this here - somewhere need to [if not null] do     CBPFileList = Properties.Settings.Default.SavedFileListCBP.Cast<string>().ToList();
 
-        // maybe
-        private void CopyToCBPFolder()
+        //generate complete list of (original) files based on which CBP files exist so that we know what to backup
+        private void GenerateFileListAll()
         {
-            // before being able to generate a file list, we need to have the files on hand (prefer to not directly use workshop files so that we can source non-workshop files if needed)
-            // this should probably only be used once (every time mod is updated) rather than every time (like e.g. creating the file list will be every time)
-        }
-
-        //generate complete list of (original) files to backup, based on which CBP files exist
-        private void GenerateBackupFileList()
-        {
-            //source will be RoN/CBP/Primary? wait why not just keep the old folder copying logic and use /mods/CBP/Primary instead? (less work to implement)
-            // USE SEPARATE PLACE FOR FILE "CABINET" otherwise you risk fucking everything up when you update from (e.g.) workshop files
-
             //apparently using FileInfo (.Name) is much (non-trivially) heavier than Path.GetFileName
 
             //primary files
             string[] primaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "PrimaryData"));
             foreach(string file in primaryFiles)
             {
-                CBPFileList.Add("Primary file: " + Path.GetFileName(file));//don't actually put the primary file prefix in the list!
+                CBPFileListAll.Add(
+                    //"Primary file: " + 
+                    Path.GetFileName(file));//don't actually put the primary file prefix in the list!
             }
 
             //secondary files
             string[] secondaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "SecondaryData"));
             foreach (string file in secondaryFiles)
             {
-                CBPFileList.Add("Secondary file: " + Path.GetFileName(file));//don't actually put the secondary file prefix in the list!
+                CBPFileListAll.Add(
+                    //"Secondary file: " + 
+                    Path.GetFileName(file));//don't actually put the secondary file prefix in the list!
             }
 
-            //more files????
-            foreach (string filename in CBPFileList)
+            //custom file list logic can go here
+
+            //debug
+            /*foreach (string filename in CBPFileListAll)
             {
-                Console.WriteLine(filename);
-            }
+                Console.WriteLine(filename);//change to log later
+            }*/
         }
 
-        // before messing around, 
+        // before loading/unload files, need copies of the originals
         private void BackupOriginalFiles()
         {
             // check if user is running modded files first? Or just assume that they're okay? maybe check for the CBP "(original)" marked files and assume user is running CBP if they exist?
 
-            if (File.Exists(helpXMLOrig + " old"))
+            if (File.Exists(helpXMLOrig + " (old)"))
             {
                 //looks like user has old version of CBP loaded, so we can't use these files
                 MessageBox.Show("It looks like you currently have a pre-release version of CBP files loaded. Will now attempt to unload these files before continuing. (if you see this message repeatedly, ask for help)");
@@ -1065,6 +1092,47 @@ namespace CBPLauncher.Logic
             else
             {
                 //copy files from e.g. /data/ to /CBP/Original Files
+                foreach (string filename in CBPFileListAll)
+                {
+                    MessageBox.Show(Path.Combine(RoNPathFinal, "Data", filename));
+                    MessageBox.Show(Path.Combine(folderCBPoriginal, filename));
+                    File.Copy(Path.Combine(RoNPathFinal, "Data", filename), Path.Combine(folderCBPoriginal, filename));
+                }
+            }
+        }
+
+        private void GenerateFileListModded()
+        {
+            if (Properties.Settings.Default.UsePrimaryFileList == true)
+            {
+                string[] primaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "PrimaryData"));
+                //CBPFileListModded.AddRange(primaryFiles); //this gives the full file path, which can be handy but we just want the filename itself
+                foreach (string name in primaryFiles)
+                {
+                    CBPFileListModded.Add(Path.GetFileName(name));
+                    //MessageBox.Show("added " + name);//change to log event later
+                }
+            }
+            if (Properties.Settings.Default.UseSecondaryFileList == false)//SIMULATION
+            {
+                string[] secondaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "SecondaryData"));
+                //CBPFileListModded.AddRange(secondaryFiles); //this gives the full file path, which can be handy but we just want the filename itself
+                foreach (string name in secondaryFiles)
+                {
+                    CBPFileListModded.Add(Path.GetFileName(name));
+                    //MessageBox.Show("added " + name + "to CBPFileListModded");//change to log event later
+                }
+            }
+            //after that, handle custom lists (where primary and/or secondary are turned off and individual files are loaded/unloaded instead)
+        }
+
+        private void GenerateFileListOriginal()
+        {
+            IEnumerable<string> differencequery = CBPFileListAll.Except(CBPFileListModded);
+            foreach (string name in differencequery)
+            {
+                CBPFileListOriginal.Add(name);
+                //MessageBox.Show("Added " + name + "to CBPFileListOriginal"); //change to log event later
             }
         }
 
@@ -1121,13 +1189,15 @@ namespace CBPLauncher.Logic
                             Console.WriteLine("did not copy workshop CBP to local CBP because of archive abort flag");
                         }
 
+                        ReplaceRestoreDefaultLauncher();
+
                         //temporary a7-structure copy feature for e.g. help.xml; should be redone (or at least re-examined) with CBPL re-do
                         // part pre-A: strings so that both A and C can access them
                         // part A: backup old files you're about to override
                         // part B: copy contents of <workshopIDfolder>/<Secondary> to RoN/data
                         // part C: (not here, search for PART C) when mod is unloaded, restore the old files
 
-                        if (Properties.Settings.Default.OldFilesRenamed == false)
+                        /*if (Properties.Settings.Default.OldFilesRenamed == false)
                         {
                             try
                             {
@@ -1172,7 +1242,7 @@ namespace CBPLauncher.Logic
                                 //set a flag to do it later so that user doesn't get slowed down
                                 updateSetupLater = true;
                             }
-                        }
+                        }*/
 
                         try
                         {
@@ -1234,7 +1304,9 @@ namespace CBPLauncher.Logic
                     {
                         Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
 
-                        try
+                        ReplaceRestoreDefaultLauncher();
+
+                        /*try
                         {
                             //PART A
                             File.Move(helpXMLOrig, helpXMLOrig + " (old)");
@@ -1264,7 +1336,7 @@ namespace CBPLauncher.Logic
                         catch (Exception ex)
                         {
                             MessageBox.Show("error with the temp a7 logic:\n" + ex);
-                        }
+                        }*/
                     }
 
                     UpdateLocalVersionNumber();
@@ -1372,7 +1444,9 @@ namespace CBPLauncher.Logic
 
                         VersionTextInstalled = "CBP not loaded";
 
-                        //PART C
+                        ReplaceRestoreDefaultLauncher();
+
+                        /*//PART C
                         File.Delete(helpXMLOrig);
                         File.Delete(interfaceXMLOrig);
                         File.Delete(setupwinXMLOrig);
@@ -1385,7 +1459,7 @@ namespace CBPLauncher.Logic
                         { File.Move(patriotsOrig + " (original)", patriotsOrig); }
 
                         Properties.Settings.Default.OldFilesRenamed = false;
-                        //end of c
+                        //end of c*/
 
                         Status = LauncherStatus.readyCBPDisabled;
                     }
@@ -1524,7 +1598,7 @@ namespace CBPLauncher.Logic
             SaveSettings();
         }
 
-        private void RestoreDefaultLauncher()
+        private void ReplaceRestoreDefaultLauncher()
         {
             if (File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == true)
             {
@@ -1689,6 +1763,19 @@ namespace CBPLauncher.Logic
                 Status = LauncherStatus.loadFailed;
                 MessageBox.Show($"Error archiving previous CBP version (compatibility for a6c): {ex}");
             }
+        }
+
+        private void GetLauncherVersion()
+        {
+            //lmao I was so tired when I did this I didn't even realise I was completely ruining it by using the *CBP* version format
+            /*Version version = new Version(Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            LauncherVersion = "CBP Launcher v"
+                            + VersionArray.versionStart[version.major]
+                            + VersionArray.versionMiddle[version.minor]
+                            + VersionArray.versionEnd[version.subMinor]
+                            + VersionArray.versionHotfix[version.hotfix];*/
+
+            LauncherVersion = "CBP Launcher v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2);
         }
 
         private async Task Delay(int ms)

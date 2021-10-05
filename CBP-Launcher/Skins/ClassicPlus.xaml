@@ -141,7 +141,7 @@
                     <Border Background="{Binding ElementName=CPL, Path=Background}" Height="32" Width="20" Margin="7,9,0,0" CornerRadius="6"/>
                 </StackPanel>
 
-                <Label Content="CBP Launcher v0.5.1" Margin="127,170,-12,-1" Foreground="DimGray" FontWeight="Light" FontSize="13.5" HorizontalAlignment="Center"/>
+                <Label Content="{Binding LauncherVersion}" Margin="127,170,-12,-1" Foreground="DimGray" FontWeight="Light" FontSize="13.5" HorizontalAlignment="Center"/>
             </Grid>
 
             <!-- tab thingy -->

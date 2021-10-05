@@ -201,5 +201,29 @@ namespace CBPLauncher.Properties {
                 this["SavedFileListCBP"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UsePrimaryFileList {
+            get {
+                return ((bool)(this["UsePrimaryFileList"]));
+            }
+            set {
+                this["UsePrimaryFileList"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseSecondaryFileList {
+            get {
+                return ((bool)(this["UseSecondaryFileList"]));
+            }
+            set {
+                this["UseSecondaryFileList"] = value;
+            }
+        }
     }
 }
