@@ -42,7 +42,7 @@
                 <!-- counterintuitively, textblock is lighter weight than label, but label has more functionality e.g. horizontalcontentalignment not just horizontalalignment-->
 
                 <!-- left side: top left status text -->
-                <Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light"/>
+                <Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light" Visibility="Hidden"/>
                 <Label Content="{Binding VersionTextInstalled}" Margin="17,115,17,0" Foreground="#FFF0F0F0" FontSize="20" HorizontalContentAlignment="Center"/>
 
                 <!-- left side: update button (hidden unless "do NOT autoupdate CBP" is enabled) -->

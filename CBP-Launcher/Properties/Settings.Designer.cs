@@ -190,5 +190,16 @@ namespace CBPLauncher.Properties {
                 this["DefaultLauncherAnswered"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection SavedFileListCBP {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["SavedFileListCBP"]));
+            }
+            set {
+                this["SavedFileListCBP"] = value;
+            }
+        }
     }
 }
