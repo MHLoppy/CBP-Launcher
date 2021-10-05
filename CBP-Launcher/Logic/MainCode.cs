@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,7 +12,7 @@ using System.Windows.Media;
 using CBPLauncher.Core;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
-using static CBPLauncher.Logic.BasicIO;//....where?
+using static CBPLauncher.Logic.BasicIO;
 
 namespace CBPLauncher.Logic
 {
@@ -64,7 +65,12 @@ namespace CBPLauncher.Logic
         private string versionFileCBP;
         private string archiveCBP;
         private bool abortWorkshopCopyCBP = false;
-        private string folderCBP;
+        private string folderCBProot;
+        private string folderCBPmodded;
+        private string folderCBPoriginal;
+        private List<string> CBPFileList = new List<string>();//the empty list seems to have a null error (in app.xaml of all places) in VS2019..... except it doesn't seem to matter at all ? ? ? ? ?
+        private bool updateSetupLater = false;
+        
         //private string patchNotesCBP; //moved out to its own VM instead
 
         /// ===== END OF MOD LIST =====
@@ -508,7 +514,12 @@ namespace CBPLauncher.Logic
 
                     //new for late alpha 7
                     Directory.CreateDirectory(Path.Combine(EEPath, "CBP")); //used for CBP file storage going forward
-                    folderCBP = Path.Combine(EEPath, "CBP");
+                    folderCBProot = Path.Combine(EEPath, "CBP");
+
+                    Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files
+                    Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
+                    folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
+                    folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
                 }
                 catch (Exception ex)
                 {
@@ -549,6 +560,11 @@ namespace CBPLauncher.Logic
             else
             {
                 //designtime baybeeee
+
+                //to stop A N G E R Y VS2019 error messages which don't actually matter
+                CBPFileList.Add("uwu");
+
+                //(turns out that didn't stop the messages  n w n
             }
 
             //RelayCommands (they don't all need to have objects passed to them, but it probably just hands them an unproblematic null in that case, so idk I just kept it)
@@ -565,6 +581,7 @@ namespace CBPLauncher.Logic
             UseDefaultLauncherCommand = new RelayCommand(o =>
             {
                 UseDefaultLauncher_Inversion();
+                RestoreDefaultLauncher();
             });
 
             ResetSettingsCommand = new RelayCommand(o =>
@@ -907,7 +924,7 @@ namespace CBPLauncher.Logic
                     {
                         if (onlineVersion.IsDifferentThan(localVersion))
                         {
-                            InstallGameFiles(true, onlineVersion);
+                            OldInstallGameFiles(true, onlineVersion);
                         }
                         else
                         {
@@ -927,12 +944,12 @@ namespace CBPLauncher.Logic
                 // compatibility with a6c (maybe making it compatible was a mistake)
                 else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
                 {
-                    InstallGameFiles(true, Version.zero);
+                    OldInstallGameFiles(true, Version.zero);
                 }
 
                 else
                 {
-                    InstallGameFiles(false, Version.zero);
+                    OldInstallGameFiles(false, Version.zero);
                 }
             }
             catch (Exception ex)
@@ -952,7 +969,106 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void InstallGameFiles(bool _isUpdate, Version _onlineVersion)
+        /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one, meaning that some stuff such as archiving doesn't need to be here too
+        {         
+            if (Properties.Settings.Default.CBPUnloaded == false)
+            {
+                if (Properties.Settings.Default.NoWorkshopFiles == false)
+                {
+                    //load CBP files from workshop files
+                    if (_isUpdate)
+                    {
+                        //if it's an update, we want to archive the old CBP
+                    }
+                    //then do logic-y stuff regardless of archive or not
+                    // e.g. CopyToCBPFolder();
+                }
+                else if (Properties.Settings.Default.NoWorkshopFiles == true)
+                {
+                    //load CBP files from online source
+                }
+            }
+            if (Properties.Settings.Default.CBPUnloaded == true)
+            {
+                //load normal files
+            }
+        }*/
+
+        private void LoadDirectFiles()
+        {
+
+        }
+
+        private void UnloadDirectFiles()
+        {
+
+        }
+
+        // just dumping this here - somewhere need to [if not null] do     CBPFileList = Properties.Settings.Default.SavedFileListCBP.Cast<string>().ToList();
+
+        // maybe
+        private void CopyToCBPFolder()
+        {
+            // before being able to generate a file list, we need to have the files on hand (prefer to not directly use workshop files so that we can source non-workshop files if needed)
+            // this should probably only be used once (every time mod is updated) rather than every time (like e.g. creating the file list will be every time)
+        }
+
+        //generate complete list of (original) files to backup, based on which CBP files exist
+        private void GenerateBackupFileList()
+        {
+            //source will be RoN/CBP/Primary? wait why not just keep the old folder copying logic and use /mods/CBP/Primary instead? (less work to implement)
+            // USE SEPARATE PLACE FOR FILE "CABINET" otherwise you risk fucking everything up when you update from (e.g.) workshop files
+
+            //apparently using FileInfo (.Name) is much (non-trivially) heavier than Path.GetFileName
+
+            //primary files
+            string[] primaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "PrimaryData"));
+            foreach(string file in primaryFiles)
+            {
+                CBPFileList.Add("Primary file: " + Path.GetFileName(file));//don't actually put the primary file prefix in the list!
+            }
+
+            //secondary files
+            string[] secondaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "SecondaryData"));
+            foreach (string file in secondaryFiles)
+            {
+                CBPFileList.Add("Secondary file: " + Path.GetFileName(file));//don't actually put the secondary file prefix in the list!
+            }
+
+            //more files????
+            foreach (string filename in CBPFileList)
+            {
+                Console.WriteLine(filename);
+            }
+        }
+
+        // before messing around, 
+        private void BackupOriginalFiles()
+        {
+            // check if user is running modded files first? Or just assume that they're okay? maybe check for the CBP "(original)" marked files and assume user is running CBP if they exist?
+
+            if (File.Exists(helpXMLOrig + " old"))
+            {
+                //looks like user has old version of CBP loaded, so we can't use these files
+                MessageBox.Show("It looks like you currently have a pre-release version of CBP files loaded. Will now attempt to unload these files before continuing. (if you see this message repeatedly, ask for help)");
+
+                try
+                {
+                    UnloadCBP();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Could not unload old CBP files automatically. Unable to continue. " + ex);
+                    Environment.Exit(-1);
+                }
+            }
+            else
+            {
+                //copy files from e.g. /data/ to /CBP/Original Files
+            }
+        }
+
+        private void OldInstallGameFiles(bool _isUpdate, Version _onlineVersion)
         {
             if (Properties.Settings.Default.CBPUnloaded == false)
             {
@@ -983,12 +1099,12 @@ namespace CBPLauncher.Logic
 
                                 else
                                 {
-                                    MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive.");
+                                    MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive. No action has been taken.");
                                 }
                             }
                             else
                             {
-                                //just delete the old files instead
+                                //todo: just delete the old files instead
                             }
                         }
                         else
@@ -1019,8 +1135,8 @@ namespace CBPLauncher.Logic
                                 File.Move(helpXMLOrig, helpXMLOrig + " (old)");
                                 File.Move(interfaceXMLOrig, interfaceXMLOrig + " (old)");
                                 File.Move(setupwinXMLOrig, setupwinXMLOrig + " (old)");
-                                if (Properties.Settings.Default.UseDefaultLauncher == true)
-                                File.Move(patriotsOrig, patriotsOrig + " (original)");
+                                if (Properties.Settings.Default.UseDefaultLauncher == false)
+                                    File.Move(patriotsOrig, patriotsOrig + " (original)");
 
                                 Properties.Settings.Default.OldFilesRenamed = true;
 
@@ -1030,8 +1146,8 @@ namespace CBPLauncher.Logic
                                     File.Copy(Path.Combine(localPathCBP, "Secondary", helpXML), helpXMLOrig);
                                     File.Copy(Path.Combine(localPathCBP, "Secondary", interfaceXML), interfaceXMLOrig);
                                     File.Copy(Path.Combine(localPathCBP, "Secondary", setupwinXML), setupwinXMLOrig);
-                                    if (Properties.Settings.Default.UseDefaultLauncher == true)
-                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
+                                    if (Properties.Settings.Default.UseDefaultLauncher == false)
+                                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
                                 }
                                 catch (Exception ex)
                                 {
@@ -1045,6 +1161,17 @@ namespace CBPLauncher.Logic
                                 MessageBox.Show("error with the temp a7 logic:\n" + ex);
                             }
                             //end of temp
+                        }
+                        else if ((Properties.Settings.Default.OldFilesRenamed == true) && (Properties.Settings.Default.UseDefaultLauncher == false))
+                        {
+                            //keep CBP Setup GUI up to date
+                            if (Process.GetProcessesByName("patriots").Length < 1)
+                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);//should make sure it's closed first? maybe do a version check too?
+                            else
+                            {
+                                //set a flag to do it later so that user doesn't get slowed down
+                                updateSetupLater = true;
+                            }
                         }
 
                         try
@@ -1113,7 +1240,7 @@ namespace CBPLauncher.Logic
                             File.Move(helpXMLOrig, helpXMLOrig + " (old)");
                             File.Move(interfaceXMLOrig, interfaceXMLOrig + " (old)");
                             File.Move(setupwinXMLOrig, setupwinXMLOrig + " (old)");
-                            if (Properties.Settings.Default.UseDefaultLauncher == true)
+                            if (Properties.Settings.Default.UseDefaultLauncher == false)
                                 File.Move(patriotsOrig, patriotsOrig + " (original)");
 
                             Properties.Settings.Default.OldFilesRenamed = true;
@@ -1124,7 +1251,7 @@ namespace CBPLauncher.Logic
                                 File.Copy(Path.Combine(localPathCBP, "Secondary", helpXML), helpXMLOrig);
                                 File.Copy(Path.Combine(localPathCBP, "Secondary", interfaceXML), interfaceXMLOrig);
                                 File.Copy(Path.Combine(localPathCBP, "Secondary", setupwinXML), setupwinXMLOrig);
-                                if (Properties.Settings.Default.UseDefaultLauncher == true)
+                                if (Properties.Settings.Default.UseDefaultLauncher == false)
                                     File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
                             }
                             catch (Exception ex)
@@ -1249,13 +1376,13 @@ namespace CBPLauncher.Logic
                         File.Delete(helpXMLOrig);
                         File.Delete(interfaceXMLOrig);
                         File.Delete(setupwinXMLOrig);
-                        if (true)
-                        File.Delete(patriotsOrig);
+                        if (File.Exists(Path.Combine(patriotsOrig, " (original)")) && Properties.Settings.Default.UseDefaultLauncher == true)//this (MAYBE???) handles the use case that the user checked the setting AFTER the function handling it already finished
+                        { File.Delete(patriotsOrig); }
                         File.Move(helpXMLOrig + " (old)", helpXMLOrig);
                         File.Move(interfaceXMLOrig + " (old)", interfaceXMLOrig);
                         File.Move(setupwinXMLOrig + " (old)", setupwinXMLOrig);
-                        if (true)
-                        File.Move(patriotsOrig + " (original)", patriotsOrig);
+                        if (File.Exists(Path.Combine(patriotsOrig, " (original)")) && Properties.Settings.Default.UseDefaultLauncher == true)
+                        { File.Move(patriotsOrig + " (original)", patriotsOrig); }
 
                         Properties.Settings.Default.OldFilesRenamed = false;
                         //end of c
@@ -1330,7 +1457,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void PlayButton_Click()
+        private async Task PlayButton_Click()
         {
             if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
             {
@@ -1340,6 +1467,21 @@ namespace CBPLauncher.Logic
                 };
                 Process.Start(startInfo);
                 //DEBUG: Process.Start(gameExe);
+
+                if (updateSetupLater == true)
+                {
+                    await Delay(3000);
+                    if (Process.GetProcessesByName("patriots").Length < 1)
+                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);//should make sure it's closed first? maybe do a version check too?
+                    else
+                    {
+                        await Delay(3000);
+                        if (Process.GetProcessesByName("patriots").Length < 1)
+                            File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
+                        else
+                            MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can safely ignore it)");
+                    }
+                }
 
                 Application.Current.MainWindow.Close();
             }
@@ -1380,6 +1522,25 @@ namespace CBPLauncher.Logic
         {
             Properties.Settings.Default.UseDefaultLauncher = !Properties.Settings.Default.UseDefaultLauncher;
             SaveSettings();
+        }
+
+        private void RestoreDefaultLauncher()
+        {
+            if (File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == true)
+            {
+                //delete local copy of CBP Setup GUI (which has been renamed to patriots.exe), then restore the old patriots.exe (the original launcher)
+                File.Delete(patriotsOrig); 
+                File.Move(patriotsOrig + " (original)", patriotsOrig);
+
+                MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started. To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
+            }
+            if (!File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == false)
+            {
+                UnloadCBP();
+                CheckForUpdates();
+
+                MessageBox.Show("Have attempted to replace original launcher - CBP Launcher should be active when RoN is started.");
+            }
         }
 
         private void SaveSettings()

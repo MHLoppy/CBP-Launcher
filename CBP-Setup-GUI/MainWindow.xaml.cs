@@ -832,6 +832,8 @@ namespace CBPSetupGUI
             Properties.Settings.Default.Width = 600;
             // neither does the grid height????
             SaveSettings();
+
+            MessageBox.Show("Settings reset");
         }
     }
 }

@@ -47,7 +47,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- way above the logo box -->
-                <Label Content="Checking for updates..." Foreground="#f8f8f8" Margin="0,-30,-15,0" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold">
+                <Label Content="Checking for updates..." Foreground="#f8f8f8" Margin="0,-30,-15,0" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Visibility="Hidden">
                     <Label.Effect>
                         <DropShadowEffect ShadowDepth="0" BlurRadius="5"/>
                     </Label.Effect>
