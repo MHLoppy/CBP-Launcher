@@ -68,13 +68,15 @@ namespace CBPLauncher.Logic
         private string archiveCBP;
         private bool abortWorkshopCopyCBP = false;
         private string folderCBProot;
-        private string folderCBPmodded;
+        private string folderCBPmodded;//unused; using the "normal" local mods location instead
         private string folderCBPoriginal;
         private List<string> CBPFileListAll = new List<string>();//the empty list seems to sometimes have a null error (in app.xaml of all places) in VS2019..... except it doesn't seem to matter at all ? ? ? ? ?
         private List<string> CBPFileListModded = new List<string>();
         private List<string> CBPFileListOriginal = new List<string>();
         private bool updateSetupLater = false;
         private bool prereleaseFilesDetected = false;
+        private string primaryDataCBP;
+        private string secondaryDataCBP;
         
         //private string patchNotesCBP; //moved out to its own VM instead
 
@@ -251,6 +253,28 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool usePrimaryFilesCheckbox = Properties.Settings.Default.UsePrimaryFileList;
+        public bool UsePrimaryFilesCheckbox
+        {
+            get => usePrimaryFilesCheckbox;
+            set
+            {
+                usePrimaryFilesCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool useSecondaryFilesCheckbox = Properties.Settings.Default.UseSecondaryFileList;
+        public bool UseSecondaryFilesCheckbox
+        {
+            get => useSecondaryFilesCheckbox;
+            set
+            {
+                useSecondaryFilesCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string launcherVersion = "CBP Launcher vX.Y.Z";
         public string LauncherVersion
         {
@@ -267,8 +291,10 @@ namespace CBPLauncher.Logic
         public RelayCommand UsePrereleaseCommand { get; set; }
         public RelayCommand UseDefaultLauncherCommand { get; set; }
         public RelayCommand ResetSettingsCommand { get; set; }
-
+        public RelayCommand UsePrimaryFilesCommand { get; set; }
+        public RelayCommand UseSecondaryFilesCommand { get; set; }
         
+
         public RelayCommand PlayButtonCommand { get; set; }
         public RelayCommand LoadCBPCommand { get; set; }
         public RelayCommand UnloadCBPCommand { get; set; }
@@ -537,23 +563,6 @@ namespace CBPLauncher.Logic
                     Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
                     folderCBPmodded = localPathCBP; //Path.Combine(folderCBProot, "CBP files");
                     folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
-
-                    MessageBox.Show("new function!");
-                    GenerateFileListAll();
-                    GenerateFileListModded();
-                    GenerateFileListOriginal();
-
-                    foreach (string name in CBPFileListAll)
-                        Console.WriteLine("all "+name);
-                    foreach (string name in CBPFileListModded)
-                        Console.WriteLine("modded "+name);
-                    foreach (string name in CBPFileListOriginal)
-                        Console.WriteLine("original "+name);
-
-                    /*MessageBox.Show("doing the new functions!");
-                    GenerateBackupFileList();
-                    BackupOriginalFiles();
-                    MessageBox.Show("new functions finished!");*/
                 }
                 catch (Exception ex)
                 {
@@ -615,6 +624,26 @@ namespace CBPLauncher.Logic
             {
                 UseDefaultLauncher_Inversion();
                 ReplaceRestoreDefaultLauncher();
+            });
+
+            UsePrimaryFilesCommand = new RelayCommand(o =>
+            {
+                UsePrimaryFiles_Inversion();
+                if (Properties.Settings.Default.CBPLoaded)
+                {
+                    GenerateLists();
+                    LoadDirectFiles();
+                }
+            });
+
+            UseSecondaryFilesCommand = new RelayCommand(o =>
+            {
+                UseSecondaryFiles_Inversion();
+                if (Properties.Settings.Default.CBPLoaded)
+                {
+                    GenerateLists();
+                    LoadDirectFiles();
+                }
             });
 
             ResetSettingsCommand = new RelayCommand(o =>
@@ -820,6 +849,8 @@ namespace CBPLauncher.Logic
             else
             {
                 //a7 temp
+                RoNDataPath = Path.Combine(RoNPathFinal, "Data");
+
                 helpXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, helpXML));
                 interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, interfaceXML));
                 setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, setupwinXML));
@@ -924,6 +955,9 @@ namespace CBPLauncher.Logic
             workshopPathCBP = Path.Combine(Path.GetFullPath(workshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
             localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
             versionFileCBP = Path.Combine(localPathCBP, "Version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
+            
+            primaryDataCBP = Path.Combine(localPathCBP, "PrimaryData");
+            secondaryDataCBP = Path.Combine(localPathCBP, "SecondaryData");
         }
 
         private void CheckForUpdates()
@@ -961,6 +995,9 @@ namespace CBPLauncher.Logic
                         }
                         else
                         {
+                            GenerateLists();
+                            LoadDirectFiles();
+                            
                             Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
                             Properties.Settings.Default.CBPLoaded = true;
                             Properties.Settings.Default.CBPUnloaded = false;
@@ -1002,7 +1039,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one, meaning that some stuff such as archiving doesn't need to be here too
+        /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one (..for now), meaning that some stuff such as archiving doesn't need to be here too
         {         //later on can refactor the whole thing maybe
             if (Properties.Settings.Default.CBPUnloaded == false)
             {
@@ -1031,22 +1068,25 @@ namespace CBPLauncher.Logic
         private void LoadDirectFiles()
         {
             // check each file in the modded list and make sure it's an up-to-date CBP file
+            Version localVersion = new Version(File.ReadAllText(versionFileCBP));//at some point this should definitely be spun out into a less-localised variable so that it can be used in multiple places
+
             foreach (string filename in CBPFileListModded)
             {
-                if (CheckIfCBPFile(filename) ==  true)
+                if (CheckIfCBPFile(filename) == true)
                 {
                     //it's a CBP file (but not necessarily the right version, so deal with that too)
-                    Version localVersion = new Version(File.ReadAllText(versionFileCBP));//at some point this should definitely be spun out into a less-localised variable so that it can be used in multiple places
-                    Version fileVersion = new Version(File.ReadAllText(versionFileCBP));
+                    string text = File.ReadLines(Path.Combine(RoNDataPath, filename)).Skip(2).Take(1).First();
+                    Version fileVersion = new Version(text.Substring(9, 11));
 
-                    if (fileVersion.IsDifferentThan(localVersion))
+                    if (fileVersion.IsDifferentThan(localVersion))// I assume it's faster to check this than straight up always-write files
                     {
-                        //then we should update the file (which can probably share code with the else condition below
+                        ActuallyLoadFiles(filename);
                     }
+                    //else no action required
                 }
                 else
                 {
-                    //make it one
+                    ActuallyLoadFiles(filename);
                 }
             }
 
@@ -1056,18 +1096,47 @@ namespace CBPLauncher.Logic
                 if (CheckIfCBPFile(filename) == true)
                 {
                     //replace it from the backup that was previously copied (not necessarily copied in this session)
+                    File.Copy(Path.Combine(folderCBPoriginal, filename), Path.Combine(RoNDataPath, filename), true);
                 }
                 else
                 {
-                    //*chef's kiss*
+                    //*chef's kiss* no action required
                 }
             }
         }
 
+        private void ActuallyLoadFiles(string filename)
+        {
+            if (File.Exists(Path.Combine(primaryDataCBP, filename)))
+                File.Copy(Path.Combine(primaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
+
+            else if (File.Exists(Path.Combine(secondaryDataCBP, filename)))
+                File.Copy(Path.Combine(secondaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
+
+            // in theory (shouldn't *actually* happen but ya know) you could have scuffed files in neither list, but for now it's not handled
+        }
+
         private void UnloadDirectFiles()
         {
-            //for every file (or just modded list? it would save computation time), check and then (if needed) load the original file
+            //for every file, check it and then (if needed) load the original file
+            foreach (string filename in CBPFileListAll)
+            {
+                if (CheckIfCBPFile(filename) == true)
+                {
+                    File.Copy(Path.Combine(folderCBPoriginal, filename), Path.Combine(RoNDataPath, filename), true);
+                }
+                //else no action required
+            }
+        }
 
+        private bool CheckIfCBPFile(string filename)
+        {
+            // go to line 3, read 1 line, from start, then skip the (potentially) "<!-- " XML comment part and read what's there
+            string text = File.ReadLines(Path.Combine(RoNDataPath, filename)).Skip(2).Take(1).First();
+            if (text.Substring(5).StartsWith("CBP"))
+                return true;
+            else
+                return false;
         }
 
         // just dumping this here - somewhere need to [if not null] do     CBPFileList = Properties.Settings.Default.SavedFileListCBP.Cast<string>().ToList();
@@ -1078,7 +1147,7 @@ namespace CBPLauncher.Logic
             //apparently using FileInfo (.Name) is much (non-trivially) heavier than Path.GetFileName
 
             //primary files
-            string[] primaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "PrimaryData"));
+            string[] primaryFiles = Directory.GetFiles(primaryDataCBP);
             foreach (string filename in primaryFiles)
             {
                 CBPFileListAll.Add(
@@ -1087,7 +1156,7 @@ namespace CBPLauncher.Logic
             }
 
             //secondary files
-            string[] secondaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "SecondaryData"));
+            string[] secondaryFiles = Directory.GetFiles(secondaryDataCBP);
             foreach (string filename in secondaryFiles)
             {
                 CBPFileListAll.Add(
@@ -1117,13 +1186,30 @@ namespace CBPLauncher.Logic
                 try
                 {
                     prereleaseFilesDetected = true;
-                    UnloadCBP();
+                    //UnloadCBP();//had to replace with "custom" unloading, because this seems to trip a system.io access denied error (probably because I still want access to those files)
+
+                    File.Delete(helpXMLOrig);
+                    File.Delete(interfaceXMLOrig);
+                    File.Delete(setupwinXMLOrig);
+                    if (File.Exists(Path.Combine(patriotsOrig, " (original)")) && Properties.Settings.Default.UseDefaultLauncher == true)//this (MAYBE???) handles the use case that the user checked the setting AFTER the function handling it already finished
+                    { File.Delete(patriotsOrig); }
+                    File.Move(helpXMLOrig + " (old)", helpXMLOrig);
+                    File.Move(interfaceXMLOrig + " (old)", interfaceXMLOrig);
+                    File.Move(setupwinXMLOrig + " (old)", setupwinXMLOrig);
+                    if (File.Exists(Path.Combine(patriotsOrig, " (original)")) && Properties.Settings.Default.UseDefaultLauncher == true)
+                    { File.Move(patriotsOrig + " (original)", patriotsOrig); }
+
+                    Properties.Settings.Default.OldFilesRenamed = false;//yes I know this is almost definitely now redundant
+                    SaveSettings();
+
+                    prereleaseFilesDetected = false;
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Could not unload old CBP files automatically. Unable to continue. " + ex);
                     Environment.Exit(-1);
                 }
+                CheckForUpdates();
             }
 
             if (Properties.Settings.Default.FilesBackedUp == false)
@@ -1135,7 +1221,7 @@ namespace CBPLauncher.Logic
                     {
                         //MessageBox.Show(Path.Combine(RoNPathFinal, "Data", filename));
                         //MessageBox.Show(Path.Combine(folderCBPoriginal, filename));
-                        File.Copy(Path.Combine(RoNPathFinal, "Data", filename), Path.Combine(folderCBPoriginal, filename));//if this fails partway then maybe need a way to overwrite (or at least delete) what's there
+                        File.Copy(Path.Combine(RoNDataPath, filename), Path.Combine(folderCBPoriginal, filename));//if this fails partway then maybe need a way to overwrite (or at least delete) what's there
                     }
 
                     Properties.Settings.Default.FilesBackedUp = true;
@@ -1166,7 +1252,7 @@ namespace CBPLauncher.Logic
                     //MessageBox.Show("added " + name);//change to log event later
                 }
             }
-            if (Properties.Settings.Default.UseSecondaryFileList == false)//SIMULATION
+            if (Properties.Settings.Default.UseSecondaryFileList == true)
             {
                 string[] secondaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "SecondaryData"));
                 //CBPFileListModded.AddRange(secondaryFiles); //this gives the full file path, which can be handy but we just want the filename itself
@@ -1187,16 +1273,6 @@ namespace CBPLauncher.Logic
                 CBPFileListOriginal.Add(name);
                 //MessageBox.Show("Added " + name + "to CBPFileListOriginal"); //change to log event later
             }
-        }
-
-        private bool CheckIfCBPFile(string filename)
-        {
-            // go to line 3, read 1 line, from start, then skip the (potentially) "<!-- " XML comment part and read what's there
-            string text = File.ReadLines(Path.Combine(RoNDataPath, filename)).Skip(2).Take(1).First();
-            if (text.Substring(5).StartsWith("CBP"))
-                return true;
-            else
-                return false;
         }
 
         private void OldInstallGameFiles(bool _isUpdate, Version _onlineVersion)
@@ -1309,6 +1385,16 @@ namespace CBPLauncher.Logic
 
                         try
                         {
+                            GenerateLists();
+                            LoadDirectFiles();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error generating lists / directly loading files: {ex}");
+                        }
+
+                        try
+                        {
                             UpdateLocalVersionNumber();
 
                             Properties.Settings.Default.CBPLoaded = true;
@@ -1363,10 +1449,11 @@ namespace CBPLauncher.Logic
             {
                 try
                 {
-                    if(Directory.Exists(Path.Combine(localPathCBP)) == false)
+                    if (Directory.Exists(Path.Combine(localPathCBP)) == false)
                     {
                         Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
 
+                        GenerateLists();
                         ReplaceRestoreDefaultLauncher();
 
                         /*try
@@ -1500,6 +1587,8 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
+                        GenerateLists();
+
                         Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
                         Properties.Settings.Default.CBPUnloaded = true;
                         Properties.Settings.Default.CBPLoaded = false;
@@ -1507,9 +1596,9 @@ namespace CBPLauncher.Logic
 
                         VersionTextInstalled = "CBP not loaded";
 
-                        ReplaceRestoreDefaultLauncher();
+                        //ReplaceRestoreDefaultLauncher();
 
-                        if (prereleaseFilesDetected == true)
+                        /*if (prereleaseFilesDetected == true)//this has been moved directly into the backup function and so is no longer needed here
                         {
                             //PART C
                             File.Delete(helpXMLOrig);
@@ -1529,6 +1618,15 @@ namespace CBPLauncher.Logic
                             prereleaseFilesDetected = false;
 
                             //end of c
+                        }*/
+
+                        try
+                        {
+                            UnloadDirectFiles();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error directly unloading files: {ex}");
                         }
 
                         Status = LauncherStatus.readyCBPDisabled;
@@ -1552,7 +1650,6 @@ namespace CBPLauncher.Logic
                         Status = LauncherStatus.unloadFailed;
                     }
                 }
-
             }
             else
             {
@@ -1668,22 +1765,50 @@ namespace CBPLauncher.Logic
             SaveSettings();
         }
 
+        private void UsePrimaryFiles_Inversion()
+        {
+            Properties.Settings.Default.UsePrimaryFileList = !Properties.Settings.Default.UsePrimaryFileList;
+            SaveSettings();
+        }
+
+        private void UseSecondaryFiles_Inversion()
+        {
+            Properties.Settings.Default.UseSecondaryFileList = !Properties.Settings.Default.UseSecondaryFileList;
+            SaveSettings();
+        }
+
         private void ReplaceRestoreDefaultLauncher()
         {
             if (File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == true)
             {
-                //delete local copy of CBP Setup GUI (which has been renamed to patriots.exe), then restore the old patriots.exe (the original launcher)
-                File.Delete(patriotsOrig); 
-                File.Move(patriotsOrig + " (original)", patriotsOrig);
+                try
+                {
+                    //delete local copy of CBP Setup GUI (which has been renamed to patriots.exe), then restore the old patriots.exe (the original launcher)
+                    File.Delete(patriotsOrig);
+                    File.Move(patriotsOrig + " (original)", patriotsOrig);
 
-                MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started. To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
+                    MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started. To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error restoring original launcher: " + ex);
+                }
             }
             if (!File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == false)
             {
-                UnloadCBP();
-                CheckForUpdates();
+                try
+                {
+                    //rename the original launcher and then replace it with CBP Setup GUI (but renamed to patriots.exe)
+                    File.Move(patriotsOrig, patriotsOrig + " (original)");
+                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
 
-                MessageBox.Show("Have attempted to replace original launcher - CBP Launcher should be active when RoN is started.");
+                    MessageBox.Show("Have attempted to replace original launcher - CBP Launcher should be active when RoN is started.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error replacing original launcher: " + ex);
+                }
             }
         }
 
@@ -1847,6 +1972,29 @@ namespace CBPLauncher.Logic
                             + VersionArray.versionHotfix[version.hotfix];*/
 
             LauncherVersion = "CBP Launcher v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2);
+        }
+
+        private void GenerateLists()//maybe temporary function to be revised later?
+        {
+            try
+            {
+                GenerateFileListAll();
+                GenerateFileListModded();
+                GenerateFileListOriginal();
+                BackupOriginalFiles();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error while generating lists: " + ex);
+                Environment.Exit(-1);
+            }
+
+            /*foreach (string name in CBPFileListAll)
+                Console.WriteLine("This file is part of CBP: " + name);
+            foreach (string name in CBPFileListModded)
+                Console.WriteLine("Load with CBP: " + name);
+            foreach (string name in CBPFileListOriginal)
+                Console.WriteLine("Keep the the original version of: " + name);*/
         }
 
         private async Task Delay(int ms)
