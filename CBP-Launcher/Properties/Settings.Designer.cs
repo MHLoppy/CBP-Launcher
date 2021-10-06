@@ -225,5 +225,17 @@ namespace CBPLauncher.Properties {
                 this["UseSecondaryFileList"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FilesBackedUp {
+            get {
+                return ((bool)(this["FilesBackedUp"]));
+            }
+            set {
+                this["FilesBackedUp"] = value;
+            }
+        }
     }
 }
