@@ -1376,6 +1376,8 @@ namespace CBPLauncher.Logic
                             // if archive setting is enabled, archive the old version; it looks for an unversioned CBP folder and has a separate check for a6c specifically
                             if (Properties.Settings.Default.CBPArchive == true)
                             {
+                                // ..gonna need a third version of this now that the format is totally changing
+
                                 // standard (non-a6c) archiving
                                 if (Directory.Exists(Path.Combine(localPathCBP)))
                                 {
@@ -1641,7 +1643,7 @@ namespace CBPLauncher.Logic
                 VersionTextInstalled = "CBP "
                                         + VersionArray.versionStart[localVersion.major]
                                         + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                    + VersionArray.versionEnd[localVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                                    + VersionArray.versionEnd[localVersion.subMinor]      ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
                                     + VersionArray.versionHotfix[localVersion.hotfix];
             }
             else
@@ -1650,10 +1652,8 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void ReadRegistry()
+        private void ReadRegistry() // apparently this is not a good method for this? use using instead? (but I don't know how to make that work with the bit-check :( ) https://stackoverflow.com/questions/1675864/read-a-registry-key
         {
-            // apparently this is not a good method for this? use using instead? (but I don't know how to make that work with the bit-check :( ) https://stackoverflow.com/questions/1675864/read-a-registry-key
-
             try
             {
                 if (Environment.Is64BitOperatingSystem) //I don't *fully* understand what's going on here (ported from stackexchange), but this block seems to be needed to prevent null value return due to 32/64 bit differences???
@@ -1984,32 +1984,11 @@ namespace CBPLauncher.Logic
 
         internal bool IsDifferentThan(Version _otherVersion) //check if version (from local version.txt file) matches online with online version.txt
         {
-            if (major != _otherVersion.major)
-            {
+            // afaik it's the same practical effect as reference, but significantly condensed
+            if (major != _otherVersion.major || minor != _otherVersion.minor || subMinor != _otherVersion.subMinor || hotfix != _otherVersion.hotfix)//if any part of the versions are different
                 return true;
-            }
             else
-            {
-                if (minor != _otherVersion.minor)
-                {
-                    return true;
-                }
-                else
-                {
-                    if (subMinor != _otherVersion.subMinor) //presumably there's a more efficient / elegant way to lay this out e.g. run one check thrice, cycling major->minor->subminor->hotfix
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        if (hotfix != _otherVersion.hotfix)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false; //detecting if they're different, so false = not different
+                return false; //detecting if they're different, so false = not different;
         }
 
         public override string ToString()
