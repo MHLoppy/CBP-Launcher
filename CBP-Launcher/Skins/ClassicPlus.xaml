@@ -153,11 +153,11 @@
             </Grid>
 
             <!-- (unused) dark mode background partial fade -->
-            <Image Name="DarkModeBackground" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="3" Panel.ZIndex="-5" Visibility="Hidden">
+            <!--<Image Name="DarkModeBackground" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="3" Panel.ZIndex="-5" Visibility="Hidden">
                 <Image.OpacityMask>
                     <ImageBrush ImageSource="/Images/CBP launcher original background recreated.png"/>
                 </Image.OpacityMask>
-            </Image>
+            </Image>-->
         </Grid>
     </Grid>
 </UserControl>

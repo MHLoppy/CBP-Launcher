@@ -1414,59 +1414,6 @@ namespace CBPLauncher.Logic
 
                         ReplaceRestoreDefaultLauncher();
 
-                        //temporary a7-structure copy feature for e.g. help.xml; should be redone (or at least re-examined) with CBPL re-do
-                        // part pre-A: strings so that both A and C can access them
-                        // part A: backup old files you're about to override
-                        // part B: copy contents of <workshopIDfolder>/<Secondary> to RoN/data
-                        // part C: (not here, search for PART C) when mod is unloaded, restore the old files
-
-                        /*if (Properties.Settings.Default.OldFilesRenamed == false)
-                        {
-                            try
-                            {
-                                //PART A
-                                File.Move(helpXMLOrig, helpXMLOrig + " (old)");
-                                File.Move(interfaceXMLOrig, interfaceXMLOrig + " (old)");
-                                File.Move(setupwinXMLOrig, setupwinXMLOrig + " (old)");
-                                if (Properties.Settings.Default.UseDefaultLauncher == false)
-                                    File.Move(patriotsOrig, patriotsOrig + " (original)");
-
-                                Properties.Settings.Default.OldFilesRenamed = true;
-
-                                try
-                                {
-                                    //PART B
-                                    File.Copy(Path.Combine(localPathCBP, "Secondary", helpXML), helpXMLOrig);
-                                    File.Copy(Path.Combine(localPathCBP, "Secondary", interfaceXML), interfaceXMLOrig);
-                                    File.Copy(Path.Combine(localPathCBP, "Secondary", setupwinXML), setupwinXMLOrig);
-                                    if (Properties.Settings.Default.UseDefaultLauncher == false)
-                                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
-                                }
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show("error with part B1 of the temp a7 logic:\n" + ex);
-                                }
-
-
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("error with the temp a7 logic:\n" + ex);
-                            }
-                            //end of temp
-                        }
-                        else if ((Properties.Settings.Default.OldFilesRenamed == true) && (Properties.Settings.Default.UseDefaultLauncher == false))
-                        {
-                            //keep CBP Setup GUI up to date
-                            if (Process.GetProcessesByName("patriots").Length < 1)
-                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);//should make sure it's closed first? maybe do a version check too?
-                            else
-                            {
-                                //set a flag to do it later so that user doesn't get slowed down
-                                updateSetupLater = true;
-                            }
-                        }*/
-
                         try
                         {
                             GenerateLists();
@@ -1539,38 +1486,6 @@ namespace CBPLauncher.Logic
 
                         GenerateLists();
                         ReplaceRestoreDefaultLauncher();
-
-                        /*try
-                        {
-                            //PART A
-                            File.Move(helpXMLOrig, helpXMLOrig + " (old)");
-                            File.Move(interfaceXMLOrig, interfaceXMLOrig + " (old)");
-                            File.Move(setupwinXMLOrig, setupwinXMLOrig + " (old)");
-                            if (Properties.Settings.Default.UseDefaultLauncher == false)
-                                File.Move(patriotsOrig, patriotsOrig + " (original)");
-
-                            Properties.Settings.Default.OldFilesRenamed = true;
-
-                            try
-                            {
-                                //PART B
-                                File.Copy(Path.Combine(localPathCBP, "Secondary", helpXML), helpXMLOrig);
-                                File.Copy(Path.Combine(localPathCBP, "Secondary", interfaceXML), interfaceXMLOrig);
-                                File.Copy(Path.Combine(localPathCBP, "Secondary", setupwinXML), setupwinXMLOrig);
-                                if (Properties.Settings.Default.UseDefaultLauncher == false)
-                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("error with part B1 of the temp a7 logic:\n" + ex);
-                            }
-
-
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("error with the temp a7 logic:\n" + ex);
-                        }*/
                     }
 
                     UpdateLocalVersionNumber();
@@ -1679,30 +1594,6 @@ namespace CBPLauncher.Logic
                         SaveSettings();
 
                         VersionTextInstalled = "CBP not loaded";
-
-                        //ReplaceRestoreDefaultLauncher();
-
-                        /*if (prereleaseFilesDetected == true)//this has been moved directly into the backup function and so is no longer needed here
-                        {
-                            //PART C
-                            File.Delete(helpXMLOrig);
-                            File.Delete(interfaceXMLOrig);
-                            File.Delete(setupwinXMLOrig);
-                            if (File.Exists(Path.Combine(patriotsOrig, " (original)")) && Properties.Settings.Default.UseDefaultLauncher == true)//this (MAYBE???) handles the use case that the user checked the setting AFTER the function handling it already finished
-                            { File.Delete(patriotsOrig); }
-                            File.Move(helpXMLOrig + " (old)", helpXMLOrig);
-                            File.Move(interfaceXMLOrig + " (old)", interfaceXMLOrig);
-                            File.Move(setupwinXMLOrig + " (old)", setupwinXMLOrig);
-                            if (File.Exists(Path.Combine(patriotsOrig, " (original)")) && Properties.Settings.Default.UseDefaultLauncher == true)
-                            { File.Move(patriotsOrig + " (original)", patriotsOrig); }
-
-                            Properties.Settings.Default.OldFilesRenamed = false;
-                            SaveSettings();
-
-                            prereleaseFilesDetected = false;
-
-                            //end of c
-                        }*/
 
                         try
                         {
@@ -1942,37 +1833,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        // seems like I can replace this now that I'm binding stuff etc?
-        /*private void CBPDefaultChecker()
-        {
-            if (Properties.Settings.Default.DefaultCBP == true)
-            {
-                CBPDefaultCheckbox = true;
-            }
-            else if (Properties.Settings.Default.DefaultCBP == false)
-            {
-                CBPDefaultCheckbox = false;
-            }
-
-            if (Properties.Settings.Default.UsePrerelease == true)
-            {
-                UsePrereleaseCheckbox = true;
-            }
-            else if (Properties.Settings.Default.UsePrerelease == false)
-            {
-                UsePrereleaseCheckbox = false;
-            }
-
-            if (Properties.Settings.Default.UseDefaultLauncher == true)
-            {
-                UseDefaultLauncherCheckbox = true;
-            }
-            else if (Properties.Settings.Default.UseDefaultLauncher == false)
-            {
-                UseDefaultLauncherCheckbox = false;
-            }
-        }*/
-
         private void RoNPathFound()
         {
             if (RoNPathFinal == $"no path")
@@ -2060,14 +1920,6 @@ namespace CBPLauncher.Logic
 
         private void GetLauncherVersion()
         {
-            //lmao I was so tired when I did this I didn't even realise I was completely ruining it by using the *CBP* version format
-            /*Version version = new Version(Assembly.GetExecutingAssembly().GetName().Version.ToString());
-            LauncherVersion = "CBP Launcher v"
-                            + VersionArray.versionStart[version.major]
-                            + VersionArray.versionMiddle[version.minor]
-                            + VersionArray.versionEnd[version.subMinor]
-                            + VersionArray.versionHotfix[version.hotfix];*/
-
             LauncherVersion = "CBP Launcher v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2);
         }
 
@@ -2085,13 +1937,6 @@ namespace CBPLauncher.Logic
                 MessageBox.Show("Error while generating lists: " + ex);
                 Environment.Exit(-1);
             }
-
-            /*foreach (string name in CBPFileListAll)
-                Console.WriteLine("This file is part of CBP: " + name);
-            foreach (string name in CBPFileListModded)
-                Console.WriteLine("Load with CBP: " + name);
-            foreach (string name in CBPFileListOriginal)
-                Console.WriteLine("Keep the the original version of: " + name);*/
         }
 
         private async Task Delay(int ms)
