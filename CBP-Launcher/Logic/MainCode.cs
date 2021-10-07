@@ -576,7 +576,7 @@ namespace CBPLauncher.Logic
 
                     //Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files //decided to just use the existing CBP local mod directory
                     Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
-                    folderCBPmodded = localPathCBP; //Path.Combine(folderCBProot, "CBP files");
+                    folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
                     folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
                 }
                 catch (Exception ex)
@@ -1090,8 +1090,8 @@ namespace CBPLauncher.Logic
                     foreach (string modFolder in searchThisList)
                     {
                         //we want to check only for XML files in a /Data directory, because otherwise there'll be false positives
-                        string modDataFolder = Path.Combine(modFolder, "Data");
-                        
+                        string modDataFolder = Path.Combine(modFolder, "Data");//need to update to search for EVERYTHING that could be loaded :(
+
                         //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
                         if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
                         {
@@ -1106,7 +1106,7 @@ namespace CBPLauncher.Logic
                     }
 
                     if (sendWarning)
-                        MessageBox.Show("These local mods contain XML data files: " + "\n\n" + modList
+                        MessageBox.Show("These local mods contain XML data files: " + "\n\n" + modList//update this message since NOT JUST DATA FILES :(
                                         + "These files are very likely to cause OoS issues in the first game of every session you play.\n\n"
                                         + "To prevent this issue, either move/remove those mods, "
                                         + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games.");
@@ -1303,9 +1303,9 @@ namespace CBPLauncher.Logic
                 {
                     foreach (string filename in CBPFileListAll)
                     {
-                        //MessageBox.Show(Path.Combine(RoNPathFinal, "Data", filename));
-                        //MessageBox.Show(Path.Combine(folderCBPoriginal, filename));
-                        File.Copy(Path.Combine(RoNDataPath, filename), Path.Combine(folderCBPoriginal, filename));//if this fails partway then maybe need a way to overwrite (or at least delete) what's there
+                        if (!File.Exists(Path.Combine(folderCBPoriginal, filename)))
+                            File.Copy(Path.Combine(RoNDataPath, filename), Path.Combine(folderCBPoriginal, filename));//if this fails partway then maybe need a way to overwrite (or at least delete) what's there
+                        else MessageBox.Show(filename + " already has a backup file so has been skipped.");
                     }
 
                     Properties.Settings.Default.FilesBackedUp = true;
@@ -1328,7 +1328,7 @@ namespace CBPLauncher.Logic
         {
             if (Properties.Settings.Default.UsePrimaryFileList == true)
             {
-                string[] primaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "PrimaryData"));
+                string[] primaryFiles = Directory.GetFiles(primaryDataCBP);
                 //CBPFileListModded.AddRange(primaryFiles); //this gives the full file path, which can be handy but we just want the filename itself
                 foreach (string name in primaryFiles)
                 {
@@ -1338,7 +1338,7 @@ namespace CBPLauncher.Logic
             }
             if (Properties.Settings.Default.UseSecondaryFileList == true)
             {
-                string[] secondaryFiles = Directory.GetFiles(Path.Combine(folderCBPmodded, "SecondaryData"));
+                string[] secondaryFiles = Directory.GetFiles(secondaryDataCBP);
                 //CBPFileListModded.AddRange(secondaryFiles); //this gives the full file path, which can be handy but we just want the filename itself
                 foreach (string name in secondaryFiles)
                 {
@@ -1376,7 +1376,7 @@ namespace CBPLauncher.Logic
                             // if archive setting is enabled, archive the old version; it looks for an unversioned CBP folder and has a separate check for a6c specifically
                             if (Properties.Settings.Default.CBPArchive == true)
                             {
-                                // ..gonna need a third version of this now that the format is totally changing
+                                // may need a third archive function with new mod format?
 
                                 // standard (non-a6c) archiving
                                 if (Directory.Exists(Path.Combine(localPathCBP)))
@@ -1814,7 +1814,7 @@ namespace CBPLauncher.Logic
 
         private void AskDefaultLauncher()
         {
-            if (Properties.Settings.Default.DefaultLauncherAnswered == true)
+            if (Properties.Settings.Default.DefaultLauncherAnswered == false)
             {
                 string message = $"Do you want CBP Launcher to replace the default launcher?\n(This option can be changed at any time)";
 
@@ -1823,6 +1823,7 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.DefaultLauncherAnswered = true;
                     Properties.Settings.Default.UseDefaultLauncher = false;
                     SaveSettings();
+                    ReplaceRestoreDefaultLauncher();
                 }
                 else
                 {
