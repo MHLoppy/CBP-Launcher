@@ -1873,6 +1873,7 @@ namespace CBPLauncher.Logic
 
         private void ReplaceRestoreDefaultLauncher()
         {
+            //restore old launcher
             if (File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == true)
             {
                 try
@@ -1889,6 +1890,8 @@ namespace CBPLauncher.Logic
                     MessageBox.Show("Error restoring original launcher: " + ex);
                 }
             }
+
+            //replace old launcher with CBP Setup GUI
             if (!File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == false)
             {
                 try
