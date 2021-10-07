@@ -165,6 +165,12 @@
   <data name="DLLUpdateSuccess" xml:space="preserve">
     <value>Language files updated.</value>
   </data>
+  <data name="DoYouWantACTitle" xml:space="preserve">
+    <value>Automatically consent?</value>
+  </data>
+  <data name="DoYouWantAutoConsent" xml:space="preserve">
+    <value>To make this faster, do you want to automatically allow CBP Launcher to update and launch?</value>
+  </data>
   <data name="EnglishOverrideText" xml:space="preserve">
     <value>Override language to English</value>
   </data>
@@ -227,6 +233,9 @@
   </data>
   <data name="ResetButtonText" xml:space="preserve">
     <value>Reset settings</value>
+  </data>
+  <data name="SettingResetSuccess" xml:space="preserve">
+    <value>Settings reset. Default settings will apply the next time the program is loaded.</value>
   </data>
   <data name="SlowModeButtonText" xml:space="preserve">
     <value>Add artificial delay to messages</value>

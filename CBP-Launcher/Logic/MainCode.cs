@@ -46,6 +46,8 @@ namespace CBPLauncher.Logic
         private string unloadedModsPath;
         private string RoNDataPath;
 
+        private bool BullshitButtonPress = false;
+
         //a7 temp
         private string helpXML = "help.xml";
         private string interfaceXML = "interface.xml";
@@ -275,6 +277,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool detectBullshitCheckbox = Properties.Settings.Default.DetectBullshit;
+        public bool DetectBullshitCheckbox
+        {
+            get => detectBullshitCheckbox;
+            set
+            {
+                detectBullshitCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string launcherVersion = "CBP Launcher vX.Y.Z";
         public string LauncherVersion
         {
@@ -293,6 +306,8 @@ namespace CBPLauncher.Logic
         public RelayCommand ResetSettingsCommand { get; set; }
         public RelayCommand UsePrimaryFilesCommand { get; set; }
         public RelayCommand UseSecondaryFilesCommand { get; set; }
+        public RelayCommand DetectBullshitCommand { get; set; }
+        public RelayCommand DetectBullshitNowCommand { get; set; }
         
 
         public RelayCommand PlayButtonCommand { get; set; }
@@ -646,6 +661,17 @@ namespace CBPLauncher.Logic
                 }
             });
 
+            DetectBullshitCommand = new RelayCommand(o =>
+            {
+                DetectBullshit_Inversion();
+            });
+
+            DetectBullshitNowCommand = new RelayCommand(o =>
+            {
+                WarnLocalModDataFiles();
+                BullshitButtonPress = true;
+            });
+
             ResetSettingsCommand = new RelayCommand(o =>
             {
                 ResetSettings();
@@ -992,6 +1018,8 @@ namespace CBPLauncher.Logic
                         if (onlineVersion.IsDifferentThan(localVersion))
                         {
                             OldInstallGameFiles(true, onlineVersion);
+                            GenerateLists();
+                            LoadDirectFiles();
                         }
                         else
                         {
@@ -1037,6 +1065,62 @@ namespace CBPLauncher.Logic
                 VersionTextLatest = "Error checking version";
                 MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
             }
+        }
+
+        // this is specifically to warn about the absolutely asinine damage bug (which can cause OoS's) that I discovered with Barks and Triremes - check their RoN wiki page X_X
+        private void WarnLocalModDataFiles()
+        {
+            //filter this at the top so that people who've turned it off are least affected by any performance hit / annoyance
+            if (Properties.Settings.Default.DetectBullshit || Properties.Settings.Default.DetectBullshitFirstTime)
+            {
+                try
+                {
+                    // get a list of the subfolders in the local mods folder, i.e. a list of local mods
+                    List<string> searchThisList = new List<string>(Directory.GetDirectories(localMods, "*", SearchOption.TopDirectoryOnly));
+                    string modList = "";
+                    bool sendWarning = false;
+
+                    // remove false positives from CBP (which is now avoiding using data files in this location) and unloaded mods (which avoids the loading path)
+                    //if (searchThisList.Contains(localPathCBP))
+                    //    searchThisList.Remove(localPathCBP);//actually now that the mod format has been updated, there are actually no /Data files there
+                    if (searchThisList.Contains(unloadedModsPath))
+                        searchThisList.Remove(unloadedModsPath);
+
+                    // if there's any subfolders left with XML files...
+                    foreach (string modFolder in searchThisList)
+                    {
+                        //we want to check only for XML files in a /Data directory, because otherwise there'll be false positives
+                        string modDataFolder = Path.Combine(modFolder, "Data");
+                        
+                        //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
+                        if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
+                        {
+                            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
+                            else
+                            {
+                                //but if there is a match, add the path of that mod to the list and turn on the flag which sends the message
+                                modList += (modFolder + "\n\n");
+                                sendWarning = true;
+                            }
+                        }
+                    }
+
+                    if (sendWarning)
+                        MessageBox.Show("These local mods contain XML data files: " + "\n\n" + modList
+                                        + "These files are very likely to cause OoS issues in the first game of every session you play.\n\n"
+                                        + "To prevent this issue, either move/remove those mods, "
+                                        + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games.");
+                    else if (BullshitButtonPress)//we only want this message to show on button press, not on automatic checks
+                        BullshitButtonPress = false;
+                        MessageBox.Show("No XML data files detected in local mods folder.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error with XML detection for bark/trireme OoS bug: " + ex);
+                    // not instaclosing because it should be a relatively non-problematic error.. hopefully
+                }
+            }
+            //else do nothing
         }
 
         /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one (..for now), meaning that some stuff such as archiving doesn't need to be here too
@@ -1700,6 +1784,10 @@ namespace CBPLauncher.Logic
 
         private async Task PlayButton_Click()
         {
+            //the setting that triggers this is toggled off after the first time the launcher is run
+            WarnLocalModDataFiles();
+            Properties.Settings.Default.DetectBullshitFirstTime = false;
+
             if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
@@ -1774,6 +1862,12 @@ namespace CBPLauncher.Logic
         private void UseSecondaryFiles_Inversion()
         {
             Properties.Settings.Default.UseSecondaryFileList = !Properties.Settings.Default.UseSecondaryFileList;
+            SaveSettings();
+        }
+
+        private void DetectBullshit_Inversion()
+        {
+            Properties.Settings.Default.DetectBullshit = !Properties.Settings.Default.DetectBullshit;
             SaveSettings();
         }
 

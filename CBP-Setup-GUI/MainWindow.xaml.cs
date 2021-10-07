@@ -59,10 +59,10 @@ namespace CBPSetupGUI
 
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
-                var window = GetWindow(this);
-                window.KeyDown += HandleKeyPressF9;
+            var window = GetWindow(this);
+            window.KeyDown += HandleKeyPressF9;
 
-                await Primary();
+            await Primary();
         }
 
         private async Task Primary()
@@ -80,6 +80,7 @@ namespace CBPSetupGUI
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
             await CheckForCBPL();
+            await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
             await CBPLVersionCheck();
@@ -416,6 +417,17 @@ namespace CBPSetupGUI
                         await DelayedClose(CBPSetupGUI.Language.Resources.LocationCaseDefault + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
                         break;
                 }
+            }
+
+            async Task AutoConsentQuestion()
+            {
+                if (Properties.Settings.Default.FirstTimeRun)
+                {
+                    if (MessageBox.Show(CBPSetupGUI.Language.Resources.DoYouWantAutoConsent, CBPSetupGUI.Language.Resources.DoYouWantACTitle, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        Properties.Settings.Default.AutoConsent = true;
+                }
+
+                await SlowDown();
             }
 
             async Task CBPLVersionCheck()
@@ -833,7 +845,7 @@ namespace CBPSetupGUI
             // neither does the grid height????
             SaveSettings();
 
-            MessageBox.Show("Settings reset");
+            MessageBox.Show(CBPSetupGUI.Language.Resources.SettingResetSuccess);
         }
     }
 }

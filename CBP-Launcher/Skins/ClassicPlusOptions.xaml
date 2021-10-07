@@ -80,6 +80,14 @@
                     </Button>
 
                     <CheckBox Name="DefaultLauncherCheckbox" Grid.Row="0" Grid.Column="0" Content="Use default RoN launcher, NOT CBP Launcher" HorizontalAlignment="Left" Margin="12,54,0,0" VerticalAlignment="Top" IsChecked="{Binding UseDefaultLauncherCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseDefaultLauncherCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
+                    <CheckBox Grid.Row="0" Grid.Column="0" Content="Detect and warn of potential Bark/Trireme OoS bug on game launch" HorizontalAlignment="Left" Margin="12,74,0,0" VerticalAlignment="Top" IsChecked="{Binding DetectBullshitCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding DetectBullshitCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
+                    <Button Width="130" Height="25" Command="{Binding DetectBullshitNowCommand}" Content="Check for B/T OoS" Margin="10,94,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#EEEEEE" Background="#383838" FontSize="14" BorderBrush="#282828">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
 
                 </Grid>
                 

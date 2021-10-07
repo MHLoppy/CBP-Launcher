@@ -237,5 +237,29 @@ namespace CBPLauncher.Properties {
                 this["FilesBackedUp"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DetectBullshit {
+            get {
+                return ((bool)(this["DetectBullshit"]));
+            }
+            set {
+                this["DetectBullshit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DetectBullshitFirstTime {
+            get {
+                return ((bool)(this["DetectBullshitFirstTime"]));
+            }
+            set {
+                this["DetectBullshitFirstTime"] = value;
+            }
+        }
     }
 }

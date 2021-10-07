@@ -205,6 +205,24 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Automatically consent?.
+        /// </summary>
+        public static string DoYouWantACTitle {
+            get {
+                return ResourceManager.GetString("DoYouWantACTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To make this faster, do you want to automatically allow CBP Launcher to update and launch?.
+        /// </summary>
+        public static string DoYouWantAutoConsent {
+            get {
+                return ResourceManager.GetString("DoYouWantAutoConsent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Override language to English.
         /// </summary>
         public static string EnglishOverrideText {
@@ -390,6 +408,15 @@ namespace CBPSetupGUI.Language {
         public static string ResetButtonText {
             get {
                 return ResourceManager.GetString("ResetButtonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings reset. Default settings will apply the next time the program is loaded..
+        /// </summary>
+        public static string SettingResetSuccess {
+            get {
+                return ResourceManager.GetString("SettingResetSuccess", resourceCulture);
             }
         }
         
