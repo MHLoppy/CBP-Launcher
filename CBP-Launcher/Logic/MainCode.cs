@@ -1090,12 +1090,24 @@ namespace CBPLauncher.Logic
                     foreach (string modFolder in searchThisList)
                     {
                         //we want to check only for XML files in a /Data directory, because otherwise there'll be false positives
-                        string modDataFolder = Path.Combine(modFolder, "Data");//need to update to search for EVERYTHING that could be loaded :(
+                        string modDataFolder = Path.Combine(modFolder, "Data");
+                        string modArtFolder = Path.Combine(modFolder, "art");// not sure if the search is case sensitive or not
+
+                        //this is a ~maybe~ overall better (possibly faster at same folders, but can also be slower *but* search ALL the folders maybe?)
+                        /*List<string> filteredFiles = Directory
+                                                     .EnumerateFiles(modFolder)
+                                                     .Where(file => file.EndsWith("xml", StringComparison.InvariantCultureIgnoreCase)
+                                                                 || file.EndsWith("tga", StringComparison.InvariantCultureIgnoreCase))
+                                                     .ToList();
+
+                        foreach (string s in filteredFiles)
+                            MessageBox.Show(s);*/
 
                         //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
                         if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
                         {
-                            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
+                            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.TopDirectoryOnly).Length == 0
+                             && Directory.GetFiles(modArtFolder, "*.tga", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
                             else
                             {
                                 //but if there is a match, add the path of that mod to the list and turn on the flag which sends the message
@@ -1106,16 +1118,19 @@ namespace CBPLauncher.Logic
                     }
 
                     if (sendWarning)
-                        MessageBox.Show("These local mods contain XML data files: " + "\n\n" + modList//update this message since NOT JUST DATA FILES :(
-                                        + "These files are very likely to cause OoS issues in the first game of every session you play.\n\n"
+                        MessageBox.Show("These local mods *may* contain files which trigger a known bug in the first game of every session: " + "\n\n" + modList
+                                        //+ "This bug can cause OoS issues in the first game of every session you play.\n\n"
                                         + "To prevent this issue, either move/remove those mods, "
-                                        + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games.");
+                                        + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games."
+                                        , "Potential OoS issue detected"
+                                        , MessageBoxButton.OK
+                                        , MessageBoxImage.Warning);
 
                     //we only want this message to show on button press, not on automatic checks
                     else if (BullshitButtonPress)
                     {
                         BullshitButtonPress = false;
-                        MessageBox.Show("No XML data files detected in local mods folder.");
+                        MessageBox.Show("No TGA art files or XML data files detected in local mods folder. Note that there are still other, less common files which could still cause the problem.");
                     }
                 }
                 catch (Exception ex)
@@ -1938,7 +1953,7 @@ namespace CBPLauncher.Logic
 
         private void GetLauncherVersion()
         {
-            LauncherVersion = "CBP Launcher v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2);
+            LauncherVersion = "CBP Launcher v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2);//this is cutting off the first two (rather than last two) numbers
         }
 
         private void GenerateLists()//maybe temporary function to be revised later?
