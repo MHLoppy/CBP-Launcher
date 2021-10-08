@@ -1110,9 +1110,13 @@ namespace CBPLauncher.Logic
                                         + "These files are very likely to cause OoS issues in the first game of every session you play.\n\n"
                                         + "To prevent this issue, either move/remove those mods, "
                                         + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games.");
-                    else if (BullshitButtonPress)//we only want this message to show on button press, not on automatic checks
+
+                    //we only want this message to show on button press, not on automatic checks
+                    else if (BullshitButtonPress)
+                    {
                         BullshitButtonPress = false;
                         MessageBox.Show("No XML data files detected in local mods folder.");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1414,6 +1418,18 @@ namespace CBPLauncher.Logic
                             Console.WriteLine("did not copy workshop CBP to local CBP because of archive abort flag");
                         }
 
+                        if (Properties.Settings.Default.UseDefaultLauncher == false)
+                        {
+                            //keep CBP Setup GUI up to date
+                            if (Process.GetProcessesByName("patriots").Length < 1)
+                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                            else
+                            {
+                                //set a flag to do it later so that user doesn't get slowed down
+                                updateSetupLater = true;
+                            }
+                        }
+
                         ReplaceRestoreDefaultLauncher();
 
                         try
@@ -1678,6 +1694,7 @@ namespace CBPLauncher.Logic
             //the setting that triggers this is toggled off after the first time the launcher is run
             WarnLocalModDataFiles();
             Properties.Settings.Default.DetectBullshitFirstTime = false;
+            SaveSettings();
 
             if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
             {
@@ -1692,12 +1709,12 @@ namespace CBPLauncher.Logic
                 {
                     await Delay(3000);
                     if (Process.GetProcessesByName("patriots").Length < 1)
-                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);//should make sure it's closed first? maybe do a version check too?
+                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
                     else
                     {
                         await Delay(3000);
                         if (Process.GetProcessesByName("patriots").Length < 1)
-                            File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
+                            File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
                         else
                             MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can safely ignore it)");
                     }
