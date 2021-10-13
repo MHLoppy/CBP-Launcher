@@ -79,6 +79,8 @@ namespace CBPLauncher.Logic
         private bool prereleaseFilesDetected = false;
         private string primaryDataCBP;
         private string secondaryDataCBP;
+        private string primaryNonDataCBP;
+        private string secondarynonDataCBP;
         
         //private string patchNotesCBP; //moved out to its own VM instead
 
@@ -97,7 +99,6 @@ namespace CBPLauncher.Logic
                 OnPropertyChanged();
             }
         }
-
 
         private bool launchEnabled = false;
         public bool LaunchEnabled
@@ -499,6 +500,7 @@ namespace CBPLauncher.Logic
                 {
                     if (Properties.Settings.Default.UpgradeRequired == true)
                     {
+                        MessageBox.Show("settings debug");
                         UpgradeSettings();
                     }
                 }
@@ -576,8 +578,12 @@ namespace CBPLauncher.Logic
 
                     //Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files //decided to just use the existing CBP local mod directory
                     Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
+                    Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files"));
                     folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
                     folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
+
+                    Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
+                    Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
                 }
                 catch (Exception ex)
                 {
@@ -588,6 +594,8 @@ namespace CBPLauncher.Logic
                 try
                 {
                     AskDefaultLauncher();
+
+                    ///////////////////////////////////////////////////// put the reference to AskDefaultGame (or whatever) here
 
                     // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
                     if (Properties.Settings.Default.DefaultCBP == true)
@@ -666,11 +674,11 @@ namespace CBPLauncher.Logic
                 DetectBullshit_Inversion();
             });
 
-            DetectBullshitNowCommand = new RelayCommand(o =>
+            /*DetectBullshitNowCommand = new RelayCommand(o =>
             {
                 WarnLocalModDataFiles();
                 BullshitButtonPress = true;
-            });
+            });*/
 
             ResetSettingsCommand = new RelayCommand(o =>
             {
@@ -984,6 +992,8 @@ namespace CBPLauncher.Logic
             
             primaryDataCBP = Path.Combine(localPathCBP, "PrimaryData");
             secondaryDataCBP = Path.Combine(localPathCBP, "SecondaryData");
+            primaryNonDataCBP = Path.Combine(localPathCBP, "PrimaryNonData");
+            secondarynonDataCBP = Path.Combine(localPathCBP, "SecondaryNonData");
         }
 
         private void CheckForUpdates()
@@ -1068,10 +1078,11 @@ namespace CBPLauncher.Logic
         }
 
         // this is specifically to warn about the absolutely asinine damage bug (which can cause OoS's) that I discovered with Barks and Triremes - check their RoN wiki page X_X
-        private void WarnLocalModDataFiles()
+        // no longer needed because I found a fix to the bug instead of needing grating workarounds
+        /*private void WarnLocalModDataFiles()
         {
             //filter this at the top so that people who've turned it off are least affected by any performance hit / annoyance
-            if (Properties.Settings.Default.DetectBullshit || Properties.Settings.Default.DetectBullshitFirstTime)
+            if (Properties.Settings.Default.DetectBullshit || Properties.Settings.Default.FirstTimeRun)
             {
                 try
                 {
@@ -1104,7 +1115,7 @@ namespace CBPLauncher.Logic
                             MessageBox.Show(s);*/
 
                         //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
-                        if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
+                        /*if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
                         {
                             if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.TopDirectoryOnly).Length == 0
                              && Directory.GetFiles(modArtFolder, "*.tga", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
@@ -1140,7 +1151,7 @@ namespace CBPLauncher.Logic
                 }
             }
             //else do nothing
-        }
+        }*/
 
         /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one (..for now), meaning that some stuff such as archiving doesn't need to be here too
         {         //later on can refactor the whole thing maybe
@@ -1219,6 +1230,70 @@ namespace CBPLauncher.Logic
             // in theory (shouldn't *actually* happen but ya know) you could have scuffed files in neither list, but for now it's not handled
         }
 
+        //unneeded because Bark/Trireme OoS bug fixed (the code relating to all the non-data loading was not completed, although individual functions may be working)
+
+        //semi-forced into doing shitty hardcoded lists because of the sheer scope of the bark/trireme bug - I don't have the skill to do it dynamically, or the time to figure it out for just a few files
+        /*private void LoadNonDataFiles()
+        {
+            // these would make more sense as global variables but this is tolerable for now
+            string conquestCBP = Path.Combine(Path.Combine(secondarynonDataCBP, "conquest"));
+            string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
+
+            string napoleonMap = File.ReadLines(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml")).Skip(3).Take(1).First();
+            if (napoleonMap.Substring(5).StartsWith("CBP") == false)
+                File.Copy(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
+
+            string worldMap = File.ReadLines(Path.Combine(conquestCBP, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
+            if (worldMap.Substring(5).StartsWith("CBP") == false)
+                File.Copy(Path.Combine(conquestCBP, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
+
+            //bhs file, different syntax etc from xml
+            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestCBP, "Napoleon", "napoleon_post_turn.bhs")).Skip(0).Take(1).First();
+            if (napoleonPostTurn.Substring(2).StartsWith("CBP") == false)
+                File.Copy(Path.Combine(conquestCBP, "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "napoleon_post_turn.bhs"), true);
+        }*/
+
+
+        /*private void CopyArtFiles()
+        {
+            //copy art files from e.g. /mods/Community Balance Patch/Art/art/*
+            // /mods/Community Balance Patch/Art/art/snow/*
+
+            // to /art/xxxx and /art/snow/*
+
+            // again, should be global strings but clenched teeth for now
+
+            if (Properties.Settings.Default.ArtFilesCopied == false)
+            {
+                try
+                {
+                    string artEE = Path.Combine(RoNPathFinal, "art");
+                    string snowEE = Path.Combine(RoNPathFinal, "art", "snow");
+                    string artCBP = Path.Combine(localPathCBP, "Art Files", "art");
+                    string snowCBP = Path.Combine(RoNPathFinal, "Art Files", "art", "snow");
+
+                    // this does the /art/ folder
+                    string[] artFilesArray = Directory.GetFiles(artCBP);
+                    foreach (string artFile in artFilesArray)
+                    {
+                        // because these files could be updated over time, we should copy/overwrite all of them if the flag says so (otherwise there's complicated stuff about tracking versions etc)
+                        File.Copy("source", "destination", true);
+                        // log the copy I guess
+                    }
+
+                    // this does the art/snow folder
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while copying art files: " + ex);
+                }
+            }
+            else
+            {
+                //log that
+            }
+        }*/
+
         private void UnloadDirectFiles()
         {
             //for every file, check it and then (if needed) load the original file
@@ -1231,6 +1306,27 @@ namespace CBPLauncher.Logic
                 //else no action required
             }
         }
+        
+        /*//semi-forced into doing shitty hardcoded lists because of the sheer scope of the bark/trireme bug - I don't have the skill to do it dynamically, or the time to figure it out for just a few files
+        private void UnloadNonDataFiles()
+        {
+            // these would make more sense as global variables but this is tolerable for now
+            string conquestOriginal = Path.Combine(Path.Combine(folderCBPoriginal, "conquest"));
+            string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
+
+            string napoleonMap = File.ReadLines(Path.Combine(conquestOriginal, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
+            if (napoleonMap.Substring(5).StartsWith("CBP"))
+                File.Copy(Path.Combine(conquestOriginal, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
+
+            string worldMap = File.ReadLines(Path.Combine(conquestOriginal, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
+            if (worldMap.Substring(5).StartsWith("CBP"))
+                File.Copy(Path.Combine(conquestOriginal, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
+
+            //bhs file, different syntax etc from xml
+            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestOriginal, "Napoleon", "napoleon_post_turn.bhs")).Skip(0).Take(1).First();
+            if (napoleonPostTurn.Substring(2).StartsWith("CBP"))
+                File.Copy(Path.Combine(conquestOriginal, "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "napoleon_post_turn.bhs"), true);
+        }*/
 
         private bool CheckIfCBPFile(string filename)
         {
@@ -1320,6 +1416,7 @@ namespace CBPLauncher.Logic
                 //copy files from e.g. /data/ to /CBP/Original Files
                 try
                 {
+                    //data files (primary and secondary)
                     foreach (string filename in CBPFileListAll)
                     {
                         if (!File.Exists(Path.Combine(folderCBPoriginal, filename)))
@@ -1332,12 +1429,50 @@ namespace CBPLauncher.Logic
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Problem backing up files. " + ex);
+                    MessageBox.Show("Problem backing up data files. " + ex);
                     Environment.Exit(-1);
                 }
             }
 
             else if (Properties.Settings.Default.FilesBackedUp == true)
+            {
+                //log that
+            }
+
+            //I hate this but for 3 files I can live with it
+            if (Properties.Settings.Default.NonDataFilesBackedUp == false)
+            {
+                try
+                {
+                    // conquest/CTW_Napoleon_Map_01.xml
+                    string nMap = "CTW_Napoleon_Map_01.xml";
+                    if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", nMap)))
+                        File.Copy(Path.Combine(RoNPathFinal, "conquest", nMap), Path.Combine(folderCBPoriginal, "conquest", nMap));
+                    else MessageBox.Show("Backup of Napoleon Map skipped (file already exists)");
+
+                    // conquest/CTW_World_Map_01.xml
+                    string wMap = "CTW_World_Map_01.xml";
+                    if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", wMap)))
+                        File.Copy(Path.Combine(RoNPathFinal, "conquest", wMap), Path.Combine(folderCBPoriginal, "conquest", wMap));
+                    else MessageBox.Show("Backup of World Map skipped (file already exists)");
+
+                    // conquest/Napoleon/napoleon_post_turn.bhs
+                    string nPost = "napoleon_post_turn.bhs";
+                    if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost)))
+                        File.Copy(Path.Combine(RoNPathFinal, "conquest", "Napoleon", nPost), Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost));
+                    else MessageBox.Show("Backup of Napoleon postturn skipped (file already exists)");
+
+                    Properties.Settings.Default.NonDataFilesBackedUp = true;
+                    SaveSettings();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Problem backing up non-data files. " + ex);
+                    Environment.Exit(-1);
+                }
+            }
+
+            else if (Properties.Settings.Default.NonDataFilesBackedUp == true)
             {
                 //log that
             }
@@ -1706,10 +1841,11 @@ namespace CBPLauncher.Logic
 
         private async Task PlayButton_Click()
         {
+            //legacy: from when Bark/Trireme OoS detection was needed
             //the setting that triggers this is toggled off after the first time the launcher is run
-            WarnLocalModDataFiles();
-            Properties.Settings.Default.DetectBullshitFirstTime = false;
-            SaveSettings();
+            //WarnLocalModDataFiles();
+            //Properties.Settings.Default.FirstTimeRun = false;
+            //SaveSettings();
 
             if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
             {
@@ -1731,10 +1867,11 @@ namespace CBPLauncher.Logic
                         if (Process.GetProcessesByName("patriots").Length < 1)
                             File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
                         else
-                            MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can safely ignore it)");
+                            MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
                     }
                 }
 
+                //should debug log a line here, because oddly enough this sometimes doesn't seem to trigger
                 Application.Current.MainWindow.Close();
             }
             else if (Status == LauncherStatus.installFailed)
@@ -1964,6 +2101,7 @@ namespace CBPLauncher.Logic
                 GenerateFileListModded();
                 GenerateFileListOriginal();
                 BackupOriginalFiles();
+                //CopyArtFiles();
             }
             catch (Exception ex)
             {

@@ -47,6 +47,7 @@ namespace CBPLauncher.Skins
             {
                 //designtime baybeee
 
+                myFlowDocument.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");
                 FDViewer.Document = myFlowDocument;
             }
         }

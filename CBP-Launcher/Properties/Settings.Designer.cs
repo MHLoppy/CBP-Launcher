@@ -253,12 +253,36 @@ namespace CBPLauncher.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool DetectBullshitFirstTime {
+        public bool FirstTimeRun {
             get {
-                return ((bool)(this["DetectBullshitFirstTime"]));
+                return ((bool)(this["FirstTimeRun"]));
             }
             set {
-                this["DetectBullshitFirstTime"] = value;
+                this["FirstTimeRun"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NonDataFilesBackedUp {
+            get {
+                return ((bool)(this["NonDataFilesBackedUp"]));
+            }
+            set {
+                this["NonDataFilesBackedUp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ArtFilesCopied {
+            get {
+                return ((bool)(this["ArtFilesCopied"]));
+            }
+            set {
+                this["ArtFilesCopied"] = value;
             }
         }
     }
