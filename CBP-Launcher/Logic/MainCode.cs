@@ -999,7 +999,7 @@ namespace CBPLauncher.Logic
 
             modnameCBP = "Community Balance Patch"; // this has to be static, which loses the benefit of having the version display in in-game mod manager, but acceptable because it will display in CBP Launcher instead
 
-            // for testing purposes, access pre-elease (of a7)
+            // for testing purposes, access pre-release (of a7)
             if (Properties.Settings.Default.UsePrerelease == true)
             {
                 workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
@@ -1012,9 +1012,9 @@ namespace CBPLauncher.Logic
 
             workshopPathCBP = Path.Combine(Path.GetFullPath(workshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
             localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
-            versionFileCBPLocal = Path.Combine(localPathCBP, "Version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
-            versionFileCBPWorkshop = Path.Combine(workshopPathCBP, "version.txt");
-            
+            versionFileCBPLocal = Path.Combine(localPathCBP, "version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
+            versionFileCBPWorkshop = Path.Combine(workshopPathCBP, "Community Balance Patch", "version.txt");
+
             primaryDataCBP = Path.Combine(localPathCBP, "PrimaryData");
             secondaryDataCBP = Path.Combine(localPathCBP, "SecondaryData");
             primaryNonDataCBP = Path.Combine(localPathCBP, "PrimaryNonData");
@@ -1551,12 +1551,26 @@ namespace CBPLauncher.Logic
                         // check if the local version is the same as the workshop version (even though online version is different)
                         if (File.Exists(versionFileCBPLocal) && File.Exists(versionFileCBPWorkshop))
                         {
+                            // get local version, workshop version, and online version (online version is different depending on whether using pre-release or not)
                             Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));
-                            Version workshopVersion = new Version(File.ReadAllText("insert the workshop version file"));
+                            Version workshopVersion = new Version(File.ReadAllText(versionFileCBPWorkshop));
+                            WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
+                            Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
 
-                            if (localVersion.IsDifferentThan(workshopVersion))// I assume it's faster to check this than straight up always-write files
+                            if (Properties.Settings.Default.UsePrerelease == true)//pr
                             {
-                                MessageBox.Show("A CBP update has been published on Steam Workshop, but Steam hasn't downloaded the new files yet.");
+                                onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
+                            }
+
+                            // if the local and workshop versions are the same BUT the workshop version is different, then alert the user
+                            if ((!localVersion.IsDifferentThan(workshopVersion)) && localVersion.IsDifferentThan(onlineVersion))// I assume it's faster to check this than straight up always-write files
+                            {
+                                string newestVersion = VersionArray.versionStart[onlineVersion.major]
+                                                     + VersionArray.versionMiddle[onlineVersion.minor]
+                                                     + VersionArray.versionEnd[onlineVersion.subMinor]
+                                                     + VersionArray.versionHotfix[onlineVersion.hotfix];
+
+                                MessageBox.Show(newestVersion + " has been published on Steam Workshop, but Steam hasn't downloaded the new files yet so CBP Launcher is unable to install them.");
                             }
                         }
 
@@ -1960,10 +1974,9 @@ namespace CBPLauncher.Logic
 
         private async Task ForceUpdatePatchnotes()
         {
-            // temporarily save the current tab (patch notes), change the tab to the dummy tab, then immediately swap back to the original tab (patch notes)
+            // temporarily save the current tab (patch notes), change the tab to a dummy tab (of same background color as the flowdoc background), then immediately swap back to the original tab (patch notes)
             if (CurrentTab == ClassicPlusPatchNotes)
             {
-                // this could be made less jarring (the patch notes currently flashes for a moment) by having two dummytabs that correspond with the patch notes background color
                 object tab = CurrentTab;
                 CurrentTab = ClassicPlusDummyTab;
                 await Delay(1);//without this it seems like it doesn't work lol
@@ -1971,7 +1984,6 @@ namespace CBPLauncher.Logic
             }
             if (CurrentTab == SpartanV1PatchNotes)
             {
-                // this could be made less jarring (the patch notes currently flashes for a moment) by having two dummytabs that correspond with the patch notes background color
                 object tab = CurrentTab;
                 CurrentTab = SpartanV1DummyTab;
                 await Delay(1);//without this it seems like it doesn't work lol
@@ -2181,6 +2193,7 @@ namespace CBPLauncher.Logic
                 }
                 else
                 {
+                    //log
                     MessageBox.Show("It looks like the version to archive already exists, so no action has been taken.");
                     abortWorkshopCopyCBP = true;
                 }
