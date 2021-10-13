@@ -1081,6 +1081,15 @@ namespace CBPLauncher.Logic
                     await OldInstallGameFiles(true, Version.zero);
                 }
 
+                //this will only run if the local version file (if it exists) is not different to the online one
+                else if (File.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")))
+                {
+                    Version localVersion = new Version(File.ReadAllText(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")));
+                    await OldInstallGameFiles(false, Version.zero);
+                    await GenerateLists();
+                    await LoadDirectFiles();
+                }
+
                 else
                 {
                     await OldInstallGameFiles(false, Version.zero);
@@ -1636,7 +1645,7 @@ namespace CBPLauncher.Logic
 
                         try
                         {
-                            await GenerateLists();//these two seem to be silently failing
+                            await GenerateLists();
                             await LoadDirectFiles();
                         }
                         catch (Exception ex)
