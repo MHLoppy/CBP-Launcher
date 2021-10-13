@@ -141,10 +141,10 @@
                 <!-- Tabs -->
                 <!-- having the first one autochecked here means that when the skin is swapped it always re-checks the tab regardless of the truly active tab -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,80,422" Background="#FFDADADA" Panel.ZIndex="1">
-                    <RadioButton Name="SpV1TabButtonPatchNotes" Width="113.5" Style="{StaticResource BBRadioButton}" Content="Patch Notes" Command="{Binding SpV1TabPatchNotesCommand}" Foreground="Black" IsChecked="True"/>
-                    <RadioButton Width="113.5" Style="{StaticResource BBRadioButton}" Content="Mod Manager" Command="{Binding SpV1TabModManagerCommand}" Visibility="Hidden" Foreground="Black"/>
-                    <RadioButton Name="SpV1TabButtonOptions" Width="113.5" Style="{StaticResource BBRadioButton}" Content="Options" Command="{Binding SpV1TabOptionsCommand}" Foreground="Black"/>
-                    <RadioButton Width="113.5" Style="{StaticResource BBRadioButton}" Content="Log" Command="{Binding SpV1TabLogCommand}" Foreground="Black"/>
+                    <RadioButton Name="SpV1TabButtonPatchNotes" Width="113.5" Style="{StaticResource BBRadioButton}" Content="Patch Notes" Command="{Binding SpV1TabPatchNotesCommand}" Foreground="Black" FontSize="16" IsChecked="True"/>
+                    <RadioButton Width="113.5" Style="{StaticResource BBRadioButton}" Content="Plugins" Command="{Binding SpV1TabModManagerCommand}" Visibility="Visible" Foreground="Black" FontSize="16"/>
+                    <RadioButton Name="SpV1TabButtonOptions" Width="113.5" Style="{StaticResource BBRadioButton}" Content="Options" Command="{Binding SpV1TabOptionsCommand}" Foreground="Black" FontSize="16"/>
+                    <RadioButton Width="113.5" Style="{StaticResource BBRadioButton}" Content="Log" Command="{Binding SpV1TabLogCommand}" Foreground="Black" FontSize="16"/>
                 </StackPanel>
                 
                 <!-- these are the values to have the tabs cover the whole width of the control (which they probably will once I convert this control to a window with normal exit/etc buttons

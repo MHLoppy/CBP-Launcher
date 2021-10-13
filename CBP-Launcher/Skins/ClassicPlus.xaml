@@ -127,7 +127,7 @@
                 <StackPanel Margin="138,5,0,0">
                     <!-- patch notes is default check (looks weird when switching skins but not a big deal) -->
                     <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="True"/>
-                    <RadioButton Name="CPMM" Content="Mod Manager" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" Visibility="Hidden"/>
+                    <RadioButton Name="CPMM" Content="Plugins" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" Visibility="Visible"/>
                     <RadioButton Name="CPO" Content="Options" Command="{Binding CPTabOptionsCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
                     <RadioButton Name="CPL" Content="Log" Command="{Binding CPTabLogCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
                 </StackPanel>
@@ -136,7 +136,7 @@
                 <!-- it could probably be implemented as a border with a radiobutton inside it though (similar to the mini switches) -->
                 <StackPanel Margin="48,5,0,0" Panel.ZIndex="-1">
                     <Border Background="{Binding ElementName=CPPN, Path=Background}" Height="32" Width="20" Margin="7,6,0,0" CornerRadius="6"/>
-                    <Border Background="{Binding ElementName=CPMM, Path=Background}" Height="32" Width="20" Margin="7,9,0,0" CornerRadius="6" Visibility="Hidden"/>
+                    <Border Background="{Binding ElementName=CPMM, Path=Background}" Height="32" Width="20" Margin="7,9,0,0" CornerRadius="6" Visibility="{Binding ElementName=CPMM, Path=Visibility}"/>
                     <Border Background="{Binding ElementName=CPO, Path=Background}" Height="32" Width="20" Margin="7,9,0,0" CornerRadius="6"/>
                     <Border Background="{Binding ElementName=CPL, Path=Background}" Height="32" Width="20" Margin="7,9,0,0" CornerRadius="6"/>
                 </StackPanel>

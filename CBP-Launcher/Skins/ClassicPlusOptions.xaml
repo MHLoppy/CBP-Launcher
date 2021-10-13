@@ -14,7 +14,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0">
+        <Border Grid.Column="0">
             <Border.Background>
                 <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.50016">
                     <GradientStop Color="#D4383838" Offset="0"/>
@@ -47,7 +47,7 @@
                 <Grid Grid.Row="0" Grid.Column="0">
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="CBP Options" Foreground="#EEEEEE" FontSize="14" Margin="10,10,0,0" FontWeight="SemiBold"/>
                     <CheckBox Name="CBPDefaultCheckbox" Grid.Row="0" Grid.Column="0" Content="Default to CBP" HorizontalAlignment="Left" Margin="12,32,0,0" VerticalAlignment="Top" IsChecked="{Binding CBPDefaultCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding CBPDefaultCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
-                    <CheckBox Name="UsePrereleaseCheckbox" Grid.Row="0" Grid.Column="0" Content="Use a7 prerelease" HorizontalAlignment="Left" Margin="12,52,0,0" VerticalAlignment="Top" IsChecked="{Binding UsePrereleaseCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UsePrereleaseCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
+                    <CheckBox Name="UsePrereleaseCheckbox" Grid.Row="0" Grid.Column="0" Content="Use CBP pre-release" HorizontalAlignment="Left" Margin="12,52,0,0" VerticalAlignment="Top" IsChecked="{Binding UsePrereleaseCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UsePrereleaseCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" FontSize="14" Padding="4,-2,0,0"/>
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="when CBP is loaded..." Foreground="Gray" FontSize="14" Margin="13,78,0,0" FontWeight="Regular"/>
                     <CheckBox Content="Use primary data files" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,98,0,0" FontSize="14" Foreground="#EEEEEE" Padding="4,-2,0,0" ToolTip="These files are REQUIRED by CBP." IsChecked="{Binding UsePrimaryFilesCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UsePrimaryFilesCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" IsEnabled="False"/>

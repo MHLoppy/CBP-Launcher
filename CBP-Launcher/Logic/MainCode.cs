@@ -535,7 +535,7 @@ namespace CBPLauncher.Logic
             {
                 if (Properties.Settings.Default.UpgradeRequired == true)
                 {
-                    MessageBox.Show("settings debug");
+                    MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher.");
                     UpgradeSettings();
                 }
             }
