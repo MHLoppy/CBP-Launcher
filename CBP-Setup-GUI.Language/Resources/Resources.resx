@@ -123,6 +123,9 @@
   <data name="CBPLCurrentlyRunning" xml:space="preserve">
     <value>CBP Launcher is currently running. Please close it and then run this again.</value>
   </data>
+  <data name="CBPVersionFileNotFound" xml:space="preserve">
+    <value>Unable to locate version.txt file. Maybe CBP is not installed? Try redoing first-time installation steps.</value>
+  </data>
   <data name="ConsentIsCool" xml:space="preserve">
     <value> (user auto-consented)</value>
   </data>

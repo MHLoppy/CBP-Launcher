@@ -79,6 +79,15 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to locate version.txt file. Maybe CBP is not installed? Try redoing first-time installation steps..
+        /// </summary>
+        public static string CBPVersionFileNotFound {
+            get {
+                return ResourceManager.GetString("CBPVersionFileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to  (user auto-consented).
         /// </summary>
         public static string ConsentIsCool {

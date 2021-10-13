@@ -296,16 +296,39 @@ namespace CBPSetupGUI
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
 
-                            // check if using PR by reading local mods version.txt file and take the last 2 digits; if TryParse fails, its result is false
-                            // this check should only be required for location 1
-                            CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")));
-                            string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
-
-                            if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
+                            // check for the version file in the mod-is-loaded location, otherwise check for it in the mod-is-unloaded location
+                            if (File.Exists(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")))
                             {
-                                CBPPR = true;//not currently utilised much beyond a sanity check
-                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
+                                // check if using PR by reading local mods version.txt file and take the last 2 digits; if TryParse fails, its result is false
+                                // this check should only be required for location 1
+                                CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")));
+                                string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
+
+                                if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
+                                {
+                                    CBPPR = true;//not currently utilised much beyond a sanity check
+                                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
+                                }
                             }
+                            else if (File.Exists(Path.Combine(CBPSFolder, @"mods\Unloaded Mods\Community Balance Patch\version.txt")))
+                            {
+                                // even if CBP is unloaded, we should still update CBP Launcher, so should continue
+                                CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")));
+                                string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
+
+                                if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
+                                {
+                                    CBPPR = true;//not currently utilised much beyond a sanity check
+                                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show(CBPSetupGUI.Language.Resources.CBPVersionFileNotFound);
+                                await DelayedClose(CBPSetupGUI.Language.Resources.CBPVersionFileNotFound + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+
+                            }
+                            
                         }
                         catch (Exception ex)
                         {
