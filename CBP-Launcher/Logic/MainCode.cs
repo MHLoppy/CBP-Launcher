@@ -506,7 +506,7 @@ namespace CBPLauncher.Logic
             {
                 //designtime baybeeee
 
-                //to stop A N G E R Y VS2019 error messages which don't actually matter
+                //to stop strange A N G E R Y VS2019 error messages which don't actually matter
                 CBPFileListAll.Add("uwu");
 
                 //(turns out that didn't stop the messages  n w n
