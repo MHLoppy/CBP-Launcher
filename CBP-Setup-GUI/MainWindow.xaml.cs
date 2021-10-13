@@ -296,6 +296,9 @@ namespace CBPSetupGUI
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
                             ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
 
+                            // Oct 2021: to be quite honest I'm not really sure why we're checking for CBP version anyway, given that it's CBP Launcher's job (not setup's) to update CBP
+                            // we already read cbpl's version elsewhere, why do we care about CBP version (other than to see if CBP is installed at all)?
+
                             // check for the version file in the mod-is-loaded location, otherwise check for it in the mod-is-unloaded location
                             if (File.Exists(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")))
                             {
@@ -313,7 +316,7 @@ namespace CBPSetupGUI
                             else if (File.Exists(Path.Combine(CBPSFolder, @"mods\Unloaded Mods\Community Balance Patch\version.txt")))
                             {
                                 // even if CBP is unloaded, we should still update CBP Launcher, so should continue
-                                CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")));
+                                CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Unloaded Mods\Community Balance Patch\version.txt")));
                                 string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
 
                                 if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)

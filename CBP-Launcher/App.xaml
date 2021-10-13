@@ -32,6 +32,11 @@
 
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
+            <!-- Dummy tab, used by both skins to force-update a tab by switching to it then instantly switching back -->
+            <DataTemplate DataType="{x:Type logic:DummyTabVM}">
+                <skins:DummyTab/>
+            </DataTemplate>
+            
             <!-- Spartan V1 skin-->
             <DataTemplate DataType="{x:Type logic:SpartanV1VM}">
                 <skins:SpartanV1/>

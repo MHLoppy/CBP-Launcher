@@ -341,13 +341,13 @@ namespace CBPLauncher.Logic
         //test commands
         public RelayCommand ChangeSkinCommand { get; set; }
 
-        private object _currentView;
-        public object CurrentView
+        private object _currentSkin;
+        public object CurrentSkin
         {
-            get { return _currentView; }
+            get { return _currentSkin; }
             set
             {
-                _currentView = value;
+                _currentSkin = value;
                 OnPropertyChanged();
             }
         }
@@ -364,6 +364,8 @@ namespace CBPLauncher.Logic
         }
 
         // Skin "viewmodel"s
+        public DummyTabVM DummyTab { get; set; }
+
         public SpartanV1VM SpartanV1 { get; set; }
         public SpartanV1MiniVM SpartanV1Mini { get; set; }
         public SpartanV1PatchNotesVM SpartanV1PatchNotes { get; set; }
@@ -582,8 +584,8 @@ namespace CBPLauncher.Logic
                     folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
                     folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
 
-                    Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
-                    Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
+                    //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
+                    //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
                 }
                 catch (Exception ex)
                 {
@@ -693,6 +695,7 @@ namespace CBPLauncher.Logic
             LoadCBPCommand = new RelayCommand(o =>
             {
                 CheckForUpdates();
+                ForceUpdatePatchnotes();//otherwise patch notes might not get updated
             });
 
             UnloadCBPCommand = new RelayCommand(o =>
@@ -717,22 +720,22 @@ namespace CBPLauncher.Logic
 
             SkinSpartanV1Command = new RelayCommand(o =>
             {
-                CurrentView = SpartanV1;
+                CurrentSkin = SpartanV1;
             });
 
             SkinSpartanV1MiniCommand = new RelayCommand(o =>
             {
-                CurrentView = SpartanV1Mini;
+                CurrentSkin = SpartanV1Mini;
             });
 
             SkinClassicPlusMiniCommand = new RelayCommand(o =>
             {
-                CurrentView = ClassicPlusMini;
+                CurrentSkin = ClassicPlusMini;
             });
 
             SkinClassicPlusCommand = new RelayCommand(o =>
             {
-                CurrentView = ClassicPlus;
+                CurrentSkin = ClassicPlus;
             });
 
             MinimiseCommand = new RelayCommand(o =>
@@ -761,22 +764,24 @@ namespace CBPLauncher.Logic
             ClassicPlusOptions = new ClassicPlusOptionsVM();
             ClassicPlusLog = new ClassicPlusLogVM();
 
+            DummyTab = new DummyTabVM();
+
             if (Properties.Settings.Default.SkinSpV1 == true)
             {
-                CurrentView = SpartanV1;
+                CurrentSkin = SpartanV1;
                 CurrentTab = SpartanV1PatchNotes;
             }
             else
             {
-                CurrentView = ClassicPlus;
+                CurrentSkin = ClassicPlus;
                 CurrentTab = ClassicPlusPatchNotes;
             }
 
             ChangeSkinCommand = new RelayCommand(o =>//convert this to a multi-choice command (e.g. dropdown selection)
             {
-                if (CurrentView == SpartanV1)
+                if (CurrentSkin == SpartanV1)
                 {
-                    CurrentView = ClassicPlus;
+                    CurrentSkin = ClassicPlus;
                     CurrentTab = ClassicPlusOptions;
 
                     // janky but functional for now
@@ -790,7 +795,7 @@ namespace CBPLauncher.Logic
                 }
                 else
                 {
-                    CurrentView = SpartanV1;
+                    CurrentSkin = SpartanV1;
                     CurrentTab = SpartanV1Options;
 
                     // janky but functional for now
@@ -1439,7 +1444,7 @@ namespace CBPLauncher.Logic
                 //log that
             }
 
-            //I hate this but for 3 files I can live with it
+            /*//I hate this but for 3 files I can live with it
             if (Properties.Settings.Default.NonDataFilesBackedUp == false)
             {
                 try
@@ -1475,7 +1480,7 @@ namespace CBPLauncher.Logic
             else if (Properties.Settings.Default.NonDataFilesBackedUp == true)
             {
                 //log that
-            }
+            }*/
         }
 
         private void GenerateFileListModded()
@@ -1885,6 +1890,17 @@ namespace CBPLauncher.Logic
             else if (Status == LauncherStatus.unloadFailed)
             {
                 UnloadCBP();
+            }
+        }
+
+        private void ForceUpdatePatchnotes()
+        {
+            // temporarily save the current tab (patch notes), change the tab to the dummy tab, then immediately swap back to the original tab (patch notes)
+            if (CurrentTab == ClassicPlusPatchNotes || CurrentTab == SpartanV1PatchNotes)
+            {
+                object tab = CurrentTab;
+                CurrentTab = DummyTab;
+                CurrentTab = tab;
             }
         }
 
