@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using CBPLauncher.Core;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
@@ -438,28 +439,28 @@ namespace CBPLauncher.Logic
                     // I tried renaming the *Local to *Workshop and VS2019 literally did the opposite of that (by renaming what I just changed) instead of doing what it said it would wtf
                     case LauncherStatus.installingFirstTimeLocal:                       /// primary method: use workshop files;
                         LaunchStatusText = "Installing CBP from local files...";      /// means no local-mods CBP detected
-                        LaunchStatusColor = Brushes.White;
+                        LaunchStatusColor = Brushes.Yellow;
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
                         break;
                     case LauncherStatus.installingUpdateLocal:                          /// primary method: use workshop files;
                         LaunchStatusText = "Installing update from local files...";   /// local-mods CBP detected, but out of date compared to workshop version.txt
-                        LaunchStatusColor = Brushes.White;
+                        LaunchStatusColor = Brushes.Yellow;
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
                         break;
                     case LauncherStatus.installingFirstTimeOnline:                      /// backup method: use online files;
                         LaunchStatusText = "Installing CBP from online files...";     /// means no local-mods CBP detected but can't find workshop files either
-                        LaunchStatusColor = Brushes.White;
+                        LaunchStatusColor = Brushes.Yellow;
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
                         break;
                     case LauncherStatus.installingUpdateOnline:                         /// backup method: use online files; 
                         LaunchStatusText = "Installing update from online files...";  /// local-mods CBP detected, but can't find workshop files and
-                        LaunchStatusColor = Brushes.White;                       /// local files out of date compared to online version.txt
+                        LaunchStatusColor = Brushes.Yellow;                       /// local files out of date compared to online version.txt
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
@@ -498,131 +499,8 @@ namespace CBPLauncher.Logic
         {
             if (IsInDesignMode() == false)
             {
-                try
-                {
-                    if (Properties.Settings.Default.UpgradeRequired == true)
-                    {
-                        MessageBox.Show("settings debug");
-                        UpgradeSettings();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error during initialization: {ex}");
-                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
-                }
-
-                try
-                {
-                    ReadRegistry();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error reading registry: {ex}");
-                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
-                }
-
-                RegPathDebug = "Debug: registry read as " + RegPath.ToString();
-
-                /// TODO
-                /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
-                /// (at the moment it just assumes they exist and eventually errors later on if they don't)
-
-                try
-                {
-                    AssignZipPath();
-
-                    // this starts a cycle through each of the automatic find-path attempts - if all fail, it just prompts user to input the path into a popup box instead
-                    FindPathAuto1();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error creating paths (part 1): {ex}");
-                    Environment.Exit(0);
-                }
-
-                try
-                {
-                    AssignPaths();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error assigning paths (path 2):" + ex);
-                    Environment.Exit(0);
-                }
-
-                // show detected paths in the UI
-                try
-                {
-                    EEPath = RoNPathFinal;
-                    WorkshopPathDebug = workshopPath;
-                    WorkshopPathCBPDebug = workshopPathCBP;
-                    GetLauncherVersion();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error displaying paths in UI {ex}");
-                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
-                }
-
-                // create directories
-                try
-                {
-                    Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
-                    unloadedModsPath = Path.Combine(localMods, "Unloaded Mods");
-
-                    Directory.CreateDirectory(Path.Combine(unloadedModsPath, "CBP Archive")); // will be used for archiving old CBP versions
-                    archiveCBP = Path.Combine(unloadedModsPath, "CBP Archive");
-
-                    //new for late alpha 7; doing some path assigning too because this is the first time directories are created *after* the normal path assignment function
-                    Directory.CreateDirectory(Path.Combine(EEPath, "CBP")); //used for CBP file storage going forward
-                    folderCBProot = Path.Combine(RoNPathFinal, "CBP");
-
-                    //Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files //decided to just use the existing CBP local mod directory
-                    Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
-                    Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files"));
-                    folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
-                    folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
-
-                    //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
-                    //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error creating directories {ex}");
-                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
-                }
-
-                try
-                {
-                    AskDefaultLauncher();
-
-                    ///////////////////////////////////////////////////// put the reference to AskDefaultGame (or whatever) here
-
-                    // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
-                    if (Properties.Settings.Default.DefaultCBP == true)
-                    {
-                        CheckForUpdates();
-                    };
-                    if (Properties.Settings.Default.DefaultCBP == false)
-                    {
-                        if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
-                        {
-                            UnloadCBP();
-                        }
-                        else
-                        {
-                            Status = LauncherStatus.readyCBPDisabled;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error with primary (old rendered) step: {ex}");
-                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
-                }
-
-                //CBPDefaultChecker();
+                // moved into separate function
+                AutoRun();
             }
             else
             {
@@ -857,6 +735,135 @@ namespace CBPLauncher.Logic
             return DesignerProperties.GetIsInDesignMode(dummy);
         }
 
+        private void AutoRun()
+        {
+            try
+            {
+                if (Properties.Settings.Default.UpgradeRequired == true)
+                {
+                    MessageBox.Show("settings debug");
+                    UpgradeSettings();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during initialization: {ex}");
+                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
+            try
+            {
+                ReadRegistry();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading registry: {ex}");
+                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
+            RegPathDebug = "Debug: registry read as " + RegPath.ToString();
+
+            /// TODO
+            /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
+            /// (at the moment it just assumes they exist and eventually errors later on if they don't)
+
+            try
+            {
+                AssignZipPath();
+
+                // this starts a cycle through each of the automatic find-path attempts - if all fail, it just prompts user to input the path into a popup box instead
+                FindPathAuto1();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error creating paths (part 1): {ex}");
+                Environment.Exit(0);
+            }
+
+            try
+            {
+                AssignPaths();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error assigning paths (path 2):" + ex);
+                Environment.Exit(0);
+            }
+
+            // show detected paths in the UI
+            try
+            {
+                EEPath = RoNPathFinal;
+                WorkshopPathDebug = workshopPath;
+                WorkshopPathCBPDebug = workshopPathCBP;
+                GetLauncherVersion();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error displaying paths in UI {ex}");
+                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
+            // create directories
+            try
+            {
+                Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
+                unloadedModsPath = Path.Combine(localMods, "Unloaded Mods");
+
+                Directory.CreateDirectory(Path.Combine(unloadedModsPath, "CBP Archive")); // will be used for archiving old CBP versions
+                archiveCBP = Path.Combine(unloadedModsPath, "CBP Archive");
+
+                //new for late alpha 7; doing some path assigning too because this is the first time directories are created *after* the normal path assignment function
+                Directory.CreateDirectory(Path.Combine(EEPath, "CBP")); //used for CBP file storage going forward
+                folderCBProot = Path.Combine(RoNPathFinal, "CBP");
+
+                //Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files //decided to just use the existing CBP local mod directory
+                Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
+                Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files"));
+                folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
+                folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
+
+                //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
+                //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error creating directories {ex}");
+                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
+            try
+            {
+                AskDefaultLauncher();
+
+                ///////////////////////////////////////////////////// put the reference to AskDefaultGame (or whatever) here
+
+                // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
+                if (Properties.Settings.Default.DefaultCBP == true)
+                {
+                    CheckForUpdates();
+                };
+                if (Properties.Settings.Default.DefaultCBP == false)
+                {
+                    if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
+                    {
+                        UnloadCBP();
+                    }
+                    else
+                    {
+                        Status = LauncherStatus.readyCBPDisabled;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error with primary (old content_rendered) step: {ex}");
+                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
+            //CBPDefaultChecker();
+        }
+
         private void AssignZipPath()
         {
             // core paths
@@ -1033,8 +1040,9 @@ namespace CBPLauncher.Logic
                         if (onlineVersion.IsDifferentThan(localVersion))
                         {
                             OldInstallGameFiles(true, onlineVersion);
-                            GenerateLists();
-                            LoadDirectFiles();
+                            //GenerateLists();
+                            //LoadDirectFiles();
+                            //oldinstallgamefiles already includes both of those if the bool is true, so no need to repeat it
                         }
                         else
                         {
@@ -1589,7 +1597,7 @@ namespace CBPLauncher.Logic
 
                         try
                         {
-                            GenerateLists();
+                            GenerateLists();//these two seem to be silently failing
                             LoadDirectFiles();
                         }
                         catch (Exception ex)
@@ -1753,32 +1761,27 @@ namespace CBPLauncher.Logic
             {
                 try
                 {
-                    if (Process.GetProcessesByName("patriots").Length > 0)
+                    //CheckIfSetupRunning();
+
+                    GenerateLists();
+
+                    Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
+                    Properties.Settings.Default.CBPUnloaded = true;
+                    Properties.Settings.Default.CBPLoaded = false;
+                    SaveSettings();
+
+                    VersionTextInstalled = "CBP not loaded";
+
+                    try
                     {
-                        MessageBox.Show($"CBP Setup GUI (patriots.exe) has to be closed before CBP can be unloaded.");
+                        UnloadDirectFiles();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        GenerateLists();
-
-                        Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
-                        Properties.Settings.Default.CBPUnloaded = true;
-                        Properties.Settings.Default.CBPLoaded = false;
-                        SaveSettings();
-
-                        VersionTextInstalled = "CBP not loaded";
-
-                        try
-                        {
-                            UnloadDirectFiles();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error directly unloading files: {ex}");
-                        }
-
-                        Status = LauncherStatus.readyCBPDisabled;
+                        MessageBox.Show($"Error directly unloading files: {ex}");
                     }
+
+                    Status = LauncherStatus.readyCBPDisabled;
                 }
                 catch (Exception ex)
                 {
@@ -1803,6 +1806,47 @@ namespace CBPLauncher.Logic
             {
                 MessageBox.Show($"CBP is already unloaded.");
             }
+        }
+
+        private void CheckIfSetupRunning()
+        {
+            ActuallyCheckIfSetupRunning();
+        }
+
+        // abstraction layer just makes it so I can (optionally) separate some of the logic between functions, or do things e.g. async
+        private async Task<bool> ActuallyCheckIfSetupRunning()//the bool isn't used, but I'm keeping it just because it kinda helps readability
+        {
+            if (Process.GetProcessesByName("patriots").Length > 0 && Properties.Settings.Default.UseDefaultLauncher == false)
+            {
+                //Action sayWaiting = new Action(() =>{ MessageBox.Show($"Waiting for CBP Setup GUI (patriots.exe) to close..."); });
+                //await Dispatcher.CurrentDispatcher.BeginInvoke(sayWaiting);
+
+                //try to check on a loop whether CBP Setup GUI is running
+                int i = 0;
+                while (i <10)//if we're waiting more than 7.2 seconds, something is wrong because it should close in ~5 seconds max
+                {
+                    await Delay(800);
+
+                    if (Process.GetProcessesByName("patriots").Length > 0)
+                    {
+                        i++;
+                        // fascinating difference between ++i and i++
+                        // https://stackoverflow.com/questions/3346450/what-is-the-difference-between-i-and-i
+                    }
+                    else
+                        return true;
+                }
+
+                //something has gone wrong
+                if (i == 10)
+                {
+                    MessageBox.Show($"CBP Setup GUI (patriots.exe) doesn't seem to be closing, so CBP Launcher will be closed.");
+                    Status = LauncherStatus.unloadFailed;
+                    //return false;
+                    Environment.Exit(-1);
+                }
+            }
+            return true;
         }
 
         private void UpdateLocalVersionNumber()
@@ -1949,6 +1993,8 @@ namespace CBPLauncher.Logic
 
         private void ReplaceRestoreDefaultLauncher()
         {
+            CheckIfSetupRunning();
+            
             //restore old launcher
             if (File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == true)
             {

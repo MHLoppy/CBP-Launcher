@@ -28,6 +28,11 @@
     
     <!-- You may receive an error when parsing the XAML related to not finding an image resource; this error only happens in design time, not in the compiled program -->
     <Grid>
-        <ContentControl Content="{Binding CurrentView}"/>
+        <!-- story time:
+        I renamed CurrentView to CurrentSkin
+        and used VS' rename function to rename all instances of it..
+        except it doesn't rename this one evidently
+        so I spent a good hour thinking some of the other code changes I made were causing problems lol -->
+        <ContentControl Content="{Binding CurrentSkin}"/>
     </Grid>
 </Window>

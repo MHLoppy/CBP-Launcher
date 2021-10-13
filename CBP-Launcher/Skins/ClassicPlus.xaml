@@ -66,7 +66,7 @@
 
                 <!-- stuff below the logo box-->
                 <Label Content="{Binding VersionTextInstalled}" HorizontalContentAlignment="Center" FontSize="18" HorizontalAlignment="Left" Margin="11,21,0,0" VerticalAlignment="Top" Width="236" Foreground="#FFF0F0F0" FontFamily="Segoe UI Semilight" Height="48"/>
-                <TextBlock Name="StatusText" Text="{Binding LaunchStatusText}" FontFamily="Segoe UI" FontSize="14" MinWidth="0" HorizontalAlignment="Center" Margin="20,180,8,0" VerticalAlignment="Top" Foreground="{Binding LaunchStatusColor}" Background="#50000000" Padding="3,0,3,2" TextAlignment="Center"/>
+                <TextBlock Name="StatusText" Text="{Binding LaunchStatusText}" FontFamily="Segoe UI" FontSize="14" MinWidth="0" HorizontalAlignment="Center" Margin="12,180,0,0" VerticalAlignment="Top" Foreground="{Binding LaunchStatusColor}" Background="#50000000" Padding="3,0,3,2" TextAlignment="Center"/>
                 <Button Content="Load CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" Margin="52,206,0,0" VerticalAlignment="Top" Width="70" Height="24">
                     <Button.Resources>
                         <Style TargetType="Border">
