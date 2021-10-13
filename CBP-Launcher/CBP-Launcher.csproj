@@ -250,6 +250,7 @@
     <Compile Include="Logic\ClassicPlusVM.cs" />
     <Compile Include="Logic\DummyTabVM.cs" />
     <Compile Include="Logic\MainCode.cs" />
+    <Compile Include="Logic\SpartanV1DummyTabVM.cs" />
     <Compile Include="Logic\SpartanV1LogVM.cs" />
     <Compile Include="Logic\SpartanV1ModManagerVM.cs" />
     <Compile Include="Logic\SpartanV1OptionsVM.cs" />
@@ -290,6 +291,9 @@
     <Compile Include="Old %28Maniac%29\Wrappers\BindingWrapper.cs" />
     <Compile Include="Old %28Maniac%29\Wrappers\SkinWrapper.xaml.cs">
       <DependentUpon>SkinWrapper.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1DummyTab.xaml.cs">
+      <DependentUpon>SpartanV1DummyTab.xaml</DependentUpon>
     </Compile>
     <Compile Include="Skins\SpartanV1Log.xaml.cs">
       <DependentUpon>SpartanV1Log.xaml</DependentUpon>
@@ -364,6 +368,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Old %28Maniac%29\Wrappers\SkinWrapper.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1DummyTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
