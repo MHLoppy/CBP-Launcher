@@ -5,8 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CBPLauncher.Skins"
              mc:Ignorable="d" 
-             d:DesignHeight="615" d:DesignWidth="454"
-             DataContext="{StaticResource MC}">
+             d:DesignHeight="615" d:DesignWidth="454">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
@@ -22,8 +21,33 @@
             </Border.Background>
         </Border>
 
-        <Grid Background="#D0222222" Grid.Column="1">
+        <Grid Background="#D0222222" Grid.Column="1" Name="PluginGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="44"/>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="86"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
+            <TextBlock Name="ErrorTextBlock" Grid.ColumnSpan="6" Margin="0,100,0,0" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontSize="18" Panel.ZIndex="2"/>
+
+            <!-- Headers (title, version, author etc -->
+            <TextBlock Grid.Column="0" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="WhiteSmoke" Text="On" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="WhiteSmoke" Text="+CBP" HorizontalAlignment="Center" ToolTip="Whether the plugin/mod is compatible with CBP. If it isn't, CBP will need to be unloaded to use the plugin/mod."/>
+            <TextBlock Grid.Column="2" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="WhiteSmoke" Text="Plugin Name" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="3" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="WhiteSmoke" Text="Author(s)" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="4" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="WhiteSmoke" Text="Version" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="5" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="WhiteSmoke" Text="Info" HorizontalAlignment="Center"/>
+
+            <!-- Plugin list -->
+            <ListBox Grid.Column="0" Margin="0,20,0,0" Foreground="WhiteSmoke" Background="#4B101010" BorderBrush="#BB404040" Panel.ZIndex="-1"/>
+            <ListBox Grid.Column="1" Margin="0,20,0,0" Foreground="WhiteSmoke" Background="#4B101010" BorderBrush="#BB404040" ItemsSource="{Binding PCompat}"/>
+            <ListBox Grid.Column="2" Margin="0,20,0,0" Foreground="WhiteSmoke" Background="#4B101010" BorderBrush="#BB404040" ItemsSource="{Binding PTitles}"/>
+            <ListBox Grid.Column="3" Margin="0,20,0,0" Foreground="WhiteSmoke" Background="#4B101010" BorderBrush="#BB404040" ItemsSource="{Binding PAuthor}"/>
+            <ListBox Grid.Column="4" Margin="0,20,0,0" Foreground="WhiteSmoke" Background="#4B101010" BorderBrush="#BB404040" ItemsSource="{Binding PVersion}"/>
+            <ListBox Grid.Column="5" Margin="0,20,0,0" Foreground="WhiteSmoke" Background="#4B101010" BorderBrush="#BB404040" Panel.ZIndex="-1"/>
         </Grid>
     </Grid>
 </UserControl>

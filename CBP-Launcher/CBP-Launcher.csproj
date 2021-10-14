@@ -79,6 +79,9 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CBPSDK">
+      <HintPath>..\..\CBP-SDK\CBP-SDK\bin\Release\CBPSDK.dll</HintPath>
+    </Reference>
     <Reference Include="CodeKicker.BBCode, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\PoLaKoSz.CodeKicker.BBCode.5.2.0\lib\netstandard2.0\CodeKicker.BBCode.dll</HintPath>
     </Reference>

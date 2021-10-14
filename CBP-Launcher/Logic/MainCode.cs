@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -302,6 +303,14 @@ namespace CBPLauncher.Logic
             }
         }
 
+        public ObservableCollection<string> Uwu = new ObservableCollection<string>
+        {
+            "henLO",
+            "who R U??????",
+            "PLZ NO",
+            "it's too late mother"
+        };
+
         //RelayCommand definition things
         public RelayCommand CBPDefaultCommand { get; set; }
         public RelayCommand UsePrereleaseCommand { get; set; }
@@ -535,8 +544,8 @@ namespace CBPLauncher.Logic
             {
                 if (Properties.Settings.Default.UpgradeRequired == true)
                 {
-                    MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher.");
                     UpgradeSettings();
+                    MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher.");
                 }
             }
             catch (Exception ex)
@@ -2232,7 +2241,9 @@ namespace CBPLauncher.Logic
 
         private void GetLauncherVersion()
         {
-            LauncherVersion = "CBP Launcher v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2);//this is cutting off the first two (rather than last two) numbers
+            //LauncherVersion = "CBP Launcher v" + Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2);//this is cutting off the first two (rather than last two) numbers
+            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            LauncherVersion = "CBP Launcher v" + assemblyVersion.Remove(assemblyVersion.Length - 2);
         }
 
         private async Task GenerateLists()//maybe temporary function to be revised later?
