@@ -42,7 +42,7 @@ namespace CBPLauncher.Logic
         private string gameZip;
         private string gameExe;
         private string localMods;
-        private string RoNPathFinal = Properties.Settings.Default.RoNPathSetting; // is it possible there's a narrow af edge case where the path ends up wrong after a launcher version upgrade?
+        private string RoNPathFinal;
         private string RoNPathCheck;
         private string workshopPath;
         private string unloadedModsPath;
@@ -915,6 +915,8 @@ namespace CBPLauncher.Logic
             }
             else
             {
+                RoNPathFinal = Properties.Settings.Default.RoNPathSetting;//moved here so that it works after upgrading settings
+
                 //a7 temp
                 RoNDataPath = Path.Combine(RoNPathFinal, "Data");
 
@@ -1631,7 +1633,11 @@ namespace CBPLauncher.Logic
 
                         if (abortWorkshopCopyCBP == false)
                         {
-                            DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
+                            await Task.Run(() =>
+                            {
+                                DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
+                            });
+                            
                         }
                         else
                         {
@@ -1821,7 +1827,11 @@ namespace CBPLauncher.Logic
                     {
                         await GenerateLists();
 
-                        Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
+                        await Task.Run(() =>
+                        {
+                            Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
+                        });
+                        
                         Properties.Settings.Default.CBPUnloaded = true;
                         Properties.Settings.Default.CBPLoaded = false;
                         SaveSettings();
@@ -2054,7 +2064,7 @@ namespace CBPLauncher.Logic
 
         private async Task ReplaceRestoreDefaultLauncher()
         {
-            //IMPLEMENTATION INCOMPLETE (also for the first-time-run CBP-or-not question)
+            //IMPLEMENTATION INCOMPLETE(?)
             
             //restore old launcher
             if (File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == true)
