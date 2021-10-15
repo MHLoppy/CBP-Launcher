@@ -1633,11 +1633,7 @@ namespace CBPLauncher.Logic
 
                         if (abortWorkshopCopyCBP == false)
                         {
-                            await Task.Run(() =>
-                            {
-                                DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
-                            });
-                            
+                            DirectoryCopy(Path.Combine(workshopPathCBP, "Community Balance Patch"), Path.Combine(localPathCBP), true);
                         }
                         else
                         {
@@ -1827,11 +1823,8 @@ namespace CBPLauncher.Logic
                     {
                         await GenerateLists();
 
-                        await Task.Run(() =>
-                        {
-                            Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
-                        });
-                        
+                        Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
+
                         Properties.Settings.Default.CBPUnloaded = true;
                         Properties.Settings.Default.CBPLoaded = false;
                         SaveSettings();
