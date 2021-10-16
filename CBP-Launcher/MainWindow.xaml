@@ -19,7 +19,8 @@
         AllowsTransparency="True"
         DataContext="{StaticResource MC}"
         MouseDown="Window_MouseDown"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        ContentRendered="Window_ContentRendered">
     <!--WindowStyle="None"
         originally used for classic plus, but it's slightly easier to keep the same window style, and I don't think it makes it cosmetically worse
     

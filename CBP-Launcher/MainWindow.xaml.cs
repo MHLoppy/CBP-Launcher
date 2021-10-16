@@ -17,6 +17,7 @@ using Microsoft.VisualBasic;    // used for the current (temporary?) popup user 
 using CBPLauncher.Logic;
 using static CBPLauncher.Logic.BasicIOLogic;
 using System.Windows.Input;
+using static CBPLauncher.Logic.MainCode;
 
 namespace CBPLauncher
 {
@@ -33,6 +34,11 @@ namespace CBPLauncher
             {
                 this.DragMove();
             }
+        }
+
+        private async void Window_ContentRendered(object sender, EventArgs e)
+        {
+            //await MainCode.CreateAsync();
         }
     }
 

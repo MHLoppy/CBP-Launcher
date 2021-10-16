@@ -220,8 +220,14 @@ namespace CBPLauncher.Skins
         private void Info0()
         {
             // in future I'd like this to be a small window/usercontrol that has a minimal number of settings/options too
-            string message = pluginList[0].PluginDescription;
-            MessageBox.Show(message);
+            string description = pluginList[0].PluginDescription;
+            string simpleHeader = "Functionality:";
+            string simple;
+            if (pluginList[0].IsSimpleMod)
+                simple = "This plugin is a simple autoloader for specific mod files.";
+            else
+                simple = "This plugin has its own features beyond just loading and unloading specific mod files.";
+            MessageBox.Show(description + "\n\n" + simpleHeader + "\n" + simple);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -507,6 +507,34 @@ namespace CBPLauncher.Logic
             }
         }
 
+        /*public static async Task<MainCode> CreateAsync()
+        {
+            MainCode uwu = new MainCode();
+            await uwu.InitializeAsync();
+            return uwu;
+        }
+
+        public MainCode() { }
+        private async Task InitializeAsync()
+        {
+            //things to do automagically
+
+            if (IsInDesignMode() == false)
+            {
+                // moved into separate function
+                await AutoRunWrapper();
+            }
+            else
+            {
+                //designtime baybeeee
+
+                //to stop strange A N G E R Y VS2019 error messages which don't actually matter
+                CBPFileListAll.Add("uwu");
+
+                //(turns out that didn't stop the messages  n w n
+            }
+        }*/
+
         public MainCode()
         {
             if (IsInDesignMode() == false)
