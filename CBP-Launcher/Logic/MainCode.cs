@@ -573,7 +573,7 @@ namespace CBPLauncher.Logic
                 if (Properties.Settings.Default.UpgradeRequired == true)
                 {
                     UpgradeSettings();
-                    MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher.");
+                    MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
                 }
             }
             catch (Exception ex)
@@ -2164,7 +2164,7 @@ namespace CBPLauncher.Logic
 
         private async Task AskDefaultCBP()
         {
-            if (Properties.Settings.Default.FirstTimeRun == true)//this is a different variable right now almost purely because of implementation timing
+            if (Properties.Settings.Default.FirstTimeRun == true)//this is a different variable (than some of the existing ones) right now almost purely because of implementation timing regarding bark/trireme etc
             {
                 string message = $"Do you want CBP to be loaded by default when CBP Launcher starts?"
                                + "\n\n(CBP can be manually loaded or unloaded freely regardless of this answer, and this setting can be changed later)";
@@ -2180,6 +2180,12 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.FirstTimeRun = false;
                     Properties.Settings.Default.DefaultCBP = false;
                     SaveSettings();
+
+                    // we want to ensure CBP files are "on hand" even if the person doesn't want to initially use CBP
+                    // (because I don't want to continously handle the edge case of someone who has no CBP files on hand when they're expected by code)
+                    // it's rather clunky and friction-y for first-time user, but it's functional
+                    await CheckForUpdates();
+                    await UnloadCBP();
                 }
             }
         }

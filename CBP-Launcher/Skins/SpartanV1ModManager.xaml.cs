@@ -220,14 +220,23 @@ namespace CBPLauncher.Skins
         private void Info0()
         {
             // in future I'd like this to be a small window/usercontrol that has a minimal number of settings/options too
-            string description = pluginList[0].PluginDescription;
-            string simpleHeader = "Functionality:";
+            string titleVersionAuthor = pluginList[0].PluginTitle + " " + pluginList[0].PluginVersion + " by " + pluginList[0].PluginAuthor;
+            string compat;
+            if (pluginList[0].CBPCompatible == true)
+                compat = "Yes";
+            else
+                compat = "No";
             string simple;
             if (pluginList[0].IsSimpleMod)
-                simple = "This plugin is a simple autoloader for specific mod files.";
+                simple = "Yes";
             else
-                simple = "This plugin has its own features beyond just loading and unloading specific mod files.";
-            MessageBox.Show(description + "\n\n" + simpleHeader + "\n" + simple);
+                simple = "No";
+            string compatSimple = "Compatible with CBP: " + compat + "\n" + "Simple mod loader: " + simple;
+            string description = pluginList[0].PluginDescription;
+
+            MessageBox.Show(titleVersionAuthor
+                            + "\n" + compatSimple
+                            + "\n\n" + description);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
