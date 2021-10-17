@@ -310,6 +310,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool optionalMaintain = Properties.Settings.Default.OptionalMaintain;
+        public bool OptionalMaintain
+        {
+            get => optionalMaintain;
+            set
+            {
+                optionalMaintain = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string launcherVersion = "CBP Launcher vX.Y.Z";
         public string LauncherVersion
         {
@@ -418,6 +429,7 @@ namespace CBPLauncher.Logic
         public RelayCommand DetectBullshitCommand { get; set; }
         public RelayCommand DetectBullshitNowCommand { get; set; }
         public RelayCommand ConfigOptionalCommand { get; set; }
+        public RelayCommand OptionalMaintainCommand { get; set; }
 
 
         public RelayCommand PlayButtonCommand { get; set; }
@@ -848,6 +860,11 @@ namespace CBPLauncher.Logic
                 WarnLocalModDataFiles();
                 BullshitButtonPress = true;
             });*/
+
+            OptionalMaintainCommand = new RelayCommand(o =>
+            {
+                OptionalMaintain_Inversion();
+            });
 
             ResetSettingsCommand = new RelayCommand(o =>
             {
@@ -1804,7 +1821,7 @@ namespace CBPLauncher.Logic
                             }
                         }
 
-                        await ReplaceRestoreDefaultLauncher();
+                        await ReplaceRestoreDefaultLauncher();//this seems super clunky
 
                         try
                         {
@@ -1814,6 +1831,18 @@ namespace CBPLauncher.Logic
                         catch (Exception ex)
                         {
                             MessageBox.Show($"Error generating lists / directly loading files: {ex}");
+                        }
+
+                        if (Properties.Settings.Default.OptionalMaintain)
+                        {
+                            try
+                            {
+                                await OptionalMaintainSelection();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Error maintaining optional changes: {ex}");
+                            }
                         }
 
                         try
@@ -2526,6 +2555,41 @@ namespace CBPLauncher.Logic
             OptReplacement = null;
         }
 
+        //quite high code redundancy, but I'm exhausted and this works and isn't that hard to read
+        private async Task OptionalMaintainSelection()
+        {
+            CheckCurrentPath();
+
+            if (Properties.Settings.Default.OptionalAsianHeli)
+            {
+                string currentHeli = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
+                string replacementHeli = Path.Combine(currentPathOpt, @"art/attackchopper_asian.tga");
+                File.Copy(replacementHeli, currentHeli, true);
+            }
+            if (Properties.Settings.Default.OptionalEmotes)
+            {
+                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
+                string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
+                File.Copy(replacementEmotes, currentEmotes, true);
+            }
+            if (Properties.Settings.Default.OptionalRadarJam)
+            {
+                string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
+                string replacementJam = Path.Combine(currentPathOpt, @"art/jamradar.tga");
+                File.Copy(replacementJam, currentJam, true);
+            }
+            if (Properties.Settings.Default.OptionalAsianSpy)
+            {
+                string currentSpyTex = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
+                string replacementSpyTex = Path.Combine(currentPathOpt, @"art/Spy_6_asian.tga");
+                File.Copy(replacementSpyTex, currentSpyTex, true);
+
+                string currentSpyModel = Path.Combine(currentPathCBP, @"art/Spy_6_asian.BH3");
+                string replacementSpyModel = Path.Combine(currentPathOpt, @"art/Spy_6_asian.BH3");
+                File.Copy(replacementSpyModel, currentSpyModel, true);
+            }
+        }
+
         private void ResetSettings()
         {
             Properties.Settings.Default.Reset();
@@ -2566,6 +2630,12 @@ namespace CBPLauncher.Logic
         private void DetectBullshit_Inversion()
         {
             Properties.Settings.Default.DetectBullshit = !Properties.Settings.Default.DetectBullshit;
+            SaveSettings();
+        }
+
+        private void OptionalMaintain_Inversion()
+        {
+            Properties.Settings.Default.OptionalMaintain = !Properties.Settings.Default.OptionalMaintain;
             SaveSettings();
         }
 

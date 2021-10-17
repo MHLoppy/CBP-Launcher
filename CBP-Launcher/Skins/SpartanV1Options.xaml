@@ -29,9 +29,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="200"/>
-                    <RowDefinition Height="180"/>
-                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="220"/>
+                    <RowDefinition Height="160"/>
+                    <RowDefinition Height="60"/>
                 </Grid.RowDefinitions>
 
                 <!-- CBP Options -->
@@ -44,13 +44,15 @@
                     <CheckBox Content="Use primary data files" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,98,0,0" FontSize="14" Padding="4,-2,0,0" ToolTip="These files are REQUIRED by CBP." IsChecked="{Binding UsePrimaryFilesCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UsePrimaryFilesCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" IsEnabled="False"/>
                     <CheckBox Content="Use secondary data files" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,118,0,0" FontSize="14" Padding="4,-2,0,0" ToolTip="These are data files that involve cosmetic changes and tooltip updates. There may be cosmetic errors if these are not loaded, but both gameplay and multiplayer sync are unaffected by these files." IsChecked="{Binding UseSecondaryFilesCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseSecondaryFilesCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
 
-                    <Button Width="190" Height="25" Command="{Binding ConfigOptionalCommand}" Content="Configure Optional Changes" Margin="12,148,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#151515" Background="#DCDCDC" FontSize="14" BorderBrush="#C3C3C3">
+                    <Button Width="190" Height="25" Command="{Binding ConfigOptionalCommand}" Content="Configure Optional Changes" Margin="12,150,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#151515" Background="#DCDCDC" FontSize="14" BorderBrush="#C3C3C3">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="3"/>
                             </Style>
                         </Button.Resources>
                     </Button>
+                    <CheckBox Content="Keep my optional changes configuration every update" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,180,0,0" FontSize="14" Padding="4,-2,0,0" IsChecked="{Binding OptionalMaintain, UpdateSourceTrigger=PropertyChanged}" Command="{Binding OptionalMaintainCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
+                    
                 </Grid>
 
                 <!-- Launcher Options -->

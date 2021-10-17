@@ -333,5 +333,17 @@ namespace CBPLauncher.Properties {
                 this["OptionalAsianSpy"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OptionalMaintain {
+            get {
+                return ((bool)(this["OptionalMaintain"]));
+            }
+            set {
+                this["OptionalMaintain"] = value;
+            }
+        }
     }
 }
