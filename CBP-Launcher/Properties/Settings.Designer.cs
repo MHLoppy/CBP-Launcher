@@ -285,5 +285,53 @@ namespace CBPLauncher.Properties {
                 this["ArtFilesCopied"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OptionalAsianHeli {
+            get {
+                return ((bool)(this["OptionalAsianHeli"]));
+            }
+            set {
+                this["OptionalAsianHeli"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OptionalEmotes {
+            get {
+                return ((bool)(this["OptionalEmotes"]));
+            }
+            set {
+                this["OptionalEmotes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OptionalRadarJam {
+            get {
+                return ((bool)(this["OptionalRadarJam"]));
+            }
+            set {
+                this["OptionalRadarJam"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OptionalAsianSpy {
+            get {
+                return ((bool)(this["OptionalAsianSpy"]));
+            }
+            set {
+                this["OptionalAsianSpy"] = value;
+            }
+        }
     }
 }

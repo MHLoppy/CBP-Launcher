@@ -139,7 +139,7 @@ namespace CBPLauncher.Skins
             {
                 Paragraph paragraph = new Paragraph();
                 myFlowDocument.Blocks.Add(paragraph);
-                Run normaltext1 = new Run("Unable to load patch notes file.");
+                Run normaltext1 = new Run("Unable to load patch notes file (maybe CBP isn't loaded).");
                 paragraph.Inlines.Add(normaltext1);
 
                 myFlowDocument.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");

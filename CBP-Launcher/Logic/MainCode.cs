@@ -85,9 +85,10 @@ namespace CBPLauncher.Logic
         private string primaryDataCBP;
         private string secondaryDataCBP;
         private string primaryNonDataCBP;
-        private string secondarynonDataCBP;
+        private string secondaryNonDataCBP;
         private string currentPathCBP = "";
         private string currentPathOpt = "";
+        private int optCounter = 0;
 
         //private string patchNotesCBP; //moved out to its own VM instead
 
@@ -1180,7 +1181,7 @@ namespace CBPLauncher.Logic
             primaryDataCBP = Path.Combine(localPathCBP, "PrimaryData");
             secondaryDataCBP = Path.Combine(localPathCBP, "SecondaryData");
             primaryNonDataCBP = Path.Combine(localPathCBP, "PrimaryNonData");
-            secondarynonDataCBP = Path.Combine(localPathCBP, "SecondaryNonData");
+            secondaryNonDataCBP = Path.Combine(localPathCBP, "SecondaryNonData");
         }
 
         private async Task CheckForUpdates()
@@ -2164,8 +2165,6 @@ namespace CBPLauncher.Logic
         }
 
         // section for the optional changes configuration
-        private int optCounter = 0;
-
         private async Task ConfigureOptionalChanges()//the UI button is wired to this function; counter: 0
             //might need to disable the load/unload buttons while this is active? uncommon edge case but it's possible someone will press it
         {
