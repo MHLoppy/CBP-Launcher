@@ -235,6 +235,9 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="TgaLib, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TgaLib.1.0.2\lib\net472\TgaLib.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -287,6 +290,9 @@
     </Compile>
     <Compile Include="Skins\ClassicPlusOptions.xaml.cs">
       <DependentUpon>ClassicPlusOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\OptionalChangeWindow.xaml.cs">
+      <DependentUpon>OptionalChangeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Skins\SpartanV1.xaml.cs">
       <DependentUpon>SpartanV1.xaml</DependentUpon>
@@ -363,6 +369,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Skins\ClassicPlusOptions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\OptionalChangeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

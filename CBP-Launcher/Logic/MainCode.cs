@@ -11,10 +11,12 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CBPLauncher.Core;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
+using TgaLib;
 using static CBPLauncher.Logic.BasicIO;
 
 namespace CBPLauncher.Logic
@@ -84,7 +86,9 @@ namespace CBPLauncher.Logic
         private string secondaryDataCBP;
         private string primaryNonDataCBP;
         private string secondarynonDataCBP;
-        
+        private string currentPathCBP = "";
+        private string currentPathOpt = "";
+
         //private string patchNotesCBP; //moved out to its own VM instead
 
         /// ===== END OF MOD LIST =====
@@ -146,6 +150,19 @@ namespace CBPLauncher.Logic
                 OnPropertyChanged();
             }
         }
+
+        // this can be used to lock out the load/unload buttons when doing I/O (e.g. optional changes)
+        // but for now I've decided to just check for it in the I/O function (partly because it's easier to do a routed event than a command for exiting on the button's press)
+        /*private bool loadUnloadAllowed = true;
+        public bool LoadUnloadAllowed
+        {
+            get => loadUnloadAllowed;
+            set
+            {
+                loadUnloadAllowed = value;
+                OnPropertyChanged();
+            }
+        }*/
 
         private bool logoRoNEE = true;
         public bool LogoRoNEE
@@ -299,9 +316,88 @@ namespace CBPLauncher.Logic
             set
             {
                 launcherVersion = value;
-                OnPropertyChanged();//this may not be needed, not sure
+                OnPropertyChanged();//this may not be needed here, not sure
             }
         }
+
+
+        private string optTitle = "Checking title...";
+        public string OptTitle
+        {
+            get => optTitle;
+            set
+            {
+                optTitle = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string optDescription = "Checking description...";
+        public string OptDescription
+        {
+            get => optDescription;
+            set
+            {
+                optDescription = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string optCompatibility = "Checking compatibility";
+        public string OptCompatibility
+        {
+            get => optCompatibility;
+            set
+            {
+                optCompatibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ImageSource optPreview;
+        public ImageSource OptPreview
+        {
+            get => optPreview;
+            set
+            {
+                optPreview = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ImageSource optCurrent;
+        public ImageSource OptCurrent
+        {
+            get => optCurrent;
+            set
+            {
+                optCurrent = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ImageSource optOriginal;
+        public ImageSource OptOriginal
+        {
+            get => optOriginal;
+            set
+            {
+                optOriginal = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ImageSource optReplacement;
+        public ImageSource OptReplacement
+        {
+            get => optReplacement;
+            set
+            {
+                optReplacement = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public ObservableCollection<string> Uwu = new ObservableCollection<string>
         {
@@ -320,7 +416,8 @@ namespace CBPLauncher.Logic
         public RelayCommand UseSecondaryFilesCommand { get; set; }
         public RelayCommand DetectBullshitCommand { get; set; }
         public RelayCommand DetectBullshitNowCommand { get; set; }
-        
+        public RelayCommand ConfigOptionalCommand { get; set; }
+
 
         public RelayCommand PlayButtonCommand { get; set; }
         public RelayCommand LoadCBPCommand { get; set; }
@@ -345,6 +442,12 @@ namespace CBPLauncher.Logic
         public RelayCommand CPTabModManagerCommand { get; set; }
         public RelayCommand CPTabOptionsCommand { get; set; }
         public RelayCommand CPTabLogCommand { get; set; }
+
+
+        public RelayCommand OptionalCurrentCommand { get; set; }
+        public RelayCommand OptionalDefaultCommand { get; set; }
+        public RelayCommand OptionalReplacementCommand { get; set; }
+
 
         public RelayCommand MinimiseCommand { get; set; }
         public RelayCommand ExitCommand { get; set; }
@@ -910,6 +1013,26 @@ namespace CBPLauncher.Logic
             CPTabLogCommand = new RelayCommand(o =>
             {
                 CurrentTab = ClassicPlusLog;
+            });
+
+            ConfigOptionalCommand = new RelayCommand(async o =>
+            {
+                await ConfigureOptionalChanges();
+            });
+
+            OptionalCurrentCommand = new RelayCommand(async o =>
+            {
+                await OptionalChangeUseExisting();
+            });
+
+            OptionalDefaultCommand = new RelayCommand(async o =>
+            {
+                await OptionalChangeUseDefault();
+            });
+
+            OptionalReplacementCommand = new RelayCommand(async o =>
+            {
+                await OptionalChangeUseReplacement();
             });
         }
 
@@ -2038,6 +2161,370 @@ namespace CBPLauncher.Logic
                 await Delay(1);//without this it seems like it doesn't work lol
                 CurrentTab = tab;
             }
+        }
+
+        // section for the optional changes configuration
+        private int optCounter = 0;
+
+        private async Task ConfigureOptionalChanges()//the UI button is wired to this function; counter: 0
+            //might need to disable the load/unload buttons while this is active? uncommon edge case but it's possible someone will press it
+        {
+            CheckCurrentPath();
+
+            await OptionalAsianHeli();
+            new Skins.OptionalChangeWindow().Show();
+        }
+
+        private void CheckCurrentPath()
+        {
+            if (Properties.Settings.Default.CBPLoaded)
+            {
+                currentPathCBP = localPathCBP;
+                currentPathOpt = Path.Combine(localPathCBP, "Optional changes");
+            }
+            else
+            {
+                currentPathCBP = Path.Combine(unloadedModsPath, "Community Balance Patch");
+                currentPathOpt = Path.Combine(unloadedModsPath, "Community Balance Patch", "Optional changes");
+            }
+        }
+
+        private async Task<BitmapSource> GetTGA(string filepath)
+        {
+            if (File.Exists(filepath))
+            {
+                using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (BinaryReader reader = new BinaryReader(fs))
+                {
+                    TgaImage tga = new TgaImage(reader);
+                    return tga.GetBitmap();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Unable to find image: " + filepath);
+                return null;
+            }
+        }
+
+        private async Task OptionalChangeUseExisting()
+        {
+            // no file IO required, but still need to prepare next the configuration for the next optional change
+            // since no external function (doing file I/O) is run that will increment the counter, it needs to be incremented here instead for this option
+            if (optCounter == 0)
+            {
+                Console.WriteLine("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
+            }
+            if (optCounter == 1) //asian heli
+            {
+                optCounter++;
+                await OptionalEmotes();
+                return;
+            }
+            if (optCounter == 2) //modern emotes
+            {
+                optCounter++;
+                await OptionalJamRadar();
+                return;
+            }
+            if (optCounter == 3) //radar jam
+            {
+                optCounter++;
+                await OptionalAsianSpy();
+                return;
+            }
+            if (optCounter == 4) //asian spy
+            {
+                optCounter = 0;
+                await OptionalCompleted();
+                return;
+            }
+        }
+
+        private async Task OptionalChangeUseDefault()// called by relaycommand?
+        {
+            CheckCurrentPath();
+
+            // quick research suggests switch is not higher performance at low counts (5~10ish)
+            if (optCounter == 0)
+            {
+                Console.WriteLine("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
+            }
+            if (optCounter == 1) //asian heli
+            {
+                // overwrite the current asian heli texture with default texture
+                string currentHeli = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
+                string defaultHeli = Path.Combine(currentPathOpt, @"art/Original/attackchopper_asian.tga");
+                File.Copy(defaultHeli, currentHeli, true);
+
+                // prepare modern emotes
+                optCounter++;
+                await OptionalEmotes();
+                return;
+            }
+            if (optCounter == 2) //modern emotes
+            {
+                // overwrite the current emotes texture with default texture
+                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
+                string defaultEmotes = Path.Combine(currentPathOpt, @"art/Original/iface_resources2.tga");
+                File.Copy(defaultEmotes, currentEmotes, true);
+
+                // prepare radar jam
+                optCounter++;
+                await OptionalJamRadar();
+                return;
+            }
+            if (optCounter == 3) //radar jam
+            {
+                // overwrite the current radar jam texture with default texture
+                string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
+                string defaultJam = Path.Combine(currentPathOpt, @"art/Original/jamradar.tga");
+                File.Copy(defaultJam, currentJam, true);
+
+                // prepare asian spy
+                optCounter++;
+                await OptionalAsianSpy();
+                return;
+            }
+            if (optCounter == 4) //asian spy
+            {
+                // overwrite the current modern asian spy model AND texture with default of each
+                string currentSpyTex = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
+                string defaultSpyTex = Path.Combine(currentPathOpt, @"art/Original/Spy_6_asian.tga");
+                File.Copy(defaultSpyTex, currentSpyTex, true);
+
+                string currentSpyModel = Path.Combine(currentPathCBP, @"art/Spy_6_asian.BH3");
+                string defaultSpyModel = Path.Combine(currentPathOpt, @"art/Original/Spy_6_asian.BH3");
+                File.Copy(defaultSpyModel, currentSpyModel, true);
+
+                //the last optional change to configure should reset the counter to guarantee no persistence issues
+                //because of how I set things up (simpler), it also can't easily close the window lol
+                optCounter = 0;
+                await OptionalCompleted();
+                return;
+            }
+        }
+
+        private async Task OptionalChangeUseReplacement()// called by relaycommand?
+        {
+            CheckCurrentPath();
+
+            // quick research suggests switch is not higher performance at low counts (5~10ish)
+            if (optCounter == 0)
+            {
+                Console.WriteLine("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
+            }
+            if (optCounter == 1) //asian heli
+            {
+                // overwrite the current asian heli texture with default texture
+                string currentHeli = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
+                string replacementHeli = Path.Combine(currentPathOpt, @"art/attackchopper_asian.tga");
+                File.Copy(replacementHeli, currentHeli, true);
+
+                // prepare modern emotes
+                optCounter++;
+                await OptionalEmotes();
+                return;
+            }
+            if (optCounter == 2) //modern emotes
+            {
+                // overwrite the current emotes texture with default texture
+                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
+                string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
+                File.Copy(replacementEmotes, currentEmotes, true);
+
+                // prepare radar jam
+                optCounter++;
+                await OptionalJamRadar();
+                return;
+            }
+            if (optCounter == 3) //radar jam
+            {
+                // overwrite the current radar jam texture with default texture
+                string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
+                string replacementJam = Path.Combine(currentPathOpt, @"art/jamradar.tga");
+                File.Copy(replacementJam, currentJam, true);
+
+                // prepare asian spy
+                optCounter++;
+                await OptionalAsianSpy();
+                return;
+            }
+            if (optCounter == 4) //asian spy
+            {
+                // overwrite the current modern asian spy model AND texture with default of each
+                string currentSpyTex = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
+                string replacementSpyTex = Path.Combine(currentPathOpt, @"art/Spy_6_asian.tga");
+                File.Copy(replacementSpyTex, currentSpyTex, true);
+
+                string currentSpyModel = Path.Combine(currentPathCBP, @"art/Spy_6_asian.BH3");
+                string replacementSpyModel = Path.Combine(currentPathOpt, @"art/Spy_6_asian.BH3");
+                File.Copy(replacementSpyModel, currentSpyModel, true);
+
+                //the last optional change to configure should reset the counter to guarantee no persistence issues
+                //because of how I set things up (simpler), it also can't easily close the window lol
+                optCounter = 0;
+                await OptionalCompleted();
+                return;
+            }
+        }
+
+        private async Task OptionalAsianHeli()//counter: 1
+        {
+            CheckCurrentPath();
+
+            // title, description, compatibility (optional changes are currently all compatible)
+            OptTitle = "Asian Attack Helicopter (texture)";
+            OptDescription = "In the original 2003 RoN release, Asian Attack Helicopters used a black texture. In T+P, this graphics entry was replaced with a new skin for a Russian version of the unit, "
+                + "so East-Asian nations ended up using the default unit skin. The game supports having both the Russian and Asian unit skins at the same time, so it's unclear why the Asian skin was removed. "
+                + "This change restores the removed unit skin for Asian nations. Other nations are not affected.";
+            OptCompatibility = "This change is fully multiplayer-compatible.";
+            
+            // preview image (PNG/JPG)
+            string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change asian attack helicopter preview small.png");
+            if (File.Exists(previewPath))
+            {
+                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+            }
+            else
+                Console.WriteLine("Unable to find preview image.");
+            {
+                // existing image (TGA)
+                string currentPath = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
+                OptCurrent = await GetTGA(currentPath);
+
+                // default image (TGA)
+                string originalPath = Path.Combine(currentPathOpt, @"art/Original/attackchopper_asian.tga");
+                OptOriginal = await GetTGA(originalPath);
+
+                // replacement image (TGA)
+                string replacementPath = Path.Combine(currentPathOpt, @"art/attackchopper_asian.tga");
+                OptReplacement = await GetTGA(replacementPath);
+            }
+
+            optCounter++;
+        }
+
+        private async Task OptionalEmotes()//counter: 2
+        {
+            CheckCurrentPath();
+
+            // title, description, compatibility (optional changes are currently all compatible)
+            OptTitle = "Modernised Emotes (texture)";
+            OptDescription = "In the original 2003 RoN release, a number of emotes/emoticons are available. These were removed in T+P for unknown reasons, but are restored by default in CBP. "
+                + "This change replaces those original emotes/emoticons with more modern equivalents from the Twitter emoji set.";
+            OptCompatibility = "This change is fully multiplayer-compatible.";
+
+            // preview image (PNG/JPG)
+            string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change emotes classic vs modern preview.png");
+            if (File.Exists(previewPath))
+            {
+                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+            }
+            else
+                Console.WriteLine("Unable to find preview image.");
+            {
+                // existing image (TGA)
+                string currentPath = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
+                OptCurrent = await GetTGA(currentPath);
+
+                // default image (TGA)
+                string originalPath = Path.Combine(currentPathOpt, @"art/Original/iface_resources2.tga");
+                OptOriginal = await GetTGA(originalPath);
+
+                // replacement image (TGA)
+                string replacementPath = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
+                OptReplacement = await GetTGA(replacementPath);
+            }
+        }
+
+        private async Task OptionalJamRadar()//counter: 3
+        {
+            CheckCurrentPath();
+
+            // title, description, compatibility (optional changes are currently all compatible)
+            OptTitle = "Reduce Visual Intensity of Radar Jamming Effect (texture)";
+            OptDescription = "Despite the radar jamming effect using identical textures in both EE and non-EE versions of RoN, there seems to be a graphics bug (I think it's a bug with EE's shaders) "
+                + "which causes some effects such as radar jamming and nuke detonations to be pure white and substantially more prominent than originally intended. "
+                + "This change modifies the jamming texture to somewhat reduce (but not remove) its intensity because of this bug.";
+            OptCompatibility = "This change is fully multiplayer-compatible.";
+
+            // preview image (PNG/JPG)
+            string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change radar jam preview.png");
+            if (File.Exists(previewPath))
+            {
+                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+            }
+            else
+                Console.WriteLine("Unable to find preview image.");
+            {
+                // existing image (TGA)
+                string currentPath = Path.Combine(currentPathCBP, @"art/jamradar.tga");
+                OptCurrent = await GetTGA(currentPath);
+
+                // default image (TGA)
+                string originalPath = Path.Combine(currentPathOpt, @"art/Original/jamradar.tga");
+                OptOriginal = await GetTGA(originalPath);
+
+                // replacement image (TGA)
+                string replacementPath = Path.Combine(currentPathOpt, @"art/jamradar.tga");
+                OptReplacement = await GetTGA(replacementPath);
+            }
+        }
+
+        private async Task OptionalAsianSpy()//counter: 4
+        {
+            CheckCurrentPath();
+
+            // title, description, compatibility (optional changes are currently all compatible)
+            OptTitle = "Modern Asian Spy (model + texture)";
+            OptDescription = "In the original 2003 RoN release, the spies from all nations gain a new look in the later ages. In T+P this was removed for the modern Asian Spy. "
+                + "That original texture has significant visibility issues, particularly in snowy terrain, and so this may have been intentionally removed for gameplay reasons. "
+                + "The original (removed) texture has been enhanced with lots of contrast and visbility so that Asian nations can have their own modern Spy again (if you want it!)."
+                + "\n(in the preview, the Spy on the left has the new texture and the Spy on the right is using the early-game texture)";
+            OptCompatibility = "This change is fully multiplayer-compatible.";
+
+            // preview image (PNG/JPG)
+            string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change modern asian spy preview.png");
+            if (File.Exists(previewPath))
+            {
+                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+            }
+            else
+                Console.WriteLine("Unable to find preview image.");
+            {
+                // existing image (TGA)
+                string currentPath = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
+                OptCurrent = await GetTGA(currentPath);
+
+                // default image (TGA)
+                string originalPath = Path.Combine(currentPathOpt, @"art/Original/Spy_6_asian.tga");
+                OptOriginal = await GetTGA(originalPath);
+
+                // replacement image (TGA)
+                string replacementPath = Path.Combine(currentPathOpt, @"art/Spy_6_asian.tga");
+                OptReplacement = await GetTGA(replacementPath);
+            }
+        }
+
+        private async Task OptionalCompleted()
+        {
+            OptTitle = "All optional changes configured!";
+            OptDescription = "";
+            OptCompatibility = "";
+
+            // preview image (PNG/JPG)
+            string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN victory 01.png");
+            if (File.Exists(previewPath))
+            {
+                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+            }
+            else
+                Console.WriteLine("Unable to find preview image.");
+
+            OptCurrent = null;
+            OptOriginal = null;
+            OptReplacement = null;
         }
 
         private void ResetSettings()
