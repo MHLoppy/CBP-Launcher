@@ -868,7 +868,14 @@ namespace CBPLauncher.Logic
 
             ResetSettingsCommand = new RelayCommand(o =>
             {
-                ResetSettings();
+                if (MessageBox.Show("Are you sure you want to reset all settings?", "Confirm settings reset", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    ResetSettings();
+                }
+                else
+                {
+                    MessageBox.Show("No action has been taken.");
+                }
             });
 
             PlayButtonCommand = new RelayCommand(async o =>
