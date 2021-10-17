@@ -2544,7 +2544,7 @@ namespace CBPLauncher.Logic
 
         private async Task OptionalCompleted()
         {
-            OptTitle = "All optional changes configured!";
+            OptTitle = "All Optional Changes Configured!";
             OptDescription = "";
             OptCompatibility = "";
 
