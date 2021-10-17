@@ -2513,10 +2513,10 @@ namespace CBPLauncher.Logic
 
             // title, description, compatibility (optional changes are currently all compatible)
             OptTitle = "Modern Asian Spy (model + texture)";
-            OptDescription = "In the original 2003 RoN release, the spies from all nations gain a new look in the later ages. In T+P this was removed for the modern Asian Spy. "
+            OptDescription = "In the original 2003 RoN release, all Spies gain a new look in the later ages. In T+P this was removed for the modern Asian Spy. "
                 + "That original texture has significant visibility issues, particularly in snowy terrain, and so this may have been intentionally removed for gameplay reasons. "
                 + "The original (removed) texture has been enhanced with lots of contrast and visbility so that Asian nations can have their own modern Spy again (if you want it!)."
-                + "\n(in the preview, the Spy on the left has the new texture and the Spy on the right is using the early-game texture)";
+                + "\n(preview: left is new texture, right is early-game texture)";
             OptCompatibility = "This change is fully multiplayer-compatible.";
 
             // preview image (PNG/JPG)
