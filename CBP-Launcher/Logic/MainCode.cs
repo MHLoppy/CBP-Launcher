@@ -2292,6 +2292,9 @@ namespace CBPLauncher.Logic
                 string defaultHeli = Path.Combine(currentPathOpt, @"art/Original/attackchopper_asian.tga");
                 File.Copy(defaultHeli, currentHeli, true);
 
+                Properties.Settings.Default.OptionalAsianHeli = false;
+                SaveSettings();
+
                 // prepare modern emotes
                 optCounter++;
                 await OptionalEmotes();
@@ -2304,6 +2307,9 @@ namespace CBPLauncher.Logic
                 string defaultEmotes = Path.Combine(currentPathOpt, @"art/Original/iface_resources2.tga");
                 File.Copy(defaultEmotes, currentEmotes, true);
 
+                Properties.Settings.Default.OptionalEmotes = false;
+                SaveSettings();
+
                 // prepare radar jam
                 optCounter++;
                 await OptionalJamRadar();
@@ -2315,6 +2321,9 @@ namespace CBPLauncher.Logic
                 string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
                 string defaultJam = Path.Combine(currentPathOpt, @"art/Original/jamradar.tga");
                 File.Copy(defaultJam, currentJam, true);
+
+                Properties.Settings.Default.OptionalRadarJam = false;
+                SaveSettings();
 
                 // prepare asian spy
                 optCounter++;
@@ -2331,6 +2340,9 @@ namespace CBPLauncher.Logic
                 string currentSpyModel = Path.Combine(currentPathCBP, @"art/Spy_6_asian.BH3");
                 string defaultSpyModel = Path.Combine(currentPathOpt, @"art/Original/Spy_6_asian.BH3");
                 File.Copy(defaultSpyModel, currentSpyModel, true);
+
+                Properties.Settings.Default.OptionalAsianSpy = false;
+                SaveSettings();
 
                 //the last optional change to configure should reset the counter to guarantee no persistence issues
                 //because of how I set things up (simpler), it also can't easily close the window lol
@@ -2356,6 +2368,9 @@ namespace CBPLauncher.Logic
                 string replacementHeli = Path.Combine(currentPathOpt, @"art/attackchopper_asian.tga");
                 File.Copy(replacementHeli, currentHeli, true);
 
+                Properties.Settings.Default.OptionalAsianHeli = true;
+                SaveSettings();
+
                 // prepare modern emotes
                 optCounter++;
                 await OptionalEmotes();
@@ -2368,6 +2383,9 @@ namespace CBPLauncher.Logic
                 string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
                 File.Copy(replacementEmotes, currentEmotes, true);
 
+                Properties.Settings.Default.OptionalEmotes = true;
+                SaveSettings();
+
                 // prepare radar jam
                 optCounter++;
                 await OptionalJamRadar();
@@ -2379,6 +2397,9 @@ namespace CBPLauncher.Logic
                 string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
                 string replacementJam = Path.Combine(currentPathOpt, @"art/jamradar.tga");
                 File.Copy(replacementJam, currentJam, true);
+
+                Properties.Settings.Default.OptionalRadarJam = true;
+                SaveSettings();
 
                 // prepare asian spy
                 optCounter++;
@@ -2395,6 +2416,9 @@ namespace CBPLauncher.Logic
                 string currentSpyModel = Path.Combine(currentPathCBP, @"art/Spy_6_asian.BH3");
                 string replacementSpyModel = Path.Combine(currentPathOpt, @"art/Spy_6_asian.BH3");
                 File.Copy(replacementSpyModel, currentSpyModel, true);
+
+                Properties.Settings.Default.OptionalAsianSpy = true;
+                SaveSettings();
 
                 //the last optional change to configure should reset the counter to guarantee no persistence issues
                 //because of how I set things up (simpler), it also can't easily close the window lol
