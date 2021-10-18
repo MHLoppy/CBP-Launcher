@@ -2239,7 +2239,7 @@ namespace CBPLauncher.Logic
         {
             if (File.Exists(filepath))
             {
-                using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (FileStream fs = new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (BinaryReader reader = new BinaryReader(fs))
                 {
                     TgaImage tga = new TgaImage(reader);
@@ -2454,7 +2454,8 @@ namespace CBPLauncher.Logic
             string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change asian attack helicopter preview small.png");
             if (File.Exists(previewPath))
             {
-                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                //OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                await PreparePreview(previewPath);
             }
             else
                 Console.WriteLine("Unable to find preview image.");
@@ -2489,7 +2490,8 @@ namespace CBPLauncher.Logic
             string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change emotes classic vs modern preview.png");
             if (File.Exists(previewPath))
             {
-                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                //OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                await PreparePreview(previewPath);
             }
             else
                 Console.WriteLine("Unable to find preview image.");
@@ -2523,7 +2525,8 @@ namespace CBPLauncher.Logic
             string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change radar jam preview.png");
             if (File.Exists(previewPath))
             {
-                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                //OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                await PreparePreview(previewPath);
             }
             else
                 Console.WriteLine("Unable to find preview image.");
@@ -2558,7 +2561,8 @@ namespace CBPLauncher.Logic
             string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change modern asian spy preview.png");
             if (File.Exists(previewPath))
             {
-                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                //OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                await PreparePreview(previewPath);
             }
             else
                 Console.WriteLine("Unable to find preview image.");
@@ -2579,15 +2583,18 @@ namespace CBPLauncher.Logic
 
         private async Task OptionalCompleted()
         {
+            CheckCurrentPath();
+
             OptTitle = "All Optional Changes Configured!";
-            OptDescription = "";
+            OptDescription = "The changes are immediate, but it's recommende";
             OptCompatibility = "";
 
             // preview image (PNG/JPG)
             string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN victory 01.png");
             if (File.Exists(previewPath))
             {
-                OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                //OptPreview = new BitmapImage(new Uri(previewPath, UriKind.RelativeOrAbsolute));
+                await PreparePreview(previewPath);
             }
             else
                 Console.WriteLine("Unable to find preview image.");
@@ -2595,6 +2602,19 @@ namespace CBPLauncher.Logic
             OptCurrent = null;
             OptOriginal = null;
             OptReplacement = null;
+        }
+
+        private async Task PreparePreview(string previewPath)
+        {
+            // doing it this way instead prevents a file lock (from the preview image of all things lol)
+            // I'm sure there are other ways to accomplish this such as just sourcing the image differently, but this works fine too
+            BitmapImage bmi = new BitmapImage();
+            bmi.BeginInit();
+            bmi.CacheOption = BitmapCacheOption.OnLoad;
+            bmi.UriSource = new Uri(previewPath, UriKind.RelativeOrAbsolute);
+            bmi.EndInit();
+
+            OptPreview = bmi;
         }
 
         //quite high code redundancy, but I'm exhausted and this works and isn't that hard to read
