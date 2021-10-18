@@ -3005,17 +3005,15 @@ namespace CBPLauncher.Logic
 
                 if (versionExists == false)
                 {
-                    //get hte 
-                    Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch"));
-
-                    Version archiveVersion = new Version(File.ReadAllText(Path.Combine(archiveCBP, "Community Balance Patch", "version.txt")));
+                    //get the version BEFORE moving it so that we can rename it on the move action, rather than two separate actions (so that if it errors partway through, we don't get stuck with a no-ID archived CBP folder)
+                    Version archiveVersion = new Version(File.ReadAllText(Path.Combine(versionFileCBPLocal)));
 
                     string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
                                              + VersionArray.versionMiddle[archiveVersion.minor]
                                              + VersionArray.versionEnd[archiveVersion.subMinor]
                                              + VersionArray.versionHotfix[archiveVersion.hotfix];
 
-                    Directory.Move(Path.Combine(archiveCBP, "Community Balance Patch"), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
+                    Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
                     MessageBox.Show(archiveVersionNew + " has been archived.");
                 }
                 else
