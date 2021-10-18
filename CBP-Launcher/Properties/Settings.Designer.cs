@@ -345,5 +345,17 @@ namespace CBPLauncher.Properties {
                 this["OptionalMaintain"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AddIconGameName {
+            get {
+                return ((bool)(this["AddIconGameName"]));
+            }
+            set {
+                this["AddIconGameName"] = value;
+            }
+        }
     }
 }

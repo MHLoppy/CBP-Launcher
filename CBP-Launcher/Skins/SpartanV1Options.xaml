@@ -51,7 +51,7 @@
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <CheckBox Content="Keep my optional changes configuration every update" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,180,0,0" FontSize="14" Padding="4,-2,0,0" IsChecked="{Binding OptionalMaintain, UpdateSourceTrigger=PropertyChanged}" Command="{Binding OptionalMaintainCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
+                    <CheckBox Content="Keep my optional changes configuration every update" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,180,0,0" FontSize="14" Padding="4,-2,0,0" IsChecked="{Binding OptionalMaintainCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding OptionalMaintainCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
                     
                 </Grid>
 

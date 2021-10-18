@@ -310,13 +310,24 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private bool optionalMaintain = Properties.Settings.Default.OptionalMaintain;
-        public bool OptionalMaintain
+        private bool optionalMaintainCheckbox = Properties.Settings.Default.OptionalMaintain;
+        public bool OptionalMaintainCheckbox
         {
-            get => optionalMaintain;
+            get => optionalMaintainCheckbox;
             set
             {
-                optionalMaintain = value;
+                optionalMaintainCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool addIconGameNameCheckbox = Properties.Settings.Default.AddIconGameName;
+        public bool AddIconGameNameCheckbox
+        {
+            get => addIconGameNameCheckbox;
+            set
+            {
+                addIconGameNameCheckbox = value;
                 OnPropertyChanged();
             }
         }
