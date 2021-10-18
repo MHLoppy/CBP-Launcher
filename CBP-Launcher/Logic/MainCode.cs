@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Xml;
 using CBPLauncher.Core;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
@@ -441,6 +442,7 @@ namespace CBPLauncher.Logic
         public RelayCommand DetectBullshitNowCommand { get; set; }
         public RelayCommand ConfigOptionalCommand { get; set; }
         public RelayCommand OptionalMaintainCommand { get; set; }
+        public RelayCommand AddIconGameNameCommand { get; set; }
 
 
         public RelayCommand PlayButtonCommand { get; set; }
@@ -877,6 +879,16 @@ namespace CBPLauncher.Logic
                 OptionalMaintain_Inversion();
             });
 
+            AddIconGameNameCommand = new RelayCommand(async o =>
+            {
+                AddIconGameName_Inversion();
+
+                if (Properties.Settings.Default.AddIconGameName)
+                    await AddIconGameName();
+                else
+                    await RemoveIconGameName();
+            });
+
             ResetSettingsCommand = new RelayCommand(o =>
             {
                 if (MessageBox.Show("Are you sure you want to reset all settings?", "Confirm settings reset", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
@@ -1259,6 +1271,8 @@ namespace CBPLauncher.Logic
                         {
                             await GenerateLists();
                             await LoadDirectFiles();
+                            if (Properties.Settings.Default.AddIconGameName)
+                                await AddIconGameName();
                             
                             Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
                             Properties.Settings.Default.CBPLoaded = true;
@@ -1845,6 +1859,9 @@ namespace CBPLauncher.Logic
                         {
                             await GenerateLists();
                             await LoadDirectFiles();
+
+                            if (Properties.Settings.Default.AddIconGameName)
+                                await AddIconGameName();
                         }
                         catch (Exception ex)
                         {
@@ -2033,6 +2050,7 @@ namespace CBPLauncher.Logic
                         try
                         {
                             await UnloadDirectFiles();
+                            await RemoveIconGameName();
                         }
                         catch (Exception ex)
                         {
@@ -2209,6 +2227,135 @@ namespace CBPLauncher.Logic
                 await Delay(1);//without this it seems like it doesn't work lol
                 CurrentTab = tab;
             }
+        }
+
+        // section for the #ICON169 (CBP icon) XML editing
+        private string appDataRoN;
+        private string playerProfileFolder;
+        private string currentUserXml;
+        private string playerProfile;
+        private string gameName;
+
+        // add the icon to game names (function is called when CBP is loaded)
+        private async Task AddIconGameName()
+        {
+            try
+            {
+                if (CheckForFile())
+                {
+                    Console.WriteLine("Found file: " + currentUserXml);
+                    FindProfile();
+                    ReadGameName();
+                    await AddCBPXml();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error adding CBP icon to game name" + ex);
+            }
+        }
+
+        // remove the icon from game names (function is called when CBP is unloaded)
+        private async Task RemoveIconGameName()
+        {
+            try
+            {
+                if (CheckForFile())
+                {
+                    Console.WriteLine("Found file: " + currentUserXml);
+                    FindProfile();
+                    ReadGameName();
+                    await RemoveCBPXml();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error adding CBP icon to game name" + ex);
+            }
+        }
+
+        private bool CheckForFile()
+        {
+            appDataRoN = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft Games\Rise of Nations");
+            playerProfileFolder = Path.Combine(appDataRoN, "PlayerProfile");
+            currentUserXml = Path.Combine(playerProfileFolder, "current_user.xml");
+
+            if (File.Exists(currentUserXml))
+            {
+                Console.WriteLine("Found file: " + currentUserXml);
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Unable to find current user xml file");
+                return false;
+            }
+        }
+
+        private void FindProfile() // logic to find current user + their .dat file
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(currentUserXml);
+            string ronName = doc.SelectSingleNode("ROOT/CURRENT_USER/@name").Value;
+
+            playerProfile = Path.Combine(playerProfileFolder, (ronName + ".dat"));
+
+            Console.WriteLine("RoN username: " + ronName);
+        }
+
+        private void ReadGameName() // reads the last game name (mostly as a building block for later functions + troubleshooting rather than to use itself)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(playerProfile);
+            XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
+            gameName = xmlNode.InnerText;
+
+            Console.WriteLine("Last game name: " + gameName);
+        }
+
+        private bool CheckCBPXml() // checks if #ICON169 is already present in last game name
+        {
+            if (gameName.Contains("#ICON169") == true)
+            {
+                Console.WriteLine("Last game name already contains #ICON169.");
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("#ICON169 found in last game name.");
+                return false;
+            }
+        }
+
+        private async Task AddCBPXml() // updates last game name to prefix with #ICON169
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(playerProfile);
+            XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
+
+            if (CheckCBPXml() == false)
+            {
+                xmlNode.InnerText = "#ICON169 " + xmlNode.InnerText;
+                doc.Save(playerProfile);
+            }
+
+            Console.WriteLine("New game name: " + xmlNode.InnerText);
+        }
+
+        private async Task RemoveCBPXml()
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(playerProfile);
+            XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
+
+            if (CheckCBPXml() == true)
+            {
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//because the automatic add I do adds a space, but a user could add the icon with no space
+                doc.Save(playerProfile);
+            }
+
+            Console.WriteLine("#ICON169 has been removed from the saved game name.");
         }
 
         // section for the optional changes configuration
@@ -2606,6 +2753,7 @@ namespace CBPLauncher.Logic
 
         private async Task PreparePreview(string previewPath)
         {
+            // ported from vb.net https://stackoverflow.com/questions/6430299/bitmapimage-in-wpf-does-lock-file
             // doing it this way instead prevents a file lock (from the preview image of all things lol)
             // I'm sure there are other ways to accomplish this such as just sourcing the image differently, but this works fine too
             BitmapImage bmi = new BitmapImage();
@@ -2698,6 +2846,12 @@ namespace CBPLauncher.Logic
         private void OptionalMaintain_Inversion()
         {
             Properties.Settings.Default.OptionalMaintain = !Properties.Settings.Default.OptionalMaintain;
+            SaveSettings();
+        }
+
+        private void AddIconGameName_Inversion()
+        {
+            Properties.Settings.Default.AddIconGameName = !Properties.Settings.Default.AddIconGameName;
             SaveSettings();
         }
 
@@ -2867,7 +3021,7 @@ namespace CBPLauncher.Logic
                 else
                 {
                     //log
-                    MessageBox.Show("It looks like the version to archive already exists, so no action has been taken.");
+                    Console.WriteLine("It looks like the version to archive already exists, so no action has been taken.");
                     abortWorkshopCopyCBP = true;
                 }
             }
