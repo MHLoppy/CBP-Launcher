@@ -3005,7 +3005,7 @@ namespace CBPLauncher.Logic
 
                 if (versionExists == false)
                 {
-                    //rename it after moving it, then check version and use that to rename the folder in the archived location
+                    //get hte 
                     Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch"));
 
                     Version archiveVersion = new Version(File.ReadAllText(Path.Combine(archiveCBP, "Community Balance Patch", "version.txt")));
