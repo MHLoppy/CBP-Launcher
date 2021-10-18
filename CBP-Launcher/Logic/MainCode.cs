@@ -2733,7 +2733,7 @@ namespace CBPLauncher.Logic
             CheckCurrentPath();
 
             OptTitle = "All Optional Changes Configured!";
-            OptDescription = "The changes are immediate, but it's recommende";
+            OptDescription = "";
             OptCompatibility = "";
 
             // preview image (PNG/JPG)
