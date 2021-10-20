@@ -369,5 +369,17 @@ namespace CBPLauncher.Properties {
                 this["PluginCompatibilityIssue"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool FirstTimePlugins {
+            get {
+                return ((bool)(this["FirstTimePlugins"]));
+            }
+            set {
+                this["FirstTimePlugins"] = value;
+            }
+        }
     }
 }

@@ -9,8 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using CBPSDK;
 using CBPLauncher.Core;
+using CBPSDK;
 
 namespace CBPLauncher.Skins
 {
@@ -32,12 +32,19 @@ namespace CBPLauncher.Skins
 
         private string workshopModsPath;
         private string localModsPath;
-        private int compatCounter = 0;
 
         public ClassicPlusModManager()
         {
             InitializeComponent();
             DataContext = this;
+
+            if (Properties.Settings.Default.FirstTimePlugins)
+            {
+                MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.");
+
+                Properties.Settings.Default.FirstTimePlugins = false;
+                SaveSettings();
+            }
 
             //we straight up assume we're in the RoN folder
             workshopModsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..", @"workshop\content\287450"));

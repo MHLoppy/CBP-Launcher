@@ -2414,8 +2414,6 @@ namespace CBPLauncher.Logic
             string secondary2 = "";
             string optional = " --------------------------------------------------------------------------------- Optional changes: ";
             string optional2 = "";
-            string plugins = "--------------------------------------------------------------------------------- Plugins: ";
-            string plugins2 = "";
 
             if (true)
             {
