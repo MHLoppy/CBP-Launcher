@@ -357,5 +357,17 @@ namespace CBPLauncher.Properties {
                 this["AddIconGameName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PluginCompatibilityIssue {
+            get {
+                return ((bool)(this["PluginCompatibilityIssue"]));
+            }
+            set {
+                this["PluginCompatibilityIssue"] = value;
+            }
+        }
     }
 }

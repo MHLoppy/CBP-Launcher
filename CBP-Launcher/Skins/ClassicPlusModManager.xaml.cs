@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using CBPSDK;
+using CBPLauncher.Core;
 
 namespace CBPLauncher.Skins
 {
@@ -31,6 +32,7 @@ namespace CBPLauncher.Skins
 
         private string workshopModsPath;
         private string localModsPath;
+        private int compatCounter = 0;
 
         public ClassicPlusModManager()
         {
@@ -72,6 +74,7 @@ namespace CBPLauncher.Skins
             int topMargin = 25;
             int infoTopMargin = 23;
             Console.WriteLine($"{pluginList.Count} plugin(s) found");
+
             foreach (IPluginCBP plugin in pluginList)
             {
                 plugin.DoSomething(workshopModsPath, localModsPath);
@@ -135,6 +138,10 @@ namespace CBPLauncher.Skins
                 i++;
                 Console.WriteLine("\n");
             }
+
+            // call this AFTER DoSomething, since plugins might be loaded there
+            CheckForCompatibility();
+
             Console.Write("==========================\n");
 
             // updates text in this app's own window
@@ -189,6 +196,21 @@ namespace CBPLauncher.Skins
             return pluginsList;
         }
 
+        private void CheckForCompatibility()
+        {
+            Properties.Settings.Default.PluginCompatibilityIssue = false;
+
+            foreach (IPluginCBP plugin in pluginList)
+            {
+                if ((plugin.CheckIfLoaded() == true) && (plugin.CBPCompatible == false))
+                {
+                    if (plugin.CBPCompatible == false)
+                        Properties.Settings.Default.PluginCompatibilityIssue = true;
+                }
+            }
+            SaveSettings();
+        }
+
         // the bool that tracks IsChecked, the command, and the function (void) behind the command are the three things I haven't been able to create dynamically (..yet)
         // this means that there's unfortunately a hardcoded limit on how many plugins will work based on how many sets of these three things are actually implemented
         private bool plugin0Checked => pluginList[0].CheckIfLoaded();
@@ -209,11 +231,15 @@ namespace CBPLauncher.Skins
             {
                 pluginList[0].UnloadPlugin(workshopModsPath, localModsPath);
                 Plugin0Checked = false;
+
+                CheckForCompatibility();
             }
             else
             {
                 pluginList[0].LoadPlugin(workshopModsPath, localModsPath);
                 Plugin0Checked = true;
+
+                CheckForCompatibility();
             }
         }
 
@@ -239,44 +265,15 @@ namespace CBPLauncher.Skins
                             + "\n\n" + description);
         }
 
+        private void SaveSettings()
+        {
+            Properties.Settings.Default.Save();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class RelayCommand : ICommand
-    {
-        private readonly Action<object> _execute;
-        private readonly Func<object, bool> _canExecute;
-
-        public event EventHandler CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
-        }
-
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
-        {
-            // Tosker null check - could be simplified per intellisense but then I can't easily read it xdlmaoblazeit42069
-            if (execute == null)
-            {
-                throw new NullReferenceException("RelayCommand tried to execute a null command");
-            }
-
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return _canExecute == null || _canExecute(parameter);
-        }
-
-        public void Execute(object parameter)
-        {
-            _execute.Invoke(parameter);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CBPLauncher.Core;
 using CBPSDK;
 
 namespace CBPLauncher.Skins
@@ -31,6 +32,7 @@ namespace CBPLauncher.Skins
 
         private string workshopModsPath;
         private string localModsPath;
+        private int compatCounter = 0;
 
         public SpartanV1ModManager()
         {
@@ -72,6 +74,7 @@ namespace CBPLauncher.Skins
             int topMargin = 25;
             int infoTopMargin = 23;
             Console.WriteLine($"{pluginList.Count} plugin(s) found");
+
             foreach (IPluginCBP plugin in pluginList)
             {
                 plugin.DoSomething(workshopModsPath, localModsPath);
@@ -135,6 +138,10 @@ namespace CBPLauncher.Skins
                 i++;
                 Console.WriteLine("\n");
             }
+
+            // call this AFTER DoSomething, since plugins might be loaded there
+            CheckForCompatibility();
+
             Console.Write("==========================\n");
 
             // updates text in this app's own window
@@ -189,6 +196,21 @@ namespace CBPLauncher.Skins
             return pluginsList;
         }
 
+        private void CheckForCompatibility()
+        {
+            Properties.Settings.Default.PluginCompatibilityIssue = false;
+            
+            foreach (IPluginCBP plugin in pluginList)
+            {
+                if ((plugin.CheckIfLoaded() == true) && (plugin.CBPCompatible == false))
+                {
+                    if (plugin.CBPCompatible == false)
+                        Properties.Settings.Default.PluginCompatibilityIssue = true;
+                }
+            }
+            SaveSettings();
+        }
+
         // the bool that tracks IsChecked, the command, and the function (void) behind the command are the three things I haven't been able to create dynamically (..yet)
         // this means that there's unfortunately a hardcoded limit on how many plugins will work based on how many sets of these three things are actually implemented
         private bool plugin0Checked => pluginList[0].CheckIfLoaded();
@@ -209,11 +231,15 @@ namespace CBPLauncher.Skins
             {
                 pluginList[0].UnloadPlugin(workshopModsPath, localModsPath);
                 Plugin0Checked = false;
+
+                CheckForCompatibility();
             }
             else
             {
                 pluginList[0].LoadPlugin(workshopModsPath, localModsPath);
                 Plugin0Checked = true;
+
+                CheckForCompatibility();
             }
         }
 
@@ -237,6 +263,11 @@ namespace CBPLauncher.Skins
             MessageBox.Show(titleVersionAuthor
                             + "\n" + compatSimple
                             + "\n\n" + description);
+        }
+
+        private void SaveSettings()
+        {
+            Properties.Settings.Default.Save();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -19,6 +19,8 @@ using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using TgaLib;
 using static CBPLauncher.Logic.BasicIO;
+using static CBPLauncher.Skins.ClassicPlusModManager;
+using static CBPLauncher.Skins.SpartanV1ModManager;
 
 namespace CBPLauncher.Logic
 {
@@ -2169,6 +2171,14 @@ namespace CBPLauncher.Logic
             //Properties.Settings.Default.FirstTimeRun = false;
             //SaveSettings();
 
+            if (CheckPluginCompatbilityIssue())
+            {
+                if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                {
+                    return;
+                }
+            }
+
             if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
@@ -2356,6 +2366,96 @@ namespace CBPLauncher.Logic
             }
 
             Console.WriteLine("#ICON169 has been removed from the saved game name.");
+        }
+
+        // section for the dynamic help.xml text
+        private async Task GenerateDynamicHelpText()
+        {
+            if (Properties.Settings.Default.UseSecondaryFileList && CheckIfCBPFile("file"))
+            {
+                try
+                {
+                    string thehelpXmlFile = "";
+                    
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(thehelpXmlFile);
+
+                    XmlNode node = doc.SelectSingleNode("ROOT/TOPMENU/ENTRY[@name='cbp_status']");//main menu
+                    //construct the string
+                    // log the string
+                    node.ChildNodes[0].InnerText = GenerateMainMenuText();
+
+                    XmlNode node2 = doc.SelectSingleNode("ROOT/SETUPWIN/BUTTON/ENTRY[@name='CBP_STATUS']");//actual game lobby (pick nations, change rules)
+                    //construct the string
+                    // log the string
+                    node2.ChildNodes[0].InnerText = GenerateOtherMenuText();
+
+                    XmlNode node3 = doc.SelectSingleNode("ROOT/GAMESPYTITLE/BUTTON/ENTRY[@name='CBP_STATUS']");//general multiplayer lobby (see list of open lobbies)
+                    // we use the same string as node2
+                    node3.ChildNodes[0].InnerText = GenerateOtherMenuText();
+
+                    doc.Save(thehelpXmlFile);
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error updating menu tooltips: " + ex);
+                }
+            }
+        }
+
+        private string GenerateMainMenuText()
+        {
+            string config = "CBP configuration: ";
+            string config2 = TooltipConfig();
+            string primary = " ============================================ Primary files: ";
+            string primary2 = "";
+            string secondary = " --------------------------------------------------------------------------------- Secondary files: ";
+            string secondary2 = "";
+            string optional = " --------------------------------------------------------------------------------- Optional changes: ";
+            string optional2 = "";
+            string plugins = "--------------------------------------------------------------------------------- Plugins: ";
+            string plugins2 = "";
+
+            if (true)
+            {
+                primary2 = "All primary files loaded";
+            }
+
+            return "";
+        }
+
+        private string GenerateOtherMenuText()
+        {
+            return "CBP is enabled. Configuration: " + TooltipConfig() + ". See main menu for more details.";
+        }
+
+        private string TooltipConfig()
+        {
+            string configFirst = "undefined";
+            string configSecond = "undefined";
+            bool primary = Properties.Settings.Default.UsePrimaryFileList;
+            bool secondary = Properties.Settings.Default.UseSecondaryFileList;
+
+            if (primary && secondary)
+            {
+                configFirst = "Standard";
+                configSecond = "(default)";
+            }
+            else if ((primary == true) && (secondary == false))
+            {
+                configFirst = "Minimal";
+            }
+            else
+            {
+                configFirst = "Custom";
+            }
+            if (Properties.Settings.Default.OptionalAsianHeli || Properties.Settings.Default.OptionalEmotes || Properties.Settings.Default.OptionalRadarJam || Properties.Settings.Default.OptionalAsianSpy)
+            {
+                configSecond = "(with optional changes)";
+            }
+
+            return configFirst + " " + configSecond;
         }
 
         // section for the optional changes configuration
@@ -2800,6 +2900,16 @@ namespace CBPLauncher.Logic
             }
         }
 
+        // tells user if plugins are incompatible with CBP
+        private bool CheckPluginCompatbilityIssue()
+        {
+            if ((Properties.Settings.Default.PluginCompatibilityIssue == true) && (Properties.Settings.Default.CBPLoaded == true))
+            {
+                return true;
+            }
+            else return false;
+        }
+
         private void ResetSettings()
         {
             Properties.Settings.Default.Reset();
@@ -3136,6 +3246,6 @@ namespace CBPLauncher.Logic
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
         public static string[] versionHotfix = new string[21] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)" // 0-9 respectively
                                                               , " (special)" // 10
-                                                              , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)", " (PR6)", " (PR7)", " (PR8)", " (PR9)", "( PR10+)" }; // 11-19 respectively
+                                                              , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)", " (PR6)", " (PR7)", " (PR8)", " (PR9)", "( PR10+)" }; // 11-19 respectively, then 20 for 10+ because oh god why are there so many PRs
     }
 }
