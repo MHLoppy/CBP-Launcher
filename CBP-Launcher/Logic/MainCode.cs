@@ -18,9 +18,8 @@ using CBPLauncher.Core;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using TgaLib;
+using CBPSDK;
 using static CBPLauncher.Logic.BasicIO;
-using static CBPLauncher.Skins.ClassicPlusModManager;
-using static CBPLauncher.Skins.SpartanV1ModManager;
 
 namespace CBPLauncher.Logic
 {
@@ -52,6 +51,10 @@ namespace CBPLauncher.Logic
         private string workshopPath;
         private string unloadedModsPath;
         private string RoNDataPath;
+        private bool antiSpam = false;
+        private List<IPluginCBP> pluginList = null;
+        private List<string> pluginsPathList = new List<string>();
+        private List<string> pluginTitlesList = new List<string>();
 
         private bool BullshitButtonPress = false;
 
@@ -506,7 +509,7 @@ namespace CBPLauncher.Logic
         }
 
         // Skin "viewmodel"s
-        
+
 
         public SpartanV1VM SpartanV1 { get; set; }
         public SpartanV1MiniVM SpartanV1Mini { get; set; }
@@ -695,6 +698,7 @@ namespace CBPLauncher.Logic
         {
             await AutoRun();
             await CreateCommands();
+            LoadPlugins();
         }
 
         private async Task AutoRun()
@@ -704,7 +708,6 @@ namespace CBPLauncher.Logic
                 if (Properties.Settings.Default.UpgradeRequired == true)
                 {
                     UpgradeSettings();
-                    MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
                 }
             }
             catch (Exception ex)
@@ -916,7 +919,6 @@ namespace CBPLauncher.Logic
 
             UnloadCBPCommand = new RelayCommand(async o =>
             {
-                bool antiSpam = false;
                 if (antiSpam == false)
                 {
                     antiSpam = true;
@@ -1039,13 +1041,7 @@ namespace CBPLauncher.Logic
             SpV1TabModManagerCommand = new RelayCommand(o =>
             {
                 CurrentTab = SpartanV1ModManager;
-                if (Properties.Settings.Default.FirstTimePlugins)
-                {
-                    MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.");
-
-                    Properties.Settings.Default.FirstTimePlugins = false;
-                    SaveSettings();
-                }
+                PluginSecurityWarning();
             });
 
             SpV1TabOptionsCommand = new RelayCommand(o =>
@@ -1066,13 +1062,7 @@ namespace CBPLauncher.Logic
             CPTabModManagerCommand = new RelayCommand(o =>
             {
                 CurrentTab = ClassicPlusModManager;
-                if (Properties.Settings.Default.FirstTimePlugins)
-                {
-                    MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.");
-
-                    Properties.Settings.Default.FirstTimePlugins = false;
-                    SaveSettings();
-                }
+                PluginSecurityWarning();
             });
 
             CPTabOptionsCommand = new RelayCommand(o =>
@@ -1295,7 +1285,7 @@ namespace CBPLauncher.Logic
                             await LoadDirectFiles();
                             if (Properties.Settings.Default.AddIconGameName)
                                 await AddIconGameName();
-                            
+
                             Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
                             Properties.Settings.Default.CBPLoaded = true;
                             Properties.Settings.Default.CBPUnloaded = false;
@@ -1383,44 +1373,44 @@ namespace CBPLauncher.Logic
                         foreach (string s in filteredFiles)
                             MessageBox.Show(s);*/
 
-                        //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
-                        /*if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
-                        {
-                            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.TopDirectoryOnly).Length == 0
-                             && Directory.GetFiles(modArtFolder, "*.tga", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
-                            else
-                            {
-                                //but if there is a match, add the path of that mod to the list and turn on the flag which sends the message
-                                modList += (modFolder + "\n\n");
-                                sendWarning = true;
-                            }
-                        }
-                    }
-
-                    if (sendWarning)
-                        MessageBox.Show("These local mods *may* contain files which trigger a known bug in the first game of every session: " + "\n\n" + modList
-                                        //+ "This bug can cause OoS issues in the first game of every session you play.\n\n"
-                                        + "To prevent this issue, either move/remove those mods, "
-                                        + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games."
-                                        , "Potential OoS issue detected"
-                                        , MessageBoxButton.OK
-                                        , MessageBoxImage.Warning);
-
-                    //we only want this message to show on button press, not on automatic checks
-                    else if (BullshitButtonPress)
-                    {
-                        BullshitButtonPress = false;
-                        MessageBox.Show("No TGA art files or XML data files detected in local mods folder. Note that there are still other, less common files which could still cause the problem.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error with XML detection for bark/trireme OoS bug: " + ex);
-                    // not instaclosing because it should be a relatively non-problematic error.. hopefully
-                }
+        //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
+        /*if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
+        {
+            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.TopDirectoryOnly).Length == 0
+             && Directory.GetFiles(modArtFolder, "*.tga", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
+            else
+            {
+                //but if there is a match, add the path of that mod to the list and turn on the flag which sends the message
+                modList += (modFolder + "\n\n");
+                sendWarning = true;
             }
-            //else do nothing
-        }*/
+        }
+    }
+
+    if (sendWarning)
+        MessageBox.Show("These local mods *may* contain files which trigger a known bug in the first game of every session: " + "\n\n" + modList
+                        //+ "This bug can cause OoS issues in the first game of every session you play.\n\n"
+                        + "To prevent this issue, either move/remove those mods, "
+                        + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games."
+                        , "Potential OoS issue detected"
+                        , MessageBoxButton.OK
+                        , MessageBoxImage.Warning);
+
+    //we only want this message to show on button press, not on automatic checks
+    else if (BullshitButtonPress)
+    {
+        BullshitButtonPress = false;
+        MessageBox.Show("No TGA art files or XML data files detected in local mods folder. Note that there are still other, less common files which could still cause the problem.");
+    }
+}
+catch (Exception ex)
+{
+    MessageBox.Show("Error with XML detection for bark/trireme OoS bug: " + ex);
+    // not instaclosing because it should be a relatively non-problematic error.. hopefully
+}
+}
+//else do nothing
+}*/
 
         /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one (..for now), meaning that some stuff such as archiving doesn't need to be here too
         {         //later on can refactor the whole thing maybe
@@ -1575,7 +1565,7 @@ namespace CBPLauncher.Logic
                 //else no action required
             }
         }
-        
+
         /*//semi-forced into doing shitty hardcoded lists because of the sheer scope of the bark/trireme bug - I don't have the skill to do it dynamically, or the time to figure it out for just a few files
         private void UnloadNonDataFiles()
         {
@@ -2124,7 +2114,7 @@ namespace CBPLauncher.Logic
 
                 //try to check on a loop whether CBP Setup GUI is running
                 int i = 0;
-                while (i <10)//if we're waiting more than 7.2 seconds, something is wrong because it should close in ~5 seconds max
+                while (i < 10)//if we're waiting more than 7.2 seconds, something is wrong because it should close in ~5 seconds max
                 {
                     await Delay(800);
 
@@ -2477,7 +2467,7 @@ namespace CBPLauncher.Logic
 
         // section for the optional changes configuration
         private async Task ConfigureOptionalChanges()//the UI button is wired to this function; counter: 0
-            //might need to disable the load/unload buttons while this is active? uncommon edge case but it's possible someone will press it
+                                                     //might need to disable the load/unload buttons while this is active? uncommon edge case but it's possible someone will press it
         {
             CheckCurrentPath();
 
@@ -2713,7 +2703,7 @@ namespace CBPLauncher.Logic
                 + "so East-Asian nations ended up using the default unit skin. The game supports having both the Russian and Asian unit skins at the same time, so it's unclear why the Asian skin was removed. "
                 + "This change restores the removed unit skin for Asian nations. Other nations are not affected.";
             OptCompatibility = "This change is fully multiplayer-compatible.";
-            
+
             // preview image (PNG/JPG)
             string previewPath = Path.Combine(currentPathOpt, @"art/Preview/RoN - CBP optional change asian attack helicopter preview small.png");
             if (File.Exists(previewPath))
@@ -2917,6 +2907,7 @@ namespace CBPLauncher.Logic
             }
         }
 
+        // plugins section (but not all of it, some of it is in codebehind of modmanager tabs lol)
         // tells user if plugins are incompatible with CBP
         private bool CheckPluginCompatbilityIssue()
         {
@@ -2927,9 +2918,132 @@ namespace CBPLauncher.Logic
             else return false;
         }
 
+        private void LoadPlugins()
+        {
+            if (!File.Exists(Path.Combine(localMods, @"..\", "riseofnations.exe")))
+            {
+                Console.WriteLine("Not running in expected folder; mod loading aborted.");
+                return;
+            }
+
+            pluginList = ReadExtensions();
+            int pluginCounter = 0;
+
+            foreach (IPluginCBP plugin in pluginList)
+            {
+                plugin.DoSomething(workshopPath, localMods);
+                Console.WriteLine($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
+                Console.WriteLine("\nPlugin location: " + pluginsPathList[pluginCounter]);
+                pluginCounter++;
+                Console.WriteLine("\n\n");
+            }
+
+            CheckPluginCompatibility();
+
+            if (pluginList != null)
+            {
+                Properties.Settings.Default.AnyPluginsLoaded = true;
+                SaveSettings();
+
+                Console.WriteLine("Any plugins with auto-updating logic have been given a chance to run their logic.");
+            }
+            else
+            {
+                Properties.Settings.Default.AnyPluginsLoaded = false;
+                SaveSettings();
+
+                Console.WriteLine("No plugins detected.");
+            }
+        }
+
+        //separate function so that it can be called earlier as required
+        private void GetPluginNames()
+        {
+            pluginList = ReadExtensions();
+            int pluginCounter = 0;
+
+            foreach (IPluginCBP plugin in pluginList)
+            {
+
+            }
+        }
+
+        private List<IPluginCBP> ReadExtensions()
+        {
+            // 0 we don't have all plugins in a single directory, they're actually distributed across multiple subfolders of a known folder location
+            // (e.g. we know it's D:\Example, but it could be D:\Example\Arb or D:\Example\Arbitrary or both or neither)
+            List<IPluginCBP> pluginsList = new List<IPluginCBP>();
+
+            DirectoryInfo di = new DirectoryInfo(workshopPath);
+            DirectoryInfo[] diArr = di.GetDirectories();
+            foreach (DirectoryInfo dri in diArr)
+            {
+                // 1) Read dll files from the specified location (a mod folder in our case)
+
+                //todo: log each dri.FullName
+                string pluginFolder = dri.FullName;
+                string[] files = Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly);
+
+                // 2) Read from those files
+                foreach (string file in files)
+                {
+                    Assembly assembly = Assembly.LoadFile(Path.Combine(pluginFolder, file));
+
+                    // 3) Extract all the types that implement PluginCBP
+                    try
+                    {
+                        Type[] pluginTypes = assembly.GetTypes().Where(t => typeof(IPluginCBP).IsAssignableFrom(t) && !t.IsInterface).ToArray();
+
+                        foreach (Type pluginType in pluginTypes)
+                        {
+                            // 4) Creates new instance of the extracted type (PluginCBP?)
+                            object pluginInstance = Activator.CreateInstance(pluginType) as IPluginCBP;
+                            pluginsList.Add((IPluginCBP)pluginInstance);
+                            pluginsPathList.Add(file);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error loading plugins: " + ex);
+                    }
+                }
+            }
+            return pluginsList;
+        }
+
+        private void CheckPluginCompatibility()
+        {
+            Properties.Settings.Default.PluginCompatibilityIssue = false;
+
+            foreach (IPluginCBP plugin in pluginList)
+            {
+                if ((plugin.CheckIfLoaded() == true) && (plugin.CBPCompatible == false))
+                {
+                    if (plugin.CBPCompatible == false)
+                        Properties.Settings.Default.PluginCompatibilityIssue = true;
+                }
+            }
+            SaveSettings();
+        }
+
+        private void PluginSecurityWarning()
+        {
+            if (Properties.Settings.Default.FirstTimePlugins)
+            {
+                MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.", "Plugin Security Warning", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                Properties.Settings.Default.FirstTimePlugins = false;
+                SaveSettings();
+            }
+        }
+
+        //settings section
         private void ResetSettings()
         {
             Properties.Settings.Default.Reset();
+
+            Properties.Settings.Default.JustReset = true;
+            SaveSettings();
 
             MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
         }
@@ -3034,9 +3148,15 @@ namespace CBPLauncher.Logic
 
         private void UpgradeSettings()
         {
-            Properties.Settings.Default.Upgrade();
-            Properties.Settings.Default.UpgradeRequired = false;
-            SaveSettings();
+            // don't want to import settings if they were just reset (otherwise that defeats the purpose)
+            if (Properties.Settings.Default.JustReset == false)
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.UpgradeRequired = false;
+                SaveSettings();
+
+                MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
+            }
         }
 
         private async Task AskDefaultLauncher()

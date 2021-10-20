@@ -88,8 +88,6 @@ namespace CBPLauncher.Skins
 
             foreach (IPluginCBP plugin in pluginList)
             {
-                plugin.DoSomething(workshopModsPath, localModsPath);
-
                 // each plugin generates a checkbox with a unique name
                 /*CheckBox cb = new CheckBox
                 {
@@ -144,24 +142,8 @@ namespace CBPLauncher.Skins
                 PCompat.Add(plugin.CBPCompatible);
                 PDescription.Add(plugin.PluginDescription);
 
-                Console.WriteLine($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
-                Console.WriteLine("Plugin location: " + pluginsPathList[i]);
                 i++;
-                Console.WriteLine("\n");
             }
-
-            // call this AFTER DoSomething, since plugins might be loaded there
-            CheckForCompatibility();
-
-            Console.Write("==========================\n");
-
-            // updates text in this app's own window
-            if (pluginList != null)
-                //OtherBlock.Text = $"{pluginList[0].PluginTitle} {pluginList[0].PluginVersion} by {pluginList[0].PluginAuthor} | (CBP compatible: {pluginList[0].CBPCompatible})\n{pluginList[0].PluginDescription}";
-
-                //end
-                Console.WriteLine("\nPress any key to continue...");
-            //Console.ReadKey();
         }
 
         private List<IPluginCBP> ReadExtensions()
@@ -207,7 +189,7 @@ namespace CBPLauncher.Skins
             return pluginsList;
         }
 
-        private void CheckForCompatibility()
+        private void CheckPluginCompatibility()
         {
             Properties.Settings.Default.PluginCompatibilityIssue = false;
 
@@ -243,14 +225,14 @@ namespace CBPLauncher.Skins
                 pluginList[0].UnloadPlugin(workshopModsPath, localModsPath);
                 Plugin0Checked = false;
 
-                CheckForCompatibility();
+                CheckPluginCompatibility();
             }
             else
             {
                 pluginList[0].LoadPlugin(workshopModsPath, localModsPath);
                 Plugin0Checked = true;
 
-                CheckForCompatibility();
+                CheckPluginCompatibility();
             }
         }
 

@@ -381,5 +381,29 @@ namespace CBPLauncher.Properties {
                 this["FirstTimePlugins"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AnyPluginsLoaded {
+            get {
+                return ((bool)(this["AnyPluginsLoaded"]));
+            }
+            set {
+                this["AnyPluginsLoaded"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool JustReset {
+            get {
+                return ((bool)(this["JustReset"]));
+            }
+            set {
+                this["JustReset"] = value;
+            }
+        }
     }
 }
