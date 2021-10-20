@@ -916,7 +916,13 @@ namespace CBPLauncher.Logic
 
             UnloadCBPCommand = new RelayCommand(async o =>
             {
-                await UnloadCBP();
+                bool antiSpam = false;
+                if (antiSpam == false)
+                {
+                    antiSpam = true;
+                    await UnloadCBP();
+                }
+                antiSpam = false;
             });
 
             WorkshopCommand = new RelayCommand(o =>
@@ -1033,6 +1039,13 @@ namespace CBPLauncher.Logic
             SpV1TabModManagerCommand = new RelayCommand(o =>
             {
                 CurrentTab = SpartanV1ModManager;
+                if (Properties.Settings.Default.FirstTimePlugins)
+                {
+                    MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.");
+
+                    Properties.Settings.Default.FirstTimePlugins = false;
+                    SaveSettings();
+                }
             });
 
             SpV1TabOptionsCommand = new RelayCommand(o =>
@@ -1053,6 +1066,13 @@ namespace CBPLauncher.Logic
             CPTabModManagerCommand = new RelayCommand(o =>
             {
                 CurrentTab = ClassicPlusModManager;
+                if (Properties.Settings.Default.FirstTimePlugins)
+                {
+                    MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.");
+
+                    Properties.Settings.Default.FirstTimePlugins = false;
+                    SaveSettings();
+                }
             });
 
             CPTabOptionsCommand = new RelayCommand(o =>
@@ -1121,7 +1141,7 @@ namespace CBPLauncher.Logic
                 //a7 temp
                 RoNDataPath = Path.Combine(RoNPathFinal, "Data");
 
-                helpXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, helpXML));
+                helpXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, helpXML));// now also used by dynamic cbp status generation
                 interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, interfaceXML));
                 setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, setupwinXML));
                 patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
@@ -2371,30 +2391,28 @@ namespace CBPLauncher.Logic
         // section for the dynamic help.xml text
         private async Task GenerateDynamicHelpText()
         {
-            if (Properties.Settings.Default.UseSecondaryFileList && CheckIfCBPFile("file"))
+            if (Properties.Settings.Default.UseSecondaryFileList && CheckIfCBPFile(helpXMLOrig))//helpXMLOrig is just /Rise of Nations/Data/help.xml, not necessarily *actually* original ever since bark/trireme changes
             {
                 try
                 {
-                    string thehelpXmlFile = "";
-                    
                     XmlDocument doc = new XmlDocument();
-                    doc.Load(thehelpXmlFile);
+                    doc.Load(helpXMLOrig);
 
                     XmlNode node = doc.SelectSingleNode("ROOT/TOPMENU/ENTRY[@name='cbp_status']");//main menu
-                    //construct the string
-                    // log the string
                     node.ChildNodes[0].InnerText = GenerateMainMenuText();
 
                     XmlNode node2 = doc.SelectSingleNode("ROOT/SETUPWIN/BUTTON/ENTRY[@name='CBP_STATUS']");//actual game lobby (pick nations, change rules)
-                    //construct the string
-                    // log the string
                     node2.ChildNodes[0].InnerText = GenerateOtherMenuText();
 
                     XmlNode node3 = doc.SelectSingleNode("ROOT/GAMESPYTITLE/BUTTON/ENTRY[@name='CBP_STATUS']");//general multiplayer lobby (see list of open lobbies)
-                    // we use the same string as node2
-                    node3.ChildNodes[0].InnerText = GenerateOtherMenuText();
+                    node3.ChildNodes[0].InnerText = GenerateOtherMenuText();// we use the same string as node2
 
-                    doc.Save(thehelpXmlFile);
+                    // log the strings
+                    Console.WriteLine("Main menu readout: " + node.ChildNodes[0].InnerText);
+                    Console.WriteLine("Other readout (1): " + node2.ChildNodes[0].InnerText);
+                    Console.WriteLine("Other readout (2): " + node3.ChildNodes[0].InnerText);
+
+                    doc.Save(helpXMLOrig);
 
                 }
                 catch (Exception ex)
@@ -2415,12 +2433,13 @@ namespace CBPLauncher.Logic
             string optional = " --------------------------------------------------------------------------------- Optional changes: ";
             string optional2 = "";
 
-            if (true)
+            // the true is a placeholder (and probably the primary2 as well), but what was this for? maybe placeholder for plugins text? (which is intentionally not currently supported)
+            /*if (true)
             {
                 primary2 = "All primary files loaded";
-            }
+            }*/
 
-            return "";
+            return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2;
         }
 
         private string GenerateOtherMenuText()

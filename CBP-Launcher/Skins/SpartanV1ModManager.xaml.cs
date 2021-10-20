@@ -12,6 +12,9 @@ using System.Windows.Input;
 using CBPLauncher.Core;
 using CBPSDK;
 
+/// <WARNING>
+/// be wary of using popups such as messagebox.show, as interrupting the view generation (with such a popup) will cause a crash. see example marked "EXAMPLE"
+/// </WARNING>
 namespace CBPLauncher.Skins
 {
     public partial class SpartanV1ModManager : INotifyPropertyChanged
@@ -38,13 +41,14 @@ namespace CBPLauncher.Skins
             InitializeComponent();
             DataContext = this;
 
-            if (Properties.Settings.Default.FirstTimePlugins)
+            //EXAMPLE: crash due to interruption
+            /*if (Properties.Settings.Default.FirstTimePlugins)
             {
                 MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.");
 
                 Properties.Settings.Default.FirstTimePlugins = false;
                 SaveSettings();
-            } 
+            }*/
 
             //we straight up assume we're in the RoN folder
             workshopModsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..", @"workshop\content\287450"));
