@@ -255,7 +255,8 @@ namespace CBPLauncher.Skins
 
             MessageBox.Show(titleVersionAuthor
                             + "\n" + compatSimple
-                            + "\n\n" + description);
+                            + "\n\n" + description
+                            , "Plugin Info");
         }
 
         private void SaveSettings()
