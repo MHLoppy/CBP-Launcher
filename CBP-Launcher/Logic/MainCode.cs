@@ -2055,6 +2055,20 @@ catch (Exception ex)
                     {
                         await GenerateLists();
 
+                        if (Directory.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch")))
+                        {
+                            if (MessageBox.Show("It looks like there's already a copy of CBP in the Unloaded Mods folder:\n"
+                                                + Path.Combine(unloadedModsPath, "Community Balance Patch")
+                                                + "\n\nDelete it and continue?", "CBP Folder Detected", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                Directory.Delete(Path.Combine(unloadedModsPath, "Community Balance Patch"), true);
+                            }
+                        }
+
                         Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
 
                         Properties.Settings.Default.CBPUnloaded = true;
