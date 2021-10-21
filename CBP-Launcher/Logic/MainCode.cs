@@ -675,15 +675,15 @@ namespace CBPLauncher.Logic
             if (IsInDesignMode() == false)
             {
                 // big bad error message if you try to run it from the wrong place
-                if (rootPath == workshopPathCBP)
+                /*if (rootPath == workshopPathCBP)
                 {
                     //HnZ suggests don't even give them the option to say continue anyway. I don't personally agree, but can see where he's coming from
                     MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and can cause errors.\n\n Run CBP Setup GUI to install CBP Launcher to RoN's location.", "UNSUPPORTED LOCATION", MessageBoxButton.OK, MessageBoxImage.Stop);
-                    Application.Current.MainWindow.Close();
+                    Application.Current.MainWindow.Close();*/
 
-                    /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
-                        Application.Current.MainWindow.Close();*/
-                }
+                /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
+                    Application.Current.MainWindow.Close();*/
+            //}
 
                 CBPLogger.GetInstance().Info("Logging has begun.");
                 CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
