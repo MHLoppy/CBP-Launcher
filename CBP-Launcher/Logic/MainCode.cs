@@ -2395,23 +2395,23 @@ catch (Exception ex)
 
             if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == false))
             {
+                //remove PR icon
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
+
+                //add non-PR icon
+                xmlNode.InnerText = "#ICON169 " + xmlNode.InnerText;
+                doc.Save(playerProfile);
+                Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
+            }
+            else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
+            {
                 //remove non-PR icon
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");
 
                 //add PR icon
                 xmlNode.InnerText = "#ICON170 " + xmlNode.InnerText;
-                doc.Save(playerProfile);
-                Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
-            }
-            else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
-            {
-                //remove PR icon
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");
-
-                //add non-PR icon
-                xmlNode.InnerText = "#ICON169 " + xmlNode.InnerText;
                 doc.Save(playerProfile);
                 Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
             }
