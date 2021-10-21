@@ -2360,7 +2360,7 @@ catch (Exception ex)
             }
             else
             {
-                Console.WriteLine("#ICON169 found in last game name.");
+                Console.WriteLine("#ICON169 not found in last game name.");
                 return false;
             }
         }
@@ -2389,10 +2389,12 @@ catch (Exception ex)
             {
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//because the automatic add I do adds a space, but a user could add the icon with no space
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");//because the automatic add I do adds a space, but a user could add the icon with no space
                 doc.Save(playerProfile);
             }
 
-            Console.WriteLine("#ICON169 has been removed from the saved game name.");
+            Console.WriteLine("#ICON169 and #ICON170 have been removed from the saved game name.");
         }
 
         // section for the dynamic help.xml text
