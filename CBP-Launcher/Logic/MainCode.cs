@@ -1287,7 +1287,9 @@ namespace CBPLauncher.Logic
                             await GenerateLists();
                             await LoadDirectFiles();
                             if (Properties.Settings.Default.AddIconGameName)
+                            {
                                 await AddIconGameName();
+                            }
                             await GenerateDynamicHelpText();
 
                             Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
@@ -1316,6 +1318,7 @@ namespace CBPLauncher.Logic
                     await OldInstallGameFiles(false, Version.zero);
                     await GenerateLists();
                     await LoadDirectFiles();
+                    await GenerateDynamicHelpText();
                 }
 
                 else
@@ -1877,7 +1880,9 @@ catch (Exception ex)
                             await LoadDirectFiles();
 
                             if (Properties.Settings.Default.AddIconGameName)
+                            {
                                 await AddIconGameName();
+                            }
                             await GenerateDynamicHelpText();
                         }
                         catch (Exception ex)
