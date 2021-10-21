@@ -31,6 +31,7 @@
                     <GradientStop Color="#D0161616" Offset="1"/>
                 </LinearGradientBrush>
             </Grid.Background>-->
+            <TextBlock Text="logs are WIP, log files are in /Rise of Nations/CBP/logs if you wanna look" Foreground="WhiteSmoke"/>
 
         </Grid>
     </Grid>

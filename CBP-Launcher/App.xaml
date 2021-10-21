@@ -8,6 +8,7 @@
              xmlns:local="clr-namespace:CBPLauncher"
              xmlns:logic="clr-namespace:CBPLauncher.Logic"
              xmlns:skins="clr-namespace:CBPLauncher.Skins"
+             xmlns:core="clr-namespace:CBPLauncher.Core"
              StartupUri="MainWindow.xaml">
 
     <!--     xmlns:v="clr-namespace:CBPLauncher.MVVM.View"
@@ -29,6 +30,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <logic:MainCode x:Key="MC"/>
+            <!--<core-->
 
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
 

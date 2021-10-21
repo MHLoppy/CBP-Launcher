@@ -20,6 +20,7 @@ using Microsoft.Win32;
 using TgaLib;
 using CBPSDK;
 using static CBPLauncher.Logic.BasicIO;
+using NLog;
 
 namespace CBPLauncher.Logic
 {
@@ -673,6 +674,9 @@ namespace CBPLauncher.Logic
         {
             if (IsInDesignMode() == false)
             {
+                CBPLogger.GetInstance().Info("Logging has begun.");
+                CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                
                 // moved into separate function
                 AutoRunWrapper();
             }
@@ -762,6 +766,10 @@ namespace CBPLauncher.Logic
                 WorkshopPathDebug = workshopPath;
                 WorkshopPathCBPDebug = workshopPathCBP;
                 GetLauncherVersion();
+
+                CBPLogger.GetInstance().Info("RoN:EE detected in: " + EEPath);
+                CBPLogger.GetInstance().Info("Steam Workshop detected in: " + WorkshopPathDebug);
+                CBPLogger.GetInstance().Info("Steam Workshop (CBP) detected in: " + WorkshopPathCBPDebug);
             }
             catch (Exception ex)
             {
@@ -2400,7 +2408,7 @@ catch (Exception ex)
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
 
                 //add non-PR icon
-                xmlNode.InnerText = "#ICON169 " + xmlNode.InnerText;
+                xmlNode.InnerText = "#ICON169" + xmlNode.InnerText;
                 doc.Save(playerProfile);
                 Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
             }
@@ -2411,7 +2419,7 @@ catch (Exception ex)
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");
 
                 //add PR icon
-                xmlNode.InnerText = "#ICON170 " + xmlNode.InnerText;
+                xmlNode.InnerText = "#ICON170" + xmlNode.InnerText;
                 doc.Save(playerProfile);
                 Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
             }
@@ -2426,7 +2434,7 @@ catch (Exception ex)
             if (CheckCBPXml() == true)
             {
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//because the automatic add I do adds a space, but a user could add the icon with no space (slightly reduced chance of affecting user's spacing?)
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//(slightly reduced chance of affecting user's spacing by doing it this way?)
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
                 doc.Save(playerProfile);
