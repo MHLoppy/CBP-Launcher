@@ -54,7 +54,7 @@ namespace CBPLauncher.Logic
         private bool antiSpam = false;
         private List<IPluginCBP> pluginList = null;
         private List<string> pluginsPathList = new List<string>();
-        private List<string> pluginTitlesList = new List<string>();
+        private string pluginTitles = "";
 
         private bool BullshitButtonPress = false;
 
@@ -855,6 +855,7 @@ namespace CBPLauncher.Logic
                 {
                     await GenerateLists();
                     await LoadDirectFiles();
+                    await GenerateDynamicHelpText();
                 }
             });
 
@@ -865,6 +866,7 @@ namespace CBPLauncher.Logic
                 {
                     await GenerateLists();
                     await LoadDirectFiles();
+                    await GenerateDynamicHelpText();
                 }
             });
 
@@ -1285,6 +1287,7 @@ namespace CBPLauncher.Logic
                             await LoadDirectFiles();
                             if (Properties.Settings.Default.AddIconGameName)
                                 await AddIconGameName();
+                            await GenerateDynamicHelpText();
 
                             Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
                             Properties.Settings.Default.CBPLoaded = true;
@@ -1874,6 +1877,7 @@ catch (Exception ex)
 
                             if (Properties.Settings.Default.AddIconGameName)
                                 await AddIconGameName();
+                            await GenerateDynamicHelpText();
                         }
                         catch (Exception ex)
                         {
@@ -2357,9 +2361,8 @@ catch (Exception ex)
             {
                 xmlNode.InnerText = "#ICON169 " + xmlNode.InnerText;
                 doc.Save(playerProfile);
+                Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
             }
-
-            Console.WriteLine("New game name: " + xmlNode.InnerText);
         }
 
         private async Task RemoveCBPXml()
@@ -2417,11 +2420,13 @@ catch (Exception ex)
             string config = "CBP configuration: ";
             string config2 = TooltipConfig();
             string primary = " ============================================ Primary files: ";
-            string primary2 = "";
+            string primary2 = TooltipPrimary();
             string secondary = " --------------------------------------------------------------------------------- Secondary files: ";
-            string secondary2 = "";
+            string secondary2 = TooltipSecondary();
             string optional = " --------------------------------------------------------------------------------- Optional changes: ";
-            string optional2 = "";
+            string optional2 = TooltipOptional();
+            string plugin = " ============================================ Loaded plugins: ";
+            string plugin2 = TooltipPlugins();
 
             // the true is a placeholder (and probably the primary2 as well), but what was this for? maybe placeholder for plugins text? (which is intentionally not currently supported)
             /*if (true)
@@ -2429,7 +2434,7 @@ catch (Exception ex)
                 primary2 = "All primary files loaded";
             }*/
 
-            return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2;
+            return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2 + plugin + plugin2;
         }
 
         private string GenerateOtherMenuText()
@@ -2463,6 +2468,66 @@ catch (Exception ex)
             }
 
             return configFirst + " " + configSecond;
+        }
+
+        private string TooltipPrimary()
+        {
+            if (Properties.Settings.Default.UsePrimaryFileList)
+                return "All primary files loaded";
+            else
+                return "Unknown configuration";
+        }
+
+        private string TooltipSecondary()
+        {
+            if (Properties.Settings.Default.UseSecondaryFileList)
+                return "All primary files loaded";
+            else
+                return "Secondary files not loaded";//later on when individual files can be selected, this will be more relevant (and will need expansion)
+        }
+
+        private string TooltipOptional()
+        {
+            string optList = "";
+            if (Properties.Settings.Default.OptionalAsianHeli)
+                optList += "Asian Attack Helicopter, ";
+            if (Properties.Settings.Default.OptionalEmotes)
+                optList += "Modernised Emotes, ";
+            if (Properties.Settings.Default.OptionalRadarJam)
+                optList += "Reduced Radar Jam Effect, ";
+            if (Properties.Settings.Default.OptionalAsianSpy)
+                optList += "Modern Asian Spy";
+
+            if (string.IsNullOrEmpty(optList))
+                optList = "None";
+
+            return optList;
+        }
+
+        private string TooltipPlugins()
+        {
+            pluginList = ReadExtensions();
+            int pluginCounter = 0;
+
+            foreach (IPluginCBP plugin in pluginList)
+            {
+                plugin.DoSomething(workshopPath, localMods);
+                
+                // if plugin is loaded, add title to string for later display in menu status readout
+                if (plugin.CheckIfLoaded())
+                {
+                    if (pluginCounter == 0)
+                        pluginTitles += plugin.PluginTitle;
+                    else
+                        pluginTitles += ", " + plugin.PluginTitle;
+
+                    pluginCounter++;
+                }
+            }
+            if (string.IsNullOrEmpty(pluginTitles))
+                pluginTitles = "None";
+
+            return pluginTitles;
         }
 
         // section for the optional changes configuration
@@ -2920,51 +2985,48 @@ catch (Exception ex)
 
         private void LoadPlugins()
         {
-            if (!File.Exists(Path.Combine(localMods, @"..\", "riseofnations.exe")))
-            {
-                Console.WriteLine("Not running in expected folder; mod loading aborted.");
-                return;
+            try
+            {//can use plugin.LoadResult for logging
+                if (!File.Exists(Path.Combine(localMods, @"..\", "riseofnations.exe")))
+                {
+                    Console.WriteLine("Not running in expected folder; mod loading aborted.");
+                    return;
+                }
+
+                pluginList = ReadExtensions();
+                Console.WriteLine($"{pluginList.Count} plugin(s) found");
+                int pluginCounter = 0;
+
+                foreach (IPluginCBP plugin in pluginList)
+                {
+                    plugin.DoSomething(workshopPath, localMods);
+                    plugin.UpdatePlugin(workshopPath, localMods);
+                    Console.WriteLine($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
+                    Console.WriteLine("\nPlugin location: " + pluginsPathList[pluginCounter]);
+                    pluginCounter++;
+                    Console.WriteLine("====================");
+                }
+
+                CheckPluginCompatibility();
+
+                if (pluginList != null)
+                {
+                    Properties.Settings.Default.AnyPluginsLoaded = true;
+                    SaveSettings();
+
+                    Console.WriteLine("Any plugins with auto-updating logic have been given a chance to run their logic.");
+                }
+                else
+                {
+                    Properties.Settings.Default.AnyPluginsLoaded = false;
+                    SaveSettings();
+
+                    Console.WriteLine("No plugins detected.");
+                }
             }
-
-            pluginList = ReadExtensions();
-            int pluginCounter = 0;
-
-            foreach (IPluginCBP plugin in pluginList)
+            catch (Exception ex)
             {
-                plugin.DoSomething(workshopPath, localMods);
-                Console.WriteLine($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
-                Console.WriteLine("\nPlugin location: " + pluginsPathList[pluginCounter]);
-                pluginCounter++;
-                Console.WriteLine("\n\n");
-            }
-
-            CheckPluginCompatibility();
-
-            if (pluginList != null)
-            {
-                Properties.Settings.Default.AnyPluginsLoaded = true;
-                SaveSettings();
-
-                Console.WriteLine("Any plugins with auto-updating logic have been given a chance to run their logic.");
-            }
-            else
-            {
-                Properties.Settings.Default.AnyPluginsLoaded = false;
-                SaveSettings();
-
-                Console.WriteLine("No plugins detected.");
-            }
-        }
-
-        //separate function so that it can be called earlier as required
-        private void GetPluginNames()
-        {
-            pluginList = ReadExtensions();
-            int pluginCounter = 0;
-
-            foreach (IPluginCBP plugin in pluginList)
-            {
-
+                throw ex;
             }
         }
 
