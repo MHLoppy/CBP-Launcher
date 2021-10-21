@@ -2354,15 +2354,31 @@ catch (Exception ex)
 
         private bool CheckCBPXml() // checks if #ICON169 is already present in last game name
         {
-            if (gameName.Contains("#ICON169") == true)
+            if (Properties.Settings.Default.UsePrerelease)
             {
-                Console.WriteLine("Last game name already contains #ICON169.");
-                return true;
+                if (gameName.Contains("#ICON170") == true)
+                {
+                    Console.WriteLine("Last game name already contains CBP-PR icon.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("CBP-PR icon not found in last game name.");
+                    return false;
+                }
             }
             else
             {
-                Console.WriteLine("#ICON169 not found in last game name.");
-                return false;
+                if (gameName.Contains("#ICON169") == true)
+                {
+                    Console.WriteLine("Last game name already contains CBP icon.");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("CBP icon not found in last game name.");
+                    return false;
+                }
             }
         }
 
@@ -2372,8 +2388,24 @@ catch (Exception ex)
             doc.Load(playerProfile);
             XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
 
-            if (CheckCBPXml() == false)
+            if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == false))
             {
+                //remove non-PR icon
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");
+
+                //add PR icon
+                xmlNode.InnerText = "#ICON170 " + xmlNode.InnerText;
+                doc.Save(playerProfile);
+                Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
+            }
+            else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
+            {
+                //remove PR icon
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");
+
+                //add non-PR icon
                 xmlNode.InnerText = "#ICON169 " + xmlNode.InnerText;
                 doc.Save(playerProfile);
                 Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
@@ -2389,13 +2421,13 @@ catch (Exception ex)
             if (CheckCBPXml() == true)
             {
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//because the automatic add I do adds a space, but a user could add the icon with no space
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//because the automatic add I do adds a space, but a user could add the icon with no space (slightly reduced chance of affecting user's spacing?)
                 xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");//because the automatic add I do adds a space, but a user could add the icon with no space
+                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
                 doc.Save(playerProfile);
             }
 
-            Console.WriteLine("#ICON169 and #ICON170 have been removed from the saved game name.");
+            Console.WriteLine("CBP icons have been removed from the saved game name.");
         }
 
         // section for the dynamic help.xml text
