@@ -840,6 +840,7 @@ namespace CBPLauncher.Logic
             UsePrereleaseCommand = new RelayCommand(o =>
             {
                 UsePrereleaseCheckbox_Inversion();
+                MessageBox.Show("Pre-release toggle modified. To use the new files, restart CBP Launcher.");
             });
 
             UseDefaultLauncherCommand = new RelayCommand(async o =>
