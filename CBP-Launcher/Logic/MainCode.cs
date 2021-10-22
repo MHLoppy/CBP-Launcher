@@ -684,17 +684,12 @@ namespace CBPLauncher.Logic
 
                 /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
                     Application.Current.MainWindow.Close();*/
-            //}
+                //}
 
                 CBPLogger.GetInstance().Info("Logging has begun.");
                 CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
-                /*NLog.LogManager.ThrowExceptions = true;
-                NLog.Common.InternalLogger.LogLevel = LogLevel.Debug;
-                NLog.Common.InternalLogger.LogFile = "c:\temp\nlog-internal.txt";
-                Logger logger = LogManager.GetLogger("CBPLogger");
-                logger.Info("program started");
-                LogManager.Shutdown();*/
+                WriteDefaultSettings();
 
                 // moved into separate function
                 AutoRunWrapper();
@@ -3197,12 +3192,53 @@ catch (Exception ex)
         //settings section
         private void ResetSettings()
         {
-            Properties.Settings.Default.Reset();
+            //Properties.Settings.Default.Reset();
+            WriteDefaultSettings();
 
             Properties.Settings.Default.JustReset = true;
             SaveSettings();
 
             MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
+        }
+
+        //dumb way to avoid having to distribute the config file (people are already having trouble following directions for two exes, I don't want to complicate it further)
+        private void WriteDefaultSettings()
+        {
+            Properties.Settings.Default.DefaultCBP = true;
+            Properties.Settings.Default.CBPUnloaded = false;
+            Properties.Settings.Default.UseWorkshopFiles = true;
+            Properties.Settings.Default.CBPLoaded = false;
+            Properties.Settings.Default.UpgradeRequired = true;
+            Properties.Settings.Default.NoWorkshopFiles = false;
+            Properties.Settings.Default.RoNPathSetting = "no path";
+            Properties.Settings.Default.UnloadWorkshopToo = false;
+            Properties.Settings.Default.CBPArchive = true;
+            Properties.Settings.Default.UsePrerelease = true;
+            Properties.Settings.Default.OldFilesRenamed = false;
+            Properties.Settings.Default.UseDefaultLauncher = true;
+            Properties.Settings.Default.SkinSpV1 = false;
+            Properties.Settings.Default.DefaultLauncherAnswered = false;
+            Properties.Settings.Default.UsePrimaryFileList = true;
+            Properties.Settings.Default.UseSecondaryFileList = true;
+            Properties.Settings.Default.FilesBackedUp = false;
+            Properties.Settings.Default.DetectBullshit = false;
+            Properties.Settings.Default.FirstTimeRun = true;
+            Properties.Settings.Default.NonDataFilesBackedUp = false;
+            Properties.Settings.Default.ArtFilesCopied = false;
+            Properties.Settings.Default.OptionalAsianHeli = false;
+            Properties.Settings.Default.OptionalEmotes = false;
+            Properties.Settings.Default.OptionalRadarJam = false;
+            Properties.Settings.Default.OptionalAsianSpy = false;
+            Properties.Settings.Default.OptionalMaintain = true;
+            Properties.Settings.Default.AddIconGameName = true;
+            Properties.Settings.Default.PluginCompatibilityIssue = false;
+            Properties.Settings.Default.FirstTimePlugins = true;
+            Properties.Settings.Default.AnyPluginsLoaded = false;
+            Properties.Settings.Default.JustReset = false;
+
+            SaveSettings();
+
+            CBPLogger.GetInstance().Info("Default settings manually written.");
         }
 
         private void CBPDefaultCheckbox_Inversion()
@@ -3334,6 +3370,7 @@ catch (Exception ex)
                 {
                     Properties.Settings.Default.DefaultLauncherAnswered = true;
                     Properties.Settings.Default.UseDefaultLauncher = false;
+                    UseDefaultLauncherCheckbox = false;
                     SaveSettings();
                     await ReplaceRestoreDefaultLauncher();
                 }
@@ -3341,6 +3378,7 @@ catch (Exception ex)
                 {
                     Properties.Settings.Default.DefaultLauncherAnswered = true;
                     Properties.Settings.Default.UseDefaultLauncher = true;
+                    UseDefaultLauncherCheckbox = true;
                     SaveSettings();
                 }
             }
@@ -3357,12 +3395,14 @@ catch (Exception ex)
                 {
                     Properties.Settings.Default.FirstTimeRun = false;
                     Properties.Settings.Default.DefaultCBP = true;
+                    CBPDefaultCheckbox = true;
                     SaveSettings();
                 }
                 else
                 {
                     Properties.Settings.Default.FirstTimeRun = false;
                     Properties.Settings.Default.DefaultCBP = false;
+                    CBPDefaultCheckbox = false;
                     SaveSettings();
 
                     // we want to ensure CBP files are "on hand" even if the person doesn't want to initially use CBP

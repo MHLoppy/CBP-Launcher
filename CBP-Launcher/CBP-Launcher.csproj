@@ -501,7 +501,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="App.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\RoN CBP launcher logo 01.png" />
