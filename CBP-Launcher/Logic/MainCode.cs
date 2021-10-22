@@ -675,16 +675,7 @@ namespace CBPLauncher.Logic
         {
             if (IsInDesignMode() == false)
             {
-                // big bad error message if you try to run it from the wrong place
-                /*if (rootPath == workshopPathCBP)
-                {
-                    //HnZ suggests don't even give them the option to say continue anyway. I don't personally agree, but can see where he's coming from
-                    MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and can cause errors.\n\n Run CBP Setup GUI to install CBP Launcher to RoN's location.", "UNSUPPORTED LOCATION", MessageBoxButton.OK, MessageBoxImage.Stop);
-                    Application.Current.MainWindow.Close();*/
-
-                /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
-                    Application.Current.MainWindow.Close();*/
-                //}
+                BigBadWarning();
 
                 CBPLogger.GetInstance().Info("Logging has begun.");
                 CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
@@ -710,6 +701,34 @@ namespace CBPLauncher.Logic
         private bool IsInDesignMode()
         {
             return DesignerProperties.GetIsInDesignMode(dummy);
+        }
+
+        private void BigBadWarning()
+        {
+            // big bad error message if you try to run it from the wrong place
+            if (rootPath == workshopPathCBP)
+            {
+                /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
+                    Application.Current.MainWindow.Close();*/
+
+                //HnZ suggests don't even give them the option to say continue anyway. I don't personally agree, but can see where he's coming from
+                /*MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and can cause errors.\n\n Run CBP Setup GUI to install CBP Launcher to RoN's location.", "UNSUPPORTED LOCATION", MessageBoxButton.OK, MessageBoxImage.Stop);
+                Application.Current.MainWindow.Close();*/
+
+                if (Interaction.InputBox("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. "
+                                                        + "You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location."
+                                                        + "\n\nIf you want to run CBP Launcher from here anyway, type \"I understand\"."
+                                                        , "UNSUPPORTED LOCATION")
+                    .Contains("I understand"))
+                {
+                    MessageBox.Show("I hope you know what you're doing uwu", "Continuing", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    LogManager.Shutdown();
+                    Environment.Exit(161);
+                }
+            }
         }
 
         private async Task AutoRunWrapper()
@@ -1131,7 +1150,7 @@ namespace CBPLauncher.Logic
         private void AssignZipPath()
         {
             // core paths
-            rootPath = Directory.GetCurrentDirectory();
+            rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
         }
 
