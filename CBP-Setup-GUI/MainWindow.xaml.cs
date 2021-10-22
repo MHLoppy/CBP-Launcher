@@ -24,6 +24,7 @@ namespace CBPSetupGUI
 
             if (Properties.Settings.Default.UpgradeRequired == true)
             {
+                ReplacementSettingsReset();
                 UpgradeSettings();
                 SaveSettings();
             }
