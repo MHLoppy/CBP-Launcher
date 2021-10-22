@@ -706,7 +706,7 @@ namespace CBPLauncher.Logic
         private void BigBadWarning()
         {
             // big bad error message if you try to run it from the wrong place
-            if (rootPath == workshopPathCBP)
+            if (Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..") == "workshop")
             {
                 /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
                     Application.Current.MainWindow.Close();*/
