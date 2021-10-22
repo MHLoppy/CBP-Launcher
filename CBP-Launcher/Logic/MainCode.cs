@@ -3549,6 +3549,14 @@ catch (Exception ex)
             }
         }
 
+        private void ConfigureNLog()
+        {
+            var config = new NLog.Config.LoggingConfiguration();
+
+            //targets
+            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "File.txt" };
+        }
+
         private async Task Delay(int ms)
         {
             Task pause = Task.Delay(ms);
