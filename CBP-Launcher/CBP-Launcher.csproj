@@ -298,6 +298,7 @@
     <Compile Include="Old %28Maniac%29\MVVM\View\View-PrimaryWindow.xaml.cs">
       <DependentUpon>View-PrimaryWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="Skins\DummyTab.xaml.cs">
       <DependentUpon>DummyTab.xaml</DependentUpon>
     </Compile>
@@ -484,9 +485,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Content Include="NLog.config">
+    <EmbeddedResource Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -500,7 +501,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <EmbeddedResource Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\RoN CBP launcher logo 01.png" />

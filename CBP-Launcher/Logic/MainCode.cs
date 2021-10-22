@@ -96,6 +96,7 @@ namespace CBPLauncher.Logic
         private string currentPathCBP = "";
         private string currentPathOpt = "";
         private int optCounter = 0;
+        private bool abortArchive;
 
         //private string patchNotesCBP; //moved out to its own VM instead
 
@@ -687,7 +688,14 @@ namespace CBPLauncher.Logic
 
                 CBPLogger.GetInstance().Info("Logging has begun.");
                 CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
-                
+
+                /*NLog.LogManager.ThrowExceptions = true;
+                NLog.Common.InternalLogger.LogLevel = LogLevel.Debug;
+                NLog.Common.InternalLogger.LogFile = "c:\temp\nlog-internal.txt";
+                Logger logger = LogManager.GetLogger("CBPLogger");
+                logger.Info("program started");
+                LogManager.Shutdown();*/
+
                 // moved into separate function
                 AutoRunWrapper();
             }
@@ -728,6 +736,7 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error during initialization: {ex}");
+                NLog.LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -738,6 +747,7 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading registry: {ex}");
+                NLog.LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -757,6 +767,7 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error creating paths (part 1): {ex}");
+                NLog.LogManager.Shutdown();
                 Environment.Exit(0);
             }
 
@@ -767,6 +778,7 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show("Error assigning paths (path 2):" + ex);
+                NLog.LogManager.Shutdown();
                 Environment.Exit(0);
             }
 
@@ -778,6 +790,7 @@ namespace CBPLauncher.Logic
                 WorkshopPathCBPDebug = workshopPathCBP;
                 GetLauncherVersion();
 
+                CBPLogger.GetInstance().Info("Current directory: " + rootPath);
                 CBPLogger.GetInstance().Info("RoN:EE detected in: " + EEPath);
                 CBPLogger.GetInstance().Info("Steam Workshop detected in: " + WorkshopPathDebug);
                 CBPLogger.GetInstance().Info("Steam Workshop (CBP) detected in: " + WorkshopPathCBPDebug);
@@ -785,6 +798,7 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error displaying paths in UI {ex}");
+                NLog.LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -813,6 +827,7 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error creating directories {ex}");
+                NLog.LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -842,6 +857,7 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error with primary (old content_rendered) step: {ex}");
+                NLog.LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
             //CBPDefaultChecker();
@@ -1221,6 +1237,7 @@ namespace CBPLauncher.Logic
                 else
                 {
                     MessageBox.Show("Launcher will now close.");
+                    NLog.LogManager.Shutdown();
                     Environment.Exit(0);
                 }
             }
@@ -1690,6 +1707,7 @@ catch (Exception ex)
                 catch (Exception ex)
                 {
                     MessageBox.Show("Could not unload old CBP files automatically. Unable to continue. " + ex);
+                    NLog.LogManager.Shutdown();
                     Environment.Exit(-1);
                 }
                 await CheckForUpdates();
@@ -1714,6 +1732,7 @@ catch (Exception ex)
                 catch (Exception ex)
                 {
                     MessageBox.Show("Problem backing up data files. " + ex);
+                    NLog.LogManager.Shutdown();
                     Environment.Exit(-1);
                 }
             }
@@ -1828,6 +1847,7 @@ catch (Exception ex)
                                                      + VersionArray.versionEnd[onlineVersion.subMinor]
                                                      + VersionArray.versionHotfix[onlineVersion.hotfix];
 
+                                abortArchive = true;
                                 MessageBox.Show(newestVersion + " has been published on Steam Workshop, but Steam hasn't downloaded the new files yet so CBP Launcher is unable to install them.");
                             }
                         }
@@ -2049,6 +2069,7 @@ catch (Exception ex)
                     }
                     else
                     {
+                        NLog.LogManager.Shutdown();
                         Environment.Exit(0); /// if they say no, then application is kill;
                     }                        /// Env.Exit used instead of App.Exit because it prevents more code from running
                 }                            /// App.Exit was writing the new version file even if you said no on the prompt - maybe could be resolved, but this is okay I think
@@ -2117,6 +2138,7 @@ catch (Exception ex)
                     {
                         MessageBox.Show($"CBP Setup GUI (patriots.exe) doesn't seem to be closing, so CBP Launcher will be closed.");
                         Status = LauncherStatus.unloadFailed;
+                        NLog.LogManager.Shutdown();
                         Environment.Exit(-1);
                     }
                 }
@@ -2256,6 +2278,7 @@ catch (Exception ex)
                 }
 
                 //should debug log a line here, because oddly enough this sometimes doesn't seem to trigger
+                LogManager.Shutdown();
                 Application.Current.MainWindow.Close();
             }
             else if (Status == LauncherStatus.installFailed)
@@ -2291,7 +2314,7 @@ catch (Exception ex)
             }
         }
 
-        // section for the #ICON169 (CBP icon) XML editing
+        // section for the #ICON169 / #ICON170 (CBP icon) XML editing
         private string appDataRoN;
         private string playerProfileFolder;
         private string currentUserXml;
@@ -3247,6 +3270,10 @@ catch (Exception ex)
 
                         MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started. To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
                     }
+                    else
+                    {
+                        MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -3266,6 +3293,10 @@ catch (Exception ex)
                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
 
                         MessageBox.Show("Have attempted to replace original launcher - CBP Launcher should be active when RoN is started.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
                     }
                 }
                 catch (Exception ex)
@@ -3384,7 +3415,7 @@ catch (Exception ex)
 
                 bool versionExists = archivedVersions.Contains(File.ReadAllText(versionFileCBPLocal));
 
-                if (versionExists == false)
+                if ((versionExists == false) && (abortArchive == false))
                 {
                     //get the version BEFORE moving it so that we can rename it on the move action, rather than two separate actions (so that if it errors partway through, we don't get stuck with a no-ID archived CBP folder)
                     Version archiveVersion = new Version(File.ReadAllText(Path.Combine(versionFileCBPLocal)));
@@ -3397,10 +3428,15 @@ catch (Exception ex)
                     Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
                     MessageBox.Show(archiveVersionNew + " has been archived.");
                 }
-                else
+                else if (versionExists == true)//here we don't care about abortArchive - we're aborting regardless
                 {
                     //log
                     Console.WriteLine("It looks like the version to archive already exists, so no action has been taken.");
+                    abortWorkshopCopyCBP = true;
+                }
+                else//which means this covers the single use case of versionExists == false && abortArchive == true
+                {
+                    Console.WriteLine("Archiving aborted due to abortArchive flag.");
                     abortWorkshopCopyCBP = true;
                 }
             }
@@ -3447,6 +3483,7 @@ catch (Exception ex)
             catch (Exception ex)
             {
                 MessageBox.Show("Error while generating lists: " + ex);
+                NLog.LogManager.Shutdown();
                 Environment.Exit(-1);
             }
         }

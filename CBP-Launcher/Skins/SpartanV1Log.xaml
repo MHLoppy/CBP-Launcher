@@ -15,7 +15,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="1" Background="#EEF9F9F9" Margin="0,0,0,0">
-            <TextBlock Text="logs are WIP, log files are in /Rise of Nations/CBP/logs if you wanna look"/>
+            <TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that"/>
         </Grid>
     </Grid>
 </UserControl>
