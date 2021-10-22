@@ -680,7 +680,8 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance().Info("Logging has begun.");
                 CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
-                WriteDefaultSettings();
+                if (Properties.Settings.Default.FirstTimeRun)
+                    WriteDefaultSettings();
 
                 // moved into separate function
                 AutoRunWrapper();
@@ -706,7 +707,8 @@ namespace CBPLauncher.Logic
         private void BigBadWarning()
         {
             // big bad error message if you try to run it from the wrong place
-            if (Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..") == "workshop")
+            if (Path.GetFileName(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."))) == "workshop")
+                //YES I KNOW THIS COMPARISON MAKES YOUR EYES HURT TO READ LEAVE ME ALONE
             {
                 /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
                     Application.Current.MainWindow.Close();*/
@@ -1150,7 +1152,7 @@ namespace CBPLauncher.Logic
         private void AssignZipPath()
         {
             // core paths
-            rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            rootPath = AppDomain.CurrentDomain.BaseDirectory;
             gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
         }
 
@@ -3217,7 +3219,7 @@ catch (Exception ex)
             Properties.Settings.Default.JustReset = true;
             SaveSettings();
 
-            MessageBox.Show($"Settings reset. Default settings will be loaded the next time the program is loaded.");
+            MessageBox.Show($"Settings reset. Please restart program to load default settings.");
         }
 
         //dumb way to avoid having to distribute the config file (people are already having trouble following directions for two exes, I don't want to complicate it further)
