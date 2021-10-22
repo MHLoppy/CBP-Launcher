@@ -21,6 +21,7 @@ using TgaLib;
 using CBPSDK;
 using static CBPLauncher.Logic.BasicIO;
 using NLog;
+using DJ;
 
 namespace CBPLauncher.Logic
 {
@@ -429,15 +430,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-
-        public ObservableCollection<string> Uwu = new ObservableCollection<string>
-        {
-            "henLO",
-            "who R U??????",
-            "PLZ NO",
-            "it's too late mother"
-        };
-
         //RelayCommand definition things
         public RelayCommand CBPDefaultCommand { get; set; }
         public RelayCommand UsePrereleaseCommand { get; set; }
@@ -677,6 +669,7 @@ namespace CBPLauncher.Logic
             {
                 BigBadWarning();
 
+                ConfigureNLog();
                 CBPLogger.GetInstance().Info("Logging has begun.");
                 CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
@@ -733,11 +726,25 @@ namespace CBPLauncher.Logic
             }
         }
 
+        //since sometimes their underlying values are changed without refreshing them :(
+        private void RefreshCheckboxValues()
+        {
+            CBPDefaultCheckbox = Properties.Settings.Default.DefaultCBP;
+            UsePrereleaseCheckbox = Properties.Settings.Default.UsePrerelease;
+            UseDefaultLauncherCheckbox = Properties.Settings.Default.UseDefaultLauncher;
+            UsePrimaryFilesCheckbox = Properties.Settings.Default.UsePrimaryFileList;
+            UseSecondaryFilesCheckbox = Properties.Settings.Default.UseSecondaryFileList;
+            DetectBullshitCheckbox = Properties.Settings.Default.DetectBullshit;
+            OptionalMaintainCheckbox = Properties.Settings.Default.OptionalMaintain;
+            AddIconGameNameCheckbox = Properties.Settings.Default.AddIconGameName;
+        }
+
         private async Task AutoRunWrapper()
         {
             await AutoRun();
             await CreateCommands();
             LoadPlugins();
+            RefreshCheckboxValues();
         }
 
         private async Task AutoRun()
@@ -3553,8 +3560,34 @@ catch (Exception ex)
         {
             var config = new NLog.Config.LoggingConfiguration();
 
+            //extensions https://stackoverflow.com/questions/30340414/nlog-extensions-add-assembly-programmatically
+            var assembly = Assembly.Load("NLogViewer");
+            NLog.Config.ConfigurationItemFactory.Default.RegisterItemsFromAssembly(assembly);
+
             //targets
-            var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "File.txt" };
+
+            var logfile = new NLog.Targets.FileTarget("logfile")
+            {
+                FileName = "${basedir}/CBP/logs/cbplauncher.${shortdate}.log",
+                ArchiveFileName = "cbplauncher.log.{#}.txt",
+                ArchiveNumbering = NLog.Targets.ArchiveNumberingMode.Date,
+                ArchiveEvery = NLog.Targets.FileArchivePeriod.Day,
+                ArchiveDateFormat = "yyyyMMdd",
+                Layout = "${longdate} [${uppercase:${level}}] ${message}"
+            };
+            var logviewer = new NLog.Targets.ConsoleTarget("logviewer")
+            {
+                Name = "logviewer",
+                Layout = "${time} [${uppercase:${level}}] ${message}"
+            };
+            //var test = new NLog.Targets.Wrappers.AsyncTargetWrapper("test");
+
+            //rules for targets
+            config.AddRule(LogLevel.Info, LogLevel.Fatal, logviewer);
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
+
+            //apply config
+            LogManager.Configuration = config;
         }
 
         private async Task Delay(int ms)

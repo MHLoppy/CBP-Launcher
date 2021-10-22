@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CBPLauncher.Skins"
+             xmlns:dj="clr-namespace:DJ;assembly=NLogViewer"
              mc:Ignorable="d" 
              d:DesignHeight="422" d:DesignWidth="534"
              DataContext="{StaticResource MC}">
@@ -15,7 +16,8 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="1" Background="#EEF9F9F9" Margin="0,0,0,0">
-            <TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that"/>
+            <!--<TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that"/>-->
+            <dj:NLogViewer/>
         </Grid>
     </Grid>
 </UserControl>
