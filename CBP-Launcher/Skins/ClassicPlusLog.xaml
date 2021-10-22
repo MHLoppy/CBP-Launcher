@@ -31,8 +31,18 @@
                     <GradientStop Color="#D0161616" Offset="1"/>
                 </LinearGradientBrush>
             </Grid.Background>-->
-            <TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that" Foreground="WhiteSmoke"/>
-
+            <StackPanel>
+                <TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that" Foreground="WhiteSmoke"/>
+                <TextBlock Text="{Binding LauncherVersion}" Foreground="WhiteSmoke" Margin="0,10,0,0"/>
+                <TextBlock Text="{Binding RegPathDebug}" Foreground="WhiteSmoke"/>
+                <TextBlock Text="{Binding EEPath}" Foreground="WhiteSmoke"/>
+                <TextBlock Text="{Binding WorkshopPathDebug}" Foreground="WhiteSmoke"/>
+                <TextBlock Text="{Binding WorkshopPathCBPDebug}" Foreground="WhiteSmoke"/>
+                <TextBlock Text="{Binding VersionTextLatest}" Foreground="WhiteSmoke"/>
+                <TextBlock Text="{Binding VersionTextInstalled}" Foreground="WhiteSmoke"/>
+                <TextBlock Text="{Binding LaunchStatusText}" Foreground="WhiteSmoke"/>
+            </StackPanel>
+            
         </Grid>
     </Grid>
 </UserControl>

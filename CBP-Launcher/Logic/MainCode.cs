@@ -3580,6 +3580,7 @@ catch (Exception ex)
                 Name = "logviewer",
                 Layout = "${time} [${uppercase:${level}}] ${message}"
             };
+            
             //var test = new NLog.Targets.Wrappers.AsyncTargetWrapper("test");
 
             //rules for targets
