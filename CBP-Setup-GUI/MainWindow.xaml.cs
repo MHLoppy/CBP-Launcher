@@ -873,14 +873,33 @@ namespace CBPSetupGUI
 
         private void ResetPressed(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.Reset();
+            //Properties.Settings.Default.Reset();
+            ReplacementSettingsReset();
+
             // for some reason height doesn't reset properly by default?
-            Properties.Settings.Default.Height = 420;
-            Properties.Settings.Default.Width = 600;
+            //Properties.Settings.Default.Height = 420;
+            //Properties.Settings.Default.Width = 600;
+            //update: might be because the reset didn't work as expected since I wasn't distributing the myApp.exe.config (app.config) file :(
+
             // neither does the grid height????
             SaveSettings();
 
             MessageBox.Show(CBPSetupGUI.Language.Resources.SettingResetSuccess);
+        }
+
+        private void ReplacementSettingsReset()
+        {
+            Properties.Settings.Default.UpgradeRequired = true;
+            Properties.Settings.Default.SlowMode = false;
+            Properties.Settings.Default.EnglishOverride = false;
+            Properties.Settings.Default.FirstTimeRun = true;
+            Properties.Settings.Default.AutoConsent = false;
+            Properties.Settings.Default.FontSizeVisible = false;
+            Properties.Settings.Default.FontSize = 12;
+            Properties.Settings.Default.Height = 420;
+            Properties.Settings.Default.Width = 600;
+
+            SaveSettings();
         }
     }
 }
