@@ -457,7 +457,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Start CBP Launcher now?.
+        ///   Looks up a localized string similar to Start CBP Launcher? (CBP Launcher is used to load/unload and configure CBP).
         /// </summary>
         public static string StartCBPLConsent {
             get {

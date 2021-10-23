@@ -670,8 +670,8 @@ namespace CBPLauncher.Logic
                 BigBadWarning();
 
                 ConfigureNLog();
-                CBPLogger.GetInstance().Info("Logging has begun.");
-                CBPLogger.GetInstance().Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                CBPLogger.GetInstance.Info("Logging has begun.");
+                CBPLogger.GetInstance.Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
                 if (Properties.Settings.Default.FirstTimeRun)
                     WriteDefaultSettings();
@@ -813,10 +813,10 @@ namespace CBPLauncher.Logic
                 WorkshopPathCBPDebug = workshopPathCBP;
                 GetLauncherVersion();
 
-                CBPLogger.GetInstance().Info("Current directory: " + rootPath);
-                CBPLogger.GetInstance().Info("RoN:EE detected in: " + EEPath);
-                CBPLogger.GetInstance().Info("Steam Workshop detected in: " + WorkshopPathDebug);
-                CBPLogger.GetInstance().Info("Steam Workshop (CBP) detected in: " + WorkshopPathCBPDebug);
+                CBPLogger.GetInstance.Info("Current directory: " + rootPath);
+                CBPLogger.GetInstance.Info("RoN:EE detected in: " + EEPath);
+                CBPLogger.GetInstance.Info("Steam Workshop detected in: " + WorkshopPathDebug);
+                CBPLogger.GetInstance.Info("Steam Workshop (CBP) detected in: " + WorkshopPathCBPDebug);
             }
             catch (Exception ex)
             {
@@ -3039,6 +3039,9 @@ catch (Exception ex)
             OptCurrent = null;
             OptOriginal = null;
             OptReplacement = null;
+
+            if (Properties.Settings.Default.CBPLoaded)
+                await GenerateDynamicHelpText();
         }
 
         private async Task PreparePreview(string previewPath)
@@ -3266,7 +3269,7 @@ catch (Exception ex)
 
             SaveSettings();
 
-            CBPLogger.GetInstance().Info("Default settings manually written.");
+            CBPLogger.GetInstance.Info("Default settings manually written.");
         }
 
         private void CBPDefaultCheckbox_Inversion()

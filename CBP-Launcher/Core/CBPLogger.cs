@@ -5,8 +5,8 @@ namespace CBPLauncher.Core
 {
     public class CBPLogger : ILogger
     {
-        //private static Lazy<CBPLogger> instance = new Lazy<CBPLogger>(() => new CBPLogger());
-        private static CBPLogger instance;
+        private static Lazy<CBPLogger> instance = new Lazy<CBPLogger>(() => new CBPLogger());
+        //private static CBPLogger instance;
         private static Logger logger;
         private static readonly object InstanceLock = new object();
         
@@ -15,12 +15,12 @@ namespace CBPLauncher.Core
             //intentionally empty
         }
 
-        /*public static CBPLogger GetInstance
+        public static CBPLogger GetInstance
         {
             get => instance.Value;
-        }*/
+        }
 
-        public static CBPLogger GetInstance()
+        /*public static CBPLogger GetInstance()
         {
             if (instance == null)
             {
@@ -33,7 +33,7 @@ namespace CBPLauncher.Core
                 }
             }
             return instance;
-        }
+        }*/
 
         // can't use lazy here because insufficient access to Logger rip
         private Logger GetLogger(string theLogger)
