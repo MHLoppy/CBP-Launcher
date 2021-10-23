@@ -2945,6 +2945,9 @@ catch (Exception ex)
                 string replacementPath = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
                 OptReplacement = await GetTGA(replacementPath);
             }
+
+            if (Properties.Settings.Default.CBPLoaded)
+                await GenerateDynamicHelpText();
         }
 
         private async Task OptionalJamRadar()//counter: 3
@@ -2980,6 +2983,9 @@ catch (Exception ex)
                 string replacementPath = Path.Combine(currentPathOpt, @"art/jamradar.tga");
                 OptReplacement = await GetTGA(replacementPath);
             }
+
+            if (Properties.Settings.Default.CBPLoaded)
+                await GenerateDynamicHelpText();
         }
 
         private async Task OptionalAsianSpy()//counter: 4
@@ -3016,6 +3022,9 @@ catch (Exception ex)
                 string replacementPath = Path.Combine(currentPathOpt, @"art/Spy_6_asian.tga");
                 OptReplacement = await GetTGA(replacementPath);
             }
+
+            if (Properties.Settings.Default.CBPLoaded)
+                await GenerateDynamicHelpText();
         }
 
         private async Task OptionalCompleted()
