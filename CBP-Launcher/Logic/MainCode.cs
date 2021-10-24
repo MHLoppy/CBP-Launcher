@@ -2146,12 +2146,6 @@ catch (Exception ex)
 
                         Directory.Move(localPathCBP, Path.Combine(unloadedModsPath, "Community Balance Patch"));
 
-                        Properties.Settings.Default.CBPUnloaded = true;
-                        Properties.Settings.Default.CBPLoaded = false;
-                        SaveSettings();
-
-                        VersionTextInstalled = "CBP not loaded";
-
                         try
                         {
                             await UnloadDirectFiles();
@@ -2162,6 +2156,11 @@ catch (Exception ex)
                             MessageBox.Show($"Error directly unloading files: {ex}");
                         }
 
+                        Properties.Settings.Default.CBPUnloaded = true;
+                        Properties.Settings.Default.CBPLoaded = false;
+                        SaveSettings();
+
+                        VersionTextInstalled = "CBP not loaded";
                         Status = LauncherStatus.readyCBPDisabled;
                     }
                     else
