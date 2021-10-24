@@ -673,7 +673,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info("Logging has begun.");
                 CBPLogger.GetInstance.Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
-                if (Properties.Settings.Default.FirstTimeRun)
+                if ((Properties.Settings.Default.FirstTimeRun == true) && (Properties.Settings.Default.JustReset == false))
                     WriteDefaultSettings();
 
                 // moved into separate function
@@ -1676,6 +1676,8 @@ catch (Exception ex)
                 CBPFileListAll.Add(
                     //"Primary file: " + 
                     Path.GetFileName(filename));//don't actually put the primary file prefix in the list!
+
+                CBPLogger.GetInstance.Debug("Added from primary list to full list: " + filename);
             }
 
             //secondary files
@@ -1685,6 +1687,8 @@ catch (Exception ex)
                 CBPFileListAll.Add(
                     //"Secondary file: " + 
                     Path.GetFileName(filename));//don't actually put the secondary file prefix in the list!
+
+                CBPLogger.GetInstance.Debug("Added from secondary list to full list: " + filename);
             }
 
             //custom file list logic can go here
@@ -1739,11 +1743,14 @@ catch (Exception ex)
             if (Properties.Settings.Default.FilesBackedUp == false)
             {
                 //copy files from e.g. /data/ to /CBP/Original Files
+                CBPLogger.GetInstance.Debug("FilesBackedUp is false.");
                 try
                 {
                     //data files (primary and secondary)
                     foreach (string filename in CBPFileListAll)
                     {
+                        CBPLogger.GetInstance.Info("File list (all): " + filename);
+
                         if (!File.Exists(Path.Combine(folderCBPoriginal, filename)))
                             File.Copy(Path.Combine(RoNDataPath, filename), Path.Combine(folderCBPoriginal, filename));//if this fails partway then maybe need a way to overwrite (or at least delete) what's there
                         else MessageBox.Show(filename + " already has a backup file so has been skipped.");
