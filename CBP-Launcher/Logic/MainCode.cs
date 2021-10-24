@@ -3525,7 +3525,28 @@ catch (Exception ex)
                     Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
                     MessageBox.Show(archiveVersionNew + " has been archived.");
                 }
-                else if (versionExists == true)//here we don't care about abortArchive - we're aborting regardless
+                else if ((versionExists == true) && (abortArchive == false))
+                {
+                    if (MessageBox.Show("An archive was found with the same name as the current version. Do you want to make a new archive of this version but with a (2) at the end? Otherwise no archive will be made, and the current version will not be changed.", "Existing Archive Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        Version archiveVersion = new Version(File.ReadAllText(Path.Combine(versionFileCBPLocal)));
+
+                        string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
+                                                 + VersionArray.versionMiddle[archiveVersion.minor]
+                                                 + VersionArray.versionEnd[archiveVersion.subMinor]
+                                                 + VersionArray.versionHotfix[archiveVersion.hotfix];
+
+                        Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ") (2)"));
+                        MessageBox.Show(archiveVersionNew + " has been archived.");
+                    }
+                    else
+                    {
+                        //log
+                        Console.WriteLine("It looks like the version to archive already exists. No action has been taken.");
+                        abortWorkshopCopyCBP = true;
+                    }
+                }
+                else if ((versionExists == true) && (abortArchive == true))
                 {
                     //log
                     Console.WriteLine("It looks like the version to archive already exists, so no action has been taken.");
