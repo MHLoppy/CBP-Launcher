@@ -1377,6 +1377,8 @@ namespace CBPLauncher.Logic
                     await GenerateLists();
                     await LoadDirectFiles();
                     await GenerateDynamicHelpText();
+                    if (Properties.Settings.Default.AddIconGameName)
+                        await AddIconGameName();
                 }
 
                 else
@@ -2434,11 +2436,13 @@ catch (Exception ex)
                 if (gameName.Contains("#ICON170") == true)
                 {
                     Console.WriteLine("Last game name already contains CBP-PR icon.");
+                    CBPLogger.GetInstance.Info("Last game name already contains CBP-PR icon.");
                     return true;
                 }
                 else
                 {
                     Console.WriteLine("CBP-PR icon not found in last game name.");
+                    CBPLogger.GetInstance.Info("CBP-PR icon not found in last game name.");
                     return false;
                 }
             }
@@ -2447,11 +2451,13 @@ catch (Exception ex)
                 if (gameName.Contains("#ICON169") == true)
                 {
                     Console.WriteLine("Last game name already contains CBP icon.");
+                    CBPLogger.GetInstance.Info("Last game name already contains CBP (non-PR) icon.");
                     return true;
                 }
                 else
                 {
                     Console.WriteLine("CBP icon not found in last game name.");
+                    CBPLogger.GetInstance.Info("CBP (non-PR) icon not found in last game name.");
                     return false;
                 }
             }
@@ -2472,7 +2478,9 @@ catch (Exception ex)
                 //add non-PR icon
                 xmlNode.InnerText = "#ICON169" + xmlNode.InnerText;
                 doc.Save(playerProfile);
+
                 Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
+                CBPLogger.GetInstance.Info("CBP (non-PR) icon added to " + playerProfile);
             }
             else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
             {
@@ -2483,7 +2491,9 @@ catch (Exception ex)
                 //add PR icon
                 xmlNode.InnerText = "#ICON170" + xmlNode.InnerText;
                 doc.Save(playerProfile);
+
                 Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
+                CBPLogger.GetInstance.Info("CBP PR icon added to " + playerProfile);
             }
         }
 
@@ -2503,6 +2513,7 @@ catch (Exception ex)
             }
 
             Console.WriteLine("CBP icons have been removed from the saved game name.");
+            CBPLogger.GetInstance.Info("CBP icons removed from " + playerProfile);
         }
 
         // section for the dynamic help.xml text
