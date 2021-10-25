@@ -58,6 +58,8 @@ namespace CBPSetupGUI
         private static int CBPVersion = 0;
         private static bool CBPPR = false;//used for debugging
 
+        //private static string netFrameworkVersion => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+
         private async void Window_ContentRendered(object sender, EventArgs e)
         {
             var window = GetWindow(this);
@@ -68,6 +70,9 @@ namespace CBPSetupGUI
 
         private async Task Primary()
         {
+            //step -2: check .NET framework version
+            //MessageBox.Show(netFrameworkVersion);
+            
             //step -1: make sure we can actually load the language files
             await VibeCheck();
 
