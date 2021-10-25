@@ -1308,6 +1308,17 @@ namespace CBPLauncher.Logic
         {
             try // without the try you can accidentally create online-only DRM whoops
             {
+                // if CBP is unloaded, load the folder (but not the data files and extra stuff outside the folder yet) so that we can archive those files
+                // we also don't juse rely on the setting so that settings reset is better supported
+                // (although to be honest, that could probably be made a pre-check where it checks for files then assigns settings based on that)
+                if (File.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")))
+                {
+                    Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
+                    Properties.Settings.Default.CBPLoaded = true;
+                    Properties.Settings.Default.CBPUnloaded = false;
+                    SaveSettings();
+                }
+
                 WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
                 Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
 
@@ -1370,16 +1381,21 @@ namespace CBPLauncher.Logic
                 }
 
                 //this will only run if the local version file (if it exists) is not different to the online one
-                else if (File.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")))
+                //update: no longer needed, because now we always start off by loading from unloaded if it exists (and this whole function is only called when the intended result is to load CBP)
+                /*else if (File.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")))
                 {
-                    Version localVersion = new Version(File.ReadAllText(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")));
-                    await OldInstallGameFiles(false, Version.zero);
+                    //to simplify archiving etc, just load the mod first (but not the direct files, to save time)
+                    Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
+                    Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));
+
+                    //Version localVersion = new Version(File.ReadAllText(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")));
+                    await OldInstallGameFiles(true, Version.zero);
                     await GenerateLists();
                     await LoadDirectFiles();
                     await GenerateDynamicHelpText();
                     if (Properties.Settings.Default.AddIconGameName)
                         await AddIconGameName();
-                }
+                }*/
 
                 else
                 {
@@ -3707,6 +3723,6 @@ catch (Exception ex)
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
         public static string[] versionHotfix = new string[21] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)" // 0-9 respectively
                                                               , " (special)" // 10
-                                                              , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)", " (PR6)", " (PR7)", " (PR8)", " (PR9)", "( PR10+)" }; // 11-19 respectively, then 20 for 10+ because oh god why are there so many PRs
+                                                              , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)", " (PR6)", " (PR7)", " (PR8)", " (PR9)", " (PR10+)" }; // 11-19 respectively, then 20 for 10+ because oh god why are there so many PRs
     }
 }
