@@ -3631,7 +3631,10 @@ catch (Exception ex)
             NLog.Config.ConfigurationItemFactory.Default.RegisterItemsFromAssembly(assembly);
 
             //targets
-
+            DJ.Targets.CacheTarget CacheTarget = new DJ.Targets.CacheTarget()
+            {
+                Name="cache",
+            };
             var logfile = new NLog.Targets.FileTarget("logfile")
             {
                 FileName = "${basedir}/CBP/logs/cbplauncher.${shortdate}.log",
@@ -3646,10 +3649,11 @@ catch (Exception ex)
                 Name = "logviewer",
                 Layout = "${time} [${uppercase:${level}}] ${message}"
             };
-            
+
             //var test = new NLog.Targets.Wrappers.AsyncTargetWrapper("test");
 
             //rules for targets
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, CacheTarget);
             config.AddRule(LogLevel.Info, LogLevel.Fatal, logviewer);
             config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
 

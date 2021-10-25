@@ -17,7 +17,7 @@
 
         <Grid Grid.Column="1" Background="#EEF9F9F9" Margin="0,0,0,0">
             <!--<TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that"/>-->
-            <dj:NLogViewer/>
+            <dj:NLogViewer InfoBackground="#400000FF" InfoForeground="Black" DebugBackground="#4090EE90" ErrorBackground="#AAFF0000" WarnBackground="#40FFFF00" TraceBackground="#40D3D3D3"/>
         </Grid>
     </Grid>
 </UserControl>
