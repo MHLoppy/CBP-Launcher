@@ -97,7 +97,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Consent needed.
+        ///   Looks up a localized string similar to Permission required.
         /// </summary>
         public static string ConsentNeeded {
             get {

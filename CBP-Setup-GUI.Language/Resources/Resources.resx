@@ -130,7 +130,7 @@
     <value> (user auto-consented)</value>
   </data>
   <data name="ConsentNeeded" xml:space="preserve">
-    <value>Consent needed</value>
+    <value>Permission required</value>
   </data>
   <data name="ConsentNo" xml:space="preserve">
     <value> (user said no)</value>
