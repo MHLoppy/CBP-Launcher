@@ -214,7 +214,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Automatically consent?.
+        ///   Looks up a localized string similar to Allow automatic updating/launching?.
         /// </summary>
         public static string DoYouWantACTitle {
             get {
@@ -223,7 +223,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To make this faster, do you want to automatically allow CBP Launcher to update and launch?.
+        ///   Looks up a localized string similar to To make updating/launching faster, do you want to automatically allow CBP Launcher to update and launch? (otherwise you&apos;ll be prompted to allow it each time).
         /// </summary>
         public static string DoYouWantAutoConsent {
             get {

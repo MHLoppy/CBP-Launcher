@@ -405,5 +405,17 @@ namespace CBPLauncher.Properties {
                 this["JustReset"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseFancyLogging {
+            get {
+                return ((bool)(this["UseFancyLogging"]));
+            }
+            set {
+                this["UseFancyLogging"] = value;
+            }
+        }
     }
 }

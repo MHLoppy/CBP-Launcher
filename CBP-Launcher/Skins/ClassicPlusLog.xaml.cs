@@ -23,6 +23,17 @@ namespace CBPLauncher.Skins
         public ClassicPlusLog()
         {
             InitializeComponent();
+
+            if (Properties.Settings.Default.UseFancyLogging)
+            {
+                fancyLog.Visibility = Visibility.Visible;
+                simpleLog.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                fancyLog.Visibility = Visibility.Hidden;
+                simpleLog.Visibility = Visibility.Visible;
+            }
         }
     }
 }

@@ -55,11 +55,13 @@ namespace CBPLauncher.Core
         {
             if (arg == null)
             {
-                GetLogger("launcherLoggerRules").Debug(message);
+                //GetLogger("launcherLoggerRules").Debug(message);
+                GetLogger("mainLog").Debug(message);
             }
             else
             {
-                GetLogger("launcherLoggerRules").Debug(message, arg);
+                //GetLogger("launcherLoggerRules").Debug(message, arg);
+                GetLogger("mainLog").Debug(message, arg);
             }
         }
 
@@ -67,11 +69,13 @@ namespace CBPLauncher.Core
         {
             if (arg == null)
             {
-                GetLogger("launcherLoggerRules").Error(message);
+                //GetLogger("launcherLoggerRules").Error(message);
+                GetLogger("mainLog").Error(message);
             }
             else
             {
-                GetLogger("launcherLoggerRules").Error(message, arg);
+                //GetLogger("launcherLoggerRules").Error(message, arg);
+                GetLogger("mainLog").Error(message, arg);
             }
         }
 
@@ -79,11 +83,13 @@ namespace CBPLauncher.Core
         {
             if (arg == null)
             {
-                GetLogger("launcherLoggerRules").Info(message);
+                //GetLogger("launcherLoggerRules").Info(message);
+                GetLogger("mainLog").Info(message);
             }
             else
             {
-                GetLogger("launcherLoggerRules").Info(message, arg);
+                //GetLogger("launcherLoggerRules").Info(message, arg);
+                GetLogger("mainLog").Info(message, arg);
             }
         }
 
@@ -91,11 +97,13 @@ namespace CBPLauncher.Core
         {
             if (arg == null)
             {
-                GetLogger("launcherLoggerRules").Warn(message);
+                //GetLogger("launcherLoggerRules").Warn(message);
+                GetLogger("mainLog").Warn(message);
             }
             else
             {
-                GetLogger("launcherLoggerRules").Warn(message, arg);
+                //GetLogger("launcherLoggerRules").Warn(message, arg);
+                GetLogger("mainLog").Warn(message, arg);
             }
         }
     }

@@ -130,5 +130,17 @@ namespace CBPSetupGUI.Properties {
                 this["Width"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NeedAskAutoConsent {
+            get {
+                return ((bool)(this["NeedAskAutoConsent"]));
+            }
+            set {
+                this["NeedAskAutoConsent"] = value;
+            }
+        }
     }
 }

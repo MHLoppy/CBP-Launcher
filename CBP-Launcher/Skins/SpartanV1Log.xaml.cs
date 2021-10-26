@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DJ.Resolver;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,17 @@ namespace CBPLauncher.Skins
         public SpartanV1Log()
         {
             InitializeComponent();
+
+            if (Properties.Settings.Default.UseFancyLogging)
+            {
+                fancyLog.Visibility = Visibility.Visible;
+                simpleLog.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                fancyLog.Visibility = Visibility.Hidden;
+                simpleLog.Visibility = Visibility.Visible;
+            }
         }
     }
 }

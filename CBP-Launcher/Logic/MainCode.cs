@@ -251,6 +251,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private string logHeaderText = "Simple Log";
+        public string LogHeaderText
+        {
+            get => logHeaderText;
+            set
+            {
+                logHeaderText = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         //this seems wrong but I can't remember if I know a better way
         private bool cBPDefaultCheckbox = Properties.Settings.Default.DefaultCBP;
@@ -337,6 +348,17 @@ namespace CBPLauncher.Logic
             set
             {
                 addIconGameNameCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool useFancyLoggerCheckBox = Properties.Settings.Default.UseFancyLogging;
+        public bool UseFancyLoggerCheckBox
+        {
+            get => useFancyLoggerCheckBox;
+            set
+            {
+                useFancyLoggerCheckBox = value;
                 OnPropertyChanged();
             }
         }
@@ -442,6 +464,7 @@ namespace CBPLauncher.Logic
         public RelayCommand ConfigOptionalCommand { get; set; }
         public RelayCommand OptionalMaintainCommand { get; set; }
         public RelayCommand AddIconGameNameCommand { get; set; }
+        public RelayCommand UseFancyLoggingCommand { get; set; }
 
 
         public RelayCommand PlayButtonCommand { get; set; }
@@ -737,6 +760,7 @@ namespace CBPLauncher.Logic
             DetectBullshitCheckbox = Properties.Settings.Default.DetectBullshit;
             OptionalMaintainCheckbox = Properties.Settings.Default.OptionalMaintain;
             AddIconGameNameCheckbox = Properties.Settings.Default.AddIconGameName;
+            UseFancyLoggerCheckBox = Properties.Settings.Default.UseFancyLogging;
         }
 
         private async Task AutoRunWrapper()
@@ -846,6 +870,9 @@ namespace CBPLauncher.Logic
 
                 //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
                 //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
+
+                //not creating dir, but needs to be after so I'm putting it here
+                LogHeaderText = "Detailed logs are saved in the logs folder located in:\n" + folderCBProot;
             }
             catch (Exception ex)
             {
@@ -952,6 +979,16 @@ namespace CBPLauncher.Logic
                     await AddIconGameName();
                 else
                     await RemoveIconGameName();
+            });
+
+            UseFancyLoggingCommand = new RelayCommand(o =>
+            {
+                UseFancyLogging_Inversion();
+
+                if (Properties.Settings.Default.UseFancyLogging)
+                    MessageBox.Show("Fancy log viewer will be enabled on next startup.");
+                else
+                    MessageBox.Show("Fancy log viewer will be disabled on next startup.");
             });
 
             ResetSettingsCommand = new RelayCommand(o =>
@@ -3308,6 +3345,7 @@ catch (Exception ex)
             Properties.Settings.Default.FirstTimePlugins = true;
             Properties.Settings.Default.AnyPluginsLoaded = false;
             Properties.Settings.Default.JustReset = false;
+            Properties.Settings.Default.UseFancyLogging = false;
 
             SaveSettings();
 
@@ -3359,6 +3397,12 @@ catch (Exception ex)
         private void AddIconGameName_Inversion()
         {
             Properties.Settings.Default.AddIconGameName = !Properties.Settings.Default.AddIconGameName;
+            SaveSettings();
+        }
+
+        private void UseFancyLogging_Inversion()
+        {
+            Properties.Settings.Default.UseFancyLogging = !Properties.Settings.Default.UseFancyLogging;
             SaveSettings();
         }
 
@@ -3627,14 +3671,10 @@ catch (Exception ex)
             var config = new NLog.Config.LoggingConfiguration();
 
             //extensions https://stackoverflow.com/questions/30340414/nlog-extensions-add-assembly-programmatically
-            var assembly = Assembly.Load("NLogViewer");
-            NLog.Config.ConfigurationItemFactory.Default.RegisterItemsFromAssembly(assembly);
+            
 
             //targets
-            DJ.Targets.CacheTarget CacheTarget = new DJ.Targets.CacheTarget()
-            {
-                Name="cache",
-            };
+            
             var logfile = new NLog.Targets.FileTarget("logfile")
             {
                 FileName = "${basedir}/CBP/logs/cbplauncher.${shortdate}.log",
@@ -3642,7 +3682,7 @@ catch (Exception ex)
                 ArchiveNumbering = NLog.Targets.ArchiveNumberingMode.Date,
                 ArchiveEvery = NLog.Targets.FileArchivePeriod.Day,
                 ArchiveDateFormat = "yyyyMMdd",
-                Layout = "${longdate} [${uppercase:${level}}] ${message}"
+                Layout = "${time} [${uppercase:${level}}] ${message}"
             };
             var logviewer = new NLog.Targets.ConsoleTarget("logviewer")
             {
@@ -3653,9 +3693,19 @@ catch (Exception ex)
             //var test = new NLog.Targets.Wrappers.AsyncTargetWrapper("test");
 
             //rules for targets
-            config.AddRule(LogLevel.Debug, LogLevel.Fatal, CacheTarget);
             config.AddRule(LogLevel.Info, LogLevel.Fatal, logviewer);
             config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
+
+            // fancier logging on logging tab (just displays the same things that are already saved to file)
+            if (Properties.Settings.Default.UseFancyLogging)
+            {
+                var assembly = Assembly.Load("NLogViewer");
+                NLog.Config.ConfigurationItemFactory.Default.RegisterItemsFromAssembly(assembly);
+
+                DJ.Targets.CacheTarget CacheTarget = new DJ.Targets.CacheTarget();//increases memory footprint by >10MB, seems a little insane for a glorified block of text
+
+                config.AddRule(LogLevel.Debug, LogLevel.Fatal, CacheTarget);
+            }
 
             //apply config
             LogManager.Configuration = config;

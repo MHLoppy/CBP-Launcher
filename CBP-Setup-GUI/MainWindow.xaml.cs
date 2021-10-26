@@ -462,10 +462,13 @@ namespace CBPSetupGUI
 
             async Task AutoConsentQuestion()
             {
-                if (Properties.Settings.Default.FirstTimeRun)
+                if (Properties.Settings.Default.NeedAskAutoConsent == true)
                 {
                     if (MessageBox.Show(CBPSetupGUI.Language.Resources.DoYouWantAutoConsent, CBPSetupGUI.Language.Resources.DoYouWantACTitle, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         Properties.Settings.Default.AutoConsent = true;
+
+                    Properties.Settings.Default.NeedAskAutoConsent = false;
+                    SaveSettings();
                 }
 
                 await SlowDown();
@@ -754,6 +757,7 @@ namespace CBPSetupGUI
             if (Properties.Settings.Default.FirstTimeRun == true)
             {
                 Properties.Settings.Default.FirstTimeRun = false;
+                Properties.Settings.Default.NeedAskAutoConsent = true;
                 SaveSettings();
             }
         }
@@ -904,6 +908,7 @@ namespace CBPSetupGUI
             Properties.Settings.Default.FontSize = 12;
             Properties.Settings.Default.Height = 420;
             Properties.Settings.Default.Width = 600;
+            Properties.Settings.Default.NeedAskAutoConsent = false;
 
             SaveSettings();
         }

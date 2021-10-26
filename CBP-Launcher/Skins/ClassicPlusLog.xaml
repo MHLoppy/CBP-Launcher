@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CBPLauncher.Skins"
+             xmlns:dj="clr-namespace:DJ;assembly=NLogViewer"
              mc:Ignorable="d" 
              d:DesignHeight="615" d:DesignWidth="454"
              DataContext="{StaticResource MC}">
@@ -14,7 +15,12 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Column="0" Grid.RowSpan="2">
             <Border.Background>
                 <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.50016">
                     <GradientStop Color="#D4383838" Offset="0"/>
@@ -23,17 +29,12 @@
             </Border.Background>
         </Border>
 
-        <Grid Grid.Column="1" Background="#D0222222" Margin="0,0,0,0">
-            <!-- this gradient background is neat but you need a fairly bright top side / dark bottom side to make the gradient smooth enough (extreme enough that it doesn't look better than flat imo) -->
-            <!--<Grid.Background>
-                <LinearGradientBrush EndPoint="0.5, 1" StartPoint="0.5, 0">
-                    <GradientStop Color="#D0333333" Offset="0"/>
-                    <GradientStop Color="#D0161616" Offset="1"/>
-                </LinearGradientBrush>
-            </Grid.Background>-->
-            <StackPanel>
-                <TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that" Foreground="WhiteSmoke"/>
-                <TextBlock Text="{Binding LauncherVersion}" Foreground="WhiteSmoke" Margin="0,10,0,0"/>
+        <Grid Grid.Column="1" Grid.Row="0" Margin="0,0,0,0" Background="#D0222222">
+            <dj:NLogViewer Name="fancyLog" InfoBackground="#700000FF" InfoForeground="#FFEEEEEE" DebugBackground="#A090EE90" ErrorBackground="#AAFF0000" WarnBackground="#80FFFF00" TraceBackground="#80D3D3D3"/>
+
+            <StackPanel Margin="5,5,0,0" Name="simpleLog" Visibility="Hidden">
+                <TextBlock Text="{Binding LogHeaderText}" Foreground="WhiteSmoke" Margin="0,0,0,0"/>
+                <TextBlock Text="{Binding LauncherVersion}" Foreground="WhiteSmoke"/>
                 <TextBlock Text="{Binding RegPathDebug}" Foreground="WhiteSmoke"/>
                 <TextBlock Text="{Binding EEPath}" Foreground="WhiteSmoke"/>
                 <TextBlock Text="{Binding WorkshopPathDebug}" Foreground="WhiteSmoke"/>
@@ -42,7 +43,10 @@
                 <TextBlock Text="{Binding VersionTextInstalled}" Foreground="WhiteSmoke"/>
                 <TextBlock Text="{Binding LaunchStatusText}" Foreground="WhiteSmoke"/>
             </StackPanel>
-            
+        </Grid>
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <TextBox Text="{Binding LogHeaderText}" TextWrapping="Wrap" IsReadOnly="True" Background="#D0222222" Foreground="WhiteSmoke" Padding="3,0,0,0" BorderThickness="0"/>
         </Grid>
     </Grid>
 </UserControl>

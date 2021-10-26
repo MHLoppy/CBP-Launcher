@@ -169,10 +169,10 @@
     <value>Language files updated.</value>
   </data>
   <data name="DoYouWantACTitle" xml:space="preserve">
-    <value>Automatically consent?</value>
+    <value>Allow automatic updating/launching?</value>
   </data>
   <data name="DoYouWantAutoConsent" xml:space="preserve">
-    <value>To make this faster, do you want to automatically allow CBP Launcher to update and launch?</value>
+    <value>To make updating/launching faster, do you want to automatically allow CBP Launcher to update and launch? (otherwise you'll be prompted to allow it each time)</value>
   </data>
   <data name="EnglishOverrideText" xml:space="preserve">
     <value>Override language to English</value>
