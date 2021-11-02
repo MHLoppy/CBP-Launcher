@@ -3434,7 +3434,7 @@ catch (Exception ex)
             Properties.Settings.Default.RoNPathSetting = "no path";
             Properties.Settings.Default.UnloadWorkshopToo = false;
             Properties.Settings.Default.CBPArchive = true;
-            Properties.Settings.Default.UsePrerelease = true;
+            Properties.Settings.Default.UsePrerelease = false;
             Properties.Settings.Default.OldFilesRenamed = false;
             Properties.Settings.Default.UseDefaultLauncher = true;
             Properties.Settings.Default.SkinSpV1 = false;
