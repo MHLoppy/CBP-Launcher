@@ -62,7 +62,7 @@
                 <!-- logo in box -->
                 <Image Source="/images/RoN EE logo (touchup) from game files.png" RenderOptions.BitmapScalingMode="Fant" Margin="38,20,22,40" Stretch="Uniform" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/>
                 <Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="71,54,57,74" Stretch="Uniform" Visibility="Hidden"/><!-- old temp one, seemed too sparse -->
-                <Image Source="/Images/RoN CBP logo 01.png" RenderOptions.BitmapScalingMode="Fant" Margin="32,15,19,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/><!-- new temp one, seems better -->
+                <Image Source="/Images/RoN CBP logo 01 (resized).png" RenderOptions.BitmapScalingMode="Fant" Margin="32,15,19,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/><!-- new temp one, seems better -->
 
                 <!-- stuff below the logo box-->
                 <Label Content="{Binding VersionTextInstalled}" HorizontalContentAlignment="Center" FontSize="18" HorizontalAlignment="Left" Margin="11,21,0,0" VerticalAlignment="Top" Width="236" Foreground="#FFF0F0F0" FontFamily="Segoe UI Semilight" Height="48"/>

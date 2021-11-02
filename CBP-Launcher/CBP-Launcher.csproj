@@ -547,6 +547,7 @@
     <Resource Include="Images\IDB_CLOSE_U.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\RoN CBP logo 01 %28resized%29.png" />
     <Resource Include="Images\RoN EE logo steam cdn logo %28minor cleanup%29.png" />
   </ItemGroup>
   <ItemGroup>
@@ -564,9 +565,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\RoN CBP logo %28no rivets%29.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\RoN CBP logo 01.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\RoN CBP Launcher recreation small version.png" />

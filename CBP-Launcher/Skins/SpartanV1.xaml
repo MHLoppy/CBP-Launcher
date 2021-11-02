@@ -57,7 +57,7 @@
                 <!-- left side: rounded image background + image overlays -->
                 <Image Source="/Images/RoN EE logo (touchup) from game files.png" Margin="67,136,63,40" Stretch="Uniform" RenderOptions.BitmapScalingMode="Fant" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/><!-- perfect-ish fit-->
                 <Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="90,163,90,68" Stretch="Uniform" Visibility="Hidden"/><!-- old temp one, seemed too sparse -->
-                <Image Source="/Images/RoN CBP logo 01.png" RenderOptions.BitmapScalingMode="Fant" Margin="61,131,60,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/><!-- new temp one, seems better -->
+                <Image Source="/Images/RoN CBP logo 01 (resized).png" RenderOptions.BitmapScalingMode="Fant" Margin="61,131,60,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/><!-- new temp one, seems better -->
 
                 <Border CornerRadius="16,16,16,16" Margin="35,98,35,2" Opacity="0.5" Panel.ZIndex="-1">
                     <Border.Background>
