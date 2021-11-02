@@ -548,7 +548,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\RoN CBP logo 01 %28resized%29.png" />
-    <Resource Include="Images\RoN EE logo steam cdn logo %28minor cleanup%29.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\button up minor edit.png" />
