@@ -724,7 +724,6 @@ namespace CBPLauncher.Logic
         {
             // big bad error message if you try to run it from the wrong place
             if (Path.GetFileName(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."))) == "workshop")
-                //YES I KNOW THIS COMPARISON MAKES YOUR EYES HURT TO READ LEAVE ME ALONE
             {
                 /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
                     Application.Current.MainWindow.Close();*/
@@ -739,6 +738,7 @@ namespace CBPLauncher.Logic
                                                         , "UNSUPPORTED LOCATION")
                     .Contains("I understand"))
                 {
+                    CBPLogger.GetInstance.Warning("User is continuing to run from Workshop location.");
                     MessageBox.Show("I hope you know what you're doing uwu", "Continuing", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
@@ -761,6 +761,8 @@ namespace CBPLauncher.Logic
             OptionalMaintainCheckbox = Properties.Settings.Default.OptionalMaintain;
             AddIconGameNameCheckbox = Properties.Settings.Default.AddIconGameName;
             UseFancyLoggerCheckBox = Properties.Settings.Default.UseFancyLogging;
+
+            CBPLogger.GetInstance.Debug("Checkbox values refreshed.");
         }
 
         private async Task AutoRunWrapper()
@@ -783,7 +785,8 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error during initialization: {ex}");
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error($"Error during initialization: {ex}");
+                LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -794,11 +797,10 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading registry: {ex}");
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error($"Error reading registry: {ex}");
+                LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
-
-            RegPathDebug = "Debug: registry read as " + RegPath.ToString();
 
             /// TODO
             /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
@@ -814,7 +816,8 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error creating paths (part 1): {ex}");
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error($"Error creating paths (part 1): {ex}");
+                LogManager.Shutdown();
                 Environment.Exit(0);
             }
 
@@ -825,7 +828,8 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show("Error assigning paths (path 2):" + ex);
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error("Error assigning paths (path 2):" + ex);
+                LogManager.Shutdown();
                 Environment.Exit(0);
             }
 
@@ -845,7 +849,8 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error displaying paths in UI {ex}");
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error($"Error displaying paths in UI {ex}");
+                LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -877,7 +882,8 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error creating directories {ex}");
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error($"Error creating directories {ex}");
+                LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
@@ -907,7 +913,8 @@ namespace CBPLauncher.Logic
             catch (Exception ex)
             {
                 MessageBox.Show($"Error with primary (old content_rendered) step: {ex}");
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error($"Error with primary (old content_rendered) step: {ex}");
+                LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
             //CBPDefaultChecker();
@@ -1217,6 +1224,7 @@ namespace CBPLauncher.Logic
 
                     else
                     {
+                        CBPLogger.GetInstance.Debug("FindPathAuto1 unable to find path, moving to 2.");
                         await FindPathAuto2();
                     }
                 }
@@ -1232,6 +1240,8 @@ namespace CBPLauncher.Logic
                 interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, interfaceXML));
                 setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, setupwinXML));
                 patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
+
+                CBPLogger.GetInstance.Debug("Using RoN path saved in settings: " + RoNPathFinal);
             }
         }
 
@@ -1247,6 +1257,7 @@ namespace CBPLauncher.Logic
             }
             else
             {
+                CBPLogger.GetInstance.Debug("FindPathAuto2 unable to find path, moving to 3.");
                 await FindPathAuto3();
             }
         }
@@ -1265,6 +1276,7 @@ namespace CBPLauncher.Logic
             // automated methods unable to locate RoN install path - ask user for path
             else
             {
+                CBPLogger.GetInstance.Debug("FindPathAuto3 unable to find path, moving to manual.");
                 await FindPathManual();
             }
         }
@@ -1276,6 +1288,8 @@ namespace CBPLauncher.Logic
 
             RoNPathCheck = Interaction.InputBox($"Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
                                                + "\n\n" + @"e.g. D:\Steamgames\common\Rise of Nations", "Unable to detect RoN install");
+
+            CBPLogger.GetInstance.Debug($"User has supplied {RoNPathCheck} as RoN path.");
 
             // check that the user has input a seemingly valid location
             if (File.Exists(Path.Combine(RoNPathCheck, "riseofnations.exe")))
@@ -1297,7 +1311,8 @@ namespace CBPLauncher.Logic
                 else
                 {
                     MessageBox.Show("Launcher will now close.");
-                    NLog.LogManager.Shutdown();
+                    CBPLogger.GetInstance.Warning("RoN path(s) provided by user not valid.");
+                    LogManager.Shutdown();
                     Environment.Exit(0);
                 }
             }
@@ -1323,10 +1338,12 @@ namespace CBPLauncher.Logic
             if (Properties.Settings.Default.UsePrerelease == true)
             {
                 workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+                CBPLogger.GetInstance.Debug("Using pre-release of CBP.");
             }
             else
             {
                 workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+                CBPLogger.GetInstance.Debug("Using non-PR of CBP.");
             }
             //workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
 
@@ -1350,6 +1367,7 @@ namespace CBPLauncher.Logic
                 // (although to be honest, that could probably be made a pre-check where it checks for files then assigns settings based on that)
                 if (File.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")))
                 {
+                    CBPLogger.GetInstance.Debug("Detected unloaded CBP folder when checking for updates...");
                     Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
                     Properties.Settings.Default.CBPLoaded = true;
                     Properties.Settings.Default.CBPUnloaded = false;
@@ -1369,6 +1387,7 @@ namespace CBPLauncher.Logic
                      + VersionArray.versionMiddle[onlineVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
                      + VersionArray.versionEnd[onlineVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
                      + VersionArray.versionHotfix[onlineVersion.hotfix];
+                CBPLogger.GetInstance.Debug(VersionTextLatest);
 
                 if (File.Exists(versionFileCBPLocal)) //If there's already a version.txt in the local-mods CBP folder, then...
                 {
@@ -1383,6 +1402,7 @@ namespace CBPLauncher.Logic
                     {
                         if (onlineVersion.IsDifferentThan(localVersion))
                         {
+                            CBPLogger.GetInstance.Debug("Online and local versions are different...");
                             await OldInstallGameFiles(true, onlineVersion);
                             //GenerateLists();
                             //LoadDirectFiles();
@@ -1390,6 +1410,7 @@ namespace CBPLauncher.Logic
                         }
                         else
                         {
+                            CBPLogger.GetInstance.Debug("Online and local versions are the same...");
                             await GenerateLists();
                             await LoadDirectFiles();
                             if (Properties.Settings.Default.AddIconGameName)
@@ -1407,6 +1428,7 @@ namespace CBPLauncher.Logic
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
+                        CBPLogger.GetInstance.Error($"Error installing patch files: {ex}");
                         MessageBox.Show($"Error installing patch files: {ex}");
                     }
                 }
@@ -1452,6 +1474,7 @@ namespace CBPLauncher.Logic
 
                 UpdateLocalVersionNumber();
                 VersionTextLatest = "Error checking version";
+                CBPLogger.GetInstance.Error($"Error checking for updates. Maybe no connection could be established? {ex}");
                 MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
             }
         }
@@ -1560,52 +1583,78 @@ catch (Exception ex)
         //using the generated modded and original lists, check then (if needed) load each (appropriate modded or original) file in each list
         private async Task LoadDirectFiles()
         {
-            // check each file in the modded list and make sure it's an up-to-date CBP file
-            Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));//at some point this should definitely be spun out into a less-localised variable so that it can be used in multiple places
-
-            foreach (string filename in CBPFileListModded)
+            try
             {
-                if (CheckIfCBPFile(filename) == true)
-                {
-                    //it's a CBP file (but not necessarily the right version, so deal with that too)
-                    string text = File.ReadLines(Path.Combine(RoNDataPath, filename)).Skip(2).Take(1).First();
-                    Version fileVersion = new Version(text.Substring(9, 11));
+                // check each file in the modded list and make sure it's an up-to-date CBP file
+                Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));//at some point this should definitely be spun out into a less-localised variable so that it can be used in multiple places
 
-                    if (fileVersion.IsDifferentThan(localVersion))// I assume it's faster to check this than straight up always-write files
+                foreach (string filename in CBPFileListModded)
+                {
+                    if (CheckIfCBPFile(filename) == true)
                     {
+                        CBPLogger.GetInstance.Debug($"{filename} is a CBP file...");
+
+                        //it's a CBP file (but not necessarily the right version, so deal with that too)
+                        string text = File.ReadLines(Path.Combine(RoNDataPath, filename)).Skip(2).Take(1).First();
+                        Version fileVersion = new Version(text.Substring(9, 11));
+
+                        if (fileVersion.IsDifferentThan(localVersion))// I assume it's faster to check this than straight up always-write files
+                        {
+                            CBPLogger.GetInstance.Debug("..but isn't up to date - updating...");
+                            await ActuallyLoadFiles(filename);
+                        }
+                        //else no action required
+                    }
+                    else
+                    {
+                        CBPLogger.GetInstance.Debug($"{filename} is not a CBP file...");
                         await ActuallyLoadFiles(filename);
                     }
-                    //else no action required
                 }
-                else
+
+                // check each file in the original list and make sure it's **NOT** a CBP file (we don't care if it's user-modded, since they did that themselves)
+                foreach (string filename in CBPFileListOriginal)
                 {
-                    await ActuallyLoadFiles(filename);
+                    if (CheckIfCBPFile(filename) == true)
+                    {
+                        CBPLogger.GetInstance.Debug($"{filename} is a CBP file - swapping to original...");
+
+                        //replace it from the backup that was previously copied (not necessarily copied in this session)
+                        File.Copy(Path.Combine(folderCBPoriginal, filename), Path.Combine(RoNDataPath, filename), true);
+                    }
+                    else
+                    {
+                        //*chef's kiss* no action required
+                        CBPLogger.GetInstance.Debug($"{filename} is not a CBP file - no action taken.");
+                    }
                 }
             }
-
-            // check each file in the original list and make sure it's **NOT** a CBP file (we don't care if it's user-modded, since they did that themselves)
-            foreach (string filename in CBPFileListOriginal)
+            catch (Exception ex)
             {
-                if (CheckIfCBPFile(filename) == true)
-                {
-                    //replace it from the backup that was previously copied (not necessarily copied in this session)
-                    File.Copy(Path.Combine(folderCBPoriginal, filename), Path.Combine(RoNDataPath, filename), true);
-                }
-                else
-                {
-                    //*chef's kiss* no action required
-                }
+                CBPLogger.GetInstance.Error($"Error changing data files: {ex}");
+                MessageBox.Show("Error changing data files: " + ex);
+                LogManager.Shutdown();
+                Environment.Exit(-1);
             }
         }
 
         private async Task ActuallyLoadFiles(string filename)
         {
-            if (File.Exists(Path.Combine(primaryDataCBP, filename)))
-                File.Copy(Path.Combine(primaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
+            try
+            {
+                if (File.Exists(Path.Combine(primaryDataCBP, filename)))
+                    File.Copy(Path.Combine(primaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
 
-            else if (File.Exists(Path.Combine(secondaryDataCBP, filename)))
-                File.Copy(Path.Combine(secondaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
-
+                else if (File.Exists(Path.Combine(secondaryDataCBP, filename)))
+                    File.Copy(Path.Combine(secondaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
+            }
+            catch (Exception ex)
+            {
+                CBPLogger.GetInstance.Error($"Error actually loading files: {ex}");
+                MessageBox.Show("Error actually loading files: " + ex);
+                LogManager.Shutdown();
+                Environment.Exit(-1);
+            }
             // in theory (shouldn't *actually* happen but ya know) you could have scuffed files in neither list, but for now it's not handled
         }
 
@@ -1678,11 +1727,23 @@ catch (Exception ex)
             //for every file, check it and then (if needed) load the original file
             foreach (string filename in CBPFileListAll)
             {
-                if (CheckIfCBPFile(filename) == true)
+                try
                 {
-                    File.Copy(Path.Combine(folderCBPoriginal, filename), Path.Combine(RoNDataPath, filename), true);
+                    if (CheckIfCBPFile(filename) == true)
+                    {
+                        CBPLogger.GetInstance.Debug($"{filename} is a CBP file - unloading for original...");
+                        File.Copy(Path.Combine(folderCBPoriginal, filename), Path.Combine(RoNDataPath, filename), true);
+                    }
+                    //else no action required
+                    CBPLogger.GetInstance.Debug($"{filename} is not a CBP file - no action taken.");
                 }
-                //else no action required
+                catch (Exception ex)
+                {
+                    CBPLogger.GetInstance.Error($"Error unloading files: {ex}");
+                    MessageBox.Show($"Error unloading files: {ex}");
+                    LogManager.Shutdown();
+                    Environment.Exit(-1);
+                }
             }
         }
 
@@ -1763,6 +1824,7 @@ catch (Exception ex)
             if (File.Exists(helpXMLOrig + " (old)"))
             {
                 //looks like user has old version of CBP loaded, so we can't use these files
+                CBPLogger.GetInstance.Info("Seems like there are old files from an early Alpha 7 pre-release...");
                 MessageBox.Show("It looks like you currently have a pre-release version of CBP files loaded (from before PR6). Will now attempt to unload these files before continuing. (if you see this message repeatedly, ask for help)");
 
                 try
@@ -1789,7 +1851,8 @@ catch (Exception ex)
                 catch (Exception ex)
                 {
                     MessageBox.Show("Could not unload old CBP files automatically. Unable to continue. " + ex);
-                    NLog.LogManager.Shutdown();
+                    CBPLogger.GetInstance.Error("Could not unload old CBP files automatically. Unable to continue. " + ex);
+                    LogManager.Shutdown();
                     Environment.Exit(-1);
                 }
                 await CheckForUpdates();
@@ -1808,7 +1871,7 @@ catch (Exception ex)
 
                         if (!File.Exists(Path.Combine(folderCBPoriginal, filename)))
                             File.Copy(Path.Combine(RoNDataPath, filename), Path.Combine(folderCBPoriginal, filename));//if this fails partway then maybe need a way to overwrite (or at least delete) what's there
-                        else MessageBox.Show(filename + " already has a backup file so has been skipped.");
+                        else CBPLogger.GetInstance.Info(filename + " already has a backup file so has been skipped.");
                     }
 
                     Properties.Settings.Default.FilesBackedUp = true;
@@ -1817,14 +1880,15 @@ catch (Exception ex)
                 catch (Exception ex)
                 {
                     MessageBox.Show("Problem backing up data files. " + ex);
-                    NLog.LogManager.Shutdown();
+                    CBPLogger.GetInstance.Error("Problem backing up data files. " + ex);
+                    LogManager.Shutdown();
                     Environment.Exit(-1);
                 }
             }
 
             else if (Properties.Settings.Default.FilesBackedUp == true)
             {
-                //log that
+                CBPLogger.GetInstance.Debug("Settings say that files are already backed up.");
             }
 
             /*//I hate this but for 3 files I can live with it
@@ -1889,6 +1953,8 @@ catch (Exception ex)
                 }
             }
             //after that, handle custom lists (where primary and/or secondary are turned off and individual files are loaded/unloaded instead)
+
+            CBPLogger.GetInstance.Debug("Modded file list generated.");
         }
 
         private async Task GenerateFileListOriginal()
@@ -1899,6 +1965,8 @@ catch (Exception ex)
                 CBPFileListOriginal.Add(name);
                 //MessageBox.Show("Added " + name + "to CBPFileListOriginal"); //change to log event later
             }
+
+            CBPLogger.GetInstance.Debug("Original file list generated.");
         }
 
         private async Task OldInstallGameFiles(bool _isUpdate, Version _onlineVersion)
@@ -1933,6 +2001,7 @@ catch (Exception ex)
                                                      + VersionArray.versionHotfix[onlineVersion.hotfix];
 
                                 abortArchive = true;
+                                CBPLogger.GetInstance.Warning("Newer CBP released, but files not downloaded.");
                                 MessageBox.Show(newestVersion + " has been published on Steam Workshop, but Steam hasn't downloaded the new files yet so CBP Launcher is unable to install them.");
                             }
                         }
@@ -1980,7 +2049,7 @@ catch (Exception ex)
                         }
                         else
                         {
-                            Console.WriteLine("did not copy workshop CBP to local CBP because of archive abort flag");
+                            CBPLogger.GetInstance.Debug("did not copy workshop CBP to local CBP because of archive abort flag");
                         }
 
                         if (Properties.Settings.Default.UseDefaultLauncher == false)
@@ -2010,6 +2079,7 @@ catch (Exception ex)
                         }
                         catch (Exception ex)
                         {
+                            CBPLogger.GetInstance.Error($"Error generating lists / directly loading files: {ex}");
                             MessageBox.Show($"Error generating lists / directly loading files: {ex}");
                         }
 
@@ -2021,6 +2091,7 @@ catch (Exception ex)
                             }
                             catch (Exception ex)
                             {
+                                CBPLogger.GetInstance.Error($"Error maintaining optional changes: {ex}");
                                 MessageBox.Show($"Error maintaining optional changes: {ex}");
                             }
                         }
@@ -2038,18 +2109,23 @@ catch (Exception ex)
                         catch (Exception ex)
                         {
                             Status = LauncherStatus.loadFailed;
+                            CBPLogger.GetInstance.Error($"For some ungodly reason this part failed: {ex}");
                             MessageBox.Show($"Error loading CBP: {ex}");
                         }
                     }
                     catch (Exception ex)
                     {
                         Status = LauncherStatus.installFailed;
+                        CBPLogger.GetInstance.Error($"For some ungodly reason this part failed: {ex}");
                         MessageBox.Show($"Error installing CBP from Workshop files: {ex}");
                     }
                 }
 
+                // not currently used because the setting cannot be set by the user (unless they like, edit tje settings file manually lol)
                 else if (Properties.Settings.Default.NoWorkshopFiles == true) // as of v0.3 release this option isn't even exposed to the user yet, but it'll be useful later
                 {
+                    CBPLogger.GetInstance.Warning("For some reason NoWorkshopFiles setting is true!?!?");
+
                     // try using online files
                     try
                     {
@@ -2099,6 +2175,7 @@ catch (Exception ex)
                 catch (Exception ex)
                 {
                     Status = LauncherStatus.loadFailed;
+                    CBPLogger.GetInstance.Error($"Error loading CBP: {ex}");
                     MessageBox.Show($"Error loading CBP: {ex}");
                 }
             }
@@ -2122,6 +2199,8 @@ catch (Exception ex)
                 }
                 catch (Exception ex)
                 {
+                    CBPLogger.GetInstance.Warning($"Entering fancy catch: {ex}");
+
                     Status = LauncherStatus.installFailed;
                     File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
 
@@ -2154,7 +2233,7 @@ catch (Exception ex)
                     }
                     else
                     {
-                        NLog.LogManager.Shutdown();
+                        LogManager.Shutdown();
                         Environment.Exit(0); /// if they say no, then application is kill;
                     }                        /// Env.Exit used instead of App.Exit because it prevents more code from running
                 }                            /// App.Exit was writing the new version file even if you said no on the prompt - maybe could be resolved, but this is okay I think
@@ -2171,6 +2250,7 @@ catch (Exception ex)
             {
                 Status = LauncherStatus.installFailed;
                 File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
+                CBPLogger.GetInstance.Error($"Error installing new patch files: {ex}");
                 MessageBox.Show($"Error installing new patch files: {ex}");
             }
         }
@@ -2208,6 +2288,7 @@ catch (Exception ex)
                         }
                         catch (Exception ex)
                         {
+                            CBPLogger.GetInstance.Error($"Error directly unloading files: {ex}");
                             MessageBox.Show($"Error directly unloading files: {ex}");
                         }
 
@@ -2222,16 +2303,19 @@ catch (Exception ex)
                     {
                         MessageBox.Show($"CBP Setup GUI (patriots.exe) doesn't seem to be closing, so CBP Launcher will be closed.");
                         Status = LauncherStatus.unloadFailed;
-                        NLog.LogManager.Shutdown();
+                        CBPLogger.GetInstance.Error($"CBP Setup GUI (patriots.exe) wasn't closing >:(");
+                        LogManager.Shutdown();
                         Environment.Exit(-1);
                     }
                 }
                 catch (Exception ex)
                 {
+                    CBPLogger.GetInstance.Error($"Error unloading mod: {ex}");
                     MessageBox.Show($"Error unloading mod: {ex}");
                     Status = LauncherStatus.unloadFailed;
                 }
 
+                //not yet implemented
                 if (Properties.Settings.Default.UnloadWorkshopToo == true)
                 {
                     try
@@ -2240,6 +2324,7 @@ catch (Exception ex)
                     }
                     catch (Exception ex)
                     {
+                        CBPLogger.GetInstance.Error($"Error unloading Workshop mod: {ex}");
                         MessageBox.Show($"Error unloading Workshop mod: {ex}");
                         Status = LauncherStatus.unloadFailed;
                     }
@@ -2291,8 +2376,8 @@ catch (Exception ex)
                 VersionTextInstalled = "CBP "
                                         + VersionArray.versionStart[localVersion.major]
                                         + VersionArray.versionMiddle[localVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                                    + VersionArray.versionEnd[localVersion.subMinor]      ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
-                                    + VersionArray.versionHotfix[localVersion.hotfix];
+                                        + VersionArray.versionEnd[localVersion.subMinor]      ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                                        + VersionArray.versionHotfix[localVersion.hotfix];
             }
             else
             {
@@ -2314,10 +2399,11 @@ catch (Exception ex)
                 }
 
                 RegPathDebug = "Debug: registry read as " + RegPath;
+                CBPLogger.GetInstance.Debug("Registry read as " + RegPath);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error with ReadRegistry:" + ex);
+                CBPLogger.GetInstance.Error("Error with ReadRegistry:" + ex);
             }
         }
 
@@ -2331,10 +2417,14 @@ catch (Exception ex)
 
             if (CheckPluginCompatbilityIssue())
             {
+                CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP...");
+
                 if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 {
                     return;
                 }
+                else
+                    CBPLogger.GetInstance.Warning("..but continuing anyway.");
             }
 
             if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
@@ -2361,7 +2451,7 @@ catch (Exception ex)
                     }
                 }
 
-                //should debug log a line here, because oddly enough this sometimes doesn't seem to trigger
+                CBPLogger.GetInstance.Info($"RoN launched. CBP Launcher closing...");
                 LogManager.Shutdown();
                 Application.Current.MainWindow.Close();
             }
@@ -2412,7 +2502,6 @@ catch (Exception ex)
             {
                 if (CheckForFile())
                 {
-                    Console.WriteLine("Found file: " + currentUserXml);
                     FindProfile();
                     ReadGameName();
                     await AddCBPXml();
@@ -2420,6 +2509,7 @@ catch (Exception ex)
             }
             catch (Exception ex)
             {
+                CBPLogger.GetInstance.Error("Error adding CBP icon to game name" + ex);
                 MessageBox.Show("Error adding CBP icon to game name" + ex);
             }
         }
@@ -2431,7 +2521,6 @@ catch (Exception ex)
             {
                 if (CheckForFile())
                 {
-                    Console.WriteLine("Found file: " + currentUserXml);
                     FindProfile();
                     ReadGameName();
                     await RemoveCBPXml();
@@ -2439,7 +2528,8 @@ catch (Exception ex)
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error adding CBP icon to game name" + ex);
+                CBPLogger.GetInstance.Error("Error removing CBP icon from game name" + ex);
+                MessageBox.Show("Error removing CBP icon from game name" + ex);
             }
         }
 
@@ -2451,12 +2541,12 @@ catch (Exception ex)
 
             if (File.Exists(currentUserXml))
             {
-                Console.WriteLine("Found file: " + currentUserXml);
+                CBPLogger.GetInstance.Info("Found file: " + currentUserXml);
                 return true;
             }
             else
             {
-                Console.WriteLine("Unable to find current user xml file");
+                CBPLogger.GetInstance.Info("Unable to find current user xml file");
                 return false;
             }
         }
@@ -2469,7 +2559,7 @@ catch (Exception ex)
 
             playerProfile = Path.Combine(playerProfileFolder, (ronName + ".dat"));
 
-            Console.WriteLine("RoN username: " + ronName);
+            CBPLogger.GetInstance.Info("RoN username: " + ronName);
         }
 
         private void ReadGameName() // reads the last game name (mostly as a building block for later functions + troubleshooting rather than to use itself)
@@ -2479,7 +2569,7 @@ catch (Exception ex)
             XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
             gameName = xmlNode.InnerText;
 
-            Console.WriteLine("Last game name: " + gameName);
+            CBPLogger.GetInstance.Info("Last game name: " + gameName);
         }
 
         private bool CheckCBPXml() // checks if #ICON169 is already present in last game name
@@ -2488,13 +2578,11 @@ catch (Exception ex)
             {
                 if (gameName.Contains("#ICON170") == true)
                 {
-                    Console.WriteLine("Last game name already contains CBP-PR icon.");
                     CBPLogger.GetInstance.Info("Last game name already contains CBP-PR icon.");
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine("CBP-PR icon not found in last game name.");
                     CBPLogger.GetInstance.Info("CBP-PR icon not found in last game name.");
                     return false;
                 }
@@ -2503,13 +2591,11 @@ catch (Exception ex)
             {
                 if (gameName.Contains("#ICON169") == true)
                 {
-                    Console.WriteLine("Last game name already contains CBP icon.");
                     CBPLogger.GetInstance.Info("Last game name already contains CBP (non-PR) icon.");
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine("CBP icon not found in last game name.");
                     CBPLogger.GetInstance.Info("CBP (non-PR) icon not found in last game name.");
                     return false;
                 }
@@ -2532,8 +2618,7 @@ catch (Exception ex)
                 xmlNode.InnerText = "#ICON169" + xmlNode.InnerText;
                 doc.Save(playerProfile);
 
-                Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
-                CBPLogger.GetInstance.Info("CBP (non-PR) icon added to " + playerProfile);
+                CBPLogger.GetInstance.Info("#ICON169 added. Game name: " + xmlNode.InnerText);
             }
             else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
             {
@@ -2545,8 +2630,7 @@ catch (Exception ex)
                 xmlNode.InnerText = "#ICON170" + xmlNode.InnerText;
                 doc.Save(playerProfile);
 
-                Console.WriteLine("Game name changed to: " + xmlNode.InnerText);
-                CBPLogger.GetInstance.Info("CBP PR icon added to " + playerProfile);
+                CBPLogger.GetInstance.Info("#ICON170 added. Game name: " + xmlNode.InnerText);
             }
         }
 
@@ -2565,7 +2649,6 @@ catch (Exception ex)
                 doc.Save(playerProfile);
             }
 
-            Console.WriteLine("CBP icons have been removed from the saved game name.");
             CBPLogger.GetInstance.Info("CBP icons removed from " + playerProfile);
         }
 
@@ -2589,15 +2672,15 @@ catch (Exception ex)
                     node3.ChildNodes[0].InnerText = GenerateOtherMenuText();// we use the same string as node2
 
                     // log the strings
-                    Console.WriteLine("Main menu readout: " + node.ChildNodes[0].InnerText);
-                    Console.WriteLine("Other readout (1): " + node2.ChildNodes[0].InnerText);
-                    Console.WriteLine("Other readout (2): " + node3.ChildNodes[0].InnerText);
+                    CBPLogger.GetInstance.Debug("Main menu readout: " + node.ChildNodes[0].InnerText);
+                    CBPLogger.GetInstance.Debug("Other readout (1): " + node2.ChildNodes[0].InnerText);
+                    CBPLogger.GetInstance.Debug("Other readout (2): " + node3.ChildNodes[0].InnerText);
 
                     doc.Save(helpXMLOrig);
-
                 }
                 catch (Exception ex)
                 {
+                    CBPLogger.GetInstance.Error("Error updating menu tooltips: " + ex);
                     MessageBox.Show("Error updating menu tooltips: " + ex);
                 }
             }
@@ -2755,7 +2838,7 @@ catch (Exception ex)
             }
             else
             {
-                Console.WriteLine("Unable to find image: " + filepath);
+                CBPLogger.GetInstance.Warning("Unable to find image: " + filepath);
                 return null;
             }
         }
@@ -2766,28 +2849,36 @@ catch (Exception ex)
             // since no external function (doing file I/O) is run that will increment the counter, it needs to be incremented here instead for this option
             if (optCounter == 0)
             {
-                Console.WriteLine("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
+                CBPLogger.GetInstance.Warning("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
             }
             if (optCounter == 1) //asian heli
             {
+                CBPLogger.GetInstance.Info("First optional change: use existing.");
+
                 optCounter++;
                 await OptionalEmotes();
                 return;
             }
             if (optCounter == 2) //modern emotes
             {
+                CBPLogger.GetInstance.Info("Second optional change: use existing.");
+
                 optCounter++;
                 await OptionalJamRadar();
                 return;
             }
             if (optCounter == 3) //radar jam
             {
+                CBPLogger.GetInstance.Info("Third optional change: use existing.");
+
                 optCounter++;
                 await OptionalAsianSpy();
                 return;
             }
             if (optCounter == 4) //asian spy
             {
+                CBPLogger.GetInstance.Info("Fourth optional change: use existing.");
+
                 optCounter = 0;
                 await OptionalCompleted();
                 return;
@@ -2801,10 +2892,12 @@ catch (Exception ex)
             // quick research suggests switch is not higher performance at low counts (5~10ish)
             if (optCounter == 0)
             {
-                Console.WriteLine("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
+                CBPLogger.GetInstance.Warning("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
             }
             if (optCounter == 1) //asian heli
             {
+                CBPLogger.GetInstance.Info("First optional change: use default.");
+
                 // overwrite the current asian heli texture with default texture
                 string currentHeli = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
                 string defaultHeli = Path.Combine(currentPathOpt, @"art/Original/attackchopper_asian.tga");
@@ -2820,6 +2913,8 @@ catch (Exception ex)
             }
             if (optCounter == 2) //modern emotes
             {
+                CBPLogger.GetInstance.Info("Second optional change: use default.");
+
                 // overwrite the current emotes texture with default texture
                 string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
                 string defaultEmotes = Path.Combine(currentPathOpt, @"art/Original/iface_resources2.tga");
@@ -2835,6 +2930,8 @@ catch (Exception ex)
             }
             if (optCounter == 3) //radar jam
             {
+                CBPLogger.GetInstance.Info("Third optional change: use default.");
+
                 // overwrite the current radar jam texture with default texture
                 string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
                 string defaultJam = Path.Combine(currentPathOpt, @"art/Original/jamradar.tga");
@@ -2850,6 +2947,8 @@ catch (Exception ex)
             }
             if (optCounter == 4) //asian spy
             {
+                CBPLogger.GetInstance.Info("Fourth optional change: use default.");
+
                 // overwrite the current modern asian spy model AND texture with default of each
                 string currentSpyTex = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
                 string defaultSpyTex = Path.Combine(currentPathOpt, @"art/Original/Spy_6_asian.tga");
@@ -2877,10 +2976,12 @@ catch (Exception ex)
             // quick research suggests switch is not higher performance at low counts (5~10ish)
             if (optCounter == 0)
             {
-                Console.WriteLine("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
+                CBPLogger.GetInstance.Warning("I sent you a radio report, a helicopter, and a guy in a rowboat. What the hell are you doing here?");
             }
             if (optCounter == 1) //asian heli
             {
+                CBPLogger.GetInstance.Info("First optional change: use replacement.");
+
                 // overwrite the current asian heli texture with default texture
                 string currentHeli = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
                 string replacementHeli = Path.Combine(currentPathOpt, @"art/attackchopper_asian.tga");
@@ -2896,6 +2997,8 @@ catch (Exception ex)
             }
             if (optCounter == 2) //modern emotes
             {
+                CBPLogger.GetInstance.Info("Second optional change: use replacement.");
+
                 // overwrite the current emotes texture with default texture
                 string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
                 string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
@@ -2911,6 +3014,8 @@ catch (Exception ex)
             }
             if (optCounter == 3) //radar jam
             {
+                CBPLogger.GetInstance.Info("Third optional change: use replacement.");
+
                 // overwrite the current radar jam texture with default texture
                 string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
                 string replacementJam = Path.Combine(currentPathOpt, @"art/jamradar.tga");
@@ -2926,6 +3031,8 @@ catch (Exception ex)
             }
             if (optCounter == 4) //asian spy
             {
+                CBPLogger.GetInstance.Info("Fourth optional change: use replacement.");
+
                 // overwrite the current modern asian spy model AND texture with default of each
                 string currentSpyTex = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
                 string replacementSpyTex = Path.Combine(currentPathOpt, @"art/Spy_6_asian.tga");
@@ -2965,7 +3072,7 @@ catch (Exception ex)
                 await PreparePreview(previewPath);
             }
             else
-                Console.WriteLine("Unable to find preview image.");
+                CBPLogger.GetInstance.Warning("Unable to find preview image.");
             {
                 // existing image (TGA)
                 string currentPath = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
@@ -3001,7 +3108,7 @@ catch (Exception ex)
                 await PreparePreview(previewPath);
             }
             else
-                Console.WriteLine("Unable to find preview image.");
+                CBPLogger.GetInstance.Warning("Unable to find preview image.");
             {
                 // existing image (TGA)
                 string currentPath = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
@@ -3039,7 +3146,7 @@ catch (Exception ex)
                 await PreparePreview(previewPath);
             }
             else
-                Console.WriteLine("Unable to find preview image.");
+                CBPLogger.GetInstance.Warning("Unable to find preview image.");
             {
                 // existing image (TGA)
                 string currentPath = Path.Combine(currentPathCBP, @"art/jamradar.tga");
@@ -3078,7 +3185,7 @@ catch (Exception ex)
                 await PreparePreview(previewPath);
             }
             else
-                Console.WriteLine("Unable to find preview image.");
+                CBPLogger.GetInstance.Warning("Unable to find preview image.");
             {
                 // existing image (TGA)
                 string currentPath = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
@@ -3113,7 +3220,7 @@ catch (Exception ex)
                 await PreparePreview(previewPath);
             }
             else
-                Console.WriteLine("Unable to find preview image.");
+                CBPLogger.GetInstance.Warning("Unable to find preview image.");
 
             OptCurrent = null;
             OptOriginal = null;
@@ -3138,6 +3245,7 @@ catch (Exception ex)
         }
 
         //quite high code redundancy, but I'm exhausted and this works and isn't that hard to read
+        //this should also have its own try/catch (right now the place where it's referenced has it instead)
         private async Task OptionalMaintainSelection()
         {
             CheckCurrentPath();
@@ -3189,22 +3297,22 @@ catch (Exception ex)
             {//can use plugin.LoadResult for logging
                 if (!File.Exists(Path.Combine(localMods, @"..\", "riseofnations.exe")))
                 {
-                    Console.WriteLine("Not running in expected folder; mod loading aborted.");
+                    CBPLogger.GetInstance.Warning("Not running in expected folder; mod loading aborted.");
                     return;
                 }
 
                 pluginList = ReadExtensions();
-                Console.WriteLine($"{pluginList.Count} plugin(s) found");
+                CBPLogger.GetInstance.Info($"{pluginList.Count} plugin(s) found");
                 int pluginCounter = 0;
 
                 foreach (IPluginCBP plugin in pluginList)
                 {
                     plugin.DoSomething(workshopPath, localMods);
                     plugin.UpdatePlugin(workshopPath, localMods);
-                    Console.WriteLine($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
-                    Console.WriteLine("\nPlugin location: " + pluginsPathList[pluginCounter]);
+                    CBPLogger.GetInstance.Info($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
+                    CBPLogger.GetInstance.Info("\nPlugin location: " + pluginsPathList[pluginCounter]);
                     pluginCounter++;
-                    Console.WriteLine("====================");
+                    CBPLogger.GetInstance.Info("====================");
                 }
 
                 CheckPluginCompatibility();
@@ -3214,19 +3322,20 @@ catch (Exception ex)
                     Properties.Settings.Default.AnyPluginsLoaded = true;
                     SaveSettings();
 
-                    Console.WriteLine("Any plugins with auto-updating logic have been given a chance to run their logic.");
+                    CBPLogger.GetInstance.Info("Any plugins with auto-updating logic have been given a chance to run their logic.");
                 }
                 else
                 {
                     Properties.Settings.Default.AnyPluginsLoaded = false;
                     SaveSettings();
 
-                    Console.WriteLine("No plugins detected.");
+                    CBPLogger.GetInstance.Info("No plugins detected.");
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                CBPLogger.GetInstance.Error("Error loading plugins: " + ex);
+                MessageBox.Show("Error loading plugins: " + ex);
             }
         }
 
@@ -3242,7 +3351,7 @@ catch (Exception ex)
             {
                 // 1) Read dll files from the specified location (a mod folder in our case)
 
-                //todo: log each dri.FullName
+                CBPLogger.GetInstance.Debug("Plugin folder: " + dri.FullName);
                 string pluginFolder = dri.FullName;
                 string[] files = Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly);
 
@@ -3266,7 +3375,8 @@ catch (Exception ex)
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Error loading plugins: " + ex);
+                        CBPLogger.GetInstance.Error("Error loading plugins (RE): " + ex);
+                        MessageBox.Show("Error loading plugins (RE): " + ex);
                     }
                 }
             }
@@ -3308,6 +3418,7 @@ catch (Exception ex)
             Properties.Settings.Default.JustReset = true;
             SaveSettings();
 
+            CBPLogger.GetInstance.Info("Settings reset.");
             MessageBox.Show($"Settings reset. Please restart program to load default settings.");
         }
 
@@ -3421,15 +3532,18 @@ catch (Exception ex)
                         File.Delete(patriotsOrig);
                         File.Move(patriotsOrig + " (original)", patriotsOrig);
 
+                        CBPLogger.GetInstance.Info("Have attempted to restore original launcher.");
                         MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started. To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
                     }
                     else
                     {
+                        CBPLogger.GetInstance.Warning("CBP Setup GUIwas still running when restoring launcher, so no action has been taken.");
                         MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
                     }
                 }
                 catch (Exception ex)
                 {
+                    CBPLogger.GetInstance.Error("Error restoring original launcher: " + ex);
                     MessageBox.Show("Error restoring original launcher: " + ex);
                 }
             }
@@ -3445,15 +3559,18 @@ catch (Exception ex)
                         File.Move(patriotsOrig, patriotsOrig + " (original)");
                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
 
+                        CBPLogger.GetInstance.Info("Have attempted to replace original launcher.");
                         MessageBox.Show("Have attempted to replace original launcher - CBP Launcher should be active when RoN is started.");
                     }
                     else
                     {
+                        CBPLogger.GetInstance.Warning("CBP Setup GUIwas still running when replacing launcher, so no action has been taken.");
                         MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
                     }
                 }
                 catch (Exception ex)
                 {
+                    CBPLogger.GetInstance.Error("Error replacing original launcher: " + ex);
                     MessageBox.Show("Error replacing original launcher: " + ex);
                 }
             }
@@ -3474,6 +3591,7 @@ catch (Exception ex)
                 SaveSettings();
 
                 MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
+                CBPLogger.GetInstance.Info("Settings upgraded (if old settings exist).");
             }
         }
 
@@ -3490,6 +3608,7 @@ catch (Exception ex)
                     UseDefaultLauncherCheckbox = false;
                     SaveSettings();
                     await ReplaceRestoreDefaultLauncher();
+                    CBPLogger.GetInstance.Info("Using CBP Launcher.");
                 }
                 else
                 {
@@ -3497,6 +3616,7 @@ catch (Exception ex)
                     Properties.Settings.Default.UseDefaultLauncher = true;
                     UseDefaultLauncherCheckbox = true;
                     SaveSettings();
+                    CBPLogger.GetInstance.Info("Using default launcher.");
                 }
             }
         }
@@ -3514,6 +3634,7 @@ catch (Exception ex)
                     Properties.Settings.Default.DefaultCBP = true;
                     CBPDefaultCheckbox = true;
                     SaveSettings();
+                    CBPLogger.GetInstance.Info("Defaulting to CBP.");
                 }
                 else
                 {
@@ -3527,6 +3648,7 @@ catch (Exception ex)
                     // it's rather clunky and friction-y for first-time user, but it's functional
                     await CheckForUpdates();
                     await UnloadCBP();
+                    CBPLogger.GetInstance.Info("Defaulting to non-CBP.");
                 }
             }
         }
@@ -3548,6 +3670,8 @@ catch (Exception ex)
             interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, interfaceXML));
             setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, setupwinXML));
             patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
+
+            CBPLogger.GetInstance.Debug("RoN path found: " + RoNPathCheck);
         }
 
         private async Task ArchiveNormal()
@@ -3583,6 +3707,7 @@ catch (Exception ex)
                                              + VersionArray.versionHotfix[archiveVersion.hotfix];
 
                     Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
+                    CBPLogger.GetInstance.Info(archiveVersionNew + " has been archived.");
                     MessageBox.Show(archiveVersionNew + " has been archived.");
                 }
                 else if ((versionExists == true) && (abortArchive == false))
@@ -3597,30 +3722,32 @@ catch (Exception ex)
                                                  + VersionArray.versionHotfix[archiveVersion.hotfix];
 
                         Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ") (2)"));
+                        CBPLogger.GetInstance.Info(archiveVersionNew + " has been archived.");
                         MessageBox.Show(archiveVersionNew + " has been archived.");
                     }
                     else
                     {
                         //log
-                        Console.WriteLine("It looks like the version to archive already exists. No action has been taken.");
+                        CBPLogger.GetInstance.Info("It looks like the version to archive already exists. No action has been taken.");
                         abortWorkshopCopyCBP = true;
                     }
                 }
                 else if ((versionExists == true) && (abortArchive == true))
                 {
                     //log
-                    Console.WriteLine("It looks like the version to archive already exists, so no action has been taken.");
+                    CBPLogger.GetInstance.Info("It looks like the version to archive already exists, so no action has been taken.");
                     abortWorkshopCopyCBP = true;
                 }
                 else//which means this covers the single use case of versionExists == false && abortArchive == true
                 {
-                    Console.WriteLine("Archiving aborted due to abortArchive flag.");
+                    CBPLogger.GetInstance.Info("Archiving aborted due to abortArchive flag.");
                     abortWorkshopCopyCBP = true;
                 }
             }
             catch (Exception ex)
             {
                 Status = LauncherStatus.loadFailed;
+                CBPLogger.GetInstance.Error($"Error archiving previous CBP version: {ex}");
                 MessageBox.Show($"Error archiving previous CBP version: {ex}");
             }
         }
@@ -3632,11 +3759,13 @@ catch (Exception ex)
             {
                 //rename it after moving it
                 Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
+                CBPLogger.GetInstance.Info("Alpha 6c has been archived.");
                 MessageBox.Show("Alpha 6c has been archived.");
             }
             catch (Exception ex)
             {
                 Status = LauncherStatus.loadFailed;
+                CBPLogger.GetInstance.Error($"Error archiving previous CBP version (compatibility for a6c): {ex}");
                 MessageBox.Show($"Error archiving previous CBP version (compatibility for a6c): {ex}");
             }
         }
@@ -3661,7 +3790,8 @@ catch (Exception ex)
             catch (Exception ex)
             {
                 MessageBox.Show("Error while generating lists: " + ex);
-                NLog.LogManager.Shutdown();
+                CBPLogger.GetInstance.Error("Error while generating lists: " + ex);
+                LogManager.Shutdown();
                 Environment.Exit(-1);
             }
         }
@@ -3669,9 +3799,6 @@ catch (Exception ex)
         private void ConfigureNLog()
         {
             var config = new NLog.Config.LoggingConfiguration();
-
-            //extensions https://stackoverflow.com/questions/30340414/nlog-extensions-add-assembly-programmatically
-            
 
             //targets
             
@@ -3696,6 +3823,7 @@ catch (Exception ex)
             config.AddRule(LogLevel.Info, LogLevel.Fatal, logviewer);
             config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfile);
 
+            // loading extensions: https://stackoverflow.com/questions/30340414/nlog-extensions-add-assembly-programmatically
             // fancier logging on logging tab (just displays the same things that are already saved to file)
             if (Properties.Settings.Default.UseFancyLogging)
             {
