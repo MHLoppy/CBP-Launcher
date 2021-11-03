@@ -33,7 +33,6 @@
             <dj:NLogViewer Name="fancyLog" InfoBackground="#700000FF" InfoForeground="#FFEEEEEE" DebugBackground="#A090EE90" ErrorBackground="#AAFF0000" WarnBackground="#80FFFF00" TraceBackground="#80D3D3D3"/>
 
             <StackPanel Margin="5,5,0,0" Name="simpleLog" Visibility="Hidden">
-                <TextBlock Text="{Binding LogHeaderText}" Foreground="WhiteSmoke" Margin="0,0,0,0"/>
                 <TextBlock Text="{Binding LauncherVersion}" Foreground="WhiteSmoke"/>
                 <TextBlock Text="{Binding RegPathDebug}" Foreground="WhiteSmoke"/>
                 <TextBlock Text="{Binding EEPath}" Foreground="WhiteSmoke"/>
