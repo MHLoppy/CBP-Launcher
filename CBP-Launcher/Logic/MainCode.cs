@@ -1516,44 +1516,44 @@ namespace CBPLauncher.Logic
                         foreach (string s in filteredFiles)
                             MessageBox.Show(s);*/
 
-        //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
-        /*if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
-        {
-            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.TopDirectoryOnly).Length == 0
-             && Directory.GetFiles(modArtFolder, "*.tga", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
-            else
-            {
-                //but if there is a match, add the path of that mod to the list and turn on the flag which sends the message
-                modList += (modFolder + "\n\n");
-                sendWarning = true;
+                        //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
+                        /*if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
+                        {
+                            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.TopDirectoryOnly).Length == 0
+                                && Directory.GetFiles(modArtFolder, "*.tga", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
+                            else
+                            {
+                                //but if there is a match, add the path of that mod to the list and turn on the flag which sends the message
+                                modList += (modFolder + "\n\n");
+                                sendWarning = true;
+                            }
+                        }
+                    }
+
+                    if (sendWarning)
+                        MessageBox.Show("These local mods *may* contain files which trigger a known bug in the first game of every session: " + "\n\n" + modList
+                                    //+ "This bug can cause OoS issues in the first game of every session you play.\n\n"
+                                    + "To prevent this issue, either move/remove those mods, "
+                                    + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games."
+                                    , "Potential OoS issue detected"
+                                    , MessageBoxButton.OK
+                                    , MessageBoxImage.Warning);
+
+                    //we only want this message to show on button press, not on automatic checks
+                    else if (BullshitButtonPress)
+                    {
+                        BullshitButtonPress = false;
+                        MessageBox.Show("No TGA art files or XML data files detected in local mods folder. Note that there are still other, less common files which could still cause the problem.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error with XML detection for bark/trireme OoS bug: " + ex);
+                    // not instaclosing because it should be a relatively non-problematic error.. hopefully
+                }
             }
-        }
-    }
-
-    if (sendWarning)
-        MessageBox.Show("These local mods *may* contain files which trigger a known bug in the first game of every session: " + "\n\n" + modList
-                        //+ "This bug can cause OoS issues in the first game of every session you play.\n\n"
-                        + "To prevent this issue, either move/remove those mods, "
-                        + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games."
-                        , "Potential OoS issue detected"
-                        , MessageBoxButton.OK
-                        , MessageBoxImage.Warning);
-
-    //we only want this message to show on button press, not on automatic checks
-    else if (BullshitButtonPress)
-    {
-        BullshitButtonPress = false;
-        MessageBox.Show("No TGA art files or XML data files detected in local mods folder. Note that there are still other, less common files which could still cause the problem.");
-    }
-}
-catch (Exception ex)
-{
-    MessageBox.Show("Error with XML detection for bark/trireme OoS bug: " + ex);
-    // not instaclosing because it should be a relatively non-problematic error.. hopefully
-}
-}
-//else do nothing
-}*/
+            //else do nothing
+        }*/
 
         /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one (..for now), meaning that some stuff such as archiving doesn't need to be here too
         {         //later on can refactor the whole thing maybe
@@ -1658,29 +1658,71 @@ catch (Exception ex)
             // in theory (shouldn't *actually* happen but ya know) you could have scuffed files in neither list, but for now it's not handled
         }
 
-        //unneeded because Bark/Trireme OoS bug fixed (the code relating to all the non-data loading was not completed, although individual functions may be working)
-
-        //semi-forced into doing shitty hardcoded lists because of the sheer scope of the bark/trireme bug - I don't have the skill to do it dynamically, or the time to figure it out for just a few files
-        /*private void LoadNonDataFiles()
+        //semi-forced into doing shitty hardcoded lists
+        private void LoadConquestFiles()
         {
-            // these would make more sense as global variables but this is tolerable for now
-            string conquestCBP = Path.Combine(Path.Combine(secondarynonDataCBP, "conquest"));
+            // these might make more sense as global variables but this is tolerable for now
+            string conquestCBP = Path.Combine(Path.Combine(localPathCBP, "NonData", "conquest"));
             string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
 
-            string napoleonMap = File.ReadLines(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml")).Skip(3).Take(1).First();
+            // check if file in RoN/conquest is CBP, if not replace it with CBP file
+            string napoleonMap = File.ReadLines(Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
             if (napoleonMap.Substring(5).StartsWith("CBP") == false)
+            {
                 File.Copy(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
+                CBPLogger.GetInstance.Debug("CBP version of Napoleon Map installed.");
+            }
 
-            string worldMap = File.ReadLines(Path.Combine(conquestCBP, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
+            string worldMap = File.ReadLines(Path.Combine(conquestEE, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
             if (worldMap.Substring(5).StartsWith("CBP") == false)
+            {
                 File.Copy(Path.Combine(conquestCBP, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
+                CBPLogger.GetInstance.Debug("CBP version of World Map installed.");
+            }
 
-            //bhs file, different syntax etc from xml
-            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestCBP, "Napoleon", "napoleon_post_turn.bhs")).Skip(0).Take(1).First();
-            if (napoleonPostTurn.Substring(2).StartsWith("CBP") == false)
-                File.Copy(Path.Combine(conquestCBP, "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "napoleon_post_turn.bhs"), true);
-        }*/
+            //bhs file, different syntax etc from xml so we look at a different line (and on a different point on the line) for the CBP comment
+            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs")).Skip(1).Take(1).First();
+            if (napoleonPostTurn.Substring(3).StartsWith("CBP") == false)
+            {
+                File.Copy(Path.Combine(conquestCBP, "Napoleon", "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs"), true);
+                CBPLogger.GetInstance.Debug("CBP version of Napoleon post-turn installed.");
+            }
+        }
 
+        private void UnloadConquestFiles()
+        {
+            // these might make more sense as global variables but this is tolerable for now
+            string conquestOrig = Path.Combine(Path.Combine(folderCBPoriginal, "conquest"));
+            string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
+
+            // check if file in RoN/conquest is CBP, if not replace it with original, non-CBP file from backup
+            string napoleonMap = File.ReadLines(Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
+            if (napoleonMap.Substring(5).StartsWith("CBP") == true)
+            {
+                File.Copy(Path.Combine(conquestOrig, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
+                CBPLogger.GetInstance.Debug("Backed up version of Napoleon Map restored.");
+            }
+
+            string worldMap = File.ReadLines(Path.Combine(conquestEE, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
+            if (worldMap.Substring(5).StartsWith("CBP") == true)
+            {
+                File.Copy(Path.Combine(conquestOrig, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
+                CBPLogger.GetInstance.Debug("Backed up version of World Map restored.");
+            }
+
+            //bhs file, different syntax etc from xml so we look at a different line (and on a different point on the line) for the CBP comment
+            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs")).Skip(1).Take(1).First();
+            if (napoleonPostTurn.Substring(3).StartsWith("CBP") == true)
+            {
+                File.Copy(Path.Combine(conquestOrig, "Napoleon", "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs"), true);
+                CBPLogger.GetInstance.Debug("Backed up version of Napoleon post-turn restored.");
+            }
+        }
+
+        private void LoadArtFiles()//no unload because separate-from-normal-RoN files with no version tracking (since they're TGAs)
+        {
+
+        }
 
         /*private void CopyArtFiles()
         {
