@@ -1665,27 +1665,35 @@ namespace CBPLauncher.Logic
             string conquestCBP = Path.Combine(Path.Combine(localPathCBP, "NonData", "conquest"));
             string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
 
-            // check if file in RoN/conquest is CBP, if not replace it with CBP file
-            string napoleonMap = File.ReadLines(Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
-            if (napoleonMap.Substring(5).StartsWith("CBP") == false)
+            try
             {
-                File.Copy(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
-                CBPLogger.GetInstance.Debug("CBP version of Napoleon Map installed.");
-            }
+                // check if file in RoN/conquest is CBP, if not replace it with CBP file
+                string napoleonMap = File.ReadLines(Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
+                if (napoleonMap.Substring(5).StartsWith("CBP") == false)
+                {
+                    File.Copy(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
+                    CBPLogger.GetInstance.Debug("CBP version of Napoleon Map installed.");
+                }
 
-            string worldMap = File.ReadLines(Path.Combine(conquestEE, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
-            if (worldMap.Substring(5).StartsWith("CBP") == false)
-            {
-                File.Copy(Path.Combine(conquestCBP, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
-                CBPLogger.GetInstance.Debug("CBP version of World Map installed.");
-            }
+                string worldMap = File.ReadLines(Path.Combine(conquestEE, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
+                if (worldMap.Substring(5).StartsWith("CBP") == false)
+                {
+                    File.Copy(Path.Combine(conquestCBP, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
+                    CBPLogger.GetInstance.Debug("CBP version of World Map installed.");
+                }
 
-            //bhs file, different syntax etc from xml so we look at a different line (and on a different point on the line) for the CBP comment
-            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs")).Skip(1).Take(1).First();
-            if (napoleonPostTurn.Substring(3).StartsWith("CBP") == false)
+                //bhs file, different syntax etc from xml so we look at a different line (and on a different point on the line) for the CBP comment
+                string napoleonPostTurn = File.ReadLines(Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs")).Skip(1).Take(1).First();
+                if (napoleonPostTurn.Substring(3).StartsWith("CBP") == false)
+                {
+                    File.Copy(Path.Combine(conquestCBP, "Napoleon", "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs"), true);
+                    CBPLogger.GetInstance.Debug("CBP version of Napoleon post-turn installed.");
+                }
+            }
+            catch (Exception ex)
             {
-                File.Copy(Path.Combine(conquestCBP, "Napoleon", "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs"), true);
-                CBPLogger.GetInstance.Debug("CBP version of Napoleon post-turn installed.");
+                MessageBox.Show("Error loading conquest files: " + ex);
+                CBPLogger.GetInstance.Error("Error loading conquest files: " + ex);
             }
         }
 
@@ -1695,33 +1703,49 @@ namespace CBPLauncher.Logic
             string conquestOrig = Path.Combine(Path.Combine(folderCBPoriginal, "conquest"));
             string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
 
-            // check if file in RoN/conquest is CBP, if not replace it with original, non-CBP file from backup
-            string napoleonMap = File.ReadLines(Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
-            if (napoleonMap.Substring(5).StartsWith("CBP") == true)
+            try
             {
-                File.Copy(Path.Combine(conquestOrig, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
-                CBPLogger.GetInstance.Debug("Backed up version of Napoleon Map restored.");
-            }
+                // check if file in RoN/conquest is CBP, if not replace it with original, non-CBP file from backup
+                string napoleonMap = File.ReadLines(Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
+                if (napoleonMap.Substring(5).StartsWith("CBP") == true)
+                {
+                    File.Copy(Path.Combine(conquestOrig, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
+                    CBPLogger.GetInstance.Debug("Backed up version of Napoleon Map restored.");
+                }
 
-            string worldMap = File.ReadLines(Path.Combine(conquestEE, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
-            if (worldMap.Substring(5).StartsWith("CBP") == true)
-            {
-                File.Copy(Path.Combine(conquestOrig, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
-                CBPLogger.GetInstance.Debug("Backed up version of World Map restored.");
-            }
+                string worldMap = File.ReadLines(Path.Combine(conquestEE, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
+                if (worldMap.Substring(5).StartsWith("CBP") == true)
+                {
+                    File.Copy(Path.Combine(conquestOrig, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
+                    CBPLogger.GetInstance.Debug("Backed up version of World Map restored.");
+                }
 
-            //bhs file, different syntax etc from xml so we look at a different line (and on a different point on the line) for the CBP comment
-            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs")).Skip(1).Take(1).First();
-            if (napoleonPostTurn.Substring(3).StartsWith("CBP") == true)
+                //bhs file, different syntax etc from xml so we look at a different line (and on a different point on the line) for the CBP comment
+                string napoleonPostTurn = File.ReadLines(Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs")).Skip(1).Take(1).First();
+                if (napoleonPostTurn.Substring(3).StartsWith("CBP") == true)
+                {
+                    File.Copy(Path.Combine(conquestOrig, "Napoleon", "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs"), true);
+                    CBPLogger.GetInstance.Debug("Backed up version of Napoleon post-turn restored.");
+                }
+            }
+            catch (Exception ex)
             {
-                File.Copy(Path.Combine(conquestOrig, "Napoleon", "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs"), true);
-                CBPLogger.GetInstance.Debug("Backed up version of Napoleon post-turn restored.");
+                MessageBox.Show("Error unloading conquest files " + ex);
+                CBPLogger.GetInstance.Error("Error unloading conquest files " + ex);
             }
         }
 
         private void LoadArtFiles()//no unload because separate-from-normal-RoN files with no version tracking (since they're TGAs)
         {
+            try
+            {
 
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading art files " + ex);
+                CBPLogger.GetInstance.Error("Error loading art files " + ex);
+            }
         }
 
         /*private void CopyArtFiles()
@@ -1933,7 +1957,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Debug("Settings say that files are already backed up.");
             }
 
-            /*//I hate this but for 3 files I can live with it
+            //I hate this but for 3 files I can live with it
             if (Properties.Settings.Default.NonDataFilesBackedUp == false)
             {
                 try
@@ -1942,19 +1966,19 @@ namespace CBPLauncher.Logic
                     string nMap = "CTW_Napoleon_Map_01.xml";
                     if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", nMap)))
                         File.Copy(Path.Combine(RoNPathFinal, "conquest", nMap), Path.Combine(folderCBPoriginal, "conquest", nMap));
-                    else MessageBox.Show("Backup of Napoleon Map skipped (file already exists)");
+                    else CBPLogger.GetInstance.Debug("Backup of Napoleon Map file already exists - no action taken.");
 
                     // conquest/CTW_World_Map_01.xml
                     string wMap = "CTW_World_Map_01.xml";
                     if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", wMap)))
                         File.Copy(Path.Combine(RoNPathFinal, "conquest", wMap), Path.Combine(folderCBPoriginal, "conquest", wMap));
-                    else MessageBox.Show("Backup of World Map skipped (file already exists)");
+                    else CBPLogger.GetInstance.Debug("Backup of World Map file already exists - no action taken.");
 
                     // conquest/Napoleon/napoleon_post_turn.bhs
                     string nPost = "napoleon_post_turn.bhs";
                     if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost)))
                         File.Copy(Path.Combine(RoNPathFinal, "conquest", "Napoleon", nPost), Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost));
-                    else MessageBox.Show("Backup of Napoleon postturn skipped (file already exists)");
+                    else CBPLogger.GetInstance.Debug("Backup of Napoleon post-turn file already exists - no action taken.");
 
                     Properties.Settings.Default.NonDataFilesBackedUp = true;
                     SaveSettings();
@@ -1968,8 +1992,8 @@ namespace CBPLauncher.Logic
 
             else if (Properties.Settings.Default.NonDataFilesBackedUp == true)
             {
-                //log that
-            }*/
+                CBPLogger.GetInstance.Debug("NonData files already backed up - no action taken.");
+            }
         }
 
         private async Task GenerateFileListModded()
