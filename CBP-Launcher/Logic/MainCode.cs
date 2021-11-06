@@ -1628,6 +1628,10 @@ namespace CBPLauncher.Logic
                         CBPLogger.GetInstance.Debug($"{filename} is not a CBP file - no action taken.");
                     }
                 }
+
+                //these use separate logic
+                LoadConquestFiles();
+                LoadArtFiles();
             }
             catch (Exception ex)
             {
@@ -1813,6 +1817,9 @@ namespace CBPLauncher.Logic
                     Environment.Exit(-1);
                 }
             }
+
+            //separate logic
+            UnloadConquestFiles();
         }
 
         /*//semi-forced into doing shitty hardcoded lists because of the sheer scope of the bark/trireme bug - I don't have the skill to do it dynamically, or the time to figure it out for just a few files
