@@ -98,6 +98,12 @@ namespace CBPLauncher.Logic
         private string currentPathOpt = "";
         private int optCounter = 0;
         private bool abortArchive;
+        private string conquestEE;//RoN/conquest
+        private string conquestCBP;//NonData/conquest
+        private string conquestBackup;//CBP/Original files/conquest
+        private string napoleonMap;
+        private string worldMap;
+        private string napoleonPostTurn;
 
         //private string patchNotesCBP; //moved out to its own VM instead
 
@@ -873,8 +879,12 @@ namespace CBPLauncher.Logic
                 folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
                 folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
 
-                //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
-                //Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
+                conquestCBP = Path.Combine(localPathCBP, "NonData", "conquest");
+                conquestEE = Path.Combine(RoNPathFinal, "conquest");
+                conquestBackup = Path.Combine(folderCBPoriginal, "conquest");
+                napoleonMap = Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml");
+                worldMap = Path.Combine(conquestEE, "CTW_World_Map_01.xml");
+                napoleonPostTurn = Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs");
 
                 //not creating dir, but needs to be after so I'm putting it here
                 LogHeaderText = "Detailed logs are saved in the logs folder located in:\n" + folderCBProot;
@@ -1630,8 +1640,8 @@ namespace CBPLauncher.Logic
                 }
 
                 //these use separate logic
-                LoadConquestFiles();
-                LoadArtFiles();
+                await LoadConquestFiles();
+                await LoadArtFiles();
             }
             catch (Exception ex)
             {
@@ -1663,36 +1673,49 @@ namespace CBPLauncher.Logic
         }
 
         //semi-forced into doing shitty hardcoded lists
-        private void LoadConquestFiles()
+        private async Task LoadConquestFiles()
         {
-            // these might make more sense as global variables but this is tolerable for now
-            string conquestCBP = Path.Combine(Path.Combine(localPathCBP, "NonData", "conquest"));
-            string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
-
             try
             {
-                // check if file in RoN/conquest is CBP, if not replace it with CBP file
-                string napoleonMap = File.ReadLines(Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
-                if (napoleonMap.Substring(5).StartsWith("CBP") == false)
+                // check if file in RoN/conquest is CBP and up to date, if not replace it with latest CBP file
+                if (File.Exists(napoleonMap))
                 {
-                    File.Copy(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
-                    CBPLogger.GetInstance.Debug("CBP version of Napoleon Map installed.");
+                    if ((CheckConquestFileCBP(napoleonMap, false) == false) || (CheckConquestCBPNeedsUpdating(napoleonMap, false) == true))
+                    {
+                        await CopyNapMap();
+                    }
+                }
+                else
+                {
+                    await CopyNapMap();
                 }
 
-                string worldMap = File.ReadLines(Path.Combine(conquestEE, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
-                if (worldMap.Substring(5).StartsWith("CBP") == false)
+                if (File.Exists(worldMap))
                 {
-                    File.Copy(Path.Combine(conquestCBP, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
-                    CBPLogger.GetInstance.Debug("CBP version of World Map installed.");
+                    if ((CheckConquestFileCBP(worldMap, false) == false) || (CheckConquestCBPNeedsUpdating(worldMap, false) == true))
+                    {
+                        await CopyWorldMap();
+                    }
+                }
+                else
+                {
+                    await CopyWorldMap();
                 }
 
                 //bhs file, different syntax etc from xml so we look at a different line (and on a different point on the line) for the CBP comment
-                string napoleonPostTurn = File.ReadLines(Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs")).Skip(1).Take(1).First();
-                if (napoleonPostTurn.Substring(3).StartsWith("CBP") == false)
+                if (File.Exists(napoleonPostTurn))
                 {
-                    File.Copy(Path.Combine(conquestCBP, "Napoleon", "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "Napoleon", "napoleon_post_turn.bhs"), true);
-                    CBPLogger.GetInstance.Debug("CBP version of Napoleon post-turn installed.");
+                    if ((CheckConquestFileCBP(napoleonPostTurn, true) == false) || (CheckConquestCBPNeedsUpdating(napoleonPostTurn, true) == true))
+                    {
+                        await CopyNapPost();
+                    }
                 }
+                else
+                {
+                    await CopyNapPost();
+                }
+
+                CBPLogger.GetInstance.Debug("Finished loading of conquest files.");
             }
             catch (Exception ex)
             {
@@ -1701,11 +1724,29 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void UnloadConquestFiles()
+        private async Task CopyNapMap()
+        {
+            File.Copy(Path.Combine(conquestCBP, "CTW_Napoleon_Map_01.xml"), napoleonMap, true);
+            CBPLogger.GetInstance.Debug("CBP version of Napoleon Map installed/updated.");
+        }
+
+        private async Task CopyWorldMap()
+        {
+            File.Copy(Path.Combine(conquestCBP, "CTW_World_Map_01.xml"), worldMap, true);
+            CBPLogger.GetInstance.Debug("CBP version of World Map installed/updated.");
+        }
+
+        private async Task CopyNapPost()
+        {
+            File.Copy(Path.Combine(conquestCBP, "Napoleon", "napoleon_post_turn.bhs"), napoleonPostTurn, true);
+            CBPLogger.GetInstance.Debug("CBP version of Napoleon post-turn installed/updated.");
+        }
+
+        private async Task UnloadConquestFiles()
         {
             // these might make more sense as global variables but this is tolerable for now
-            string conquestOrig = Path.Combine(Path.Combine(folderCBPoriginal, "conquest"));
-            string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
+            string conquestOrig = Path.Combine(folderCBPoriginal, "conquest");
+            string conquestEE = Path.Combine(RoNPathFinal, "conquest");
 
             try
             {
@@ -1739,7 +1780,81 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void LoadArtFiles()//no unload because separate-from-normal-RoN files with no version tracking (since they're TGAs)
+        private bool CheckConquestFileCBP(string file, bool isBHS)
+        {
+            try
+            {
+                //int skipLines = 0;
+                int skipChars = 0;
+                
+                if (isBHS == false)
+                {
+                    //skipLines = 2;
+                    skipChars = 5;
+                }
+                else if (isBHS == true)
+                {
+                    //skipLines = 1;
+                    skipChars = 3;
+                }
+
+                if (file.Substring(skipChars).StartsWith("CBP") == true)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                //not a critical error - bad conquest files will still allow multiplayer
+                MessageBox.Show("Error checking if conquest files are patched (this is not a critical error): " + ex);
+                CBPLogger.GetInstance.Error("Error checking if conquest files are patched: " + ex);
+                return false;
+            }
+        }
+
+        //check if cbp conquest file is up to date
+        private bool CheckConquestCBPNeedsUpdating(string file, bool isBHS)
+        {
+            try
+            {
+                Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));
+                int skipLines = 0;
+                int skipChars = 0;
+
+                // bhs file needs to check a different place since the commenting is a different from xml files
+                if (isBHS == false)
+                {
+                    skipLines = 2;
+                    skipChars = 9;
+                }
+                else if (isBHS == true)
+                {
+                    skipLines = 1;
+                    skipChars = 7;
+                }
+
+                string text = File.ReadLines(file).Skip(skipLines).Take(1).First();
+                Version fileVersion = new Version(text.Substring(skipChars, 11));
+
+                if (fileVersion.IsDifferentThan(localVersion))
+                    return false;
+                else
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                //not a critical error - bad conquest files will still allow multiplayer
+                MessageBox.Show("Error checking version of patched conquest files (this is not a critical error): " + ex);
+                CBPLogger.GetInstance.Error("Error checking version of patched conquest files: " + ex);
+                return false;
+            }
+        }
+
+        private async Task LoadArtFiles()//no unload because separate-from-normal-RoN files with no version tracking (since they're TGAs)
         {
             try
             {
@@ -1749,8 +1864,11 @@ namespace CBPLauncher.Logic
             }
             catch (Exception ex)
             {
+                //some of the art files are actually essential - should not allow user to continue if they error here
                 MessageBox.Show("Error loading art files " + ex);
                 CBPLogger.GetInstance.Error("Error loading art files " + ex);
+                LogManager.Shutdown();
+                Environment.Exit(-1);
             }
         }
 
@@ -1812,7 +1930,7 @@ namespace CBPLauncher.Logic
                 }
 
                 //separate logic
-                UnloadConquestFiles();
+                await UnloadConquestFiles();
             }
             catch (Exception ex)
             {
@@ -1950,6 +2068,8 @@ namespace CBPLauncher.Logic
                         else CBPLogger.GetInstance.Info(filename + " already has a backup file so has been skipped.");
                     }
 
+                    await BackupConquestFiles();
+
                     Properties.Settings.Default.FilesBackedUp = true;
                     SaveSettings();
                 }
@@ -1964,7 +2084,7 @@ namespace CBPLauncher.Logic
 
             else if (Properties.Settings.Default.FilesBackedUp == true)
             {
-                CBPLogger.GetInstance.Debug("Settings say that files are already backed up.");
+                CBPLogger.GetInstance.Debug("Settings say that data files are already backed up.");
             }
 
             //I hate this but for 3 files I can live with it
@@ -1999,10 +2119,54 @@ namespace CBPLauncher.Logic
                     Environment.Exit(-1);
                 }
             }
-
             else if (Properties.Settings.Default.NonDataFilesBackedUp == true)
             {
-                CBPLogger.GetInstance.Debug("NonData files already backed up - no action taken.");
+                CBPLogger.GetInstance.Debug("Non-data files already backed up - no action taken.");
+            }
+        }
+
+        private async Task BackupConquestFiles()
+        {
+            string nMap = "CTW_Napoleon_Map_01.xml";
+            string wMap = "CTW_World_Map_01.xml";
+            string nPost = Path.Combine("Napoleon", "napoleon_post_turn.bhs");
+
+            string nMapEE = Path.Combine(conquestEE, nMap);
+            string nMapBackup = Path.Combine(conquestBackup, nMap);
+            string wMapEE = Path.Combine(conquestEE, wMap);
+            string wMapBackup = Path.Combine(conquestBackup, wMap);
+            string nPostEE = Path.Combine(conquestEE, nPost);
+            string nPostBackup = Path.Combine(conquestBackup, nPost);
+
+            //check for existing file, copy if not there
+            if (!File.Exists(nMapBackup))
+            {
+                File.Copy(nMapEE, nMapBackup);
+                CBPLogger.GetInstance.Debug("Napoleon Map backup created.");
+            }
+            else
+            {
+                CBPLogger.GetInstance.Debug("Napoleon Map backup already exists - no action taken.");
+            }
+
+            if (!File.Exists(wMapBackup))
+            {
+                File.Copy(wMapEE, wMapBackup);
+                CBPLogger.GetInstance.Debug("World Map backup created.");
+            }
+            else
+            {
+                CBPLogger.GetInstance.Debug("World Map backup already exists - no action taken.");
+            }
+
+            if (!File.Exists(nPostBackup))
+            {
+                File.Copy(nPostEE, nPostBackup);
+                CBPLogger.GetInstance.Debug("Napoleon post-turn backup created.");
+            }
+            else
+            {
+                CBPLogger.GetInstance.Debug("Napoleon post-turn backup already exists - no action taken.");
             }
         }
 
