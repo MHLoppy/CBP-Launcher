@@ -1796,10 +1796,11 @@ namespace CBPLauncher.Logic
 
         private async Task UnloadDirectFiles()
         {
+
             //for every file, check it and then (if needed) load the original file
-            foreach (string filename in CBPFileListAll)
+            try
             {
-                try
+                foreach (string filename in CBPFileListAll)
                 {
                     if (CheckIfCBPFile(filename) == true)
                     {
@@ -1809,17 +1810,17 @@ namespace CBPLauncher.Logic
                     //else no action required
                     CBPLogger.GetInstance.Debug($"{filename} is not a CBP file - no action taken.");
                 }
-                catch (Exception ex)
-                {
-                    CBPLogger.GetInstance.Error($"Error unloading files: {ex}");
-                    MessageBox.Show($"Error unloading files: {ex}");
-                    LogManager.Shutdown();
-                    Environment.Exit(-1);
-                }
-            }
 
-            //separate logic
-            UnloadConquestFiles();
+                //separate logic
+                UnloadConquestFiles();
+            }
+            catch (Exception ex)
+            {
+                CBPLogger.GetInstance.Error($"Error unloading files: {ex}");
+                MessageBox.Show($"Error unloading files: {ex}");
+                LogManager.Shutdown();
+                Environment.Exit(-1);
+            }
         }
 
         /*//semi-forced into doing shitty hardcoded lists because of the sheer scope of the bark/trireme bug - I don't have the skill to do it dynamically, or the time to figure it out for just a few files
