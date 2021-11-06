@@ -1739,7 +1739,8 @@ namespace CBPLauncher.Logic
         {
             try
             {
-
+                //copy contents of /mods/NonData/art (including subdirectories) to /CBP/art
+                //DirectoryCopy(Path.Combine(localPathCBP, "NonData", "art"), Path.Combine(folderCBPmodded, "art"), true);
             }
             catch (Exception ex)
             {
