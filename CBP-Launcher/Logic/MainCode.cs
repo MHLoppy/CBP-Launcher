@@ -635,7 +635,7 @@ namespace CBPLauncher.Logic
                         LogoRoNEE = false;
                         break;
                     case LauncherStatus.connectionProblemLoaded:
-                        LaunchStatusText = "Error: connectivity issue (CBP loaded)";
+                        LaunchStatusText = "Connectivity issue (CBP loaded)";
                         LaunchStatusColor = Brushes.OrangeRed;
                         LaunchButtonText = "Launch game";
                         LaunchEnabled = true;
@@ -643,7 +643,7 @@ namespace CBPLauncher.Logic
                         LogoRoNEE = false;
                         break;
                     case LauncherStatus.connectionProblemUnloaded:
-                        LaunchStatusText = "Error: connectivity issue (CBP not loaded)";
+                        LaunchStatusText = "Connectivity issue (CBP not loaded)";
                         LaunchStatusColor = Brushes.OrangeRed;
                         LaunchButtonText = "Launch game";
                         LaunchEnabled = true;
@@ -879,6 +879,8 @@ namespace CBPLauncher.Logic
                 folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
                 folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
 
+                Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
+                Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
                 conquestCBP = Path.Combine(localPathCBP, "NonData", "conquest");
                 conquestEE = Path.Combine(RoNPathFinal, "conquest");
                 conquestBackup = Path.Combine(folderCBPoriginal, "conquest");
@@ -1775,7 +1777,7 @@ namespace CBPLauncher.Logic
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error unloading conquest files " + ex);
+                MessageBox.Show("Error unloading conquest files (this is not a critical error) " + ex);
                 CBPLogger.GetInstance.Error("Error unloading conquest files " + ex);
             }
         }
@@ -2068,8 +2070,6 @@ namespace CBPLauncher.Logic
                         else CBPLogger.GetInstance.Info(filename + " already has a backup file so has been skipped.");
                     }
 
-                    await BackupConquestFiles();
-
                     Properties.Settings.Default.FilesBackedUp = true;
                     SaveSettings();
                 }
@@ -2092,6 +2092,7 @@ namespace CBPLauncher.Logic
             {
                 try
                 {
+                    /*
                     // conquest/CTW_Napoleon_Map_01.xml
                     string nMap = "CTW_Napoleon_Map_01.xml";
                     if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", nMap)))
@@ -2108,14 +2109,16 @@ namespace CBPLauncher.Logic
                     string nPost = "napoleon_post_turn.bhs";
                     if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost)))
                         File.Copy(Path.Combine(RoNPathFinal, "conquest", "Napoleon", nPost), Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost));
-                    else CBPLogger.GetInstance.Debug("Backup of Napoleon post-turn file already exists - no action taken.");
+                    else CBPLogger.GetInstance.Debug("Backup of Napoleon post-turn file already exists - no action taken.");*/
+
+                    await BackupConquestFiles();
 
                     Properties.Settings.Default.NonDataFilesBackedUp = true;
                     SaveSettings();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Problem backing up non-data files. " + ex);
+                    MessageBox.Show("Problem backing up non-data files: " + ex);
                     Environment.Exit(-1);
                 }
             }
