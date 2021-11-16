@@ -2328,15 +2328,7 @@ namespace CBPLauncher.Logic
 
                         if (Properties.Settings.Default.OptionalMaintain)
                         {
-                            try
-                            {
-                                await OptionalMaintainSelection();
-                            }
-                            catch (Exception ex)
-                            {
-                                CBPLogger.GetInstance.Error($"Error maintaining optional changes: {ex}");
-                                MessageBox.Show($"Error maintaining optional changes: {ex}");
-                            }
+                            await OptionalMaintainSelection();
                         }
 
                         try
@@ -3491,36 +3483,45 @@ namespace CBPLauncher.Logic
         //this should also have its own try/catch (right now the place where it's referenced has it instead)
         private async Task OptionalMaintainSelection()
         {
-            CheckCurrentPath();
+            try
+            {
+                CheckCurrentPath();
 
-            if (Properties.Settings.Default.OptionalAsianHeli)
-            {
-                string currentHeli = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
-                string replacementHeli = Path.Combine(currentPathOpt, @"art/attackchopper_asian.tga");
-                File.Copy(replacementHeli, currentHeli, true);
-            }
-            if (Properties.Settings.Default.OptionalEmotes)
-            {
-                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
-                string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
-                File.Copy(replacementEmotes, currentEmotes, true);
-            }
-            if (Properties.Settings.Default.OptionalRadarJam)
-            {
-                string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
-                string replacementJam = Path.Combine(currentPathOpt, @"art/jamradar.tga");
-                File.Copy(replacementJam, currentJam, true);
-            }
-            if (Properties.Settings.Default.OptionalAsianSpy)
-            {
-                string currentSpyTex = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
-                string replacementSpyTex = Path.Combine(currentPathOpt, @"art/Spy_6_asian.tga");
-                File.Copy(replacementSpyTex, currentSpyTex, true);
+                if (Properties.Settings.Default.OptionalAsianHeli)
+                {
+                    string currentHeli = Path.Combine(currentPathCBP, @"art/attackchopper_asian.tga");
+                    string replacementHeli = Path.Combine(currentPathOpt, @"art/attackchopper_asian.tga");
+                    File.Copy(replacementHeli, currentHeli, true);
+                }
+                if (Properties.Settings.Default.OptionalEmotes)
+                {
+                    string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
+                    string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
+                    File.Copy(replacementEmotes, currentEmotes, true);
+                }
+                if (Properties.Settings.Default.OptionalRadarJam)
+                {
+                    string currentJam = Path.Combine(currentPathCBP, @"art/jamradar.tga");
+                    string replacementJam = Path.Combine(currentPathOpt, @"art/jamradar.tga");
+                    File.Copy(replacementJam, currentJam, true);
+                }
+                if (Properties.Settings.Default.OptionalAsianSpy)
+                {
+                    string currentSpyTex = Path.Combine(currentPathCBP, @"art/Spy_6_asian.tga");
+                    string replacementSpyTex = Path.Combine(currentPathOpt, @"art/Spy_6_asian.tga");
+                    File.Copy(replacementSpyTex, currentSpyTex, true);
 
-                string currentSpyModel = Path.Combine(currentPathCBP, @"art/Spy_6_asian.BH3");
-                string replacementSpyModel = Path.Combine(currentPathOpt, @"art/Spy_6_asian.BH3");
-                File.Copy(replacementSpyModel, currentSpyModel, true);
+                    string currentSpyModel = Path.Combine(currentPathCBP, @"art/Spy_6_asian.BH3");
+                    string replacementSpyModel = Path.Combine(currentPathOpt, @"art/Spy_6_asian.BH3");
+                    File.Copy(replacementSpyModel, currentSpyModel, true);
+                }
             }
+            catch (Exception ex)
+            {
+                CBPLogger.GetInstance.Error($"Error maintaining optional changes: {ex}");
+                MessageBox.Show($"Error maintaining optional changes: {ex}");
+            }
+            
         }
 
         // plugins section (but not all of it, some of it is in codebehind of modmanager tabs lol)
