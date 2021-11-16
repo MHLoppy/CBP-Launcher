@@ -2970,7 +2970,7 @@ namespace CBPLauncher.Logic
             }
             if (Properties.Settings.Default.OptionalAsianHeli || Properties.Settings.Default.OptionalEmotes || Properties.Settings.Default.OptionalRadarJam || Properties.Settings.Default.OptionalAsianSpy)
             {
-                configSecond = "(with optional changes)";
+                configSecond = "(with optional change(s))";
             }
 
             return configFirst + " " + configSecond;
@@ -3048,7 +3048,8 @@ namespace CBPLauncher.Logic
 
         private void CheckCurrentPath()
         {
-            if (Properties.Settings.Default.CBPLoaded)
+            // old paths from before fixing general RoN-mod-files OoS problem
+            /*if (Properties.Settings.Default.CBPLoaded)
             {
                 currentPathCBP = localPathCBP;
                 currentPathOpt = Path.Combine(localPathCBP, "Optional changes");
@@ -3056,6 +3057,18 @@ namespace CBPLauncher.Logic
             else
             {
                 currentPathCBP = Path.Combine(unloadedModsPath, "Community Balance Patch");
+                currentPathOpt = Path.Combine(unloadedModsPath, "Community Balance Patch", "Optional changes");
+            }*/
+
+            // updated paths
+            currentPathCBP = folderCBPmodded;
+
+            if (Properties.Settings.Default.CBPLoaded)
+            {
+                currentPathOpt = Path.Combine(localPathCBP, "Optional changes");
+            }
+            else
+            {
                 currentPathOpt = Path.Combine(unloadedModsPath, "Community Balance Patch", "Optional changes");
             }
         }
@@ -3151,8 +3164,8 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info("Second optional change: use default.");
 
                 // overwrite the current emotes texture with default texture
-                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
-                string defaultEmotes = Path.Combine(currentPathOpt, @"art/Original/iface_resources2.tga");
+                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2_CBP.tga");
+                string defaultEmotes = Path.Combine(currentPathOpt, @"art/Original/iface_resources2_CBP.tga");
                 File.Copy(defaultEmotes, currentEmotes, true);
 
                 Properties.Settings.Default.OptionalEmotes = false;
@@ -3235,8 +3248,8 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info("Second optional change: use replacement.");
 
                 // overwrite the current emotes texture with default texture
-                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
-                string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
+                string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2_CBP.tga");
+                string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2_CBP.tga");
                 File.Copy(replacementEmotes, currentEmotes, true);
 
                 Properties.Settings.Default.OptionalEmotes = true;
@@ -3346,15 +3359,15 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Warning("Unable to find preview image.");
             {
                 // existing image (TGA)
-                string currentPath = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
+                string currentPath = Path.Combine(currentPathCBP, @"art/iface_resources2_CBP.tga");
                 OptCurrent = await GetTGA(currentPath);
 
                 // default image (TGA)
-                string originalPath = Path.Combine(currentPathOpt, @"art/Original/iface_resources2.tga");
+                string originalPath = Path.Combine(currentPathOpt, @"art/Original/iface_resources2_CBP.tga");
                 OptOriginal = await GetTGA(originalPath);
 
                 // replacement image (TGA)
-                string replacementPath = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
+                string replacementPath = Path.Combine(currentPathOpt, @"art/iface_resources2_CBP.tga");
                 OptReplacement = await GetTGA(replacementPath);
             }
 
@@ -3495,8 +3508,8 @@ namespace CBPLauncher.Logic
                 }
                 if (Properties.Settings.Default.OptionalEmotes)
                 {
-                    string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2.tga");
-                    string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2.tga");
+                    string currentEmotes = Path.Combine(currentPathCBP, @"art/iface_resources2_CBP.tga");
+                    string replacementEmotes = Path.Combine(currentPathOpt, @"art/iface_resources2_CBP.tga");
                     File.Copy(replacementEmotes, currentEmotes, true);
                 }
                 if (Properties.Settings.Default.OptionalRadarJam)
