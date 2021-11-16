@@ -83,7 +83,7 @@ namespace CBPLauncher.Logic
         private string archiveCBP;
         private bool abortWorkshopCopyCBP = false;
         private string folderCBProot;
-        private string folderCBPmodded;//unused; using the "normal" local mods location instead
+        private string folderCBPmodded;
         private string folderCBPoriginal;
         private List<string> CBPFileListAll = new List<string>();//the empty list seems to sometimes have a null error (in app.xaml of all places) in VS2019..... except it doesn't seem to matter at all ? ? ? ? ?
         private List<string> CBPFileListModded = new List<string>();
