@@ -1,5 +1,10 @@
 # CBP Launcher
-A launcher/installer for the Rise of Nations [Community Balance Patch](https://steamcommunity.com/sharedfiles/filedetails/?id=2287791153).
+A launcher/installer for the Rise of Nations [Community Balance/Bugfix Patch](https://steamcommunity.com/sharedfiles/filedetails/?id=2287791153).
+
+- CBP Setup GUI is a small installer/updater.
+- CBP Launcher is the main program and contains the vast majority of overall logic. It's a launcher for CBP, an updater for CBP Setup GUI, and essentially provides its own mod manager via a [basic plugin system](https://github.com/MHLoppy/CBP-SDK), separate from RoN's mod manager.
+
+Both are C# WPF apps using .NET Framework. As of v0.5, CBP Launcher haphazardly implements elements of MVVM architecture.
 
 ![CBP Launcher v0.5 classic plus](https://i.imgur.com/EurwlsN.png)
 ![CBP Launcher v0.5 spartan v1](https://i.imgur.com/LH8muOp.png)
