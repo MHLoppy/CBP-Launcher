@@ -1,0 +1,208 @@
+﻿<UserControl x:Class="CBPLauncher.Skins.SpartanV1"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CBPLauncher.Skins"
+             mc:Ignorable="d" 
+             d:DesignWidth="870"
+             d:DesignHeight="798"
+             DataContext="{StaticResource MC}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- Left and right columns are for wide skins (e.g. Spartan), middle two columns are shared between skins -->
+            <ColumnDefinition Width="62" Name="ColumnLeftEdge"/>
+            <ColumnDefinition Width="*" Name="ColumnPrimary"/>
+            <ColumnDefinition Width="62" Name="ColumnRightEdge"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <!-- Top and bottom rows are for tall skins (e.g. Classic), middle row is shared between skins -->
+            <RowDefinition Height="144" Name="RowTop"/>
+            <RowDefinition Height="*" Name="RowPrimary"/>
+            <RowDefinition Height="144" Name="RowBottom"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="1">
+
+            <!-- Background image -->
+            <Grid.Background>
+                <ImageBrush ImageSource="/Images/CBP launcher background 01.jpg" Stretch="UniformToFill"/>
+            </Grid.Background>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="354"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="324"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Grid.Row="0">
+
+                <!-- counterintuitively, textblock is lighter weight than label, but label has more functionality e.g. horizontalcontentalignment not just horizontalalignment-->
+
+                <!-- left side: top left status text -->
+                <Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light" Visibility="Hidden"/>
+                <Label Content="{Binding VersionTextInstalled}" Margin="17,115,17,0" Foreground="#FFF0F0F0" FontSize="20" HorizontalContentAlignment="Center"/>
+
+                <!-- left side: update button (hidden unless "do NOT autoupdate CBP" is enabled) -->
+                <Button Content="Update" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" Height="24" Margin="126,86,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="14" Panel.ZIndex="2" IsEnabled="False" Visibility="Hidden">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="9"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <!-- left side: rounded image background + image overlays -->
+                <Image Source="/Images/RoN EE logo (touchup) from game files.png" Margin="67,136,63,40" Stretch="Uniform" RenderOptions.BitmapScalingMode="Fant" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/><!-- perfect-ish fit-->
+                <Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="90,163,90,68" Stretch="Uniform" Visibility="Hidden"/><!-- old temp one, seemed too sparse -->
+                <Image Source="/Images/RoN CBP logo 01 (resized).png" RenderOptions.BitmapScalingMode="Fant" Margin="61,131,60,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/><!-- new temp one, seems better -->
+
+                <Border CornerRadius="16,16,16,16" Margin="35,98,35,2" Opacity="0.5" Panel.ZIndex="-1">
+                    <Border.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/Images/CBP Launcher left side background.png"/>
+                    </Border.Background>
+                </Border>
+
+                <!-- left side: load/unload button -->
+                <Button Content="Load CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88" Height="28" Padding="0,0,0,2" Margin="66,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="15" Panel.ZIndex="2">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <Button Content="Unload CBP" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88" Height="28" Padding="0,0,0,2" Margin="170,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="15" Panel.ZIndex="2">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Grid>
+
+            <!-- left side: bottom left launch button + status -->
+            <Grid Grid.Column="0" Grid.Row="1" Grid.RowSpan="2">
+                <Button Content="{Binding LaunchButtonText}" Command="{Binding PlayButtonCommand}" HorizontalAlignment="Center" Margin="80,34,80,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="168" Height="50" FontSize="24" FontWeight="Bold" Foreground="#DDFFFFFF" Background="#FF016AC1"/>
+                <TextBlock Text="{Binding LaunchStatusText}" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="22,83,22,0" VerticalAlignment="Top" MinWidth="0" Foreground="{Binding LaunchStatusColor}" Background="#66000000" Padding="2,0,2,0"/>
+                <Button Width="50" Height="50" Command="{Binding ChangeSkinCommand}" Margin="35,63,235,37" Visibility="Hidden"/>
+            </Grid>
+
+            <!-- expander / micro toggle button -->
+            <Border Margin="0,0,0,0" Width="11" Height="52" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Center" Panel.ZIndex="0" BorderThickness="0">
+                <Button Name="SpartanExpander" Command="{Binding SkinSpartanV1MiniCommand}" Style="{StaticResource ImageButtonHoverFixArrowLeft}" BorderThickness="0">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="2"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Border>
+
+            <!-- top right: close/minimise buttons-->
+            <!-- these might just be temporary because this skin was never originally intended to *not* have its standard top window bar -->
+            <Button Grid.Column="1" Command="{Binding MinimiseCommand}" Width="40" Height="29" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,46,0" Background="DarkGray" Content="-" FontWeight="SemiBold" FontSize="18">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="1"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button Grid.Column="1" Command="{Binding ExitCommand}" Width="40" Height="29" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0" Background="Firebrick" Content="✖" FontWeight="Regular">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="1"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <!-- right side: tab area -->
+            <Grid Grid.Column="1" Grid.RowSpan="2" Name="SpartanRightSide1" Margin="0, 12, 12, 0">
+                <!-- tab dividers-->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,422" Panel.ZIndex="3">
+                    <Separator Background="#6A777590" Height="17" Width="0.5" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="113.25,1,0,0">
+                        <Separator.Effect>
+                            <BlurEffect Radius="1"/>
+                        </Separator.Effect>
+                    </Separator>
+                    <Separator Background="#6A777590" Height="17" Width="0.5" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="112.25,1,0,0">
+                        <Separator.Effect>
+                            <BlurEffect Radius="1"/><!-- for some reason this one doesn't really blur? maybe the positioning is weird, idk-->
+                        </Separator.Effect>
+                    </Separator>
+                    <Separator Background="#6A777590" Height="17" Width="0.5" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="112.75,1,0,0">
+                        <Separator.Effect>
+                            <BlurEffect Radius="1"/>
+                        </Separator.Effect>
+                    </Separator>
+                </StackPanel>
+                <!-- Tabs -->
+                <!-- having the first one autochecked here means that when the skin is swapped it always re-checks the tab regardless of the truly active tab -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,80,422" Background="#FFDADADA" Panel.ZIndex="1">
+                    <RadioButton Name="SpV1TabButtonPatchNotes" Width="113.5" Style="{StaticResource BBRadioButton}" Content="Patch Notes" Command="{Binding SpV1TabPatchNotesCommand}" Foreground="Black" FontSize="16" IsChecked="True"/>
+                    <RadioButton Width="113.5" Style="{StaticResource BBRadioButton}" Content="Plugins" Command="{Binding SpV1TabModManagerCommand}" Visibility="Visible" Foreground="Black" FontSize="16"/>
+                    <RadioButton Name="SpV1TabButtonOptions" Width="113.5" Style="{StaticResource BBRadioButton}" Content="Options" Command="{Binding SpV1TabOptionsCommand}" Foreground="Black" FontSize="16"/>
+                    <RadioButton Width="113.5" Style="{StaticResource BBRadioButton}" Content="Log" Command="{Binding SpV1TabLogCommand}" Foreground="Black" FontSize="16"/>
+                </StackPanel>
+                
+                <!-- these are the values to have the tabs cover the whole width of the control (which they probably will once I convert this control to a window with normal exit/etc buttons
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,422" Panel.ZIndex="3">
+                    <Separator Background="#6A272530" Height="25" Width="0.5" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="133.25,0,0,0">
+                        <Separator.Effect>
+                            <BlurEffect Radius="1"/>
+                        </Separator.Effect>
+                    </Separator>
+                    <Separator Background="#6A272530" Height="25" Width="0.5" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="132.75,0,0,0">
+                        <Separator.Effect>
+                            <BlurEffect Radius="1"/>
+                        </Separator.Effect>
+                    </Separator>
+                    <Separator Background="#6A272530" Height="25" Width="0.5" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="132.25,0,0,0">
+                        <Separator.Effect>
+                            <BlurEffect Radius="1"/>
+                        </Separator.Effect>
+                    </Separator>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,422" Background="#FF393540" Panel.ZIndex="1">
+                    <RadioButton Width="133.5" Style="{StaticResource BBRadioButton}" Content="Patch Notes" Command="{Binding TabPatchNotesCommand}" IsChecked="True" Foreground="LightSteelBlue"/>
+                    <RadioButton Width="133.5" Style="{StaticResource BBRadioButton}" Content="Mod Manager" Command="{Binding TabModManagerCommand}" Visibility="Hidden" Foreground="LightSteelBlue"/>
+                    <RadioButton Width="133.5" Style="{StaticResource BBRadioButton}" Content="Options" Command="{Binding TabOptionsCommand}" Foreground="LightSteelBlue"/>
+                    <RadioButton Width="133.5" Style="{StaticResource BBRadioButton}" Content="Log" Command="{Binding TabLogCommand}" Foreground="LightSteelBlue"/>
+                </StackPanel>-->
+                
+                <!-- Tab content -->
+                <ContentControl Content="{Binding CurrentTab}" Margin="0,26,0,0"/>
+            </Grid>
+
+            <!-- right-side: bottom buttons -->
+            <Grid Grid.Column="1" Grid.Row="2" Visibility="Visible">
+                <Grid Name="RightSideBottomButtonGrid">
+                    <Button Content="Workshop Page" Command="{Binding WorkshopCommand}" HorizontalAlignment="Right" Margin="0,10,425,0" VerticalAlignment="Top" Width="100" Height="30" ToolTip="Open CBP's Steam Workshop page in external browser."/>
+                    <Button Content="Github" Command="{Binding GithubCommand}" HorizontalAlignment="Right" Margin="0,10,290,0" VerticalAlignment="Top" Width="100" Height="30" ToolTip="Open CBP Launcher's GitHub page in external browser."/>
+                    <Button Content="RoN Discord" Command="{Binding DiscordCommand}" HorizontalAlignment="Right" Margin="0,10,155,0" VerticalAlignment="Top" Width="100" Height="30" ToolTip="Open invite link for Rise of Nations community Discord server in external browser / Discord."/>
+                </Grid>
+            </Grid>
+
+            <!-- right side: launcher version + background effect -->
+            <TextBlock Name="LauncherVersionText" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,6" TextWrapping="Wrap" Text="{Binding LauncherVersion}" Foreground="WhiteSmoke" FontFamily="Segoe UI Semilight" FontSize="14" Panel.ZIndex="1">
+            </TextBlock>
+            <Grid Grid.Row="2" Grid.Column="1">
+                <!--<Border CornerRadius="30,30,30,30" Opacity="0.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-45,-40" Width="180" Height="64" Panel.ZIndex="-2" >
+                    <Border.Effect>
+                        <BlurEffect Radius="30"/>
+                    </Border.Effect>
+                    <Border.Background>
+                        <SolidColorBrush Color="#7F000000"></SolidColorBrush>
+                    </Border.Background>
+                </Border>-->
+                <Image Source="/Images/RoN CBP Launcher version shadow 20px blur 120trans.png" HorizontalAlignment="Right" VerticalAlignment="Bottom" Opacity="0.65" Panel.ZIndex="-2"/>
+            </Grid>
+
+            <!-- dark mode background partial fade -->
+            <!--<Rectangle Name="DarkModeBackground" Grid.ColumnSpan="2" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinHeight="33" MinWidth="33" Fill="#00000000" Panel.ZIndex="-3"/>-->
+        </Grid>
+    </Grid>
+</UserControl>

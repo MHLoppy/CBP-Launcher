@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="CBPLauncher.Skins.SpartanV1Log"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CBPLauncher.Skins"
+             xmlns:dj="clr-namespace:DJ;assembly=NLogViewer"
+             mc:Ignorable="d" 
+             d:DesignHeight="422" d:DesignWidth="534"
+             DataContext="{StaticResource MC}">
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" Grid.Row="0" Background="#EEF9F9F9" Margin="0,0,0,0">
+            <!--<TextBlock Text="logs are WIP, right now it doesn't seem to be working but I'm working on fixing that"/>-->
+            <dj:NLogViewer Name="fancyLog" Visibility="Visible" InfoBackground="#400000FF" InfoForeground="Black" DebugBackground="#4090EE90" ErrorBackground="#AAFF0000" WarnBackground="#40FFFF00" TraceBackground="#40D3D3D3"/>
+
+            <StackPanel Margin="5,5,0,0" Name="simpleLog" Visibility="Hidden">
+                <TextBlock Text="{Binding LauncherVersion}" Margin="0,0,0,0"/>
+                <TextBlock Text="{Binding RegPathDebug}" />
+                <TextBlock Text="{Binding EEPath}" />
+                <TextBlock Text="{Binding WorkshopPathDebug}" />
+                <TextBlock Text="{Binding WorkshopPathCBPDebug}" />
+                <TextBlock Text="{Binding VersionTextLatest}" />
+                <TextBlock Text="{Binding VersionTextInstalled}" />
+                <TextBlock Text="{Binding LaunchStatusText}" />
+            </StackPanel>
+        </Grid>
+        
+        <Grid Grid.Column="1" Grid.Row="1">
+            <TextBox Text="{Binding LogHeaderText}" TextWrapping="Wrap" IsReadOnly="True" Background="WhiteSmoke"/>
+        </Grid>
+        
+    </Grid>
+</UserControl>

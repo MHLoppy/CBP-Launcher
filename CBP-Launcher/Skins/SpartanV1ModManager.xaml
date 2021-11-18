@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="CBPLauncher.Skins.SpartanV1ModManager"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CBPLauncher.Skins"
+             mc:Ignorable="d" 
+             d:DesignHeight="422" d:DesignWidth="534">
+    <Grid Background="#EEF9F9F9">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!--<Border Grid.Column="0">
+            <Border.Background>
+                <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.50016">
+                    <GradientStop Color="#D4383838" Offset="0"/>
+                    <GradientStop Color="#D0222222" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>-->
+
+        <Grid Grid.Column="1" Name="PluginGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="44"/>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="108"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Name="ErrorTextBlock" Grid.ColumnSpan="6" Margin="0,100,0,0" HorizontalAlignment="Center" Foreground="#252525" FontSize="18" Panel.ZIndex="2"/>
+
+            <!-- Headers (title, version, author etc -->
+            <TextBlock Grid.Column="0" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="#252525" Text="On" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="#252525" Text="+CBP" HorizontalAlignment="Center" ToolTip="Whether the plugin/mod is compatible with CBP. If it isn't, CBP will need to be unloaded to use the plugin/mod."/>
+            <TextBlock Grid.Column="2" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="#252525" Text="Plugin Name" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="3" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="#252525" Text="Author(s)" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="4" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="#252525" Text="Version" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="5" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="#252525" Text="Info" HorizontalAlignment="Center"/>
+
+            <!-- Plugin list -->
+            <ListBox Grid.Column="0" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" Panel.ZIndex="-1"/>
+            <ListBox Grid.Column="1" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PCompat}"/>
+            <ListBox Grid.Column="2" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PTitles}"/>
+            <ListBox Grid.Column="3" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PAuthor}"/>
+            <ListBox Grid.Column="4" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PVersion}"/>
+            <ListBox Grid.Column="5" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" Panel.ZIndex="-1"/>
+        </Grid>
+    </Grid>
+</UserControl>

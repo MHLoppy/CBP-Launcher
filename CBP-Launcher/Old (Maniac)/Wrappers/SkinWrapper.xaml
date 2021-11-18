@@ -1,0 +1,13 @@
+﻿<Window x:Class="CBPLauncher.Wrappers.SkinWrapper"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CBPLauncher.Wrappers"
+        mc:Ignorable="d"
+        Title="SkinWrapper" Height="450" Width="800"
+        DataContext="{StaticResource BindingWrapper}">
+    <Grid>
+        <!-- remember to change the dimensions and other properties (e.g resize), plus add drag function as appropriate -->
+    </Grid>
+</Window>
