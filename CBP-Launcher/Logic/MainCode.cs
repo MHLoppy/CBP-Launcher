@@ -1863,6 +1863,9 @@ namespace CBPLauncher.Logic
                 //copy contents of /mods/NonData/art (including subdirectories) to /CBP/art, overwriting existing files if they exist
                 DirectoryCopy(Path.Combine(localPathCBP, "NonData", "art"), Path.Combine(folderCBPmodded, "art"), true, true);
                 CBPLogger.GetInstance.Debug("Art files copied.");
+
+                await OptionalMaintainSelection();
+                CBPLogger.GetInstance.Debug("Optional changes re-applied.");
             }
             catch (Exception ex)
             {
