@@ -713,11 +713,11 @@ namespace CBPSetupGUI
                 try
                 {
                     // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
-                    _ = new ProcessStartInfo(CBPLExe)
+                    ProcessStartInfo PSI = new ProcessStartInfo(CBPLExe)
                     {
-                        WorkingDirectory = CBPLExe + @"..\"
+                        WorkingDirectory = Path.GetDirectoryName(CBPLExe)
                     };
-                    Process.Start(CBPLExe);
+                    Process.Start(PSI);
                 }
                 catch (Exception ex)
                 {
