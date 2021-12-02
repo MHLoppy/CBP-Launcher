@@ -2990,7 +2990,7 @@ namespace CBPLauncher.Logic
         private string TooltipSecondary()
         {
             if (Properties.Settings.Default.UseSecondaryFileList)
-                return "All primary files loaded";
+                return "All secondary files loaded";
             else
                 return "Secondary files not loaded";//later on when individual files can be selected, this will be more relevant (and will need expansion)
         }
