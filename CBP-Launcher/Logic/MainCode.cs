@@ -3860,7 +3860,7 @@ namespace CBPLauncher.Logic
         {
             if (Properties.Settings.Default.DefaultLauncherAnswered == false)
             {
-                string message = $"Do you want CBP Launcher to replace the default launcher?\n(This option can be changed at any time)";
+                string message = $"CBP Launcher can quickly patch and unpatch RoN:EE, so that you can switch between versions easily if you want to. Do you want CBP Launcher to replace the default launcher?\n(This option can be changed at any time)";
 
                 if (MessageBox.Show(message, "Default to CBP Launcher?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
