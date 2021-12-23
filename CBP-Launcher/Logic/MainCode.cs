@@ -3850,7 +3850,8 @@ namespace CBPLauncher.Logic
                 Properties.Settings.Default.UpgradeRequired = false;
                 SaveSettings();
 
-                MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
+                // removed this message to reduce popups for first-timer users
+                //MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
                 CBPLogger.GetInstance.Info("Settings upgraded (if old settings exist).");
             }
         }
