@@ -29,7 +29,6 @@ namespace CBPLauncher.Skins
 
         private string workshopModsPath;
         private string localModsPath;
-        private string resultMessage;
 
         public ClassicPlusModManager()
         {
@@ -64,6 +63,11 @@ namespace CBPLauncher.Skins
                 {
                     plugin.DoSomething(workshopModsPath, localModsPath);
 
+                    // if on/off plugin, make checkbox
+                    // if not, make a "play" button? - also have to ensure the button wiring will work as expected - a simple if <on/off button or play button> check on the underlying wired-to-button-function should suffice?
+                    // the check-if-loaded which is called here but coded in plugins will need to always return FALSE if plugin is "play button" not "on/off button"(?)
+                    // or maybe instead of always-false, it actually checks if whatever it's supposed to do has been done (thinking in terms of the Rise of Babel sound fix plugin here)
+                    // update: nvm decided to just keep the checkbox; plugins can instead track their state more carefully e.g. by parsing xml to check if loaded
                     CheckBox cb = new CheckBox
                     {
                         Margin = new Thickness(7, topMargin, 0, 0),
@@ -96,12 +100,15 @@ namespace CBPLauncher.Skins
                     PCompat.Add(plugin.CBPCompatible);
                     PDescription.Add(plugin.PluginDescription);
 
+                    CBPLogger.GetInstance.Info(plugin.LoadResult);
+
                     i++;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error with dynamic plugin loading: " + ex);
+                CBPLogger.GetInstance.Error("Error with dynamic plugin loading:\n" + ex);
+                MessageBox.Show("Error with dynamic plugin loading: " + ex);//this itself will probably crash the whole launcher, but it seems slightly better than silently failing
             }
         }
 
@@ -183,6 +190,7 @@ namespace CBPLauncher.Skins
                             Plugin0Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 1:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -197,6 +205,7 @@ namespace CBPLauncher.Skins
                             Plugin1Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 2:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -211,6 +220,7 @@ namespace CBPLauncher.Skins
                             Plugin2Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 3:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -225,6 +235,7 @@ namespace CBPLauncher.Skins
                             Plugin3Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 4:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -239,6 +250,7 @@ namespace CBPLauncher.Skins
                             Plugin4Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 5:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -253,6 +265,7 @@ namespace CBPLauncher.Skins
                             Plugin5Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 6:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -267,6 +280,7 @@ namespace CBPLauncher.Skins
                             Plugin6Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 7:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -281,6 +295,7 @@ namespace CBPLauncher.Skins
                             Plugin7Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 8:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -295,6 +310,7 @@ namespace CBPLauncher.Skins
                             Plugin8Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     case 9:
                         if (pluginList[(int)checkbox.Tag].CheckIfLoaded())
@@ -309,6 +325,7 @@ namespace CBPLauncher.Skins
                             Plugin9Checked = true;
                             CheckPluginCompatibility();
                         }
+                        CBPLogger.GetInstance.Info(pluginList[(int)checkbox.Tag].LoadResult);
                         break;
                     default:
                         Console.WriteLine("Default click event registered - no action taken.");
@@ -331,12 +348,19 @@ namespace CBPLauncher.Skins
                     compat = "Yes";
                 else
                     compat = "No";
+                string multi;
+                if (pluginList[tag].DefaultMultiplayerCompatible == true)
+                    multi = "Yes";
+                else
+                    multi = "No";
                 string simple;
                 if (pluginList[tag].IsSimpleMod)
                     simple = "Yes";
                 else
                     simple = "No";
-                string compatSimple = "Compatible with CBP: " + compat + "\n" + "Simple mod loader: " + simple;
+                string compatSimple = "Compatible with CBP: " + compat + "\n"
+                    + "Multiplayer compatible if not used by whole lobby: " + multi + "\n"
+                    + "Simple mod loader: " + simple;
                 string description = pluginList[tag].PluginDescription;
 
                 MessageBox.Show(titleVersionAuthor

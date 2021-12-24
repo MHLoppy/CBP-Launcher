@@ -3569,6 +3569,7 @@ namespace CBPLauncher.Logic
                 {
                     plugin.DoSomething(workshopPath, localMods);
                     plugin.UpdatePlugin(workshopPath, localMods);
+                    CBPLogger.GetInstance.Info(plugin.LoadResult);
                     CBPLogger.GetInstance.Info($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
                     CBPLogger.GetInstance.Info("\nPlugin location: " + pluginsPathList[pluginCounter]);
                     pluginCounter++;
