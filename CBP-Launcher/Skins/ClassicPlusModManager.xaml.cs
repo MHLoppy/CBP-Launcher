@@ -359,7 +359,7 @@ namespace CBPLauncher.Skins
                 else
                     simple = "No";
                 string compatSimple = "Compatible with CBP: " + compat + "\n"
-                    + "Multiplayer compatible if not used by whole lobby: " + multi + "\n"
+                    + "Multiplayer compatible even if not used by whole lobby: " + multi + "\n"
                     + "Simple mod loader: " + simple;
                 string description = pluginList[tag].PluginDescription;
 
