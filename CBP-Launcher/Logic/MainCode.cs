@@ -3310,7 +3310,7 @@ namespace CBPLauncher.Logic
 
             // title, description, compatibility (optional changes are currently all compatible)
             OptTitle = "Asian Attack Helicopter (texture)";
-            OptDescription = "In the original 2003 RoN release, Asian Attack Helicopters used a black texture. In T+P, this graphics entry was replaced with a new skin for a Russian version of the unit, "
+            OptDescription = "In the original 2003 RoN release, Asian Attack Helicopters used a black texture. In T&P, this graphics entry was replaced with a new skin for a Russian version of the unit, "
                 + "so East-Asian nations ended up using the default unit skin. The game supports having both the Russian and Asian unit skins at the same time, so it's unclear why the Asian skin was removed. "
                 + "This change restores the removed unit skin for Asian nations. Other nations are not affected.";
             OptCompatibility = "This change is fully multiplayer-compatible.";
@@ -3347,7 +3347,7 @@ namespace CBPLauncher.Logic
 
             // title, description, compatibility (optional changes are currently all compatible)
             OptTitle = "Modernised Emotes (texture)";
-            OptDescription = "In the original 2003 RoN release, a number of emotes/emoticons are available. These were removed in T+P for unknown reasons, but are restored by default in CBP. "
+            OptDescription = "In the original 2003 RoN release, a number of emotes/emoticons are available. These were removed in T&P for unknown reasons, but are restored by default in CBP. "
                 + "This change replaces those original emotes/emoticons with more modern equivalents from the Twitter emoji set.";
             OptCompatibility = "This change is fully multiplayer-compatible.";
 
@@ -3422,7 +3422,7 @@ namespace CBPLauncher.Logic
 
             // title, description, compatibility (optional changes are currently all compatible)
             OptTitle = "Modern Asian Spy (model + texture)";
-            OptDescription = "In the original 2003 RoN release, all Spies gain a new look in the later ages. In T+P this was removed for the modern Asian Spy. "
+            OptDescription = "In the original 2003 RoN release, all Spies gain a new look in the later ages. In T&P this was removed for the modern Asian Spy. "
                 + "That original texture has significant visibility issues, particularly in snowy terrain, and so this may have been intentionally removed for gameplay reasons. "
                 + "The original (removed) texture has been enhanced with lots of contrast and visbility so that Asian nations can have their own modern Spy again (if you want it!)."
                 + "\n(preview: left is new texture, right is early-game texture)";
