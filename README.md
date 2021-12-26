@@ -4,7 +4,7 @@ A launcher/installer for the Rise of Nations [Community Balance/Bugfix Patch](ht
 - CBP Setup GUI is a small installer/updater (has separate language files to allow for translations). Unless mentioned otherwise, "CBP Setup" refers to CBP Setup GUI.
 - CBP Launcher is the main program and contains the vast majority of overall logic. It's a launcher for CBP (patch/unpatch RoN:EE), an updater for CBP Setup GUI, and essentially provides its own mod manager via a [basic plugin system](https://github.com/MHLoppy/CBP-SDK), separate from RoN's mod manager.
 
-The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](https://github.com/MHLoppy/CBP-MT-Plugin).
+_The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](https://github.com/MHLoppy/CBP-MT-Plugin)._
 
 Both are C# WPF apps using .NET Framework. As of v0.5, CBP Launcher haphazardly implements elements of MVVM architecture.
 
