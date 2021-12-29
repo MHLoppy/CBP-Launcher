@@ -417,5 +417,29 @@ namespace CBPLauncher.Properties {
                 this["UseFancyLogging"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MultiplayerCompatibilityIssue {
+            get {
+                return ((bool)(this["MultiplayerCompatibilityIssue"]));
+            }
+            set {
+                this["MultiplayerCompatibilityIssue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool WarnCompatibility {
+            get {
+                return ((bool)(this["WarnCompatibility"]));
+            }
+            set {
+                this["WarnCompatibility"] = value;
+            }
+        }
     }
 }

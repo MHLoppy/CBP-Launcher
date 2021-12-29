@@ -369,6 +369,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool warnCompatibilityCheckbox = Properties.Settings.Default.WarnCompatibility;
+        public bool WarnCompatibilityCheckbox
+        {
+            get => warnCompatibilityCheckbox;
+            set
+            {
+                warnCompatibilityCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string launcherVersion = "CBP Launcher vX.Y.Z";
         public string LauncherVersion
         {
@@ -471,6 +482,7 @@ namespace CBPLauncher.Logic
         public RelayCommand OptionalMaintainCommand { get; set; }
         public RelayCommand AddIconGameNameCommand { get; set; }
         public RelayCommand UseFancyLoggingCommand { get; set; }
+        public RelayCommand WarnCompatibilityCommand { get; set; }
 
 
         public RelayCommand PlayButtonCommand { get; set; }
@@ -767,6 +779,7 @@ namespace CBPLauncher.Logic
             OptionalMaintainCheckbox = Properties.Settings.Default.OptionalMaintain;
             AddIconGameNameCheckbox = Properties.Settings.Default.AddIconGameName;
             UseFancyLoggerCheckBox = Properties.Settings.Default.UseFancyLogging;
+            WarnCompatibilityCheckbox = Properties.Settings.Default.WarnCompatibility;
 
             CBPLogger.GetInstance.Debug("Checkbox values refreshed.");
         }
@@ -1008,6 +1021,11 @@ namespace CBPLauncher.Logic
                     MessageBox.Show("Fancy log viewer will be enabled on next startup.");
                 else
                     MessageBox.Show("Fancy log viewer will be disabled on next startup.");
+            });
+
+            WarnCompatibilityCommand = new RelayCommand(o =>
+            {
+                WarnCompatibility_Inversion();
             });
 
             ResetSettingsCommand = new RelayCommand(o =>
@@ -2653,16 +2671,46 @@ namespace CBPLauncher.Logic
             //Properties.Settings.Default.FirstTimeRun = false;
             //SaveSettings();
 
-            if (CheckPluginCompatbilityIssue())
+            // only warn if user has not disabled this setting
+            if (Properties.Settings.Default.WarnCompatibility == true)
             {
-                CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP...");
-
-                if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                if (CheckPluginCompatbilityIssue() && CheckMultiplayerIssue())
                 {
-                    return;
+                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
+
+                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP,"
+                        + " and is only multiplayer compatible if loaded and configured the same for ALL players in your game lobby. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                    else
+                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
                 }
-                else
-                    CBPLogger.GetInstance.Warning("..but continuing anyway.");
+
+                else if (CheckPluginCompatbilityIssue())
+                {
+                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP...");
+
+                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                    else
+                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
+                }
+
+                else if (CheckMultiplayerIssue())
+                {
+                    CBPLogger.GetInstance.Warning("One or more loaded plugins are not default-multiplayer compatible...");
+
+                    if (MessageBox.Show("One or more of the plugins currently loaded is only multiplayer-compatible if loaded and configured the same for ALL players in your game lobby."
+                        + " Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                    else
+                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
+                }
             }
 
             if (File.Exists(gameExe) && Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled) // make sure all "launch" button options are included here
@@ -3551,6 +3599,15 @@ namespace CBPLauncher.Logic
             else return false;
         }
 
+        private bool CheckMultiplayerIssue()
+        {
+            if ((Properties.Settings.Default.MultiplayerCompatibilityIssue == true) && (Properties.Settings.Default.CBPLoaded == true))
+            {
+                return true;
+            }
+            else return false;
+        }
+
         private void LoadPlugins()
         {
             try
@@ -3650,10 +3707,14 @@ namespace CBPLauncher.Logic
 
             foreach (IPluginCBP plugin in pluginList)
             {
-                if ((plugin.CheckIfLoaded() == true) && (plugin.CBPCompatible == false))
+                if ((plugin.CheckIfLoaded() == true))
                 {
+                    // we want these two compares to be independent so that we can end up with 4 different states (to present user with more specific message(s))
                     if (plugin.CBPCompatible == false)
                         Properties.Settings.Default.PluginCompatibilityIssue = true;
+
+                    if (plugin.DefaultMultiplayerCompatible == false)
+                        Properties.Settings.Default.MultiplayerCompatibilityIssue = true;
                 }
             }
             SaveSettings();
@@ -3718,6 +3779,8 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.AnyPluginsLoaded = false;
             Properties.Settings.Default.JustReset = false;
             Properties.Settings.Default.UseFancyLogging = false;
+            Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
+            Properties.Settings.Default.WarnCompatibility = true;
 
             SaveSettings();
 
@@ -3775,6 +3838,12 @@ namespace CBPLauncher.Logic
         private void UseFancyLogging_Inversion()
         {
             Properties.Settings.Default.UseFancyLogging = !Properties.Settings.Default.UseFancyLogging;
+            SaveSettings();
+        }
+
+        private void WarnCompatibility_Inversion()
+        {
+            Properties.Settings.Default.WarnCompatibility = !Properties.Settings.Default.WarnCompatibility;
             SaveSettings();
         }
 
