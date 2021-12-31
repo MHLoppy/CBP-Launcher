@@ -3704,6 +3704,7 @@ namespace CBPLauncher.Logic
         private void CheckPluginCompatibility()
         {
             Properties.Settings.Default.PluginCompatibilityIssue = false;
+            Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
 
             foreach (IPluginCBP plugin in pluginList)
             {
