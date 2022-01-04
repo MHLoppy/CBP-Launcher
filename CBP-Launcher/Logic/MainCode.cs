@@ -2674,6 +2674,9 @@ namespace CBPLauncher.Logic
             // only warn if user has not disabled this setting
             if (Properties.Settings.Default.WarnCompatibility == true)
             {
+                // check compatibility again, otherwise can false-positive on a plugin that's actually loaded
+                CheckPluginCompatibility();
+
                 if (CheckPluginCompatbilityIssue() && CheckMultiplayerIssue())
                 {
                     CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
