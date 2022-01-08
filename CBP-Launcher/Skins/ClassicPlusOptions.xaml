@@ -38,8 +38,8 @@
                     <ColumnDefinition Width="0"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="330"/>
-                    <RowDefinition Height="240"/>
+                    <RowDefinition Height="320"/>
+                    <RowDefinition Height="250"/>
                     <RowDefinition Height="100"/>
                 </Grid.RowDefinitions>
 
