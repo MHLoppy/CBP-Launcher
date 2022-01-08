@@ -380,6 +380,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool disablePluginLoadingCheckbox = Properties.Settings.Default.DisablePluginLoading;
+        public bool DisablePluginLoadingCheckbox
+        {
+            get => disablePluginLoadingCheckbox;
+            set
+            {
+                disablePluginLoadingCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string launcherVersion = "CBP Launcher vX.Y.Z";
         public string LauncherVersion
         {
@@ -483,6 +494,7 @@ namespace CBPLauncher.Logic
         public RelayCommand AddIconGameNameCommand { get; set; }
         public RelayCommand UseFancyLoggingCommand { get; set; }
         public RelayCommand WarnCompatibilityCommand { get; set; }
+        public RelayCommand DisablePluginLoadingCommand { get; set; }
 
 
         public RelayCommand PlayButtonCommand { get; set; }
@@ -780,6 +792,7 @@ namespace CBPLauncher.Logic
             AddIconGameNameCheckbox = Properties.Settings.Default.AddIconGameName;
             UseFancyLoggerCheckBox = Properties.Settings.Default.UseFancyLogging;
             WarnCompatibilityCheckbox = Properties.Settings.Default.WarnCompatibility;
+            DisablePluginLoadingCheckbox = Properties.Settings.Default.DisablePluginLoading;
 
             CBPLogger.GetInstance.Debug("Checkbox values refreshed.");
         }
@@ -788,7 +801,16 @@ namespace CBPLauncher.Logic
         {
             await AutoRun();
             await CreateCommands();
-            LoadPlugins();
+
+            // don't spend time loading plugins if not being used
+            if (Properties.Settings.Default.DisablePluginLoading == false)
+            {
+                LoadPlugins();
+            }
+            else
+            {
+                CBPLogger.GetInstance.Info("Plugin loading is disabled.");
+            }
             RefreshCheckboxValues();
         }
 
@@ -1026,6 +1048,11 @@ namespace CBPLauncher.Logic
             WarnCompatibilityCommand = new RelayCommand(o =>
             {
                 WarnCompatibility_Inversion();
+            });
+
+            DisablePluginLoadingCommand = new RelayCommand(o =>
+            {
+                DisablePluginLoading_Inversion();
             });
 
             ResetSettingsCommand = new RelayCommand(o =>
@@ -3785,6 +3812,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.UseFancyLogging = false;
             Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
             Properties.Settings.Default.WarnCompatibility = true;
+            Properties.Settings.Default.DisablePluginLoading = false;
 
             SaveSettings();
 
@@ -3848,6 +3876,12 @@ namespace CBPLauncher.Logic
         private void WarnCompatibility_Inversion()
         {
             Properties.Settings.Default.WarnCompatibility = !Properties.Settings.Default.WarnCompatibility;
+            SaveSettings();
+        }
+
+        private void DisablePluginLoading_Inversion()
+        {
+            Properties.Settings.Default.DisablePluginLoading = !Properties.Settings.Default.DisablePluginLoading;
             SaveSettings();
         }
 

@@ -441,5 +441,17 @@ namespace CBPLauncher.Properties {
                 this["WarnCompatibility"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisablePluginLoading {
+            get {
+                return ((bool)(this["DisablePluginLoading"]));
+            }
+            set {
+                this["DisablePluginLoading"] = value;
+            }
+        }
     }
 }

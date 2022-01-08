@@ -29,9 +29,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="240"/>
-                    <RowDefinition Height="140"/>
-                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="230"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="45"/>
                 </Grid.RowDefinitions>
 
                 <!-- CBP Options -->
@@ -58,7 +58,7 @@
 
                 <!-- Launcher Options -->
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Launcher Options" Foreground="#151515" FontSize="14" Margin="10,0,0,0" FontWeight="SemiBold"/>
-                <Border Grid.Row="1" Grid.Column="0" BorderBrush="LightGray" BorderThickness="2" Margin="6,20,0,10" Padding="0,6,0,0">
+                <Border Grid.Row="1" Grid.Column="0" BorderBrush="LightGray" BorderThickness="2" Margin="6,20,0,0" Padding="0,6,0,0">
                 <Grid>
                     <ComboBox Grid.Row="0" Grid.Column="0" Width="150" Height="26" Margin="6,0,0,0" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Hidden">
                         <ComboBoxItem Content="Spartan V1"/>
@@ -84,7 +84,8 @@
 
                     <CheckBox Name="DefaultLauncherCheckbox" Grid.Row="0" Grid.Column="0" Content="Use default RoN launcher, NOT CBP Launcher" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top" IsChecked="{Binding UseDefaultLauncherCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseDefaultLauncherCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
                     <CheckBox Name="UseFancyLoggerCheckbox" Grid.Row="0" Grid.Column="0" Content="Enable fancy log viewer" HorizontalAlignment="Left" Margin="10,54,0,0" VerticalAlignment="Top" IsChecked="{Binding UseFancyLoggerCheckBox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseFancyLoggingCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
-                    <CheckBox Name="WarnCompatibilityCheckbox" Grid.Row="0" Grid.Column="0" Content="Warn if plugins have CBP or multiplayer compatibility issues" HorizontalAlignment="Left" Margin="10,74,0,0" VerticalAlignment="Top" IsChecked="{Binding WarnCompatibilityCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseFancyLoggingCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
+                    <CheckBox Name="DisablePluginLoadingCheckbox" Grid.Row="0" Grid.Column="0" Content="Disable plugin loading" HorizontalAlignment="Left" Margin="10,74,0,0" VerticalAlignment="Top" IsChecked="{Binding DisablePluginLoadingCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding DisablePluginLoadingCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
+                    <CheckBox Name="WarnCompatibilityCheckbox" Grid.Row="0" Grid.Column="0" Content="Warn if plugins have CBP or multiplayer compatibility issues" HorizontalAlignment="Left" Margin="10,94,0,0" VerticalAlignment="Top" IsChecked="{Binding WarnCompatibilityCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseFancyLoggingCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
 
                     <!-- legacy: bark/trireme OoS detection -->
                     <!--<CheckBox Grid.Row="0" Grid.Column="0" Content="Detect potential Bark/Trireme OoS bug on game launch" HorizontalAlignment="Left" Margin="10,54,0,0" VerticalAlignment="Top" IsChecked="{Binding DetectBullshitCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding DetectBullshitCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#121212" FontSize="14" Padding="4,-2,0,0"/>
