@@ -1052,7 +1052,19 @@ namespace CBPLauncher.Logic
 
             DisablePluginLoadingCommand = new RelayCommand(o =>
             {
+                if (Properties.Settings.Default.AnyPluginsLoaded == true)
+                {
+                    // tell user to unload their plugins
+                    MessageBox.Show("Existing plugins must be unloaded before disabling plugin loading.");
+                    return;
+                }
+
                 DisablePluginLoading_Inversion();
+
+                if (Properties.Settings.Default.DisablePluginLoading)
+                    MessageBox.Show("Plugin loading has been disabled.\n\nNOTE: ANY CURRENTLY-LOADED PLUGIN CHANGES ARE NOT AUTOMATICALLY UNDONE.");
+                else
+                    MessageBox.Show("Plugin loading has been enabled.\n\nNote that plugins which rely on their own update function will not run this function until the next time CBP Launcher is started.");
             });
 
             ResetSettingsCommand = new RelayCommand(o =>
