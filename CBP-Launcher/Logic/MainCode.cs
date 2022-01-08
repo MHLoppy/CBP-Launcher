@@ -729,6 +729,8 @@ namespace CBPLauncher.Logic
                 if ((Properties.Settings.Default.FirstTimeRun == true) && (Properties.Settings.Default.JustReset == false))
                     WriteDefaultSettings();
 
+                CheckReinstall();
+
                 // moved into separate function
                 AutoRunWrapper();
             }
@@ -776,6 +778,51 @@ namespace CBPLauncher.Logic
                     LogManager.Shutdown();
                     Environment.Exit(161);
                 }
+            }
+        }
+
+        private void CheckReinstall()
+        {
+            // unreliably check if RoN was recently installed (the implication being that it may have been recently *re*installed, which we need to know about)
+            string crossplay = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CrossplayNetLib.dll");
+            if ((RecentlyCreated(crossplay, 2) == true) && (Properties.Settings.Default.FirstTimeRun == false))
+            {
+                CBPLogger.GetInstance.Warning("It looks like RoN may have been recently re-installed.");
+
+                if (MessageBox.Show("If you've recently re-installed Rise of Nations, it's recommended that you reset CBP Launcher's settings to prevent errors. If you did not recently re-install RoN, you can probably say no."
+                    + "\n\nReset CBP Launcher's settings?", "Reset settings?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    CBPLogger.GetInstance.Info("User said to reset settings.");
+
+                    //ResetSettings();
+                    // not using the normal settings reset to avoid its messagebox
+                    WriteDefaultSettings();
+
+                    Properties.Settings.Default.JustReset = true;
+                    Properties.Settings.Default.FuckStopTellingMe = true;
+                    SaveSettings();
+
+                    CBPLogger.GetInstance.Info("Settings reset (but reset message will not be repeated).");
+                }
+                else
+                {
+                    CBPLogger.GetInstance.Info("User said not to reset settings.");
+                }
+            }
+        }
+
+        private bool RecentlyCreated(string file, int hours)//https://stackoverflow.com/questions/1119158/check-if-file-created-within-last-x-hours
+        {
+            if (File.Exists(file))
+            {
+                CBPLogger.GetInstance.Debug("Located " + file);
+                DateTime threshold = DateTime.Now.AddHours(-hours);
+                return File.GetCreationTime(file) >= threshold;
+            }
+            else
+            {
+                CBPLogger.GetInstance.Warning("Unable to locate " + file);
+                return false;
             }
         }
 
@@ -3825,6 +3872,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
             Properties.Settings.Default.WarnCompatibility = true;
             Properties.Settings.Default.DisablePluginLoading = false;
+            Properties.Settings.Default.FuckStopTellingMe = false;
 
             SaveSettings();
 

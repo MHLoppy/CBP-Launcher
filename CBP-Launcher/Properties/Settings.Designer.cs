@@ -453,5 +453,17 @@ namespace CBPLauncher.Properties {
                 this["DisablePluginLoading"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FuckStopTellingMe {
+            get {
+                return ((bool)(this["FuckStopTellingMe"]));
+            }
+            set {
+                this["FuckStopTellingMe"] = value;
+            }
+        }
     }
 }
