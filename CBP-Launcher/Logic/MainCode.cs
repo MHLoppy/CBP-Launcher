@@ -1062,7 +1062,7 @@ namespace CBPLauncher.Logic
                 DisablePluginLoading_Inversion();
 
                 if (Properties.Settings.Default.DisablePluginLoading)
-                    MessageBox.Show("Plugin loading has been disabled.\n\nNOTE: ANY CURRENTLY-LOADED PLUGIN CHANGES ARE NOT AUTOMATICALLY UNDONE.");
+                    MessageBox.Show("Plugin loading has been disabled.\n\nNOTE: ANY CHANGES PREVIOUSLY MADE BY PLUGINS ARE NOT AUTOMATICALLY UNDONE BY DISABLING PLUGIN LOADING.");
                 else
                     MessageBox.Show("Plugin loading has been enabled.\n\nNote that plugins which rely on their own update function will not run this function until the next time CBP Launcher is started.");
             });
