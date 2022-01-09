@@ -764,15 +764,22 @@ namespace CBPLauncher.Logic
                 /*MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and can cause errors.\n\n Run CBP Setup GUI to install CBP Launcher to RoN's location.", "UNSUPPORTED LOCATION", MessageBoxButton.OK, MessageBoxImage.Stop);
                 Application.Current.MainWindow.Close();*/
 
-                if (Interaction.InputBox("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. "
+                string response = Interaction.InputBox("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. "
                                                         + "Run CBPSetupGUI.exe instead."
                                                         + "\n\nIf you want to run CBP Launcher from here anyway, type \"I understand\"."
-                                                        , "UNSUPPORTED LOCATION")
-                    .Contains("I understand"))
+                                                        , "UNSUPPORTED LOCATION");
+                if (response.Contains("I understand"))
                 {
                     CBPLogger.GetInstance.Warning("User is continuing to run from Workshop location.");
                     MessageBox.Show("I hope you know what you're doing uwu", "Continuing", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
+                /*else if (response.Contains("reset"))
+                {
+                    ResetSettings(false);
+                    MessageBox.Show("CBP Launcher's settings have been reset and it will now close.");
+                    LogManager.Shutdown();
+                    Environment.Exit(0);
+                }*/
                 else
                 {
                     LogManager.Shutdown();
@@ -794,15 +801,10 @@ namespace CBPLauncher.Logic
                 {
                     CBPLogger.GetInstance.Info("User said to reset settings.");
 
-                    //ResetSettings();
-                    // not using the normal settings reset to avoid its messagebox
-                    WriteDefaultSettings();
-
-                    Properties.Settings.Default.JustReset = true;
+                    ResetSettings(false);
                     Properties.Settings.Default.FuckStopTellingMe = true;
                     SaveSettings();
-
-                    CBPLogger.GetInstance.Info("Settings reset (but reset message will not be repeated).");
+                    MessageBox.Show("CBP Launcher's settings have been reset and it will now close. You should be able to run everything normally from here.");
                 }
                 else
                 {
@@ -1118,7 +1120,7 @@ namespace CBPLauncher.Logic
             {
                 if (MessageBox.Show("Are you sure you want to reset all settings?", "Confirm settings reset", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    ResetSettings();
+                    ResetSettings(true);
                 }
                 else
                 {
@@ -3840,7 +3842,7 @@ namespace CBPLauncher.Logic
         }
 
         //settings section
-        private void ResetSettings()
+        private void ResetSettings(bool showMessage)
         {
             //Properties.Settings.Default.Reset();
             WriteDefaultSettings();
@@ -3849,7 +3851,10 @@ namespace CBPLauncher.Logic
             SaveSettings();
 
             CBPLogger.GetInstance.Info("Settings reset.");
-            MessageBox.Show($"Settings reset. Please restart program to load default settings.");
+            if (showMessage)
+            {
+                MessageBox.Show($"Settings reset. Please restart program to load default settings.");
+            }    
         }
 
         //dumb way to avoid having to distribute the config file (people are already having trouble following directions for two exes, I don't want to complicate it further)
