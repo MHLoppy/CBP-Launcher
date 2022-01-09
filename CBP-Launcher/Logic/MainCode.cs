@@ -765,7 +765,7 @@ namespace CBPLauncher.Logic
                 Application.Current.MainWindow.Close();*/
 
                 if (Interaction.InputBox("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. "
-                                                        + "You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location."
+                                                        + "Run CBPSetupGUI.exe instead."
                                                         + "\n\nIf you want to run CBP Launcher from here anyway, type \"I understand\"."
                                                         , "UNSUPPORTED LOCATION")
                     .Contains("I understand"))
@@ -1165,21 +1165,29 @@ namespace CBPLauncher.Logic
             SkinSpartanV1Command = new RelayCommand(o =>
             {
                 CurrentSkin = SpartanV1;
+                Properties.Settings.Default.MicroSkin = false;
+                SaveSettings();
             });
 
             SkinSpartanV1MiniCommand = new RelayCommand(o =>
             {
                 CurrentSkin = SpartanV1Mini;
+                Properties.Settings.Default.MicroSkin = true;
+                SaveSettings();
             });
 
             SkinClassicPlusMiniCommand = new RelayCommand(o =>
             {
                 CurrentSkin = ClassicPlusMini;
+                Properties.Settings.Default.MicroSkin = true;
+                SaveSettings();
             });
 
             SkinClassicPlusCommand = new RelayCommand(o =>
             {
                 CurrentSkin = ClassicPlus;
+                Properties.Settings.Default.MicroSkin = false;
+                SaveSettings();
             });
 
             MinimiseCommand = new RelayCommand(o =>
@@ -1210,10 +1218,20 @@ namespace CBPLauncher.Logic
             ClassicPlusLog = new ClassicPlusLogVM();
             ClassicPlusDummyTab = new DummyTabVM();
 
-            if (Properties.Settings.Default.SkinSpV1 == true)
+            if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == false))
             {
                 CurrentSkin = SpartanV1;
                 CurrentTab = SpartanV1PatchNotes;
+            }
+            else if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == true))
+            {
+                CurrentSkin = SpartanV1Mini;
+                CurrentTab = SpartanV1PatchNotes;
+            }
+            else if ((Properties.Settings.Default.SkinSpV1 == false) && (Properties.Settings.Default.MicroSkin == true))
+            {
+                CurrentSkin = ClassicPlusMini;
+                CurrentTab = ClassicPlusPatchNotes;
             }
             else
             {
@@ -3873,6 +3891,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.WarnCompatibility = true;
             Properties.Settings.Default.DisablePluginLoading = false;
             Properties.Settings.Default.FuckStopTellingMe = false;
+            Properties.Settings.Default.MicroSkin = false;
 
             SaveSettings();
 

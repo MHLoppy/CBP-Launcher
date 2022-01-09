@@ -465,5 +465,17 @@ namespace CBPLauncher.Properties {
                 this["FuckStopTellingMe"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MicroSkin {
+            get {
+                return ((bool)(this["MicroSkin"]));
+            }
+            set {
+                this["MicroSkin"] = value;
+            }
+        }
     }
 }
