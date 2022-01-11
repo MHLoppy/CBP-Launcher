@@ -25,6 +25,8 @@ _The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](htt
 - Integrate all first-time-run prompts into single window (target v0.7-v0.8)
 - Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8)
 - Option to load archived versions of CBP (target v0.8-v0.9)
+- Minimal translations of essential portions only of CBP Setup GUI and CBP Launcher (target v0.8-v0.9)
+- Complete translations of all text in CBP Setup GUI and CBP Launcher (target: when the multi-lingual multi-national RoN community gets off its collectively lazy ass and contributes)
 - Load / unload Workshop mod alongside local mod files (wishlist)
 
 ### License
