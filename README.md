@@ -21,7 +21,8 @@ _The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](htt
 ### TODO
 - Option to remove previous versions of CBP, instead of archiving (target: v0.6)
 - Option to override file / registry paths (target v0.6-v0.7)
-- Option to load archived versions of CBP (target v0.7-v0.9)
+- Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8)
+- Option to load archived versions of CBP (target v0.8-v0.9)
 - Load / unload Workshop mod alongside local mod files (wishlist)
 
 ### License
