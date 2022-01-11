@@ -181,7 +181,7 @@
             <Grid Grid.Column="1" Grid.Row="2" Visibility="Visible">
                 <Grid Name="RightSideBottomButtonGrid">
                     <Button Content="Workshop Page" Command="{Binding WorkshopCommand}" HorizontalAlignment="Right" Margin="0,10,425,0" VerticalAlignment="Top" Width="100" Height="30" ToolTip="Open CBP's Steam Workshop page in external browser."/>
-                    <Button Content="Github" Command="{Binding GithubCommand}" HorizontalAlignment="Right" Margin="0,10,290,0" VerticalAlignment="Top" Width="100" Height="30" ToolTip="Open CBP Launcher's GitHub page in external browser."/>
+                    <Button Content="GitHub" Command="{Binding GithubCommand}" HorizontalAlignment="Right" Margin="0,10,290,0" VerticalAlignment="Top" Width="100" Height="30" ToolTip="Open CBP Launcher's GitHub page in external browser."/>
                     <Button Content="RoN Discord" Command="{Binding DiscordCommand}" HorizontalAlignment="Right" Margin="0,10,155,0" VerticalAlignment="Top" Width="100" Height="30" ToolTip="Open invite link for Rise of Nations community Discord server in external browser / Discord."/>
                 </Grid>
             </Grid>
