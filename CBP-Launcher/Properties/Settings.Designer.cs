@@ -477,5 +477,17 @@ namespace CBPLauncher.Properties {
                 this["MicroSkin"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ArchiveDelete {
+            get {
+                return ((bool)(this["ArchiveDelete"]));
+            }
+            set {
+                this["ArchiveDelete"] = value;
+            }
+        }
     }
 }

@@ -391,6 +391,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool archiveDeleteCheckbox = Properties.Settings.Default.ArchiveDelete;
+        public bool ArchiveDeleteCheckbox
+        {
+            get => archiveDeleteCheckbox;
+            set
+            {
+                archiveDeleteCheckbox = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string launcherVersion = "CBP Launcher vX.Y.Z";
         public string LauncherVersion
         {
@@ -496,6 +507,7 @@ namespace CBPLauncher.Logic
         public RelayCommand WarnCompatibilityCommand { get; set; }
         public RelayCommand DisablePluginLoadingCommand { get; set; }
         public RelayCommand OverridePathCommand { get; set; }
+        public RelayCommand ArchiveDeleteCommand { get; set; }
 
 
         public RelayCommand PlayButtonCommand { get; set; }
@@ -843,6 +855,7 @@ namespace CBPLauncher.Logic
             UseFancyLoggerCheckBox = Properties.Settings.Default.UseFancyLogging;
             WarnCompatibilityCheckbox = Properties.Settings.Default.WarnCompatibility;
             DisablePluginLoadingCheckbox = Properties.Settings.Default.DisablePluginLoading;
+            ArchiveDeleteCheckbox = Properties.Settings.Default.ArchiveDelete;
 
             CBPLogger.GetInstance.Debug("Checkbox values refreshed.");
         }
@@ -1115,6 +1128,11 @@ namespace CBPLauncher.Logic
                     MessageBox.Show("Plugin loading has been disabled.\n\nNOTE: ANY CHANGES PREVIOUSLY MADE BY PLUGINS ARE NOT AUTOMATICALLY UNDONE BY DISABLING PLUGIN LOADING.");
                 else
                     MessageBox.Show("Plugin loading has been enabled.\n\nNote that plugins which rely on their own update function will not run this function until the next time CBP Launcher is started.");
+            });
+
+            ArchiveDeleteCommand = new RelayCommand(o =>
+            {
+                ArchiveDelete_Inversion();
             });
 
             OverridePathCommand = new RelayCommand(o =>
@@ -2388,8 +2406,9 @@ namespace CBPLauncher.Logic
                             Status = LauncherStatus.installingUpdateLocal;
 
                             // if archive setting is enabled, archive the old version; it looks for an unversioned CBP folder and has a separate check for a6c specifically
-                            if (Properties.Settings.Default.CBPArchive == true)
+                            if ((Properties.Settings.Default.CBPArchive == true) && (Properties.Settings.Default.ArchiveDelete == false))
                             {
+                                CBPLogger.GetInstance.Info("Archiving old CBP version...");
                                 // may need a third archive function with new mod format?
 
                                 // standard (non-a6c) archiving
@@ -2409,9 +2428,14 @@ namespace CBPLauncher.Logic
                                     MessageBox.Show($"Archive setting is on, but there doesn't seem to be any compatible CBP install to archive. No action has been taken.");
                                 }
                             }
+                            else if (Properties.Settings.Default.ArchiveDelete == true)
+                            {
+                                CBPLogger.GetInstance.Info("Deleting old CBP version...");
+                                await DeleteOldVersion();
+                            }
                             else
                             {
-                                //todo: just delete the old files instead
+                                //not sure how you get here because the old (and currently unused) CBPArchive setting is not exposed to the user
                             }
                         }
                         else
@@ -3903,6 +3927,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.DisablePluginLoading = false;
             Properties.Settings.Default.FuckStopTellingMe = false;
             Properties.Settings.Default.MicroSkin = false;
+            Properties.Settings.Default.ArchiveDelete = false;
 
             SaveSettings();
 
@@ -3975,6 +4000,12 @@ namespace CBPLauncher.Logic
             SaveSettings();
         }
 
+        private void ArchiveDelete_Inversion()
+        {
+            Properties.Settings.Default.ArchiveDelete = !Properties.Settings.Default.ArchiveDelete;
+            SaveSettings();
+        }
+
         private void OverridePathPopup()
         {
             //clunky (should probably use a while loop?) but functional
@@ -3988,6 +4019,8 @@ namespace CBPLauncher.Logic
                 // directly save the path
                 Properties.Settings.Default.RoNPathSetting = newPath;
                 SaveSettings();
+
+                MessageBox.Show("New path saved.\n\nPlease restart CBP Launcher to ensure the new path is loaded correctly.");
             }
             else
             {
@@ -4258,6 +4291,22 @@ namespace CBPLauncher.Logic
                 Status = LauncherStatus.loadFailed;
                 CBPLogger.GetInstance.Error($"Error archiving previous CBP version (compatibility for a6c): {ex}");
                 MessageBox.Show($"Error archiving previous CBP version (compatibility for a6c): {ex}");
+            }
+        }
+
+        private async Task DeleteOldVersion()
+        {
+            try
+            {
+                MessageBox.Show("localpathCBP = " + localPathCBP);
+                //Directory.Delete(localPathCBP);
+                //CBPLogger.GetInstance.Info("Old/existing local CBP folder deleted.");
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.loadFailed;
+                CBPLogger.GetInstance.Error("Error deleting old CBP version: " + ex);
+                MessageBox.Show("Error deleting old CBP version:\n\n" + ex);
             }
         }
 
