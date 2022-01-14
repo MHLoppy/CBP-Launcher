@@ -104,6 +104,7 @@ namespace CBPLauncher.Logic
         private string napoleonMap;
         private string worldMap;
         private string napoleonPostTurn;
+        private bool pluginFileProblem;
 
         //private string patchNotesCBP; //moved out to its own VM instead
 
@@ -2813,6 +2814,33 @@ namespace CBPLauncher.Logic
                 // check compatibility again, otherwise can false-positive on a plugin that's actually loaded
                 CheckPluginCompatibility();
 
+                // to prevent plugins from potentially loading old files (e.g. rules.xml) that are outdated with new CBP updates, check the CBP version in file headers
+                if (pluginFileProblem && (Properties.Settings.Default.CBPLoaded == true))
+                {
+                    if (MessageBox.Show("One or more plugins has created an unsupported conflict with CBP files. To resolve this:"
+                        + "\n1) Unload any plugins that are marked as NOT CBP compatible AND/OR not multiplayer compatible by default (see each plugin's info)."
+                        + "\n2) Unload and then reload CBP."
+                        + "\n3) Reload/reconfigure any affected plugins."
+                        + "\n\n Ignore conflict and continue? (you probably can't play multiplayer without fixing this)"
+                        , "File incompatibility detected", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;//if user says *no*, abort game launch sequence - otherwise can do nothing and continue
+                    }
+                }
+                //different message depending on whether CBP is loaded or not
+                else if (pluginFileProblem && (Properties.Settings.Default.CBPLoaded == false))
+                {
+                    if (MessageBox.Show("One or more plugins has created an unsupported conflict with game files. To resolve this:"
+                        + "\n1) Unload any plugins that are marked as NOT CBP compatible AND/OR not multiplayer compatible by default (see each plugin's info)."
+                        + "\n2) Load and then unload CBP."
+                        + "\n3) Reload/reconfigure any affected plugins."
+                        + "\n\n Ignore error and continue? (you probably can't play multiplayer without fixing this)"
+                        , "File incompatibility detected", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;//if user says *no*, abort game launch sequence - otherwise can do nothing and continue
+                    }
+                }
+
                 if (CheckPluginCompatbilityIssue() && CheckMultiplayerIssue())
                 {
                     CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
@@ -3868,6 +3896,67 @@ namespace CBPLauncher.Logic
 
                 Properties.Settings.Default.FirstTimePlugins = false;
                 SaveSettings();
+            }
+        }
+
+        private async Task RecheckFileVersions()//unfortunately needed because user might load plugin in one CBP state, but unload it in another (or vice versa)
+        {
+            try
+            {
+                Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));//at some point this should definitely be spun out into a less-localised variable so that it can be used in multiple places
+                int fileProblems = 0;
+
+                // check each file in the modded list and make sure it's an up-to-date CBP file
+                foreach (string filename in CBPFileListModded)
+                {
+                    if (CheckIfCBPFile(filename) == true)
+                    {
+                        CBPLogger.GetInstance.Debug($"{filename} is a CBP file (just as we want)...");
+
+                        //it's a CBP file (but not necessarily the right version, so deal with that too)
+                        string text = File.ReadLines(Path.Combine(RoNDataPath, filename)).Skip(2).Take(1).First();
+                        Version fileVersion = new Version(text.Substring(9, 11));
+
+                        if (fileVersion.IsDifferentThan(localVersion))// I assume it's faster to check this than straight up always-write files
+                        {
+                            CBPLogger.GetInstance.Debug("..but isn't up to date (no action taken).");
+                            fileProblems++;
+                        }
+                        //else no action required
+                    }
+                    else
+                    {
+                        CBPLogger.GetInstance.Debug($"{filename} is not a CBP file, but should be (no action taken)");
+                        fileProblems++;
+                    }
+                }
+
+                // check each file in the original list and make sure it's **NOT** a CBP file (we don't care if it's user-modded, since they did that themselves)
+                foreach (string filename in CBPFileListOriginal)
+                {
+                    if (CheckIfCBPFile(filename) == true)
+                    {
+                        CBPLogger.GetInstance.Debug($"{filename} is a CBP file, but shouldn't be (no action taken).");
+                        fileProblems++;
+                    }
+                    else
+                    {
+                        CBPLogger.GetInstance.Debug($"{filename} is not a CBP file (just as we want) - no action taken.");
+                    }
+                }
+
+                if (fileProblems > 0)
+                {
+                    pluginFileProblem = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                CBPLogger.GetInstance.Error($"Error checking data files (plugin compatibility): {ex}");
+                MessageBox.Show("Error checking data files (plugin compatibility):\n\n" + ex);
+                //LogManager.Shutdown();
+                //Environment.Exit(-1);
+                //don't want to necessarily shut down just for this error
             }
         }
 
