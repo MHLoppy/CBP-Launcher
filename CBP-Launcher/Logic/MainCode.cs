@@ -2841,7 +2841,8 @@ namespace CBPLauncher.Logic
                     }
                 }
 
-                if (CheckPluginCompatbilityIssue() && CheckMultiplayerIssue())
+                // thought of a more elegant way to implement this below!
+                /*if (CheckPluginCompatbilityIssue() && CheckMultiplayerIssue())
                 {
                     CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
 
@@ -2877,7 +2878,57 @@ namespace CBPLauncher.Logic
                     }
                     else
                         CBPLogger.GetInstance.Warning("..but continuing anyway.");
+                }*/
+
+                //this sequence is probably faster because it only runs each of the two checks a single time each!
+                int guraCuteShark = 0;//https://twitter.com/FluffyBlanket_/status/1417443845344616450
+
+                if (CheckPluginCompatbilityIssue())
+                    guraCuteShark += 1;
+                if (CheckMultiplayerIssue())
+                    guraCuteShark += 2;
+
+                //only plugin compatibility issue
+                if (guraCuteShark == 1)
+                {
+                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP...");
+
+                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                    else
+                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
                 }
+
+                //only multiplayer compatibility issue
+                else if (guraCuteShark == 2)
+                {
+                    CBPLogger.GetInstance.Warning("One or more loaded plugins are not default-multiplayer compatible...");
+
+                    if (MessageBox.Show("One or more of the plugins currently loaded is only multiplayer-compatible if loaded and configured the same for ALL players in your game lobby."
+                        + " Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                    else
+                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
+                }
+
+                //both plugin compatibiliy and multiplay compatibility issues
+                else if (guraCuteShark == 3)
+                {
+                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
+
+                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP,"
+                        + " and is only multiplayer compatible if loaded and configured the same for ALL players in your game lobby. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    {
+                        return;
+                    }
+                    else
+                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
+                }
+                // if 0, there was no issue
             }
 
             if (File.Exists(gameExe) && (Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled)) // make sure all "launch" button options are included here
