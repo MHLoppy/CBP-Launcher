@@ -58,7 +58,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Images\RoN CBP launcher logo 01.ico</ApplicationIcon>
+    <ApplicationIcon>Images\CBP Launcher icon %28CBPL - stack%29.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -486,6 +486,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <Resource Include="Images\RoN CBP Launcher version shadow 20px blur 120trans.png" />
+    <Resource Include="Images\CBP Launcher icon %28CBPL - stack%29.ico" />
     <Content Include="NLogOld.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
