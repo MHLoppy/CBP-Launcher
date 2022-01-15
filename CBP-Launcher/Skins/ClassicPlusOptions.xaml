@@ -91,7 +91,7 @@
                                 </Style>
                             </Button.Resources>
                         </Button>
-                        <Button Width="130" Height="25" Command="{Binding OverridePathCommand}" Content="Override RoN Path" Margin="8,4,10,0" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#EEEEEE" Background="#493E33" FontSize="14" BorderBrush="#282828">
+                        <Button Width="130" Height="25" Command="{Binding OverridePathCommand}" Content="Override RoN path" Margin="8,4,10,0" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#EEEEEE" Background="#493E33" FontSize="14" BorderBrush="#282828">
                             <Button.Resources>
                                 <Style TargetType="Border">
                                     <Setter Property="CornerRadius" Value="3"/>
