@@ -2893,8 +2893,9 @@ namespace CBPLauncher.Logic
                 {
                     CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP...");
 
-                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP.\n\nContinue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
                     {
+                        CBPLogger.GetInstance.Info("Aborting launch per user request.");
                         return;
                     }
                     else
@@ -2907,8 +2908,9 @@ namespace CBPLauncher.Logic
                     CBPLogger.GetInstance.Warning("One or more loaded plugins are not default-multiplayer compatible...");
 
                     if (MessageBox.Show("One or more of the plugins currently loaded is only multiplayer-compatible if loaded and configured the same for ALL players in your game lobby."
-                        + " Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                        + "\n\nContinue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
                     {
+                        CBPLogger.GetInstance.Info("Aborting launch per user request.");
                         return;
                     }
                     else
@@ -2921,8 +2923,9 @@ namespace CBPLauncher.Logic
                     CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
 
                     if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP,"
-                        + " and is only multiplayer compatible if loaded and configured the same for ALL players in your game lobby. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                        + " and is only multiplayer compatible if loaded and configured the same for ALL players in your game lobby.\n\nContinue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
                     {
+                        CBPLogger.GetInstance.Info("Aborting launch per user request.");
                         return;
                     }
                     else
