@@ -4167,9 +4167,14 @@ namespace CBPLauncher.Logic
             OverridePathStart:
             
             string newPath = Interaction.InputBox("This will allow you to override an automatically-detected RoN path with a new path. If you've reinstalled your game but in a new location, this may be required."
-                + "\n\nNote that this path will need to be input again if settings are reset.", "Override RoN Path");
+                + "\n\nNote that this path will need to be input again if settings are reset.", "Override RoN Path", "filepath");
 
-            if (File.Exists(Path.Combine(newPath, "riseofnations.exe")))
+            if (newPath == "filepath" || newPath == "")//turns out the cancel button returns a 0-length string lol
+            {
+                MessageBox.Show("No action taken.");
+                return;
+            }
+            else if (File.Exists(Path.Combine(newPath, "riseofnations.exe")))
             {
                 // directly save the path
                 Properties.Settings.Default.RoNPathSetting = newPath;
