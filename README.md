@@ -1,14 +1,16 @@
 # CBP Launcher
 A launcher/installer for the Rise of Nations [Community Balance/Bugfix Patch](https://steamcommunity.com/sharedfiles/filedetails/?id=2287791153).
 
-- CBP Setup GUI is a small installer/updater (has separate language files to allow for translations). Unless mentioned otherwise, "CBP Setup" refers to CBP Setup GUI.
-- CBP Launcher is the main program and contains the vast majority of overall logic. It's a launcher for CBP (patch/unpatch RoN:EE), an updater for CBP Setup GUI, and essentially provides its own mod manager via a [basic plugin system](https://github.com/MHLoppy/CBP-SDK), separate from RoN's mod manager.
+- **CBP Setup GUI** is a small installer/updater (has separate language files to allow for translations). Unless mentioned otherwise, "CBP Setup" refers to CBP Setup GUI.
+- **CBP Launcher** is the main program and contains the vast majority of overall logic. It's a launcher for CBP (patch/unpatch RoN:EE), an updater for CBP Setup GUI, and essentially provides its own mod manager via a [basic plugin system](https://github.com/MHLoppy/CBP-SDK), separate from RoN's mod manager.
 
 Both are C# WPF apps using .NET Framework. As of v0.5, CBP Launcher haphazardly implements elements of MVVM architecture.
 
 _Unused/Legacy (likely to be removed but spun out to their own project pages for posterity):_
-- CBP Setup (note no GUI) is the predecessor to CBP Setup GUI and is a console application that ran without user interaction. Some anti-virus programs found this behavious deeply suspicious, so it was converted into CBP Setup GUI (and development after that point continued on CBP Setup GUI, not CBP Setup non-GUI).
-- CBP patriots was briefly trialled as a replacement for RoN's own launcher (patriots.exe) that would just launch CBPS/CBPL as needed. This responsibility was instead integrated directly into CBP Setup GUI to avoid having to use three separate programs.
+- **CBP Setup** (note no GUI) is the predecessor to CBP Setup GUI and is a console application that ran without user interaction. Some anti-virus programs found this behavious deeply suspicious, so it was converted into CBP Setup GUI (and development after that point continued on CBP Setup GUI, not CBP Setup non-GUI).
+- **CBP patriots** was briefly trialled as a replacement for RoN's own launcher (patriots.exe) that would just launch CBPS/CBPL as needed. This responsibility was instead integrated directly into CBP Setup GUI to avoid having to use three separate programs.
+
+_The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](https://github.com/MHLoppy/CBP-MT-Plugin)._
 
 ![CBP Launcher v0.5 classic plus](https://i.imgur.com/EurwlsN.png)
 ![CBP Launcher v0.5 spartan v1](https://i.imgur.com/LH8muOp.png)
@@ -19,7 +21,12 @@ _Unused/Legacy (likely to be removed but spun out to their own project pages for
 ### TODO
 - Option to remove previous versions of CBP, instead of archiving (target: v0.6)
 - Option to override file / registry paths (target v0.6-v0.7)
-- Option to load archived versions of CBP (target v0.7-v0.9)
+- Option to automatically remove logs older than X time period (target v0.7)
+- Integrate all first-time-run prompts into single window (target v0.7-v0.8)
+- Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8)
+- Option to load archived versions of CBP (target v0.8-v0.9)
+- Minimal translations of essential portions only of CBP Setup GUI and CBP Launcher (target v0.8-v0.9)
+- Complete translations of all text in CBP Setup GUI and CBP Launcher (target: when the multi-lingual multi-national RoN community gets off its collectively lazy ass and contributes)
 - Load / unload Workshop mod alongside local mod files (wishlist)
 
 ### License
