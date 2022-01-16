@@ -20,8 +20,10 @@ _The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](htt
 
 ### TODO
 - Option to automatically remove logs older than X time period (target v0.7)
+- Able to function even if source of update checks becomes unavailable (target v0.7)
 - Integrate all first-time-run prompts into single window (target v0.7-v0.8)
-- Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8)
+- Improved offline functionality (target v0.8)
+- Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8-v0.9)
 - Option to load archived versions of CBP (target v0.8-v0.9)
 - Minimal translations of essential portions only of CBP Setup GUI and CBP Launcher (target v0.8-v0.9)
 - Complete translations of all text in CBP Setup GUI and CBP Launcher (target: when the multi-lingual multi-national RoN community gets off its collectively lazy ass and contributes)
