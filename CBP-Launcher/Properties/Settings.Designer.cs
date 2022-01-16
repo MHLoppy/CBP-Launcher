@@ -489,5 +489,17 @@ namespace CBPLauncher.Properties {
                 this["ArchiveDelete"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public short LogKeepNumber {
+            get {
+                return ((short)(this["LogKeepNumber"]));
+            }
+            set {
+                this["LogKeepNumber"] = value;
+            }
+        }
     }
 }

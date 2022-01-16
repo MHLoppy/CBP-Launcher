@@ -35,10 +35,12 @@
                 <TextBlock Text="{Binding LaunchStatusText}" />
             </StackPanel>
         </Grid>
-        
+
         <Grid Grid.Column="1" Grid.Row="1">
             <TextBox Text="{Binding LogHeaderText}" TextWrapping="Wrap" IsReadOnly="True" Background="WhiteSmoke"/>
+            <TextBlock Text="Max # of logs:" HorizontalAlignment="Right" Margin="0,0,35,0"/>
+            <TextBlock Text="{Binding Path=LogNumber, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Width="30" HorizontalAlignment="Right"/>
         </Grid>
-        
+
     </Grid>
 </UserControl>

@@ -46,6 +46,8 @@
 
         <Grid Grid.Column="1" Grid.Row="1">
             <TextBox Text="{Binding LogHeaderText}" TextWrapping="Wrap" IsReadOnly="True" Background="#D0222222" Foreground="WhiteSmoke" Padding="3,0,0,0" BorderThickness="0"/>
+            <TextBlock Text="Max # of logs:" HorizontalAlignment="Right" Foreground="WhiteSmoke" Margin="0,0,35,0"/>
+            <TextBlock Text="{Binding Path=LogNumber, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Foreground="WhiteSmoke" Width="30" HorizontalAlignment="Right"/>
         </Grid>
     </Grid>
 </UserControl>

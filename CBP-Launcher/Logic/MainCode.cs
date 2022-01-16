@@ -269,6 +269,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private short logNumber = Properties.Settings.Default.LogKeepNumber;
+        public short LogNumber
+        {
+            get => logNumber;
+            set
+            {
+                logNumber = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         //this seems wrong but I can't remember if I know a better way
         private bool cBPDefaultCheckbox = Properties.Settings.Default.DefaultCBP;
@@ -4071,6 +4082,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.FuckStopTellingMe = false;
             Properties.Settings.Default.MicroSkin = false;
             Properties.Settings.Default.ArchiveDelete = false;
+            Properties.Settings.Default.LogKeepNumber = 30;
 
             SaveSettings();
 
@@ -4481,6 +4493,17 @@ namespace CBPLauncher.Logic
 
         private void ConfigureNLog()
         {
+            //ensure max number of logs is at least 1, and also handle if the setting doesn't seem to have a value at all
+            short maxLogs;
+            if (Properties.Settings.Default.LogKeepNumber >= 1)
+            {
+                maxLogs = Properties.Settings.Default.LogKeepNumber;
+            }
+            else
+            {
+                maxLogs = 100;
+            }
+            
             var config = new NLog.Config.LoggingConfiguration();
 
             //targets
@@ -4488,10 +4511,11 @@ namespace CBPLauncher.Logic
             var logfile = new NLog.Targets.FileTarget("logfile")
             {
                 FileName = "${basedir}/CBP/logs/cbplauncher.${shortdate}.log",
-                ArchiveFileName = "cbplauncher.log.{#}.txt",
-                ArchiveNumbering = NLog.Targets.ArchiveNumberingMode.Date,
-                ArchiveEvery = NLog.Targets.FileArchivePeriod.Day,
-                ArchiveDateFormat = "yyyyMMdd",
+                //ArchiveFileName = "cbplauncher.log.{#}.txt",
+                //ArchiveNumbering = NLog.Targets.ArchiveNumberingMode.Date,
+                //ArchiveEvery = NLog.Targets.FileArchivePeriod.Day,
+                //ArchiveDateFormat = "yyyyMMdd",
+                MaxArchiveFiles = maxLogs,
                 Layout = "${time} [${uppercase:${level}}] ${message}"
             };
             var logviewer = new NLog.Targets.ConsoleTarget("logviewer")
