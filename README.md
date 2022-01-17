@@ -11,6 +11,7 @@ _Unused/Legacy (likely to be removed but spun out to their own project pages for
 - **CBP patriots** was briefly trialled as a replacement for RoN's own launcher (patriots.exe) that would just launch CBPS/CBPL as needed. This responsibility was instead integrated directly into CBP Setup GUI to avoid having to use three separate programs.
 
 _The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](https://github.com/MHLoppy/CBP-MT-Plugin)._
+
 _The Rules.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](https://github.com/MHLoppy/CBP-RE-Plugin)._
 
 ![CBP Launcher v0.5 classic plus](https://i.imgur.com/EurwlsN.png)
