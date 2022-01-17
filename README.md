@@ -19,13 +19,14 @@ _The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](htt
 *screenshots show v0.5*
 
 ### TODO
-- Option to remove previous versions of CBP, instead of archiving (target: v0.6)
-- Option to override file / registry paths (target v0.6-v0.7)
 - Option to automatically remove logs older than X time period (target v0.7)
+- Able to function even if source of update checks becomes unavailable (target v0.7)
 - Integrate all first-time-run prompts into single window (target v0.7-v0.8)
-- Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8)
+- Improved offline functionality (target v0.8)
+- Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8-v0.9)
 - Option to load archived versions of CBP (target v0.8-v0.9)
 - Minimal translations of essential portions only of CBP Setup GUI and CBP Launcher (target v0.8-v0.9)
+- Select loading of secondary CBP files individually, rather than as group (target v0.8-v0.9)
 - Complete translations of all text in CBP Setup GUI and CBP Launcher (target: when the multi-lingual multi-national RoN community gets off its collectively lazy ass and contributes)
 - Load / unload Workshop mod alongside local mod files (wishlist)
 
@@ -42,6 +43,6 @@ _The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](htt
 - [PoLaKoSz's fork](https://github.com/PoLaKoSz/CodeKicker.BBCode) of [Pablissimo's fork](https://github.com/Pablissimo/CodeKicker.BBCode-Mod) of [CodeKicker's BBCode parser](https://web.archive.org/web/20210629143751/https://archive.codeplex.com/?p=bbcode) is used to parse BBCode patch notes into HTML.
 - [Nathan Harrenstein's port](https://www.nuget.org/packages/HtmlToXamlConverter) of [Microsoft's XAML FlowDocument to HTML Conversion Prototype](https://web.archive.org/web/20160312013954/http://blogs.msdn.com/b/wpfsdk/archive/2006/05/25/xaml-flowdocument-to-html-conversion-prototype.aspx) is used to convert pre-parsed patch notes into a viewable flow document.
 - [TgaLib](https://github.com/shns/TgaLib) is used to preview TGA textures in the Optional Changes window.
-- [NLog](https://nlog-project.org/) is used for logging, and the fancy log viewer is a lightly modified version of [Sentinel.NLogViewer](https://github.com/dojo90/NLogViewer)
+- [NLog](https://nlog-project.org/) is used for logging, and the fancy log viewer is a lightly modified version of [Sentinel.NLogViewer](https://github.com/dojo90/NLogViewer).
 - [tips'n tricks' C# XML tutorials](https://www.youtube.com/channel/UCtkgMa4i4HBE_vZW7EwYYXQ/search?query=c%23%20xml) were invaluable as a starting point for reading and modifying XML files.
 - Video tutorials by [ToskersCorner](https://www.youtube.com/c/ToskersCorner) and [BinaryBunny](https://www.youtube.com/c/BinaryBunny) helped with a few aspects of WPF development.
