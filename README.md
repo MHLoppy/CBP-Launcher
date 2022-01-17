@@ -46,3 +46,4 @@ _The Music Tracks plugin bundled with CBP as of Alpha 7c can be found [here](htt
 - [NLog](https://nlog-project.org/) is used for logging, and the fancy log viewer is a lightly modified version of [Sentinel.NLogViewer](https://github.com/dojo90/NLogViewer).
 - [tips'n tricks' C# XML tutorials](https://www.youtube.com/channel/UCtkgMa4i4HBE_vZW7EwYYXQ/search?query=c%23%20xml) were invaluable as a starting point for reading and modifying XML files.
 - Video tutorials by [ToskersCorner](https://www.youtube.com/c/ToskersCorner) and [BinaryBunny](https://www.youtube.com/c/BinaryBunny) helped with a few aspects of WPF development.
+- mjn33's [automated workaround utility](https://github.com/mjn33/ron-objmask-workaround) for the object masks bug isn't used by CBP Launcher, but was a key part of creating CBP itself.
