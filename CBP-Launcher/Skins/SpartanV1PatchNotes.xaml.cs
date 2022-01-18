@@ -120,6 +120,7 @@ namespace CBPLauncher.Skins
                     myFlowDocument.FontFamily = new FontFamily("Segoe UI");
                     myFlowDocument.FontSize = 15;
                     myFlowDocument.PagePadding = new Thickness(10, 5, 10, 5);
+                    myFlowDocument.TextAlignment = TextAlignment.Left;
 
                     FDViewer.Document = myFlowDocument;
                 }
