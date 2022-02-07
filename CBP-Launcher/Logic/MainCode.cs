@@ -838,6 +838,12 @@ namespace CBPLauncher.Logic
                     CBPLogger.GetInstance.Info("User said not to reset settings.");
                 }
             }
+            else if ((Properties.Settings.Default.FuckStopTellingMe == true) && (RecentlyCreated(crossplay, 2) == false))//try to ensure that repeat-reinstalls (more than 2 days apart) get the notification
+            {
+                Properties.Settings.Default.FuckStopTellingMe = false;
+                SaveSettings();
+                CBPLogger.GetInstance.Info("Reinstall-check setting reset (due to 2 days passing).");
+            }
         }
 
         private bool RecentlyCreated(string file, int hours)//https://stackoverflow.com/questions/1119158/check-if-file-created-within-last-x-hours
