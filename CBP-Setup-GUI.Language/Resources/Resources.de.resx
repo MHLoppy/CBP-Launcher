@@ -118,9 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="StartupLanguageDetected" xml:space="preserve">
-    <value>LANGUAGE DETECTION</value>
-  </data>
-  <data name="StartupMessage" xml:space="preserve">
-    <value>STARTUP MESSAGE</value>
+    <value>Die Gemeinschaft hat keine deutschen Übersetzungen bereitgestellt.</value>
   </data>
 </root>
