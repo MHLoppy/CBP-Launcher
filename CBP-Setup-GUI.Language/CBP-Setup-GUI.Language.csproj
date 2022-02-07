@@ -44,12 +44,20 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Resources.de.resx" />
+    <EmbeddedResource Include="Resources\Resources.es.resx" />
+    <EmbeddedResource Include="Resources\Resources.fr.resx" />
+    <EmbeddedResource Include="Resources\Resources.it.resx" />
+    <EmbeddedResource Include="Resources\Resources.ja.resx" />
+    <EmbeddedResource Include="Resources\Resources.ko.resx" />
+    <EmbeddedResource Include="Resources\Resources.pt.resx" />
     <EmbeddedResource Include="Resources\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <CustomToolNamespace>CBPSetupGUI.Language</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Resources.ru.resx" />
+    <EmbeddedResource Include="Resources\Resources.zh.resx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
