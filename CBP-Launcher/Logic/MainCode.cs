@@ -2860,7 +2860,7 @@ namespace CBPLauncher.Logic
                     }
                 }
 
-                // thought of a more elegant way to implement this below!
+                // thought of a possibly more elegant way to implement this below!
                 /*if (CheckPluginCompatbilityIssue() && CheckMultiplayerIssue())
                 {
                     CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
@@ -2899,7 +2899,7 @@ namespace CBPLauncher.Logic
                         CBPLogger.GetInstance.Warning("..but continuing anyway.");
                 }*/
 
-                //this sequence is probably faster because it only runs each of the two checks a single time each!
+                //this sequence is probably faster because it only runs each of the two checks a single time each, although I haven't tested what happens after compiler optimisations so maybe it doesn't matter lol
                 int guraCuteShark = 0;//https://twitter.com/FluffyBlanket_/status/1417443845344616450
 
                 if (CheckPluginCompatbilityIssue())
