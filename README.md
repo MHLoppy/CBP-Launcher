@@ -35,8 +35,8 @@ _The Sound.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](
 - Load / unload Workshop mod alongside local mod files (wishlist)
 
 ### License
-- Code is licensed under the [Mozilla Public License Version 2.0 (MPL 2.0)](https://www.mozilla.org/en-US/MPL/2.0/).
-- Some images and logos are -- or are based on -- assets owned by Microsoft and are not licensed for further re-use outside of RoN mods.
+- Code and documentation are licensed under the [European Union Public License v. 1.2 (EUPL-1.2) or later](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12).
+- Most images and logos are -- or are based on -- assets owned by Microsoft and are not covered under the aforementioned EUPL license. These images are not licensed for further re-use outside of RoN mods and similar RoN-related works.
 
 ### Credits
 - The basic structure and functionality of the launcher (although now only a small minority of the code) is ported from Tom Weiland's excellent [launcher tutorial](https://github.com/tom-weiland/csharp-game-launcher).
