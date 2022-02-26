@@ -842,7 +842,7 @@ namespace CBPLauncher.Logic
             {
                 Properties.Settings.Default.FuckStopTellingMe = false;
                 SaveSettings();
-                CBPLogger.GetInstance.Info("Reinstall-check setting reset (due to 2 days passing).");
+                CBPLogger.GetInstance.Info("Reinstall-check setting reset (due to 3 days passing).");
             }
         }
 
