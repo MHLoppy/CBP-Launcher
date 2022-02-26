@@ -4086,7 +4086,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.UseFancyLogging = false;
             Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
             Properties.Settings.Default.WarnCompatibility = true;
-            Properties.Settings.Default.DisablePluginLoading = false;
+            Properties.Settings.Default.DisablePluginLoading = true;
             Properties.Settings.Default.FuckStopTellingMe = false;
             Properties.Settings.Default.MicroSkin = false;
             Properties.Settings.Default.ArchiveDelete = false;
