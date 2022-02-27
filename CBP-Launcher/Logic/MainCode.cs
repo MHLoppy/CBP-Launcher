@@ -1060,8 +1060,16 @@ namespace CBPLauncher.Logic
 
             UsePrereleaseCommand = new RelayCommand(o =>
             {
-                UsePrereleaseCheckbox_Inversion();
-                MessageBox.Show("Pre-release toggle modified. To use the new files, restart CBP Launcher.");
+                if (CheckForPRFiles())
+                {
+                    UsePrereleaseCheckbox_Inversion();
+                    MessageBox.Show("Pre-release toggle modified. If there are specific instructions on the pre-release page, you should follow them. OTHERWISE, just restart CBP Launcher to use the new files.");
+                }
+                else
+                {
+                    MessageBox.Show("Pre-release folder not found. You can get the pre-release files from roncbp.com/pr (this link will redirect you to the Steam Workshop page)");
+                    RefreshCheckboxValues();//ensure the checkbox doesn't desync from reality by refreshing it
+                }
             });
 
             UseDefaultLauncherCommand = new RelayCommand(async o =>
@@ -1378,6 +1386,18 @@ namespace CBPLauncher.Logic
             {
                 await OptionalChangeUseReplacement();
             });
+        }
+
+        private bool CheckForPRFiles()
+        {
+            CBPLogger.GetInstance.Debug("Checking for CBP PR folder.");
+            if (Directory.Exists(workshopPathCBP))
+            {
+                CBPLogger.GetInstance.Debug("CBP PR folder found.");
+                return true;
+            }
+            CBPLogger.GetInstance.Debug("CBP PR folder not found.");
+            return false;
         }
 
         private void AssignZipPath()
