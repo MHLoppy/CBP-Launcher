@@ -2553,7 +2553,7 @@ namespace CBPLauncher.Logic
                     }
                 }
 
-                // not currently used because the setting cannot be set by the user (unless they like, edit tje settings file manually lol)
+                // not currently used because the setting cannot be set by the user (unless they like, edit the settings file manually lol)
                 else if (Properties.Settings.Default.NoWorkshopFiles == true) // as of v0.3 release this option isn't even exposed to the user yet, but it'll be useful later
                 {
                     CBPLogger.GetInstance.Warning("For some reason NoWorkshopFiles setting is true!?!?");
