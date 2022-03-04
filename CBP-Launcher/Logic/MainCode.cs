@@ -1573,13 +1573,26 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.CBPUnloaded = false;
                     SaveSettings();
                 }
+                
+                Version onlineVersion = new Version("0.0.0.0"); // Moved this section from reference to here in order to display latest available version as well as installed version
 
-                WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
-                Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
-
-                if (Properties.Settings.Default.UsePrerelease == true)//pr
+                try
                 {
-                    onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
+                    if (Properties.Settings.Default.UsePrerelease == false)//non-pr
+                    {
+                        WebClient webClient = new WebClient();
+                        onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
+                    }
+                    else if (Properties.Settings.Default.UsePrerelease == true)//pr
+                    {
+                        WebClient webClient = new WebClient();
+                        onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
+                    }
+                }
+                catch (Exception)
+                {
+                    CBPLogger.GetInstance.Warning("Online version check failed.");
+                    MessageBox.Show("Online version check failed. Possibly you have no internet connection or the server is down.");
                 }
 
                 VersionTextLatest = "Latest CBP version: "
@@ -1600,7 +1613,9 @@ namespace CBPLauncher.Logic
                                             + VersionArray.versionHotfix[localVersion.hotfix];
                     try
                     {
-                        if (onlineVersion.IsDifferentThan(localVersion))
+                        Version blankVersion = new Version("0.0.0.0");// easily check against a failed-connection-version, which will be 0.0.0.0
+
+                        if (onlineVersion.IsDifferentThan(blankVersion) && onlineVersion.IsDifferentThan(localVersion))
                         {
                             CBPLogger.GetInstance.Debug("Online and local versions are different...");
                             await OldInstallGameFiles(true, onlineVersion);
@@ -1610,6 +1625,13 @@ namespace CBPLauncher.Logic
                         }
                         else
                         {
+                            if (!onlineVersion.IsDifferentThan(blankVersion))
+                            {
+                                CBPLogger.GetInstance.Debug("Acting as if there is no new version...");
+                                // no user message required imo
+                                // no separate parent if-else case needed either
+                            }
+
                             CBPLogger.GetInstance.Debug("Online and local versions are the same...");
                             await GenerateLists();
                             await LoadDirectFiles();
@@ -2418,16 +2440,38 @@ namespace CBPLauncher.Logic
                             // get local version, workshop version, and online version (online version is different depending on whether using pre-release or not)
                             Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));
                             Version workshopVersion = new Version(File.ReadAllText(versionFileCBPWorkshop));
-                            WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
-                            Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
 
-                            if (Properties.Settings.Default.UsePrerelease == true)//pr
+                            Version blankVersion = new Version("0.0.0.0");
+                            Version onlineVersion = blankVersion; // Moved this section from reference to here in order to display latest available version as well as installed version
+
+                            try
                             {
-                                onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
+                                if (Properties.Settings.Default.UsePrerelease == false)//non-pr
+                                {
+                                    WebClient webClient = new WebClient();
+                                    onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
+                                }
+                                else if (Properties.Settings.Default.UsePrerelease == true)//pr
+                                {
+                                    WebClient webClient = new WebClient();
+                                    onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                CBPLogger.GetInstance.Warning("Online version check failed.");
+                                MessageBox.Show("Online version check failed. Possibly you have no internet connection or the server is down.");
                             }
 
+                            // if the version check has failed
+                            if (!onlineVersion.IsDifferentThan(blankVersion))
+                            {
+                                // I'm assuming basing this on the below case (which was there first) is fine
+                                abortArchive = true;
+                                CBPLogger.GetInstance.Debug("Online version check confirmed failed.");
+                            }
                             // if the local and workshop versions are the same BUT the workshop version is different, then alert the user
-                            if ((!localVersion.IsDifferentThan(workshopVersion)) && localVersion.IsDifferentThan(onlineVersion))// I assume it's faster to check this than straight up always-write files
+                            else if ((!localVersion.IsDifferentThan(workshopVersion)) && localVersion.IsDifferentThan(onlineVersion))// I assume it's faster to check this than straight up always-write files
                             {
                                 string newestVersion = VersionArray.versionStart[onlineVersion.major]
                                                      + VersionArray.versionMiddle[onlineVersion.minor]
