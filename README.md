@@ -22,8 +22,7 @@ _The Sound.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](
 
 ### TODO
 - Mirror repo (e.g. GitLab)
-- Able to function even if source of update checks becomes unavailable (target v0.7)
-- Hide hotfix versioning on primary version display (target v0.7)
+- Able to function even if source of update checks becomes unavailable (target v0.7 - clunky implementation present in 0.6.6.1)
 - Integrate all first-time-run prompts into single window (target v0.7-v0.8)
 - Improved offline functionality (target v0.8)
 - Move CBPLauncher.exe location away from CBPSetupGUI.exe to reduce user error from misreading instructions (target v0.8-v0.9)
@@ -33,6 +32,7 @@ _The Sound.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](
 - Complete translations of all text in CBP Setup GUI and CBP Launcher (target: when the multi-lingual multi-national RoN community gets off its collectively lazy ass and contributes)
 - Option to configure max number of logs in UI (wishlist)
 - Load / unload Workshop mod alongside local mod files (wishlist)
+- Hide hotfix versioning on primary version display (wishlist)
 
 ### License
 - Code and documentation are licensed under the [European Union Public License v. 1.2 (EUPL-1.2) or later](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12).
