@@ -122,5 +122,11 @@
     <Setting Name="LogKeepNumber" Type="System.Int16" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
+    <Setting Name="VersionCheckFails" Type="System.Int16" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="NoVersionCheck" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

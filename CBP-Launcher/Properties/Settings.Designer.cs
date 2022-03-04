@@ -501,5 +501,29 @@ namespace CBPLauncher.Properties {
                 this["LogKeepNumber"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public short VersionCheckFails {
+            get {
+                return ((short)(this["VersionCheckFails"]));
+            }
+            set {
+                this["VersionCheckFails"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NoVersionCheck {
+            get {
+                return ((bool)(this["NoVersionCheck"]));
+            }
+            set {
+                this["NoVersionCheck"] = value;
+            }
+        }
     }
 }
