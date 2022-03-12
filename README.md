@@ -21,7 +21,6 @@ _The Sound.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](
 *screenshots show v0.5*
 
 ### TODO
-- Mirror repo (e.g. GitLab)
 - Able to function even if source of update checks becomes unavailable (target v0.7 - clunky implementation present in 0.6.6.1)
 - Integrate all first-time-run prompts into single window (target v0.7-v0.8)
 - Improved offline functionality (target v0.8)
