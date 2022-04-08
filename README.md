@@ -32,6 +32,7 @@ _The Sound.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](
 - Option to configure max number of logs in UI (wishlist)
 - Load / unload Workshop mod alongside local mod files (wishlist)
 - Hide hotfix versioning on primary version display (wishlist)
+- Secondary fallback command-line load/unload scripts using .NET Core for crossplatform usage (wishlist) - ([see here](https://www.codementor.io/@jim_ej/working-cross-platform-with-net-core-kbv9sin1t) for some advice on making this)
 
 ### License
 - Code and documentation are licensed under the [European Union Public License v. 1.2 (EUPL-1.2) or later](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12).
