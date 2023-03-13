@@ -7,7 +7,7 @@ A launcher/installer for the Rise of Nations [Community Balance/Bugfix Patch](ht
 Both are C# WPF apps using .NET Framework. As of v0.5, CBP Launcher haphazardly implements elements of MVVM architecture.
 
 _Unused/Legacy (likely to be removed but spun out to their own project pages for posterity):_
-- **CBP Setup** (note no GUI) is the predecessor to CBP Setup GUI and is a console application that ran without user interaction. Some anti-virus programs found this behavious deeply suspicious, so it was converted into CBP Setup GUI (and development after that point continued on CBP Setup GUI, not CBP Setup non-GUI).
+- **CBP Setup** (note no GUI) is the predecessor to CBP Setup GUI and is a console application that ran without user interaction. Some anti-virus programs found this behaviour deeply suspicious, so it was converted into CBP Setup GUI (and development after that point continued on CBP Setup GUI, not CBP Setup non-GUI).
 - **CBP patriots** was briefly trialled as a replacement for RoN's own launcher (patriots.exe) that would just launch CBPS/CBPL as needed. This responsibility was instead integrated directly into CBP Setup GUI to avoid having to use three separate programs.
 
 _The Rules.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](https://github.com/MHLoppy/CBP-RE-Plugin)._
