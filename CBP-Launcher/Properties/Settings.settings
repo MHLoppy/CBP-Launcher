@@ -122,5 +122,11 @@
     <Setting Name="LogKeepNumber" Type="System.Int16" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
+    <Setting Name="JunePatchFixApplied" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="JunePatchHaveRunBefore" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -40,6 +40,20 @@
             <Grid Grid.Column="0" Grid.Row="0">
 
                 <!-- counterintuitively, textblock is lighter weight than label, but label has more functionality e.g. horizontalcontentalignment not just horizontalalignment-->
+                
+                <!-- hastily assembled fix for RoN's June 2024 patch -->
+                <Button Grid.Column="0" Grid.Row="2" Margin="50, 150, 50, 60" Background="LightSalmon" Visibility="{Binding Path=JunePatchFixButtonVisibility, Converter={StaticResource BoolToVis}}" Command="{Binding JunePatchFixCommand}" BorderThickness="5" BorderBrush="Chocolate" Panel.ZIndex="5">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="25"/>
+                        </Style>
+                        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+                    </Button.Resources>
+                    <Button.Content>
+                        <TextBlock HorizontalAlignment="Center" Text="PRESS FOR ONCE-OFF&#x0d;&#x0a;FIX FOR JUNE PATCH" FontSize="15" FontWeight="SemiBold"/>
+                    </Button.Content>
+                </Button>
+
 
                 <!-- left side: top left status text -->
                 <Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light" Visibility="Hidden"/>
