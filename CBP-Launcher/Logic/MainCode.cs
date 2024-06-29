@@ -503,6 +503,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool junePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
+        public bool JunePatchFixButtonVisibility
+        {
+            get => junePatchFixButtonVisibility;
+            set
+            {
+                junePatchFixButtonVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
         //RelayCommand definition things
         public RelayCommand CBPDefaultCommand { get; set; }
         public RelayCommand UsePrereleaseCommand { get; set; }
@@ -554,6 +565,9 @@ namespace CBPLauncher.Logic
 
         public RelayCommand MinimiseCommand { get; set; }
         public RelayCommand ExitCommand { get; set; }
+
+
+        public RelayCommand JunePatchFixCommand { get; set; }
 
         //test commands
         public RelayCommand ChangeSkinCommand { get; set; }
@@ -755,6 +769,7 @@ namespace CBPLauncher.Logic
                     WriteDefaultSettings();
 
                 CheckReinstall();
+                JunePatchCheck();
 
                 // moved into separate function
                 AutoRunWrapper();
@@ -858,6 +873,25 @@ namespace CBPLauncher.Logic
             {
                 CBPLogger.GetInstance.Warning("Unable to locate " + file);
                 return false;
+            }
+        }
+
+        private void JunePatchCheck()
+        {
+            if (!Properties.Settings.Default.JunePatchHaveRunBefore)
+            {
+                CBPLogger.GetInstance.Info("First time running since June Patch.");
+                Properties.Settings.Default.JunePatchHaveRunBefore = true;
+
+                // due to the settings quirk, existing installs will be missing the default values for newly-added settings
+                // and again, need to force refresh
+                Properties.Settings.Default.JunePatchFixApplied = false;
+                SaveSettings();
+                JunePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
+            }
+            else
+            {
+                CBPLogger.GetInstance.Info("Not first time running since June Patch.");
             }
         }
 
@@ -1242,6 +1276,21 @@ namespace CBPLauncher.Logic
                 CurrentSkin = ClassicPlus;
                 Properties.Settings.Default.MicroSkin = false;
                 SaveSettings();
+            });
+
+            JunePatchFixCommand = new RelayCommand(async o =>
+            {
+                // check if fix is needed (i.e., is the ron exe the newer one?)
+                if (IsThisExeJune2024(gameExe))
+                {
+                    // if yes, apply fix to relevant game files that need it (CBP AND (!!) non-CBP files)
+                    ApplyJunePatchFix();
+                }
+                else
+                {
+                    MessageBox.Show("Your Rise of Nations exe doesn't match the exe from the June 2024 patch, so no action has been taken." 
+                                    + "\n\nPlease report this issue so that it can be resolved!");
+                }
             });
 
             MinimiseCommand = new RelayCommand(o =>
@@ -4111,6 +4160,8 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.MicroSkin = false;
             Properties.Settings.Default.ArchiveDelete = false;
             Properties.Settings.Default.LogKeepNumber = 30;
+            Properties.Settings.Default.JunePatchFixApplied = false;
+            Properties.Settings.Default.JunePatchHaveRunBefore = false;
 
             SaveSettings();
 
@@ -4583,6 +4634,53 @@ namespace CBPLauncher.Logic
         {
             Task pause = Task.Delay(ms);
             await pause;
+        }
+
+        private bool IsThisExeJune2024(string path)
+        {
+            // June 2024 exe is exactly 9,925,120 bytes
+            long length = new FileInfo(path).Length;
+
+            if (length == 9925120)
+                return true;
+            else
+                return false;
+        }
+
+        private void ApplyJunePatchFix()
+        {
+            try
+            {
+                // Source path for fixed files
+                string junePatchHelpSource     = Path.Combine(workshopPathCBP, "Community Balance Patch", "JunePatchFix", "EE_help.xml");
+                string junePatchEeSetupwinSource = Path.Combine(workshopPathCBP, "Community Balance Patch", "JunePatchFix", "EE_setupwin.xml");
+
+                // Destination path for fixed files
+                string junePatchHelpDest = Path.Combine(folderCBPoriginal, "help.xml");
+                string junePatchSetupwinDest = Path.Combine(folderCBPoriginal, "setupwin.xml");
+
+                CBPLogger.GetInstance.Info("June Patch Fix: re-syncing non-CBP files from " + junePatchHelpSource + " to " + junePatchHelpDest);
+                CBPLogger.GetInstance.Info("June Patch Fix: re-syncing non-CBP files from " + junePatchEeSetupwinSource + " to " + junePatchSetupwinDest);
+
+                // fix help.xml and setupwin.xml
+                File.Copy(junePatchHelpSource, junePatchHelpDest, true);            // (non-CBP, copy of original EE file)
+                File.Copy(junePatchEeSetupwinSource, junePatchSetupwinDest, true);  // (non-CBP, copy of original EE file)
+
+                // if fix applied, change setting and save settings
+                Properties.Settings.Default.JunePatchFixApplied = true;
+                SaveSettings();
+
+                // force refresh of button visibility (I HATE IT TOO, PLEASE PUT THE GUN DOWN)
+                JunePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
+
+                MessageBox.Show("June Patch Fix attempted successfully. Please complete one full load/unload cycle to complete the process."
+                                + "\n\nIf this works / doesn't work, it would be helpful to know in the Bug Reports / Technical Feedback thread on Steam (shortcut: roncbp.com/discussion )");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error while applying June 2024 patch fix: " + ex);
+                CBPLogger.GetInstance.Error("Error applying June 2024 patch fix: " + ex);
+            }
         }
     }
 

@@ -48,6 +48,19 @@
                     <RowDefinition Height="25"/>
                 </Grid.RowDefinitions>
 
+                <!-- hastily assembled fix for RoN's June 2024 patch -->
+                <Button Margin="40, 50, 25, 70" Background="LightSalmon" Visibility="{Binding Path=JunePatchFixButtonVisibility, Converter={StaticResource BoolToVis}}" Command="{Binding JunePatchFixCommand}" BorderThickness="5" BorderBrush="Chocolate" Panel.ZIndex="5">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="25"/>
+                        </Style>
+                        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+                    </Button.Resources>
+                    <Button.Content>
+                        <TextBlock HorizontalAlignment="Center" Text="PRESS FOR &#x0d;&#x0a;ONCE-OFF &#x0d;&#x0a;FIX FOR &#x0d;&#x0a;JUNE PATCH" FontSize="15" FontWeight="SemiBold"/>
+                    </Button.Content>
+                </Button>
+
                 <!-- way above the logo box -->
                 <Label Content="Checking for updates..." Foreground="#f8f8f8" Margin="0,-30,-15,0" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Visibility="Hidden">
                     <Label.Effect>
@@ -124,6 +137,7 @@
 
             <!-- tab controls -->
             <Grid Grid.Row="1" Grid.Column="0">
+  
                 <StackPanel Margin="138,5,0,0">
                     <!-- patch notes is default check (looks weird when switching skins but not a big deal) -->
                     <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="True"/>

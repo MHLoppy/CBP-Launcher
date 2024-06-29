@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31005.135
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Launcher", "CBP-Launcher\CBP-Launcher.csproj", "{81AD6FDC-5DB4-403A-82DD-BBB875795CF4}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-Setup-GUI.Language", "CBP-Setup-GUI.Language\CBP-Setup-GUI.Language.csproj", "{54B68121-A258-4C03-8322-9F79ABB78005}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CBP-patriots", "CBP-patriots\CBP-patriots.csproj", "{26C0C8DB-354D-4D8E-81F4-4D2269684FEA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Legacy", "Legacy", "{06820D72-30DD-4EFA-A007-E8FD4BAB934F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -152,6 +154,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{07459119-2220-46AB-8131-F3FA92039740} = {06820D72-30DD-4EFA-A007-E8FD4BAB934F}
+		{26C0C8DB-354D-4D8E-81F4-4D2269684FEA} = {06820D72-30DD-4EFA-A007-E8FD4BAB934F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C12EEB22-8A38-4EF8-B0CB-72158E0745D4}
