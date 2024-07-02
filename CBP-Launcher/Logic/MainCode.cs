@@ -769,7 +769,6 @@ namespace CBPLauncher.Logic
                     WriteDefaultSettings();
 
                 CheckReinstall();
-                JunePatchCheck();
 
                 // moved into separate function
                 AutoRunWrapper();
@@ -946,6 +945,17 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Error($"Error during initialization: {ex}");
                 LogManager.Shutdown();
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+            }
+
+            try
+            {
+                JunePatchCheck();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error checking for June RoN patch: {ex}");
+                CBPLogger.GetInstance.Error($"Error checking for June RoN patch: {ex}");
+                // this isn't essential, so in the unexpected case that this fails but nothing else does (?!?!?) it should be "okay" to continue
             }
 
             try
