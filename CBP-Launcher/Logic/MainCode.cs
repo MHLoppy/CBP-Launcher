@@ -835,7 +835,8 @@ namespace CBPLauncher.Logic
             {
                 CBPLogger.GetInstance.Warning("It looks like RoN may have been recently re-installed.");
 
-                if (MessageBox.Show("If you've recently re-installed Rise of Nations, it's recommended that you reset CBP Launcher's settings to prevent errors. If you did not recently re-install RoN, you can probably say no."
+                if (MessageBox.Show("If you've recently re-installed Rise of Nations, it's recommended that you reset CBP Launcher's settings to prevent errors."
+                    + " If you did not recently re-install RoN, this may be a detection error and you can probably say no."
                     + "\n\nReset CBP Launcher's settings?", "Reset settings?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     CBPLogger.GetInstance.Info("User said to reset settings.");
@@ -2271,7 +2272,8 @@ namespace CBPLauncher.Logic
             {
                 //looks like user has old version of CBP loaded, so we can't use these files
                 CBPLogger.GetInstance.Info("Seems like there are old files from an early Alpha 7 pre-release...");
-                MessageBox.Show("It looks like you currently have a pre-release version of CBP files loaded (from before PR6). Will now attempt to unload these files before continuing. (if you see this message repeatedly, ask for help)");
+                MessageBox.Show("It looks like you currently have a pre-release version of CBP files loaded (from before PR6)."
+                    + " Will now attempt to unload these files before continuing. (if you see this message repeatedly, ask for help)");
 
                 try
                 {
@@ -2696,8 +2698,9 @@ namespace CBPLauncher.Logic
                     File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
 
                     // show a message asking user if they want to ignore the error (and unlock the launch button)
-                    string message = $"If you've already installed CBP this error might be okay to ignore. It may occur if you have the CBP files but no version.txt file to read from, causing the launcher to incorrectly think CBP is not installed. "
-                                     + "It's also *probably* okay to ignore this if you want to just play non-CBP for now."
+                    string message = $"If you've already installed CBP this error might be okay to ignore."
+                                     + " It may occur if you have the CBP files but no version.txt file to read from, causing the launcher to incorrectly think CBP is not installed."
+                                     + " It's also *probably* okay to ignore this if you want to just play non-CBP for now."
                                      + "\n\nFull error: \n" + $"{ex}"
                                      + "\n\nIgnore error and continue?";
                     string title = "Error installing new patch files";
@@ -4305,7 +4308,8 @@ namespace CBPLauncher.Logic
                         File.Move(patriotsOrig + " (original)", patriotsOrig);
 
                         CBPLogger.GetInstance.Info("Have attempted to restore original launcher.");
-                        MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started. To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
+                        MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started."
+                            + "To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
                     }
                     else
                     {
@@ -4372,7 +4376,8 @@ namespace CBPLauncher.Logic
         {
             if (Properties.Settings.Default.DefaultLauncherAnswered == false)
             {
-                string message = $"CBP Launcher can quickly patch and unpatch RoN:EE, so that you can switch between versions easily if you want to. Do you want CBP Launcher to replace the default launcher?\n\n(This option can be changed at any time)";
+                string message = $"CBP Launcher can quickly patch and unpatch RoN:EE, so that you can switch between versions easily if you want to. Do you want CBP Launcher to replace the default launcher?"
+                    + "\n\n(This option can be changed at any time)";
 
                 if (MessageBox.Show(message, "Default to CBP Launcher?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
