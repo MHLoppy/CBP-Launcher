@@ -67,7 +67,7 @@
                 <TextBlock Name="StatusText" Text="{Binding LaunchStatusText}" FontFamily="Segoe UI" FontSize="15" MinWidth="0" HorizontalAlignment="Center" Margin="20,180,8,0" VerticalAlignment="Top" Foreground="{Binding LaunchStatusColor}" Background="#50000000" Padding="3,0,3,2" TextAlignment="Center"/>
 
                 <Image Source="/Images/CBP central button.png" Width="48" Height="32" Margin="104,195,89,0" Panel.ZIndex="5"/>
-                <Button Content="Load     " Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" Margin="53,207,0,0" VerticalAlignment="Top" Width="77" Height="27" FontSize="14" FontWeight="SemiBold" Background="#FFDADADA">
+                <Button Content="Load     " Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" Margin="53,207,0,0" VerticalAlignment="Top" Width="77" Height="27" FontSize="14" FontWeight="SemiBold" Background="#FFDCD8D2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="13.5"/>
@@ -75,13 +75,14 @@
                     </Button.Resources>
                     <Button.BorderBrush>
                         <LinearGradientBrush EndPoint="0.6,1" StartPoint="0.4,0">
+                            <!-- one-tone color example: FFFBCB57 -->
                             <GradientStop Color="#FFFBCB57"/>
                             <GradientStop Color="#FFAB7900" Offset="1"/>
                         </LinearGradientBrush>
                     </Button.BorderBrush>
                 </Button>
                 <!-- The Load/Unload buttons are intentionally not *perfectly* aligned and with different font sizes, because the Unload button benefits from having slightly more space (but little enough that things still look centered!) -->
-                <Button Content="     Unload" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" Margin="130,207,0,0" VerticalAlignment="Top" Width="76" Height="27" FontSize="13.5" FontWeight="SemiBold" Background="#FFDADADA">
+                <Button Content="     Unload" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" Margin="130,207,0,0" VerticalAlignment="Top" Width="76" Height="27" FontSize="13.5" FontWeight="SemiBold" Background="#FFDCD8D2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="13.5"/>
