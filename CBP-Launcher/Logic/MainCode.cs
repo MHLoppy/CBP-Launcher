@@ -976,17 +976,6 @@ namespace CBPLauncher.Logic
 
             try
             {
-                JunePatchCheck();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error checking for June RoN patch: {ex}");
-                CBPLogger.GetInstance.Error($"Error checking for June RoN patch: {ex}");
-                // this isn't essential, so in the unexpected case that this fails but nothing else does (?!?!?) it should be "okay" to continue
-            }
-
-            try
-            {
                 ReadRegistry();
             }
             catch (Exception ex)
@@ -1119,6 +1108,17 @@ namespace CBPLauncher.Logic
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
             //CBPDefaultChecker();
+
+            try
+            {
+                JunePatchCheck();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error checking for June RoN patch: {ex}");
+                CBPLogger.GetInstance.Error($"Error checking for June RoN patch: {ex}");
+                // this isn't essential, so in the unexpected case that this fails but nothing else does (?!?!?) it should be "okay" to continue
+            }
         }
 
         private async Task CreateCommands()
@@ -4692,6 +4692,10 @@ namespace CBPLauncher.Logic
         // [Jan 2025] Alright so at first glance you might think: why the hell don't you just ship the updated files normally?
         //   Well, I'm pretty sure it's because we don't want to touch the already-shipped file lists;
         //   doing a weird in-place patch on top of the existing stuff avoids having to interact with said lists
+        //
+        // [Nov 2025] It turns out the other reason for doing it the original way post-June-2024-patch is because
+        //   attaching the mini-patch to a button allows all the other stuff to run first e.g., setting up paths,
+        //   the absence of which makes it much harder to run the mini-patch
         private void ApplyJunePatchFix()
         {
             try
@@ -4716,11 +4720,13 @@ namespace CBPLauncher.Logic
                 SaveSettings();
 
                 // force refresh of button visibility (I HATE IT TOO, PLEASE PUT THE GUN DOWN)
-                JunePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
+                //JunePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
 
                 // fyi exactly zero people responded to this request even after >15 months
                 //MessageBox.Show("June Patch Fix attempted successfully. Please complete one full load/unload cycle to complete the process."
                 //                + "\n\nIf this works / doesn't work, it would be helpful to know in the Bug Reports / Technical Feedback thread on Steam (short URL: roncbp.com/discussion )");
+
+                CBPLogger.GetInstance.Info("June Patch fix applied.");
             }
             catch (Exception ex)
             {
