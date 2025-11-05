@@ -487,6 +487,7 @@
     </EmbeddedResource>
     <Resource Include="Images\RoN CBP Launcher version shadow 20px blur 120trans.png" />
     <Resource Include="Images\CBP Launcher icon %28CBPL - stack%29.ico" />
+    <Resource Include="Images\RoN CBP logo 02 opti resized.png" />
     <Content Include="NLogOld.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -546,9 +547,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\IDB_CLOSE_U.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\RoN CBP logo 01 %28resized%29.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\button up minor edit.png" />
