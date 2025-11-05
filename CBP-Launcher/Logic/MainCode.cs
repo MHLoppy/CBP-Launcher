@@ -698,7 +698,7 @@ namespace CBPLauncher.Logic
                         LogoRoNEE = false;
                         break;
                     case LauncherStatus.connectionProblemLoaded:
-                        LaunchStatusText = "Connectivity issue (CBP loaded)";
+                        LaunchStatusText = "Connection issue (CBP loaded)";
                         LaunchStatusColor = Brushes.OrangeRed;
                         LaunchButtonText = "Launch game";
                         LaunchEnabled = true;
@@ -706,7 +706,7 @@ namespace CBPLauncher.Logic
                         LogoRoNEE = false;
                         break;
                     case LauncherStatus.connectionProblemUnloaded:
-                        LaunchStatusText = "Connectivity issue (CBP not loaded)";
+                        LaunchStatusText = "Connection issue (CBP not loaded)";
                         LaunchStatusColor = Brushes.OrangeRed;
                         LaunchButtonText = "Launch game";
                         LaunchEnabled = true;
