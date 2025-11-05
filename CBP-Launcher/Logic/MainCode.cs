@@ -503,16 +503,16 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private bool junePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
-        public bool JunePatchFixButtonVisibility
-        {
-            get => junePatchFixButtonVisibility;
-            set
-            {
-                junePatchFixButtonVisibility = value;
-                OnPropertyChanged();
-            }
-        }
+        //private bool junePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
+        //public bool JunePatchFixButtonVisibility
+        //{
+        //    get => junePatchFixButtonVisibility;
+        //    set
+        //    {
+        //        junePatchFixButtonVisibility = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
         //RelayCommand definition things
         public RelayCommand CBPDefaultCommand { get; set; }
@@ -567,7 +567,7 @@ namespace CBPLauncher.Logic
         public RelayCommand ExitCommand { get; set; }
 
 
-        public RelayCommand JunePatchFixCommand { get; set; }
+        //public RelayCommand JunePatchFixCommand { get; set; }
 
         //test commands
         public RelayCommand ChangeSkinCommand { get; set; }
