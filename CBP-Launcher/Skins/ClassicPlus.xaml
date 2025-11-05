@@ -49,7 +49,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- hastily assembled fix for RoN's June 2024 patch -->
-                <Button Margin="40, 50, 25, 70" Background="LightSalmon" Visibility="{Binding Path=JunePatchFixButtonVisibility, Converter={StaticResource BoolToVis}}" Command="{Binding JunePatchFixCommand}" BorderThickness="5" BorderBrush="Chocolate" Panel.ZIndex="5">
+                <!--<Button Margin="40, 50, 25, 70" Background="LightSalmon" Visibility="{Binding Path=JunePatchFixButtonVisibility, Converter={StaticResource BoolToVis}}" Command="{Binding JunePatchFixCommand}" BorderThickness="5" BorderBrush="Chocolate" Panel.ZIndex="5">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="25"/>
@@ -59,7 +59,7 @@
                     <Button.Content>
                         <TextBlock HorizontalAlignment="Center" Text="PRESS FOR &#x0d;&#x0a;ONCE-OFF &#x0d;&#x0a;FIX FOR &#x0d;&#x0a;JUNE PATCH" FontSize="15" FontWeight="SemiBold"/>
                     </Button.Content>
-                </Button>
+                </Button>-->
 
                 <!-- way above the logo box -->
                 <Label Content="Checking for updates..." Foreground="#f8f8f8" Margin="0,-30,-15,0" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Visibility="Hidden">
