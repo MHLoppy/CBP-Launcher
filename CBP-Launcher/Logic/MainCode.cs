@@ -1,4 +1,11 @@
-﻿using System;
+﻿using BsDiff;
+using CBPLauncher.Core;
+using CBPSDK;
+using DJ;
+using Microsoft.VisualBasic;
+using Microsoft.Win32;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -8,20 +15,15 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml;
-using CBPLauncher.Core;
-using Microsoft.VisualBasic;
-using Microsoft.Win32;
 using TgaLib;
-using CBPSDK;
 using static CBPLauncher.Logic.BasicIO;
-using NLog;
-using DJ;
 
 namespace CBPLauncher.Logic
 {
@@ -1499,6 +1501,7 @@ namespace CBPLauncher.Logic
             //    }
             //});
 
+            // TODO: these new commands and functions need logging
             WorkshopPRCommand = new RelayCommand(o =>
             {
                 Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2528425253");
@@ -1506,7 +1509,7 @@ namespace CBPLauncher.Logic
 
             InstallA9dCommand = new RelayCommand(o =>
             {
-                InstallOtherVersion("2287791153", "Community Balance Patch Alpha9d");
+                InstallSelfContainedVersion("2287791153", "Community Balance Patch Alpha9d", "CBPA9D.delta", "riseofnations_CBPA9D.exe");
             });
 
             LoadA9dCommand = new RelayCommand(o =>
@@ -1518,7 +1521,7 @@ namespace CBPLauncher.Logic
 
             InstallPR1Command = new RelayCommand(o =>
             {
-                InstallOtherVersion("2528425253", "Community Balance Patch PR1");
+                InstallSelfContainedVersion("2528425253", "Community Balance Patch PR1", "CBPPR1.delta", "riseofnations_CBPPR1.exe");
             });
 
             LoadPR1Command = new RelayCommand(o =>
@@ -1530,7 +1533,7 @@ namespace CBPLauncher.Logic
 
             InstallPR2Command = new RelayCommand(o =>
             {
-                InstallOtherVersion("2528425253", "Community Balance Patch PR2");
+                InstallSelfContainedVersion("2528425253", "Community Balance Patch PR2", "CBPPR2.delta", "riseofnations_CBPPR2.exe");
             });
 
             LoadPR2Command = new RelayCommand(o =>
@@ -1542,7 +1545,7 @@ namespace CBPLauncher.Logic
 
             InstallPR3Command = new RelayCommand(o =>
             {
-                InstallOtherVersion("2528425253", "Community Balance Patch PR3");
+                InstallSelfContainedVersion("2528425253", "Community Balance Patch PR3", "CBPPR3.delta", "riseofnations_CBPPR3.exe");
             });
 
             LoadPR3Command = new RelayCommand(o =>
@@ -5017,7 +5020,7 @@ namespace CBPLauncher.Logic
             if (TabNumber == 4) SpLChecked = true;
         }
 
-        private void InstallOtherVersion(string parentFolder, string subFolderName)
+        private void InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName)
         {
             string folderPath = Path.Combine(workshopPath, parentFolder, subFolderName);
             if (Directory.Exists(folderPath))
@@ -5025,6 +5028,70 @@ namespace CBPLauncher.Logic
                 try
                 {
                     DirectoryCopy(folderPath, RoNPathFinal, true, true);
+
+                    string localPatch;
+                    string oldExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
+                    string newExe = Path.Combine(RoNPathFinal, exeName);
+                    string thisHash;
+                    string expectedHash;
+
+                    // riseofnations.exe version 00.2024.06.2000 SHA256 hashes
+                    string ronHash = "30478a44b577cb11ebcbbbf53d3e93ba02fd2aacf3bdefa6552c9b6449625079";
+                    string laaHash = "75d9b49109d5eefe8ab9d73dc53f44f0e193c445b63c5b2e8e11ed9b90a6ef41";
+
+                    bool ronMatch = FileHashMatches(oldExe, ronHash);
+                    bool laaMatch = FileHashMatches(oldExe, laaHash);
+
+                    // transparently copy the LAA ("4GB patch") setting of the user's existing ron exe
+                    if (ronMatch)
+                    {
+                        localPatch = Path.Combine(RoNPathFinal, patchName);
+                    }
+                    else if (laaMatch)
+                    {
+                        var name = Path.GetFileNameWithoutExtension(patchName);
+                        var ext = Path.GetExtension(patchName);
+                        var laaPatchName = $"{name}_LAA{ext}";
+                        // TODO: logging
+
+                        localPatch = Path.Combine(RoNPathFinal, laaPatchName);
+                    }
+                    else
+                    {
+                        throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000.");
+                    }
+
+                    // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (we don't want someone getting a wonky exe / virus) (TODO: make less janky)
+                    List<string> hashes = new List<string>()
+                    {
+                        // TODO: a9d hash (non-LAA + LAA)
+                        "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
+                        "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
+                        "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
+                        "6df9a625881699d375d43b67187fd24e3fb797208dc9e550c802a2110c27a8de", // PR1 LAA
+                        "b0190704ea894f3ab0f4db74c9501b4077bdfa56ef815c92c97beba05c0cd48c", // PR2 LAA
+                        "aaace60d1f05d3f35687a7e79e7d8aef24cbc374b733822c1e4a0215bed5443e", // PR3 LAA
+                    };
+                    bool patchHashMatches = false;
+                    foreach (string hash in hashes)
+                    {
+                        if (FileHashMatches(localPatch, hash))
+                        {
+                            patchHashMatches = true;
+                        }
+                    }
+                    if (!patchHashMatches)
+                    {
+                        throw new IOException("Patch file does not match known hashes.");
+                    }
+
+                    using (var baseFile = File.OpenRead(oldExe))
+                    {
+                        using (var outStream = File.Create(newExe))
+                        {
+                            BinaryPatch.Apply(baseFile, () => File.OpenRead(localPatch), outStream);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -5052,6 +5119,23 @@ namespace CBPLauncher.Logic
                 MessageBox.Show($"Unable to find {exe}."
                                 + "\n\n (Maybe this version isn't installed?)");
             }
+        }
+
+        private bool FileHashMatches(string filePath, string expectedHash)
+        {
+            string thisHash;
+
+            // https://makolyte.com/csharp-get-a-files-checksum-using-any-hashing-algorithm-md5-sha256/
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                using (var stream = File.OpenRead(filePath))
+                {
+                    var hash = sha256.ComputeHash(stream);
+                    thisHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant(); // hash is separated by dashes + capitalized by default
+                }
+            }
+
+            return (thisHash == expectedHash);
         }
     }
 
