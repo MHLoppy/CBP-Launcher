@@ -1506,7 +1506,7 @@ namespace CBPLauncher.Logic
 
             InstallA9dCommand = new RelayCommand(o =>
             {
-                InstallOtherVersion("2528425253", "Community Balance Patch Alpha9d");// TODO: move to a new CBP archive workshop item
+                InstallOtherVersion("2287791153", "Community Balance Patch Alpha9d");
             });
 
             LoadA9dCommand = new RelayCommand(o =>
