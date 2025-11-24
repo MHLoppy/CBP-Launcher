@@ -277,6 +277,7 @@
     <Compile Include="Logic\ClassicPlusMiniVM.cs" />
     <Compile Include="Logic\ClassicPlusModManagerVM.cs" />
     <Compile Include="Logic\ClassicPlusOptionsVM.cs" />
+    <Compile Include="Logic\ClassicPlusOtherVM.cs" />
     <Compile Include="Logic\ClassicPlusPatchNotesVM.cs" />
     <Compile Include="Logic\ClassicPlusVM.cs" />
     <Compile Include="Logic\DummyTabVM.cs" />
@@ -288,6 +289,7 @@
     <Compile Include="Logic\SpartanV1PatchNotesVM.cs" />
     <Compile Include="Logic\SpartanV1MiniVM.cs" />
     <Compile Include="Logic\SpartanV1VM.cs" />
+    <Compile Include="Logic\SpartanV1OtherVM.cs" />
     <Compile Include="Old %28Maniac%29\MVVM\ViewModel\ViewModel-Primary.cs" />
     <Compile Include="Old %28Maniac%29\MVVM\View\Skins\Skin-ClassicPlus.xaml.cs">
       <DependentUpon>Skin-ClassicPlus.xaml</DependentUpon>
@@ -299,6 +301,9 @@
       <DependentUpon>View-PrimaryWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Skins\ClassicPlusOther.xaml.cs">
+      <DependentUpon>ClassicPlusOther.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Skins\DummyTab.xaml.cs">
       <DependentUpon>DummyTab.xaml</DependentUpon>
     </Compile>
@@ -345,6 +350,9 @@
     <Compile Include="Skins\ClassicPlusPatchNotes.xaml.cs">
       <DependentUpon>ClassicPlusPatchNotes.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Skins\SpartanV1Other.xaml.cs">
+      <DependentUpon>SpartanV1Other.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Skins\SpartanV1PatchNotes.xaml.cs">
       <DependentUpon>SpartanV1PatchNotes.xaml</DependentUpon>
     </Compile>
@@ -373,6 +381,10 @@
     <Page Include="Old %28Maniac%29\MVVM\View\View-PrimaryWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Skins\ClassicPlusOther.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Skins\DummyTab.xaml">
       <SubType>Designer</SubType>
@@ -434,6 +446,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Skins\SpartanV1Other.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Skins\SpartanV1PatchNotes.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -489,6 +505,8 @@
     <Resource Include="Images\CBP Launcher icon %28CBPL - stack%29.ico" />
     <Resource Include="Images\RoN CBP logo 02 opti resized.png" />
     <Resource Include="Images\CBP central button.png" />
+    <Resource Include="Images\CBP central button 64px.png" />
+    <Resource Include="Images\CBP central button right-crop 87px bw.png" />
     <Content Include="NLogOld.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

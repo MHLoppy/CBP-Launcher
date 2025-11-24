@@ -38,6 +38,15 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
+            <Button Name="CPOther" Content=" Other.." Command="{Binding CPTabOtherCommand}" HorizontalAlignment="Left" Margin="165,202,0,0" VerticalAlignment="Top" Width="87" Height="32" FontSize="20" FontWeight="SemiBold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0" Grid.ColumnSpan="2" Panel.ZIndex="5">
+                <Button.Background>
+                    <ImageBrush ImageSource="{Binding CPTabOtherButtonImage}"/>
+                </Button.Background>
+                <!--<Button.Background>
+                    <ImageBrush ImageSource="/Images/CBP central button right-crop 87px bw.png" Stretch="None"/>
+                </Button.Background>-->
+            </Button>
+
             <Grid Grid.Column="0" Grid.Row="0">
                 <Grid.Background>
                     <ImageBrush/>
@@ -83,35 +92,18 @@
                 <Label Content="{Binding VersionTextInstalled}" HorizontalContentAlignment="Center" FontSize="18" HorizontalAlignment="Left" Margin="11,21,0,0" VerticalAlignment="Top" Width="236" Foreground="#FFF0F0F0" FontFamily="Segoe UI Semilight" Height="48"/>
                 <TextBlock Name="StatusText" Text="{Binding LaunchStatusText}" FontFamily="Segoe UI" FontSize="15" MinWidth="0" HorizontalAlignment="Center" Margin="12,180,0,0" VerticalAlignment="Top" Foreground="{Binding LaunchStatusColor}" Background="#50000000" Padding="3,0,3,2" TextAlignment="Center"/>
 
-                <Image Source="/Images/CBP central button.png" Width="48" Height="32" Margin="104,195,89,0" Panel.ZIndex="5"/>
-                <Button Content="Load     " Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" Margin="53,207,0,0" VerticalAlignment="Top" Width="77" Height="27" FontSize="14" FontWeight="SemiBold" Background="#FFDCD8D2">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="13.5"/>
-                        </Style>
-                    </Button.Resources>
-                    <Button.BorderBrush>
-                        <LinearGradientBrush EndPoint="0.6,1" StartPoint="0.4,0">
-                            <!-- one-tone color example: FFFBCB57 -->
-                            <GradientStop Color="#FFFBCB57"/>
-                            <GradientStop Color="#FFAB7900" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Button.BorderBrush>
+                <!-- Load/Unload etc buttons -->
+                <Button Content="CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" Margin="27,202,0,0" VerticalAlignment="Top" Width="64" Height="32" FontSize="20" FontWeight="Bold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/CBP central button 64px.png" Stretch="None"/>
+                    </Button.Background>
                 </Button>
-                <!-- The Load/Unload buttons are intentionally not *perfectly* aligned and with different font sizes, because the Unload button benefits from having slightly more space (but little enough that things still look centered!) -->
-                <Button Content="     Unload" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" Margin="130,207,0,0" VerticalAlignment="Top" Width="76" Height="27" FontSize="13.5" FontWeight="SemiBold" Background="#FFDCD8D2">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="13.5"/>
-                        </Style>
-                    </Button.Resources>
-                    <Button.BorderBrush>
-                        <LinearGradientBrush EndPoint="0.4,1" StartPoint="0.6,0">
-                            <GradientStop Color="#FFFBCB57"/>
-                            <GradientStop Color="#FFAB7900" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Button.BorderBrush>
+                <Button Content="EE" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" Margin="96,202,0,0" VerticalAlignment="Top" Width="64" Height="32" FontSize="20" FontWeight="Bold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/CBP central button 64px.png" Stretch="None"/>
+                    </Button.Background>
                 </Button>
+                <!-- The other button is at a parent level because the grid clips it otherwise -->
 
                 <!-- big "main" buttons on left side -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,0">
@@ -158,10 +150,10 @@
 
                 <StackPanel Margin="138,5,0,0">
                     <!-- patch notes is default check (looks weird when switching skins but not a big deal) -->
-                    <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="True"/>
-                    <RadioButton Name="CPMM" Content="Plugins" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" Visibility="Visible"/>
-                    <RadioButton Name="CPO" Content="Options" Command="{Binding CPTabOptionsCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
-                    <RadioButton Name="CPL" Content="Log" Command="{Binding CPTabLogCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
+                    <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="{Binding CPPNChecked}"/>
+                    <RadioButton Name="CPMM" Content="Plugins" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPMMChecked}" Visibility="Visible"/>
+                    <RadioButton Name="CPO" Content="Options" Command="{Binding CPTabOptionsCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPOChecked}"/>
+                    <RadioButton Name="CPL" Content="Log" Command="{Binding CPTabLogCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPLChecked}"/>
                 </StackPanel>
 
                 <!-- ngl I feel amazing about realising I could do this to get the rounded corners without sacrificing the highlighting / selection color change -->

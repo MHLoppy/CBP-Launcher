@@ -280,6 +280,104 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private ImageSource cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
+        public ImageSource CPTabOtherButtonImage
+        {
+            get => cPTabOtherButtonImage;
+            set
+            {
+                cPTabOtherButtonImage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool cPPNChecked = true;
+        public bool CPPNChecked
+        {
+            get => cPPNChecked;
+            set
+            {
+                cPPNChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool cPMMChecked;
+        public bool CPMMChecked
+        {
+            get => cPMMChecked;
+            set
+            {
+                cPMMChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool cPOChecked;
+        public bool CPOChecked
+        {
+            get => cPOChecked;
+            set
+            {
+                cPOChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool cPLChecked;
+        public bool CPLChecked
+        {
+            get => cPLChecked;
+            set
+            {
+                cPLChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool spPNChecked = true;
+        public bool SpPNChecked
+        {
+            get => spPNChecked;
+            set
+            {
+                spPNChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool spMMChecked;
+        public bool SpMMChecked
+        {
+            get => spMMChecked;
+            set
+            {
+                spMMChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool spOChecked;
+        public bool SpOChecked
+        {
+            get => spOChecked;
+            set
+            {
+                spOChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool spLChecked;
+        public bool SpLChecked
+        {
+            get => spLChecked;
+            set
+            {
+                spLChecked = value;
+                OnPropertyChanged();
+            }
+        }
 
         //this seems wrong but I can't remember if I know a better way
         private bool cBPDefaultCheckbox = Properties.Settings.Default.DefaultCBP;
@@ -548,6 +646,7 @@ namespace CBPLauncher.Logic
         public RelayCommand SpV1TabModManagerCommand { get; set; }
         public RelayCommand SpV1TabOptionsCommand { get; set; }
         public RelayCommand SpV1TabLogCommand { get; set; }
+        public RelayCommand SpV1TabOtherCommand { get; set; }
 
 
         public RelayCommand SkinClassicPlusCommand { get; set; }
@@ -556,6 +655,7 @@ namespace CBPLauncher.Logic
         public RelayCommand CPTabModManagerCommand { get; set; }
         public RelayCommand CPTabOptionsCommand { get; set; }
         public RelayCommand CPTabLogCommand { get; set; }
+        public RelayCommand CPTabOtherCommand { get; set; }
 
 
         public RelayCommand OptionalCurrentCommand { get; set; }
@@ -603,6 +703,7 @@ namespace CBPLauncher.Logic
         public SpartanV1ModManagerVM SpartanV1ModManager { get; set; }
         public SpartanV1OptionsVM SpartanV1Options { get; set; }
         public SpartanV1LogVM SpartanV1Log { get; set; }
+        public SpartanV1OtherVM SpartanV1Other { get; set; }
         public SpartanV1DummyTabVM SpartanV1DummyTab { get; set; }
 
         public ClassicPlusVM ClassicPlus { get; set; }
@@ -611,6 +712,7 @@ namespace CBPLauncher.Logic
         public ClassicPlusModManagerVM ClassicPlusModManager { get; set; }
         public ClassicPlusOptionsVM ClassicPlusOptions { get; set; }
         public ClassicPlusLogVM ClassicPlusLog { get; set; }
+        public ClassicPlusOtherVM ClassicPlusOther { get; set; }
         public DummyTabVM ClassicPlusDummyTab { get; set; }
 
         private LauncherStatus _status;
@@ -1083,22 +1185,23 @@ namespace CBPLauncher.Logic
 
                 await AskDefaultCBP();
 
+                // TODO: THIS BLOCK WAS COMMENTED OUT WHILE TESTING NOV 2025 UPDATES
                 // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
-                if (Properties.Settings.Default.DefaultCBP == true)
-                {
-                    await CheckForUpdates();
-                };
-                if (Properties.Settings.Default.DefaultCBP == false)
-                {
-                    if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
-                    {
-                        await UnloadCBP();
-                    }
-                    else
-                    {
-                        Status = LauncherStatus.readyCBPDisabled;
-                    }
-                }
+                //if (Properties.Settings.Default.DefaultCBP == true)
+                //{
+                //    await CheckForUpdates();
+                //};
+                //if (Properties.Settings.Default.DefaultCBP == false)
+                //{
+                //    if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
+                //    {
+                //        await UnloadCBP();
+                //    }
+                //    else
+                //    {
+                //        Status = LauncherStatus.readyCBPDisabled;
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -1348,6 +1451,7 @@ namespace CBPLauncher.Logic
             SpartanV1ModManager = new SpartanV1ModManagerVM();
             SpartanV1Options = new SpartanV1OptionsVM();
             SpartanV1Log = new SpartanV1LogVM();
+            SpartanV1Other = new SpartanV1OtherVM();
             SpartanV1DummyTab = new SpartanV1DummyTabVM();
 
             ClassicPlus = new ClassicPlusVM();
@@ -1356,6 +1460,7 @@ namespace CBPLauncher.Logic
             ClassicPlusModManager = new ClassicPlusModManagerVM();
             ClassicPlusOptions = new ClassicPlusOptionsVM();
             ClassicPlusLog = new ClassicPlusLogVM();
+            ClassicPlusOther = new ClassicPlusOtherVM();
             ClassicPlusDummyTab = new DummyTabVM();
 
             if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == false))
@@ -1413,44 +1518,69 @@ namespace CBPLauncher.Logic
 
             SpV1TabPatchNotesCommand = new RelayCommand(o =>
             {
+                SpToggleTabs(1);
                 CurrentTab = SpartanV1PatchNotes;
             });
 
             SpV1TabModManagerCommand = new RelayCommand(o =>
             {
+                SpToggleTabs(2);
                 CurrentTab = SpartanV1ModManager;
                 PluginSecurityWarning();
             });
 
             SpV1TabOptionsCommand = new RelayCommand(o =>
             {
+                SpToggleTabs(3);
                 CurrentTab = SpartanV1Options;
             });
 
             SpV1TabLogCommand = new RelayCommand(o =>
             {
+                SpToggleTabs(4);
                 CurrentTab = SpartanV1Log;
+            });
+
+            SpV1TabOtherCommand = new RelayCommand(o =>
+            {
+                SpToggleTabs(0);
+                CurrentTab = SpartanV1Other;
             });
 
             CPTabPatchNotesCommand = new RelayCommand(o =>
             {
+                CPToggleTabs(1);
                 CurrentTab = ClassicPlusPatchNotes;
+                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
             });
 
             CPTabModManagerCommand = new RelayCommand(o =>
             {
+                CPToggleTabs(2);
                 CurrentTab = ClassicPlusModManager;
+                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                 PluginSecurityWarning();
             });
 
             CPTabOptionsCommand = new RelayCommand(o =>
             {
+                CPToggleTabs(3);
                 CurrentTab = ClassicPlusOptions;
+                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
             });
 
             CPTabLogCommand = new RelayCommand(o =>
             {
+                CPToggleTabs(4);
                 CurrentTab = ClassicPlusLog;
+                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
+            });
+
+            CPTabOtherCommand = new RelayCommand(o =>
+            {
+                CPToggleTabs(0);
+                CurrentTab = ClassicPlusOther;
+                //CPPN.IsChecked = false;
             });
 
             ConfigOptionalCommand = new RelayCommand(async o =>
@@ -4733,6 +4863,32 @@ namespace CBPLauncher.Logic
                 MessageBox.Show("Error while applying June 2024 patch fix: " + ex);
                 CBPLogger.GetInstance.Error("Error applying June 2024 patch fix: " + ex);
             }
+        }
+
+        private void CPToggleTabs(int TabNumber)
+        {
+            CPPNChecked = false;
+            CPMMChecked = false;
+            CPOChecked = false;
+            CPLChecked = false;
+
+            if (TabNumber == 1) CPPNChecked = true;
+            if (TabNumber == 2) CPMMChecked = true;
+            if (TabNumber == 3) CPOChecked = true;
+            if (TabNumber == 4) CPLChecked = true;
+        }
+
+        private void SpToggleTabs(int TabNumber)
+        {
+            SpPNChecked = false;
+            SpMMChecked = false;
+            SpOChecked = false;
+            SpLChecked = false;
+
+            if (TabNumber == 1) SpPNChecked = true;
+            if (TabNumber == 2) SpMMChecked = true;
+            if (TabNumber == 3) SpOChecked = true;
+            if (TabNumber == 4) SpLChecked = true;
         }
     }
 

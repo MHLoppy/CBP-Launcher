@@ -60,6 +60,10 @@
                 <skins:SpartanV1Log/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type logic:SpartanV1OtherVM}">
+                <skins:SpartanV1Other/>
+            </DataTemplate>
+
             <!-- Classic Plus skin -->
             <DataTemplate DataType="{x:Type logic:ClassicPlusVM}">
                 <skins:ClassicPlus/>
@@ -83,6 +87,10 @@
 
             <DataTemplate DataType="{x:Type logic:ClassicPlusLogVM}">
                 <skins:ClassicPlusLog/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type logic:ClassicPlusOtherVM}">
+                <skins:ClassicPlusOther/>
             </DataTemplate>
 
         </ResourceDictionary>
