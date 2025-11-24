@@ -38,7 +38,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Name="CPOther" Content=" Other.." Command="{Binding CPTabOtherCommand}" HorizontalAlignment="Left" Margin="165,202,0,0" VerticalAlignment="Top" Width="87" Height="32" FontSize="20" FontWeight="SemiBold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0" Grid.ColumnSpan="2" Panel.ZIndex="5">
+            <Button Name="CPOther" Content=" Other.." Command="{Binding CPTabOtherCommand}" Style="{StaticResource ImageButtonHoverFixCentral78}" HorizontalAlignment="Left" Margin="165,202,0,0" VerticalAlignment="Top" Width="87" Height="32" FontSize="20" FontWeight="SemiBold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0" Grid.ColumnSpan="2" Panel.ZIndex="5">
                 <Button.Background>
                     <ImageBrush ImageSource="{Binding CPTabOtherButtonImage}"/>
                 </Button.Background>
@@ -93,12 +93,12 @@
                 <TextBlock Name="StatusText" Text="{Binding LaunchStatusText}" FontFamily="Segoe UI" FontSize="15" MinWidth="0" HorizontalAlignment="Center" Margin="12,180,0,0" VerticalAlignment="Top" Foreground="{Binding LaunchStatusColor}" Background="#50000000" Padding="3,0,3,2" TextAlignment="Center"/>
 
                 <!-- Load/Unload etc buttons -->
-                <Button Content="CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" Margin="27,202,0,0" VerticalAlignment="Top" Width="64" Height="32" FontSize="20" FontWeight="Bold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0">
+                <Button Content="CBP" Command="{Binding LoadCBPCommand}" Style="{StaticResource ImageButtonHoverFixCentral64}" HorizontalAlignment="Left" Margin="27,202,0,0" VerticalAlignment="Top" Width="64" Height="32" FontSize="20" FontWeight="Bold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/CBP central button 64px.png" Stretch="None"/>
                     </Button.Background>
                 </Button>
-                <Button Content="EE" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" Margin="96,202,0,0" VerticalAlignment="Top" Width="64" Height="32" FontSize="20" FontWeight="Bold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0">
+                <Button Content="EE" Command="{Binding UnloadCBPCommand}" Style="{StaticResource ImageButtonHoverFixCentral64}" HorizontalAlignment="Left" Margin="96,202,0,0" VerticalAlignment="Top" Width="64" Height="32" FontSize="20" FontWeight="Bold" Foreground="#E7D58C" BorderBrush="{x:Null}" BorderThickness="0">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/CBP central button 64px.png" Stretch="None"/>
                     </Button.Background>

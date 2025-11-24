@@ -1361,18 +1361,18 @@ namespace CBPLauncher.Logic
 
             LoadCBPCommand = new RelayCommand(async o =>
             {
-                await CheckForUpdates();
-                await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
+                //await CheckForUpdates();
+                //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
             });
 
             UnloadCBPCommand = new RelayCommand(async o =>
             {
-                if (antiSpam == false)
-                {
-                    antiSpam = true;
-                    await UnloadCBP();
-                }
-                antiSpam = false;
+                //if (antiSpam == false)
+                //{
+                //    antiSpam = true;
+                //    await UnloadCBP();
+                //}
+                //antiSpam = false;
             });
 
             WorkshopCommand = new RelayCommand(o =>

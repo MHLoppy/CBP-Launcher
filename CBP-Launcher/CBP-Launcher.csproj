@@ -507,6 +507,10 @@
     <Resource Include="Images\CBP central button.png" />
     <Resource Include="Images\CBP central button 64px.png" />
     <Resource Include="Images\CBP central button right-crop 87px bw.png" />
+    <Resource Include="Images\CBP central button 64px hover.png" />
+    <Resource Include="Images\CBP central button 64px pressed.png" />
+    <Resource Include="Images\CBP central button right-crop 87px bw hover.png" />
+    <Resource Include="Images\CBP central button right-crop 87px bw pressed.png" />
     <Content Include="NLogOld.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
