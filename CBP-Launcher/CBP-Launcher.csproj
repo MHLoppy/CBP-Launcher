@@ -488,6 +488,7 @@
     <Resource Include="Images\RoN CBP Launcher version shadow 20px blur 120trans.png" />
     <Resource Include="Images\CBP Launcher icon %28CBPL - stack%29.ico" />
     <Resource Include="Images\RoN CBP logo 02 opti resized.png" />
+    <Resource Include="Images\CBP central button.png" />
     <Content Include="NLogOld.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
