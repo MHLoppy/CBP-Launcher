@@ -22,7 +22,8 @@
 
         <Border Grid.Column="0" Grid.RowSpan="2">
             <Border.Background>
-                <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.50016">
+                <!--<LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.50016">-->
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                     <GradientStop Color="#D4383838" Offset="0"/>
                     <GradientStop Color="#D0222222" Offset="1"/>
                 </LinearGradientBrush>

@@ -314,7 +314,7 @@
     </Style>
 
     <!--- based on https://www.exchangetuts.com/wpf-button-mouseover-image-1640473924194735 -->
-    <Style x:Key="ImageButtonHoverFixCentral78" TargetType="{x:Type Button}">
+    <Style x:Key="ImageButtonHoverFixCentral87" TargetType="{x:Type Button}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">

@@ -30,6 +30,7 @@ namespace CBPLauncher.Logic
         gettingReady,
         readyCBPEnabled,
         readyCBPDisabled,
+        readyCBPPREnabled,
         loadFailed,
         unloadFailed,
         installFailed,
@@ -203,6 +204,17 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private bool logoCBPPR = false;
+        public bool LogoCBPPR
+        {
+            get => logoCBPPR;
+            set
+            {
+                logoCBPPR = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string eEPath;
         public string EEPath
         {
@@ -287,6 +299,28 @@ namespace CBPLauncher.Logic
             set
             {
                 cPTabOtherButtonImage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private SolidColorBrush otherButtonFontColor = new SolidColorBrush(Colors.LightGray);
+        public SolidColorBrush OtherButtonFontColor
+        {
+            get => otherButtonFontColor;
+            set
+            {
+                otherButtonFontColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool otherButtonTrimVisible;
+        public bool OtherButtonTrimVisible
+        {
+            get => otherButtonTrimVisible;
+            set
+            {
+                otherButtonTrimVisible = value;
                 OnPropertyChanged();
             }
         }
@@ -663,6 +697,17 @@ namespace CBPLauncher.Logic
         public RelayCommand OptionalReplacementCommand { get; set; }
 
 
+        public RelayCommand WorkshopPRCommand { get; set; }
+        public RelayCommand InstallA9dCommand { get; set; }
+        public RelayCommand LoadA9dCommand { get; set; }
+        public RelayCommand InstallPR1Command { get; set; }
+        public RelayCommand LoadPR1Command { get; set; }
+        public RelayCommand InstallPR2Command { get; set; }
+        public RelayCommand LoadPR2Command { get; set; }
+        public RelayCommand InstallPR3Command { get; set; }
+        public RelayCommand LoadPR3Command { get; set; }
+
+
         public RelayCommand MinimiseCommand { get; set; }
         public RelayCommand ExitCommand { get; set; }
 
@@ -737,14 +782,25 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = true;
                         LogoCBP = true;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.readyCBPDisabled:
                         LaunchStatusText = "Ready: CBP disabled";
                         LaunchStatusColor = Brushes.Orange;
                         LaunchButtonText = "Launch Game";
                         LaunchEnabled = true;
-                        LogoCBP = false; ;
+                        LogoCBP = false;
                         LogoRoNEE = true;
+                        LogoCBPPR = false;
+                        break;
+                    case LauncherStatus.readyCBPPREnabled:
+                        LaunchStatusText = "Ready: CBP PR enabled";
+                        LaunchStatusColor = Brushes.CornflowerBlue;
+                        LaunchButtonText = "Launch Game";
+                        LaunchEnabled = true;
+                        LogoCBP = false;
+                        LogoRoNEE = false;
+                        LogoCBPPR = true;
                         break;
                     case LauncherStatus.loadFailed:
                         LaunchStatusText = "Error: unable to load CBP";
@@ -753,6 +809,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = true;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.unloadFailed:
                         LaunchStatusText = "Error: unable to unload CBP";
@@ -761,6 +818,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = true;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.installFailed:
                         LaunchStatusText = "Error: update failed";
@@ -769,6 +827,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = true;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     // I tried renaming the *Local to *Workshop and VS2019 literally did the opposite of that (by renaming what I just changed) instead of doing what it said it would wtf
                     case LauncherStatus.installingFirstTimeLocal:                       /// primary method: use workshop files;
@@ -777,6 +836,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.installingUpdateLocal:                          /// primary method: use workshop files;
                         LaunchStatusText = "Installing update from local files...";   /// local-mods CBP detected, but out of date compared to workshop version.txt
@@ -784,6 +844,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.installingFirstTimeOnline:                      /// backup method: use online files;
                         LaunchStatusText = "Installing CBP from online files...";     /// means no local-mods CBP detected but can't find workshop files either
@@ -791,6 +852,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.installingUpdateOnline:                         /// backup method: use online files; 
                         LaunchStatusText = "Installing update from online files...";  /// local-mods CBP detected, but can't find workshop files and
@@ -798,6 +860,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.connectionProblemLoaded:
                         LaunchStatusText = "Connection issue (CBP loaded)";
@@ -806,6 +869,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = true;
                         LogoCBP = true;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.connectionProblemUnloaded:
                         LaunchStatusText = "Connection issue (CBP not loaded)";
@@ -814,6 +878,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = true;
                         LogoCBP = false;
                         LogoRoNEE = true;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.installProblem:
                         LaunchStatusText = "Potential installation error";
@@ -822,6 +887,7 @@ namespace CBPLauncher.Logic
                         LaunchEnabled = true;
                         LogoCBP = false;
                         LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     default:
                         break;
@@ -1433,6 +1499,59 @@ namespace CBPLauncher.Logic
             //    }
             //});
 
+            WorkshopPRCommand = new RelayCommand(o =>
+            {
+                Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2528425253");
+            });
+
+            InstallA9dCommand = new RelayCommand(o =>
+            {
+                InstallOtherVersion("2528425253", "Community Balance Patch Alpha9d");// TODO: move to a new CBP archive workshop item
+            });
+
+            LoadA9dCommand = new RelayCommand(o =>
+            {
+                string exe = "riseofnations_CBPa9d.exe";
+                LauncherStatus status = LauncherStatus.readyCBPEnabled;
+                LoadOtherVersion(exe, status);
+            });
+
+            InstallPR1Command = new RelayCommand(o =>
+            {
+                InstallOtherVersion("2528425253", "Community Balance Patch PR1");
+            });
+
+            LoadPR1Command = new RelayCommand(o =>
+            {
+                string exe = "riseofnations_CBPPR1.exe";
+                LauncherStatus status = LauncherStatus.readyCBPPREnabled;
+                LoadOtherVersion(exe, status);
+            });
+
+            InstallPR2Command = new RelayCommand(o =>
+            {
+                InstallOtherVersion("2528425253", "Community Balance Patch PR2");
+            });
+
+            LoadPR2Command = new RelayCommand(o =>
+            {
+                string exe = "riseofnations_CBPPR2.exe";
+                LauncherStatus status = LauncherStatus.readyCBPPREnabled;
+                LoadOtherVersion(exe, status);
+            });
+
+            InstallPR3Command = new RelayCommand(o =>
+            {
+                InstallOtherVersion("2528425253", "Community Balance Patch PR3");
+            });
+
+            LoadPR3Command = new RelayCommand(o =>
+            {
+                string exe = "riseofnations_CBPPR3.exe";
+                LauncherStatus status = LauncherStatus.readyCBPPREnabled;
+                LoadOtherVersion(exe, status);
+            });
+
             MinimiseCommand = new RelayCommand(o =>
             {
                 Application.Current.MainWindow.WindowState = WindowState.Minimized;
@@ -1549,38 +1668,38 @@ namespace CBPLauncher.Logic
 
             CPTabPatchNotesCommand = new RelayCommand(o =>
             {
+                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                 CPToggleTabs(1);
                 CurrentTab = ClassicPlusPatchNotes;
-                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
             });
 
             CPTabModManagerCommand = new RelayCommand(o =>
             {
+                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                 CPToggleTabs(2);
                 CurrentTab = ClassicPlusModManager;
-                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                 PluginSecurityWarning();
             });
 
             CPTabOptionsCommand = new RelayCommand(o =>
             {
+                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                 CPToggleTabs(3);
                 CurrentTab = ClassicPlusOptions;
-                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
             });
 
             CPTabLogCommand = new RelayCommand(o =>
             {
+                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                 CPToggleTabs(4);
                 CurrentTab = ClassicPlusLog;
-                cPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
             });
 
             CPTabOtherCommand = new RelayCommand(o =>
             {
+                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw active.png", UriKind.Absolute));
                 CPToggleTabs(0);
                 CurrentTab = ClassicPlusOther;
-                //CPPN.IsChecked = false;
             });
 
             ConfigOptionalCommand = new RelayCommand(async o =>
@@ -3069,7 +3188,7 @@ namespace CBPLauncher.Logic
             if (Properties.Settings.Default.WarnCompatibility == true)
             {
                 // check compatibility again, otherwise can false-positive on a plugin that's actually loaded
-                CheckPluginCompatibility();
+                //CheckPluginCompatibility();//TODO COMMENTED OUT FOR NOV 2025 TESTING
 
                 // to prevent plugins from potentially loading old files (e.g. rules.xml) that are outdated with new CBP updates, check the CBP version in file headers
                 if (pluginFileProblem && (Properties.Settings.Default.CBPLoaded == true))
@@ -3191,7 +3310,7 @@ namespace CBPLauncher.Logic
                 // if 0, there was no issue
             }
 
-            if (File.Exists(gameExe) && (Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled)) // make sure all "launch" button options are included here
+            if (File.Exists(gameExe) && (Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled || Status == LauncherStatus.readyCBPPREnabled)) // make sure all "launch" button options are included here
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
                 {
@@ -4871,11 +4990,18 @@ namespace CBPLauncher.Logic
             CPMMChecked = false;
             CPOChecked = false;
             CPLChecked = false;
+            OtherButtonTrimVisible = false;
+            OtherButtonFontColor = new SolidColorBrush(Colors.LightGray);
 
             if (TabNumber == 1) CPPNChecked = true;
-            if (TabNumber == 2) CPMMChecked = true;
-            if (TabNumber == 3) CPOChecked = true;
-            if (TabNumber == 4) CPLChecked = true;
+            else if (TabNumber == 2) CPMMChecked = true;
+            else if (TabNumber == 3) CPOChecked = true;
+            else if (TabNumber == 4) CPLChecked = true;
+            else if (TabNumber == 0)
+            {
+                OtherButtonTrimVisible = true;
+                OtherButtonFontColor = new SolidColorBrush(Colors.WhiteSmoke);
+            }
         }
 
         private void SpToggleTabs(int TabNumber)
@@ -4889,6 +5015,43 @@ namespace CBPLauncher.Logic
             if (TabNumber == 2) SpMMChecked = true;
             if (TabNumber == 3) SpOChecked = true;
             if (TabNumber == 4) SpLChecked = true;
+        }
+
+        private void InstallOtherVersion(string parentFolder, string subFolderName)
+        {
+            string folderPath = Path.Combine(workshopPath, parentFolder, subFolderName);
+            if (Directory.Exists(folderPath))
+            {
+                try
+                {
+                    DirectoryCopy(folderPath, RoNPathFinal, true, true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Install failed: {ex}");
+                }
+            }
+            else
+            {
+                MessageBox.Show($"Unable to locate {subFolderName} folder."
+                                + "\n\n(Are you subscribed to the right mod on Steam Workshop?)");
+            }
+        }
+
+        private void LoadOtherVersion(string exe, LauncherStatus status)
+        {
+            string exePath = Path.Combine(RoNPathFinal, exe);
+
+            if (File.Exists(exePath))
+            {
+                gameExe = exePath;
+                Status = status;
+            }
+            else
+            {
+                MessageBox.Show($"Unable to find {exe}."
+                                + "\n\n (Maybe this version isn't installed?)");
+            }
         }
     }
 
