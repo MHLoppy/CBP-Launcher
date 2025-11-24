@@ -57,10 +57,10 @@
                 <!-- left side: rounded image background + image overlays -->
                 <Image Source="/Images/RoN EE logo (touchup) from game files.png" Margin="67,136,63,40" Stretch="Uniform" RenderOptions.BitmapScalingMode="Fant" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/>
                 <!-- perfect-ish fit-->
-                <Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="90,163,90,68" Stretch="Uniform" Visibility="Hidden"/>
-                <!-- old temp one, seemed too sparse -->
+                <!--<Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="90,163,90,68" Stretch="Uniform" Visibility="Hidden"/>-->
                 <Image Source="/Images/RoN CBP logo 02 opti resized.png" RenderOptions.BitmapScalingMode="Fant" Margin="61,131,60,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/>
-                <!-- new temp one, seems better -->
+                <Image Source="/Images/RoN CBP logo 02 opti resized pr.png" RenderOptions.BitmapScalingMode="Fant" Margin="61,131,60,35" Stretch="Uniform" Visibility="{Binding LogoCBPPR, Converter={StaticResource BoolToVis}}"/>
+
 
                 <Border CornerRadius="16,16,16,16" Margin="35,98,35,2" Opacity="0.5" Panel.ZIndex="-1">
                     <Border.Background>
@@ -69,7 +69,7 @@
                 </Border>
 
                 <!-- left side: load/unload button -->
-                <Button Content="Load CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88" Height="28" Padding="0,0,0,2" Margin="66,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="15" Panel.ZIndex="2">
+                <Button Content="CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="89,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -77,7 +77,7 @@
                     </Button.Resources>
                 </Button>
 
-                <Button Content="Unload CBP" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88" Height="28" Padding="0,0,0,2" Margin="170,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="15" Panel.ZIndex="2">
+                <Button Content="EE" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="173,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
