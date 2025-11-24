@@ -1093,7 +1093,7 @@ namespace CBPLauncher.Logic
         private void RefreshCheckboxValues()
         {
             CBPDefaultCheckbox = Properties.Settings.Default.DefaultCBP;
-            UsePrereleaseCheckbox = Properties.Settings.Default.UsePrerelease;
+            //UsePrereleaseCheckbox = Properties.Settings.Default.UsePrerelease;
             UseDefaultLauncherCheckbox = Properties.Settings.Default.UseDefaultLauncher;
             UsePrimaryFilesCheckbox = Properties.Settings.Default.UsePrimaryFileList;
             UseSecondaryFilesCheckbox = Properties.Settings.Default.UseSecondaryFileList;
@@ -1300,16 +1300,16 @@ namespace CBPLauncher.Logic
 
             UsePrereleaseCommand = new RelayCommand(o =>
             {
-                if (CheckForPRFiles())
-                {
-                    UsePrereleaseCheckbox_Inversion();
-                    MessageBox.Show("Pre-release toggle modified. If there are specific instructions on the pre-release page, you should follow them. OTHERWISE, just restart CBP Launcher to use the new files.");
-                }
-                else
-                {
-                    MessageBox.Show("Pre-release folder not found. You can get the pre-release files from roncbp.com/pr (this link will redirect you to the Steam Workshop page)");
-                    RefreshCheckboxValues();//ensure the checkbox doesn't desync from reality by refreshing it
-                }
+                //if (CheckForPRFiles())
+                //{
+                //    UsePrereleaseCheckbox_Inversion();
+                //    MessageBox.Show("Pre-release toggle modified. If there are specific instructions on the pre-release page, you should follow them. OTHERWISE, just restart CBP Launcher to use the new files.");
+                //}
+                //else
+                //{
+                //    MessageBox.Show("Pre-release folder not found. You can get the pre-release files from roncbp.com/pr (this link will redirect you to the Steam Workshop page)");
+                //    RefreshCheckboxValues();//ensure the checkbox doesn't desync from reality by refreshing it
+                //}
             });
 
             UseDefaultLauncherCommand = new RelayCommand(async o =>
