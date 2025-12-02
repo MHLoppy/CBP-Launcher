@@ -4159,6 +4159,9 @@ namespace CBPLauncher.Logic
         {
             try
             {
+                // TODO: temporarily skip until ported to new mod format
+                return;
+
                 CheckCurrentPath();
 
                 if (Properties.Settings.Default.OptionalAsianHeli)
@@ -4195,7 +4198,6 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Error($"Error maintaining optional changes: {ex}");
                 MessageBox.Show($"Error maintaining optional changes: {ex}");
             }
-            
         }
 
         // plugins section (but not all of it, some of it is in codebehind of modmanager tabs lol)

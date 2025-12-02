@@ -55,14 +55,15 @@
                     <CheckBox Content="Use secondary data files" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,118,0,0" FontSize="14" Foreground="#EEEEEE" Padding="4,-2,0,0" ToolTip="These are data files that involve cosmetic changes and tooltip updates. There may be cosmetic errors if these are not loaded, but both gameplay and multiplayer sync are unaffected by these files." IsChecked="{Binding UseSecondaryFilesCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding UseSecondaryFilesCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
                     <CheckBox Content="Add CBP icon to games I host" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,138,0,0" FontSize="14" Foreground="#EEEEEE" Padding="4,-2,0,0" ToolTip="The icon will also be removed when CBP is unloaded" IsChecked="{Binding AddIconGameNameCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding AddIconGameNameCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"/>
 
-                    <Button Width="190" Height="25" Command="{Binding ConfigOptionalCommand}" Content="Configure Optional Changes" Margin="12,170,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#EEEEEE" Background="#383838" FontSize="14" BorderBrush="#282828">
+                    <!-- Optional changes; TODO: temporarily hidden until ported to new mod format -->
+                    <Button Width="190" Height="25" Command="{Binding ConfigOptionalCommand}" Content="Configure Optional Changes" Margin="12,170,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#EEEEEE" Background="#383838" FontSize="14" BorderBrush="#282828" Visibility="Hidden">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="3"/>
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <CheckBox Content="Keep these choices every update" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,200,0,0" FontSize="14" Padding="4,-2,0,0" IsChecked="{Binding OptionalMaintainCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding OptionalMaintainCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE"/>
+                    <CheckBox Content="Keep these choices every update" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,200,0,0" FontSize="14" Padding="4,-2,0,0" IsChecked="{Binding OptionalMaintainCheckbox, UpdateSourceTrigger=PropertyChanged}" Command="{Binding OptionalMaintainCommand}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Foreground="#EEEEEE" Visibility="Hidden"/>
                     
                 </Grid>
 
