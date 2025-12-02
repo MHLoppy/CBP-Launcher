@@ -1327,7 +1327,7 @@ namespace CBPLauncher.Logic
                 {
                     await GenerateLists();
                     await LoadDirectFiles();
-                    await GenerateDynamicHelpText();
+                    await GenerateDynamicHelpText(helpXMLOrig);
                 }
             });
 
@@ -1338,7 +1338,7 @@ namespace CBPLauncher.Logic
                 {
                     await GenerateLists();
                     await LoadDirectFiles();
-                    await GenerateDynamicHelpText();
+                    await GenerateDynamicHelpText(helpXMLOrig);
                 }
             });
 
@@ -1516,7 +1516,7 @@ namespace CBPLauncher.Logic
             {
                 string exe = "riseofnations_CBPa9d.exe";
                 LauncherStatus status = LauncherStatus.readyCBPEnabled;
-                LoadOtherVersion(exe, status);
+                LoadOtherVersion(exe, status, "CBP Alpha 9d", "CBPa9d");
             });
 
             InstallPR1Command = new RelayCommand(o =>
@@ -1528,7 +1528,10 @@ namespace CBPLauncher.Logic
             {
                 string exe = "riseofnations_CBPPR1.exe";
                 LauncherStatus status = LauncherStatus.readyCBPPREnabled;
-                LoadOtherVersion(exe, status);
+                LoadOtherVersion(exe, status, "CBP Pre-Release 1", "CBPPR1");
+
+                Properties.Settings.Default.UsePrerelease = true;
+                SaveSettings();
             });
 
             InstallPR2Command = new RelayCommand(o =>
@@ -1540,7 +1543,10 @@ namespace CBPLauncher.Logic
             {
                 string exe = "riseofnations_CBPPR2.exe";
                 LauncherStatus status = LauncherStatus.readyCBPPREnabled;
-                LoadOtherVersion(exe, status);
+                LoadOtherVersion(exe, status, "CBP Pre-Release 2", "CBPPR2");
+
+                Properties.Settings.Default.UsePrerelease = true;
+                SaveSettings();
             });
 
             InstallPR3Command = new RelayCommand(o =>
@@ -1552,7 +1558,10 @@ namespace CBPLauncher.Logic
             {
                 string exe = "riseofnations_CBPPR3.exe";
                 LauncherStatus status = LauncherStatus.readyCBPPREnabled;
-                LoadOtherVersion(exe, status);
+                LoadOtherVersion(exe, status, "CBP Pre-Release 3", "CBPPR3");
+
+                Properties.Settings.Default.UsePrerelease = true;
+                SaveSettings();
             });
 
             MinimiseCommand = new RelayCommand(o =>
@@ -1955,7 +1964,7 @@ namespace CBPLauncher.Logic
                             {
                                 await AddIconGameName();
                             }
-                            await GenerateDynamicHelpText();
+                            await GenerateDynamicHelpText(helpXMLOrig);
 
                             Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
                             Properties.Settings.Default.CBPLoaded = true;
@@ -2854,7 +2863,7 @@ namespace CBPLauncher.Logic
                             {
                                 await AddIconGameName();
                             }
-                            await GenerateDynamicHelpText();
+                            await GenerateDynamicHelpText(helpXMLOrig);
                         }
                         catch (Exception ex)
                         {
@@ -3458,8 +3467,9 @@ namespace CBPLauncher.Logic
             CBPLogger.GetInstance.Info("Last game name: " + gameName);
         }
 
-        private bool CheckCBPXml() // checks if #ICON169 is already present in last game name
+        private bool CheckCBPXml() // checks if CBP Icon (#ICONxxx) is already present in last game name
         {
+            // TODO: this will need to be updated in future when anything other than mainline and PR are in use
             if (Properties.Settings.Default.UsePrerelease)
             {
                 if (gameName.Contains("#ICON170") == true)
@@ -3488,7 +3498,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task AddCBPXml() // updates last game name to prefix with #ICON169
+        private async Task AddCBPXml()
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(playerProfile);
@@ -3539,14 +3549,14 @@ namespace CBPLauncher.Logic
         }
 
         // section for the dynamic help.xml text
-        private async Task GenerateDynamicHelpText()
+        private async Task GenerateDynamicHelpText(string targetHelpXmlPath)
         {
-            if (Properties.Settings.Default.UseSecondaryFileList && CheckIfCBPFile(helpXMLOrig))//helpXMLOrig is just /Rise of Nations/Data/help.xml, not necessarily *actually* original ever since bark/trireme changes
+            if (Properties.Settings.Default.UseSecondaryFileList && CheckIfCBPFile(targetHelpXmlPath))//helpXMLOrig is just /Rise of Nations/Data/help.xml, not necessarily *actually* original ever since bark/trireme changes
             {
                 try
                 {
                     XmlDocument doc = new XmlDocument();
-                    doc.Load(helpXMLOrig);
+                    doc.Load(targetHelpXmlPath);
 
                     XmlNode node = doc.SelectSingleNode("ROOT/TOPMENU/ENTRY[@name='cbp_status']");//main menu
                     node.ChildNodes[0].InnerText = GenerateMainMenuText();
@@ -3562,7 +3572,7 @@ namespace CBPLauncher.Logic
                     CBPLogger.GetInstance.Debug("Other readout (1): " + node2.ChildNodes[0].InnerText);
                     CBPLogger.GetInstance.Debug("Other readout (2): " + node3.ChildNodes[0].InnerText);
 
-                    doc.Save(helpXMLOrig);
+                    doc.Save(targetHelpXmlPath);
                 }
                 catch (Exception ex)
                 {
@@ -4023,7 +4033,7 @@ namespace CBPLauncher.Logic
             }
 
             if (Properties.Settings.Default.CBPLoaded)
-                await GenerateDynamicHelpText();
+                await GenerateDynamicHelpText(helpXMLOrig);
         }
 
         private async Task OptionalJamRadar()//counter: 3
@@ -4061,7 +4071,7 @@ namespace CBPLauncher.Logic
             }
 
             if (Properties.Settings.Default.CBPLoaded)
-                await GenerateDynamicHelpText();
+                await GenerateDynamicHelpText(helpXMLOrig);
         }
 
         private async Task OptionalAsianSpy()//counter: 4
@@ -4100,7 +4110,7 @@ namespace CBPLauncher.Logic
             }
 
             if (Properties.Settings.Default.CBPLoaded)
-                await GenerateDynamicHelpText();
+                await GenerateDynamicHelpText(helpXMLOrig);
         }
 
         private async Task OptionalCompleted()
@@ -4126,7 +4136,7 @@ namespace CBPLauncher.Logic
             OptReplacement = null;
 
             if (Properties.Settings.Default.CBPLoaded)
-                await GenerateDynamicHelpText();
+                await GenerateDynamicHelpText(helpXMLOrig);
         }
 
         private async Task PreparePreview(string previewPath)
@@ -5020,13 +5030,14 @@ namespace CBPLauncher.Logic
             if (TabNumber == 4) SpLChecked = true;
         }
 
-        private void InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName)
+        private async Task InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName)
         {
             string folderPath = Path.Combine(workshopPath, parentFolder, subFolderName);
             if (Directory.Exists(folderPath))
-            {
+            {// TODO: if the exe is already present locally, ask user if they want to re-copy files and overwrite the old ones
                 try
                 {
+                    // TODO: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
                     DirectoryCopy(folderPath, RoNPathFinal, true, true);
 
                     string localPatch;
@@ -5078,6 +5089,7 @@ namespace CBPLauncher.Logic
                         if (FileHashMatches(localPatch, hash))
                         {
                             patchHashMatches = true;
+                            break;
                         }
                     }
                     if (!patchHashMatches)
@@ -5105,7 +5117,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void LoadOtherVersion(string exe, LauncherStatus status)
+        private async Task LoadOtherVersion(string exe, LauncherStatus status, string versionTempHardcoded, string filePrefix)
         {
             string exePath = Path.Combine(RoNPathFinal, exe);
 
@@ -5113,6 +5125,19 @@ namespace CBPLauncher.Logic
             {
                 gameExe = exePath;
                 Status = status;
+
+                //TODO read the version file or otherwise extract the version somehow [temporarily semi-hardcoded]
+                VersionTextInstalled = versionTempHardcoded;
+
+                //update the version icon (in lobby name) based on user's setting
+                if (Properties.Settings.Default.AddIconGameName)
+                {
+                    await AddIconGameName();
+                }
+
+                // the update of dynamic text on buttons (e.g., loaded plugins) has to write to a differently-named XML file than before
+                string helpXmlPath = Path.Combine(RoNDataPath, $"{filePrefix}_help.xml");
+                await GenerateDynamicHelpText(helpXmlPath);
             }
             else
             {
@@ -5196,6 +5221,7 @@ namespace CBPLauncher.Logic
         public static string[] versionStart = new string[12] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate "
                                                                , "1.", "2.", "3.", "4.", "5.", "6." // 1.x is 5 in the array (6th value including 0)
                                                                , "Challenger "}; //Challenger is 11 (12th value including 0)
+                                                                // TODO add test branch as 12 (13th value)
         public static string[] versionMiddle = new string[16] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" };
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
         public static string[] versionHotfix = new string[21] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)" // 0-9 respectively
