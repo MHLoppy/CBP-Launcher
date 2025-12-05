@@ -4471,6 +4471,19 @@ namespace CBPLauncher.Logic
             CBPLogger.GetInstance.Info("Default settings manually written.");
         }
 
+        // TODO we could encapsulate settings like this (in a helper class; separate file):
+        /// public static class MySettings
+        /// {
+        /// public static string MySetting
+        ///       {
+        ///           get => Properties.Settings.Default.MySetting;
+        ///           set
+        ///           {
+        ///               Properties.Settings.Default.MySetting = value;
+        ///               Properties.Settings.Default.Save();
+        ///           }
+        ///       }
+        /// }
         private void CBPDefaultCheckbox_Inversion()
         {
             Properties.Settings.Default.DefaultCBP = !Properties.Settings.Default.DefaultCBP;
@@ -5027,9 +5040,9 @@ namespace CBPLauncher.Logic
             SpLChecked = false;
 
             if (TabNumber == 1) SpPNChecked = true;
-            if (TabNumber == 2) SpMMChecked = true;
-            if (TabNumber == 3) SpOChecked = true;
-            if (TabNumber == 4) SpLChecked = true;
+            else if (TabNumber == 2) SpMMChecked = true;
+            else if (TabNumber == 3) SpOChecked = true;
+            else if (TabNumber == 4) SpLChecked = true;
         }
 
         private async Task InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName)
