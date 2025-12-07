@@ -193,7 +193,7 @@
     <value>Unknown error replacing CBP Launcher with new version.</value>
   </data>
   <data name="FirstTimeRun" xml:space="preserve">
-    <value>First time run detected. An artificial delay has been added to messages so that they are easier to read. Afterwards, this will be disabled by default.</value>
+    <value>First time run detected. A delay has been added to messages to make them easier to read. Later, this will be disabled by default.</value>
   </data>
   <data name="FontSize" xml:space="preserve">
     <value>Font Size</value>

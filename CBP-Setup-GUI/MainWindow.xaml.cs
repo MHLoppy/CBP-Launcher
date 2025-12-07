@@ -36,19 +36,13 @@ namespace CBPSetupGUI
         // 4 = Workshop mods folder, but pre-release
 
         private static bool CBPL = false;
-        //private static bool DLLOfferTryAnyway = false;
 
         // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
         private static string CBPLExe = "";
         private static string CBPLExeUpdate = "";
-        ///private static string CBPLDll = "";
-        ///private static string CBPLDllUpdate = "";
 
         private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
         private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
-        ///private static readonly string CBPSExeName = Path.GetFileName(Assembly.GetEntryAssembly().Location); //CBP Setup.exe, only used to make CBPSExe string
-        ///private static readonly string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, CBPSExeName)); //<path>/CBP Setup.exe, used in DllCheck()
-        ///private static readonly string CBPSDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPSetupGUI.Language.dll"));
         
         private static string CBPVersionFile = "";
         private static int CBPVersion = 0;
@@ -70,19 +64,19 @@ namespace CBPSetupGUI
             //MessageBox.Show(netFrameworkVersion);
             
             //step -1: make sure we can actually load the language files
-            await VibeCheck();
+            await CheckForLanguageFiles();
 
-            // Step 0: don't overlap the streams (check if CBPS and CBPL are already running, then check that language dll is up-to-date)
-            await MasculinityCheck();
+            // Step 0: Check if CBPS and CBPL are already running (legacy: then check that language dll is up-to-date)
+            await CheckIfAlreadyRunning();
             //await DllCheck();
             //await DllOffer();
 
             // Step 1: figure out what location exe is running from
-            await WhereTheBloodyHellAreYou();
+            await FindRunningLocation();
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
             await CheckForCBPL();
-            await AutoConsentQuestion();
+            //await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
             await CBPLVersionCheck();
@@ -93,7 +87,7 @@ namespace CBPSetupGUI
             //CBPS exits if CBP Launcher is running
             await Conclusion();
 
-            async Task VibeCheck()
+            async Task CheckForLanguageFiles()
             {
                 try
                 {
@@ -171,7 +165,7 @@ namespace CBPSetupGUI
                 }
             }
 
-            async Task MasculinityCheck()
+            async Task CheckIfAlreadyRunning()
             {
                 // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
                 if (await ProcessCheck(CBPSName, 1) == true)
@@ -188,64 +182,7 @@ namespace CBPSetupGUI
                 }
             }
 
-            /*async Task DllCheck()
-            {
-                try
-                {
-                    var setupVersionShort = FileVersionInfo.GetVersionInfo(CBPSExe);
-                    string setupVersionFull = setupVersionShort.FileVersion;
-
-                    var dllVersionShort = FileVersionInfo.GetVersionInfo(CBPSDll);
-                    string dllVersionFull = dllVersionShort.FileVersion;
-                    await SlowDown();
-
-                    if (setupVersionFull != dllVersionFull)
-                    {
-                        // dll looks old (if it doesn't, it'll just skip to DllOffer()
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DLLDifference;
-                        await SlowDown();
-                        DLLOfferTryAnyway = true;
-                        return;
-
-                        // Since it's supposed to be CBPL's responsibility to keep CBP Setup updated,
-                        // CBP Setup intentionally excludes updating its own language files, and these are assigned to CBPL instead.
-                    }
-                }
-                catch (Exception ex)
-                {
-                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DLLPathError + "\n" + ex;
-                    DLLOfferTryAnyway = true;
-                    await SlowDown();
-                    return;
-                }
-            }
-
-            async Task DllOffer()
-            {
-                if (DLLOfferTryAnyway == true)
-                {
-                    //TODO: allow user to try using existing files
-                    ;
-                    if (MessageBox.Show(CBPSetupGUI.Language.Resources.DLLOfferQuestion, null, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DLLOfferQuestion + CBPSetupGUI.Language.Resources.UserYes;
-                        return;
-                    }
-                    else
-                    {
-                        await DelayedClose(CBPSetupGUI.Language.Resources.DLLOfferQuestion + CBPSetupGUI.Language.Resources.UserNo + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
-                        return;
-                    }
-                }
-                else
-                {
-                    // dll looks good
-                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DLLSame;
-                }
-                await SlowDown();
-            }*/
-
-            async Task WhereTheBloodyHellAreYou()//there's not really anything to run async here
+            async Task FindRunningLocation()//there's not really anything to run async here
             {
                 if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, "riseofnations.exe"))))
                 {
@@ -903,7 +840,7 @@ namespace CBPSetupGUI
             Properties.Settings.Default.FontSizeVisible = false;
             Properties.Settings.Default.FontSize = 12;
             Properties.Settings.Default.Height = 420;
-            Properties.Settings.Default.Width = 600;
+            Properties.Settings.Default.Width = 640;
             Properties.Settings.Default.NeedAskAutoConsent = false;
 
             SaveSettings();

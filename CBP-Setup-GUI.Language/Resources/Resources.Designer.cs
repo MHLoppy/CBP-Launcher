@@ -19,7 +19,7 @@ namespace CBPSetupGUI.Language {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -286,7 +286,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to First time run detected. An artificial delay has been added to messages so that they are easier to read. Afterwards, this will be disabled by default..
+        ///   Looks up a localized string similar to First time run detected. A delay has been added to messages to make them easier to read. Later, this will be disabled by default..
         /// </summary>
         public static string FirstTimeRun {
             get {
