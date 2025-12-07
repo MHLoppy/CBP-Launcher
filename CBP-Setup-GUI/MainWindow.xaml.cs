@@ -32,9 +32,6 @@ namespace CBPSetupGUI
         // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
         private static string CbpLauncherLocalExePath = "";
         private static string CbpLauncherWorkshopExePath = "";
-
-        private static readonly string ThisProcessLocation = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static readonly string ThisProcessName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
         
         private static bool CBPPR = false;//used for debugging
         //private static string netFrameworkVersion => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
@@ -153,7 +150,8 @@ namespace CBPSetupGUI
         async Task CheckIfAlreadyRunning()
         {
             // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
-            if (await ProcessCheck(ThisProcessName, 1) == true)
+            string thisProcessName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
+            if (await ProcessCheck(thisProcessName, 1) == true)
             {
                 MessageBox.Show(LangRes.ErrorAlreadyRunning);
                 await DelayedClose(LangRes.ErrorAlreadyRunning + "\n" + LangRes.WindowWillClose, 1056);
@@ -169,26 +167,27 @@ namespace CBPSetupGUI
 
         async Task<int> FindRunningLocation()//there's not really anything to run async here
         {
+            string thisProcessLocation = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
             // RoN root folder
-            if (File.Exists(Path.GetFullPath(Path.Combine(ThisProcessLocation, "riseofnations.exe"))))
+            if (File.Exists(Path.GetFullPath(Path.Combine(thisProcessLocation, "riseofnations.exe"))))
             {
                 return 1;
             }
 
             // workshop mods folder
-            else if (Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\", "2287791153")) == ThisProcessLocation)
+            else if (Path.GetFullPath(Path.Combine(thisProcessLocation, @"..\", "2287791153")) == thisProcessLocation)
             {
                 return 2;
             }
 
             // local mods folder
-            else if (File.Exists(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\", "mod-status.txt"))))
+            else if (File.Exists(Path.GetFullPath(Path.Combine(thisProcessLocation, @"..\", "mod-status.txt"))))
             {
                 return 3;
             }
 
             // workshop mods folder, but pre-release
-            else if (Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\", "2528425253")) == ThisProcessLocation)
+            else if (Path.GetFullPath(Path.Combine(thisProcessLocation, @"..\", "2528425253")) == thisProcessLocation)
             {
                 return 4;
             }
@@ -203,6 +202,7 @@ namespace CBPSetupGUI
         {
             // change the path it checks based on where it thinks it is
             // pretty sure this isn't a particularly efficient way of doing this, but it shouldn't really matter
+            string thisProcessLocation = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
             switch (location)
             {
                 case 0: // 0 = unknown
@@ -217,8 +217,8 @@ namespace CBPSetupGUI
 
                     try
                     {
-                        CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, "CBPLauncher.exe"));
-                        CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
+                        CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(thisProcessLocation, "CBPLauncher.exe"));
+                        CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(thisProcessLocation, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
                     }
                     catch (Exception ex)
                     {
@@ -243,8 +243,8 @@ namespace CBPSetupGUI
                     try
                     {
                         // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
-                        CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"));
-                        CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, "CBPLauncher.exe"));
+                        CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(thisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"));
+                        CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(thisProcessLocation, "CBPLauncher.exe"));
                     }
 
                     catch (Exception ex)
@@ -264,7 +264,7 @@ namespace CBPSetupGUI
                     }
 
                     await SlowDown();
-                    if (File.Exists(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"))))
+                    if (File.Exists(Path.GetFullPath(Path.Combine(thisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"))))
                     {
                         PrimaryLog.Text += "\n" + LangRes.FoundRootYes;
                         return true;
