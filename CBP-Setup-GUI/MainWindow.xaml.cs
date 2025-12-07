@@ -36,10 +36,7 @@ namespace CBPSetupGUI
         private static readonly string ThisProcessLocation = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
         private static readonly string ThisProcessName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
         
-        private static string CbpVersionFile = "";
-        private static int CbpVersion = 0;
         private static bool CBPPR = false;//used for debugging
-
         //private static string netFrameworkVersion => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 
         private async void Window_ContentRendered(object sender, EventArgs e)
@@ -222,43 +219,6 @@ namespace CBPSetupGUI
                     {
                         CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, "CBPLauncher.exe"));
                         CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
-
-                        // Oct 2021: to be quite honest I'm not really sure why we're checking for CBP version anyway, given that it's CBP Launcher's job (not setup's) to update CBP
-                        // we already read cbpl's version elsewhere, why do we care about CBP version (other than to see if CBP is installed at all)?
-
-                        // check for the version file in the mod-is-loaded location, otherwise check for it in the mod-is-unloaded location
-                        if (File.Exists(Path.Combine(ThisProcessLocation, @"mods\Community Balance Patch\version.txt")))
-                        {
-                            // check if using PR by reading local mods version.txt file and take the last 2 digits; if TryParse fails, its result is false
-                            // this check should only be required for location 1
-                            CbpVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"mods\Community Balance Patch\version.txt")));
-                            string CBPVersionEnd = CbpVersionFile.ToString().Substring(CbpVersionFile.Length - 2);
-
-                            //10 because all the pre-release versions start at x.y.z.11
-                            if (int.TryParse(CBPVersionEnd, out CbpVersion) && CbpVersion > 10)
-                            {
-                                CBPPR = true;//not currently utilised much beyond a sanity check
-                                CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
-                            }
-                        }
-                        else if (File.Exists(Path.Combine(ThisProcessLocation, @"mods\Unloaded Mods\Community Balance Patch\version.txt")))
-                        {
-                            // even if CBP is unloaded, we should still update CBP Launcher, so should continue
-                            CbpVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"mods\Unloaded Mods\Community Balance Patch\version.txt")));
-                            string CBPVersionEnd = CbpVersionFile.ToString().Substring(CbpVersionFile.Length - 2);
-
-                            //10 because all the pre-release versions start at x.y.z.11
-                            if (int.TryParse(CBPVersionEnd, out CbpVersion) && CbpVersion > 10)
-                            {
-                                CBPPR = true;//not currently utilised much beyond a sanity check
-                                CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show(LangRes.CBPVersionFileNotFound);
-                            await DelayedClose(LangRes.CBPVersionFileNotFound + "\n" + LangRes.WindowWillClose, -1);
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -285,7 +245,6 @@ namespace CBPSetupGUI
                         // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
                         CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"));
                         CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, "CBPLauncher.exe"));
-                        CbpVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"Community Balance Patch\version.txt")));
                     }
 
                     catch (Exception ex)
