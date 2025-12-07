@@ -1079,7 +1079,7 @@ namespace CBPLauncher.Logic
 
             try
             {
-                await AskDefaultLauncher();
+                await SetDefaultLauncher();
 
                 await AskDefaultCBP();
 
@@ -4171,7 +4171,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.CBPArchive = true;
             Properties.Settings.Default.UsePrerelease = false;
             Properties.Settings.Default.OldFilesRenamed = false;
-            Properties.Settings.Default.UseDefaultLauncher = true;
+            Properties.Settings.Default.UseDefaultLauncher = false;
             Properties.Settings.Default.SkinSpV1 = false;
             Properties.Settings.Default.DefaultLauncherAnswered = false;
             Properties.Settings.Default.UsePrimaryFileList = true;
@@ -4398,30 +4398,16 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task AskDefaultLauncher()
+        private async Task SetDefaultLauncher()
         {
             if (Properties.Settings.Default.DefaultLauncherAnswered == false)
             {
-                string message = $"CBP Launcher can quickly patch and unpatch RoN:EE, so that you can switch between versions easily if you want to. Do you want CBP Launcher to replace the default launcher?"
-                    + "\n\n(This option can be changed at any time)";
-
-                if (MessageBox.Show(message, "Default to CBP Launcher?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    Properties.Settings.Default.DefaultLauncherAnswered = true;
-                    Properties.Settings.Default.UseDefaultLauncher = false;
-                    UseDefaultLauncherCheckbox = false;
-                    SaveSettings();
-                    await ReplaceRestoreDefaultLauncher();
-                    CBPLogger.GetInstance.Info("Using CBP Launcher.");
-                }
-                else
-                {
-                    Properties.Settings.Default.DefaultLauncherAnswered = true;
-                    Properties.Settings.Default.UseDefaultLauncher = true;
-                    UseDefaultLauncherCheckbox = true;
-                    SaveSettings();
-                    CBPLogger.GetInstance.Info("Using default launcher.");
-                }
+                Properties.Settings.Default.DefaultLauncherAnswered = true;
+                Properties.Settings.Default.UseDefaultLauncher = false;
+                UseDefaultLauncherCheckbox = false;
+                SaveSettings();
+                await ReplaceRestoreDefaultLauncher();
+                CBPLogger.GetInstance.Info("First time setup: Defaulting to CBP Launcher.");
             }
         }
 
