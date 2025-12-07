@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using static CBPSetupGUI.App;//for SetLanguageDictionary, used for the English override
+using LangRes = CBPSetupGUI.Language.Resources;
 
 namespace CBPSetupGUI
 {
@@ -81,11 +82,11 @@ namespace CBPSetupGUI
                 {
                     if (LangFallback == true)
                     {
-                        PrimaryLog.Text += CBPSetupGUI.Language.Resources.UsingFallbackLanguage + "\n";
+                        PrimaryLog.Text += LangRes.UsingFallbackLanguage + "\n";
                         await SlowDown();
                     }
 
-                    PrimaryLog.Text += CBPSetupGUI.Language.Resources.StartupLanguageDetected + " " + CBPSetupGUI.Language.Resources.FontSizeNotice;
+                    PrimaryLog.Text += LangRes.StartupLanguageDetected + " " + LangRes.FontSizeNotice;
                 }
                 catch (Exception ex)
                 {
@@ -141,14 +142,14 @@ namespace CBPSetupGUI
                     }
                 }
                 await SlowDown();
-                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartupMessage + "\n";
+                PrimaryLog.Text += "\n" + LangRes.StartupMessage + "\n";
                 await SlowDown();
 
                 // that extra delay at the start of this bit is mostly for non-English since their language string is slightly longer
                 if (Properties.Settings.Default.FirstTimeRun == true)
                 {
                     await SlowDown();
-                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FirstTimeRun + "\n";
+                    PrimaryLog.Text += "\n" + LangRes.FirstTimeRun + "\n";
                     await SlowDown();
                 }
             }
@@ -158,14 +159,14 @@ namespace CBPSetupGUI
                 // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
                 if (await ProcessCheck(CBPSName, 1) == true)
                 {
-                    MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning);
-                    await DelayedClose(CBPSetupGUI.Language.Resources.ErrorAlreadyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
+                    MessageBox.Show(LangRes.ErrorAlreadyRunning);
+                    await DelayedClose(LangRes.ErrorAlreadyRunning + "\n" + LangRes.WindowWillClose, 1056);
                     return;
                 }
                 if (await ProcessCheck("CBPLauncher", 1) == true)
                 {
-                    MessageBox.Show(CBPSetupGUI.Language.Resources.CBPLCurrentlyRunning);
-                    await DelayedClose(CBPSetupGUI.Language.Resources.CBPLCurrentlyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 1056);
+                    MessageBox.Show(LangRes.CBPLCurrentlyRunning);
+                    await DelayedClose(LangRes.CBPLCurrentlyRunning + "\n" + LangRes.WindowWillClose, 1056);
                     return;
                 }
             }
@@ -210,13 +211,13 @@ namespace CBPSetupGUI
                 {
                     case 0: // 0 = unknown
 
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.LocationCase0);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.LocationCase0 + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 3);
+                        MessageBox.Show(LangRes.LocationCase0);
+                        await DelayedClose(LangRes.LocationCase0 + "\n" + LangRes.WindowWillClose, 3);
                         break;
 
                     case 1: // 1 = RoN root folder
 
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase1;
+                        PrimaryLog.Text += "\n" + LangRes.LocationCase1;
 
                         try
                         {
@@ -256,25 +257,25 @@ namespace CBPSetupGUI
                             }
                             else
                             {
-                                MessageBox.Show(CBPSetupGUI.Language.Resources.CBPVersionFileNotFound);
-                                await DelayedClose(CBPSetupGUI.Language.Resources.CBPVersionFileNotFound + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                                MessageBox.Show(LangRes.CBPVersionFileNotFound);
+                                await DelayedClose(LangRes.CBPVersionFileNotFound + "\n" + LangRes.WindowWillClose, -1);
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show(CBPSetupGUI.Language.Resources.LocationPathError);
-                            await DelayedClose(CBPSetupGUI.Language.Resources.LocationPathError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 3);
+                            MessageBox.Show(LangRes.LocationPathError);
+                            await DelayedClose(LangRes.LocationPathError + "\n" + ex + "\n" + LangRes.WindowWillClose, 3);
                         }
                         await SlowDown();
 
                         if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBPLauncher.exe"))))
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
+                            PrimaryLog.Text += "\n" + LangRes.FoundRootYes;
                             CBPL = true;
                         }
                         else
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootNo;
+                            PrimaryLog.Text += "\n" + LangRes.FoundRootNo;
                             CBPL = false;
                         }
                         break;
@@ -295,30 +296,30 @@ namespace CBPSetupGUI
 
                         catch (Exception ex)
                         {
-                            MessageBox.Show(CBPSetupGUI.Language.Resources.LocationPathError);
-                            await DelayedClose(CBPSetupGUI.Language.Resources.LocationPathError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 3);
+                            MessageBox.Show(LangRes.LocationPathError);
+                            await DelayedClose(LangRes.LocationPathError + "\n" + ex + "\n" + LangRes.WindowWillClose, 3);
                         }
                         await SlowDown();
 
                         if (location == 2)
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase2;
+                            PrimaryLog.Text += "\n" + LangRes.LocationCase2;
                         }
 
                         if (location == 4)
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase4;
+                            PrimaryLog.Text += "\n" + LangRes.LocationCase4;
                         }
 
                         await SlowDown();
                         if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"))))
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
+                            PrimaryLog.Text += "\n" + LangRes.FoundRootYes;
                             CBPL = true;
                         }
                         else
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootNo;
+                            PrimaryLog.Text += "\n" + LangRes.FoundRootNo;
                             CBPL = false;
                         }
                         break;
@@ -326,8 +327,8 @@ namespace CBPSetupGUI
                     case 3: // 3 = local mods folder
                     default:
                         await SlowDown();
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.LocationCaseDefault);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.LocationCaseDefault + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        MessageBox.Show(LangRes.LocationCaseDefault);
+                        await DelayedClose(LangRes.LocationCaseDefault + "\n" + LangRes.WindowWillClose, -1);
                         break;
                 }
             }
@@ -336,7 +337,7 @@ namespace CBPSetupGUI
             {
                 if (Properties.Settings.Default.NeedAskAutoConsent == true)
                 {
-                    if (MessageBox.Show(CBPSetupGUI.Language.Resources.DoYouWantAutoConsent, CBPSetupGUI.Language.Resources.DoYouWantACTitle, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    if (MessageBox.Show(LangRes.DoYouWantAutoConsent, LangRes.DoYouWantACTitle, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         Properties.Settings.Default.AutoConsent = true;
 
                     Properties.Settings.Default.NeedAskAutoConsent = false;
@@ -363,7 +364,7 @@ namespace CBPSetupGUI
 
                         if (newVersionFull == oldVersionFull)
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckSame;
+                            PrimaryLog.Text += "\n" + LangRes.VersionCheckSame;
                             return;
                         }
                         else
@@ -371,21 +372,21 @@ namespace CBPSetupGUI
                             //ask user if it's okay to update [can autoconsent]
                             if (Properties.Settings.Default.AutoConsent == false)
                             {
-                                if (MessageBox.Show(CBPSetupGUI.Language.Resources.VersionCheckDifferent, CBPSetupGUI.Language.Resources.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                if (MessageBox.Show(LangRes.VersionCheckDifferent, LangRes.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                 {
-                                    PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckDifferent + CBPSetupGUI.Language.Resources.ConsentYes;
+                                    PrimaryLog.Text += "\n" + LangRes.VersionCheckDifferent + LangRes.ConsentYes;
                                     await UpdateCBPL();
                                     return;
                                 }
                                 else
                                 {
-                                    await DelayedClose(CBPSetupGUI.Language.Resources.VersionCheckDifferent + CBPSetupGUI.Language.Resources.ConsentNo + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                                    await DelayedClose(LangRes.VersionCheckDifferent + LangRes.ConsentNo + "\n" + LangRes.WindowWillClose, 0);
                                     return;
                                 }
                             }
                             else
                             {
-                                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.VersionCheckDifferent + CBPSetupGUI.Language.Resources.ConsentIsCool;
+                                PrimaryLog.Text += "\n" + LangRes.VersionCheckDifferent + LangRes.ConsentIsCool;
                                 await UpdateCBPL();
                                 return;
                             }
@@ -393,8 +394,8 @@ namespace CBPSetupGUI
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.VersionCheckFail);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.VersionCheckFail + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        MessageBox.Show(LangRes.VersionCheckFail);
+                        await DelayedClose(LangRes.VersionCheckFail + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                         return;
                     }
                 }
@@ -405,21 +406,21 @@ namespace CBPSetupGUI
                     // ask user if it's okay to copy CBPL to RoN folder [can autoconsent]
                     if (Properties.Settings.Default.AutoConsent == false)
                     {
-                        if (MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootConsent, CBPSetupGUI.Language.Resources.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        if (MessageBox.Show(LangRes.CopyToRootConsent, LangRes.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.CopyToRootConsent + CBPSetupGUI.Language.Resources.ConsentYes;
+                            PrimaryLog.Text += "\n" + LangRes.CopyToRootConsent + LangRes.ConsentYes;
                             await CopyToRoot();
                             return;
                         }
                         else
                         {
-                            await DelayedClose(CBPSetupGUI.Language.Resources.CopyToRootConsent + CBPSetupGUI.Language.Resources.ConsentNo + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                            await DelayedClose(LangRes.CopyToRootConsent + LangRes.ConsentNo + "\n" + LangRes.WindowWillClose, 0);
                             return;
                         }
                     }
                     else
                     {
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.CopyToRootConsent + CBPSetupGUI.Language.Resources.ConsentIsCool;
+                        PrimaryLog.Text += "\n" + LangRes.CopyToRootConsent + LangRes.ConsentIsCool;
                         await CopyToRoot();
                         return;
                     }
@@ -429,7 +430,7 @@ namespace CBPSetupGUI
             async Task StartCBPL()
             {
                 await SlowDown();
-                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPL;
+                PrimaryLog.Text += "\n" + LangRes.StartCBPL;
                 await SlowDown();
                 FirstTimeSlow();
 
@@ -438,28 +439,28 @@ namespace CBPSetupGUI
                     //ask user if it's okay to run CBP Launcher [can autoconsent]
                     if (Properties.Settings.Default.AutoConsent == false)
                     {
-                        if (MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLConsent, CBPSetupGUI.Language.Resources.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        if (MessageBox.Show(LangRes.StartCBPLConsent, LangRes.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                         {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPLConsent + CBPSetupGUI.Language.Resources.ConsentYes;
+                            PrimaryLog.Text += "\n" + LangRes.StartCBPLConsent + LangRes.ConsentYes;
                             await StartCBPLProcess();
                             return;
                         }
                         else
                         {
-                            await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLConsent + CBPSetupGUI.Language.Resources.ConsentNo + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                            await DelayedClose(LangRes.StartCBPLConsent + LangRes.ConsentNo + "\n" + LangRes.WindowWillClose, 0);
                             return;
                         }
                     }
                     else
                     {
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.StartCBPLConsent + CBPSetupGUI.Language.Resources.ConsentIsCool;
+                        PrimaryLog.Text += "\n" + LangRes.StartCBPLConsent + LangRes.ConsentIsCool;
                         await StartCBPLProcess();
                         return;
                     }
                 }
                 else
                 {
-                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLAlreadyRunning + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    await DelayedClose(LangRes.StartCBPLAlreadyRunning + "\n" + LangRes.WindowWillClose, -1);
                     return;
                 }
 
@@ -474,18 +475,18 @@ namespace CBPSetupGUI
                     await Delay(3200);
                     if (await ProcessCheck("CBPLauncher", 0) == false)
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLFail);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLFail + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        MessageBox.Show(LangRes.StartCBPLFail);
+                        await DelayedClose(LangRes.StartCBPLFail + "\n" + LangRes.WindowWillClose, -1);
                         return;
                     }
                     //no need for the slowdown since the delay is already long
-                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLSuccess + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                    await DelayedClose(LangRes.StartCBPLSuccess + "\n" + LangRes.WindowWillClose, 0);
                     return;
                 }
                 else
                 {
                     await SlowDown();
-                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLSuccess + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 0);
+                    await DelayedClose(LangRes.StartCBPLSuccess + "\n" + LangRes.WindowWillClose, 0);
                     return;
                 }
             }
@@ -530,38 +531,38 @@ namespace CBPSetupGUI
                     await SlowDown();
                     try
                     {
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.OldVersionRestore;
+                        PrimaryLog.Text += "\n" + LangRes.OldVersionRestore;
                         File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
                         ///File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
                     }
                     catch (Exception ex2)
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.OldVersionRestoreError);
-                        PrimaryLog.Text += CBPSetupGUI.Language.Resources.OldVersionRestoreError + "\n" + ex2;
+                        MessageBox.Show(LangRes.OldVersionRestoreError);
+                        PrimaryLog.Text += LangRes.OldVersionRestoreError + "\n" + ex2;
                     }
 
                     if (ex is UnauthorizedAccessException)
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorPermissions);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorPermissions + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        MessageBox.Show(LangRes.ErrorPermissions);
+                        await DelayedClose(LangRes.ErrorPermissions + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                     }
                     if (ex is FileNotFoundException)
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorFileNotFound);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorFileNotFound + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        MessageBox.Show(LangRes.ErrorFileNotFound);
+                        await DelayedClose(LangRes.ErrorFileNotFound + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                     }
                     if (ex is IOException)
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorIO);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorIO + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        MessageBox.Show(LangRes.ErrorIO);
+                        await DelayedClose(LangRes.ErrorIO + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                     }
                     else
                     {
-                        MessageBox.Show(CBPSetupGUI.Language.Resources.ErrorUnknown);
-                        await DelayedClose(CBPSetupGUI.Language.Resources.ErrorUnknown + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                        MessageBox.Show(LangRes.ErrorUnknown);
+                        await DelayedClose(LangRes.ErrorUnknown + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                     }
                 }
-                PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.DeletingFiles;
+                PrimaryLog.Text += "\n" + LangRes.DeletingFiles;
 
                 try
                 {
@@ -571,8 +572,8 @@ namespace CBPSetupGUI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(CBPSetupGUI.Language.Resources.DeletingFilesError);
-                    await DelayedClose(CBPSetupGUI.Language.Resources.DeletingFilesError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    MessageBox.Show(LangRes.DeletingFilesError);
+                    await DelayedClose(LangRes.DeletingFilesError + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                 }
             }
 
@@ -589,8 +590,8 @@ namespace CBPSetupGUI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(CBPSetupGUI.Language.Resources.StartCBPLProblem);
-                    await DelayedClose(CBPSetupGUI.Language.Resources.StartCBPLProblem + "\n" + ex, -1);
+                    MessageBox.Show(LangRes.StartCBPLProblem);
+                    await DelayedClose(LangRes.StartCBPLProblem + "\n" + ex, -1);
                 }
             }
 
@@ -602,8 +603,8 @@ namespace CBPSetupGUI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(CBPSetupGUI.Language.Resources.CopyToRootError);
-                    await DelayedClose(CBPSetupGUI.Language.Resources.CopyToRootError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, -1);
+                    MessageBox.Show(LangRes.CopyToRootError);
+                    await DelayedClose(LangRes.CopyToRootError + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                     return;
                 }
             }
@@ -762,7 +763,7 @@ namespace CBPSetupGUI
             // neither does the grid height????
             SaveSettings();
 
-            MessageBox.Show(CBPSetupGUI.Language.Resources.SettingResetSuccess);
+            MessageBox.Show(LangRes.SettingResetSuccess);
         }
 
         private void ReplacementSettingsReset()
