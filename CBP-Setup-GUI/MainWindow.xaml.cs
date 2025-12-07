@@ -60,10 +60,10 @@ namespace CBPSetupGUI
             //await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
-            await CBPLVersionCheck(found);
+            await KeepCbpLauncherUpdated(found);
 
             // Step 4: launch CBP launcher
-            await StartCBPL();
+            await StartCbpLauncher();
 
             //CBPS exits if CBP Launcher is running
             await Conclusion();
@@ -76,7 +76,7 @@ namespace CBPSetupGUI
                 if (LangFallback == true)
                 {
                     PrimaryLog.Text += LangRes.UsingFallbackLanguage + "\n";
-                    await SlowDown();
+                    await ArtificialDelay();
                 }
 
                 PrimaryLog.Text += LangRes.StartupLanguageDetected + " " + LangRes.FontSizeNotice;
@@ -134,16 +134,16 @@ namespace CBPSetupGUI
                         break;
                 }
             }
-            await SlowDown();
+            await ArtificialDelay();
             PrimaryLog.Text += "\n" + LangRes.StartupMessage + "\n";
-            await SlowDown();
+            await ArtificialDelay();
 
             // that extra delay at the start of this bit is mostly for non-English since their language string is slightly longer
             if (Properties.Settings.Default.FirstTimeRun == true)
             {
-                await SlowDown();
+                await ArtificialDelay();
                 PrimaryLog.Text += "\n" + LangRes.FirstTimeRun + "\n";
-                await SlowDown();
+                await ArtificialDelay();
             }
         }
 
@@ -225,7 +225,7 @@ namespace CBPSetupGUI
                         MessageBox.Show(LangRes.LocationPathError);
                         await DelayedClose(LangRes.LocationPathError + "\n" + ex + "\n" + LangRes.WindowWillClose, 3);
                     }
-                    await SlowDown();
+                    await ArtificialDelay();
 
                     if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBPLauncher.exe"))))
                     {
@@ -252,7 +252,7 @@ namespace CBPSetupGUI
                         MessageBox.Show(LangRes.LocationPathError);
                         await DelayedClose(LangRes.LocationPathError + "\n" + ex + "\n" + LangRes.WindowWillClose, 3);
                     }
-                    await SlowDown();
+                    await ArtificialDelay();
 
                     if (location == 2)
                     {
@@ -263,7 +263,7 @@ namespace CBPSetupGUI
                         PrimaryLog.Text += "\n" + LangRes.LocationCase4;
                     }
 
-                    await SlowDown();
+                    await ArtificialDelay();
                     if (File.Exists(Path.GetFullPath(Path.Combine(thisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"))))
                     {
                         PrimaryLog.Text += "\n" + LangRes.FoundRootYes;
@@ -277,7 +277,7 @@ namespace CBPSetupGUI
 
                 case 3: // 3 = local mods folder [no longer a supported location]
                 default:
-                    await SlowDown();
+                    await ArtificialDelay();
                     MessageBox.Show(LangRes.LocationCaseDefault);
                     await DelayedClose(LangRes.LocationCaseDefault + "\n" + LangRes.WindowWillClose, -1);
                     break;
@@ -296,10 +296,10 @@ namespace CBPSetupGUI
                 SaveSettings();
             }
 
-            await SlowDown();
+            await ArtificialDelay();
         }
 
-        async Task CBPLVersionCheck(bool launcherFound)
+        async Task KeepCbpLauncherUpdated(bool launcherFound)
         {
             if (launcherFound)
             {
@@ -312,7 +312,7 @@ namespace CBPSetupGUI
                     var oldVersionShort = FileVersionInfo.GetVersionInfo(CbpLauncherLocalExePath);
                     string oldVersionFull = oldVersionShort.FileVersion;
 
-                    await SlowDown();
+                    await ArtificialDelay();
 
                     if (newVersionFull == oldVersionFull)
                     {
@@ -327,7 +327,7 @@ namespace CBPSetupGUI
                             if (MessageBox.Show(LangRes.VersionCheckDifferent, LangRes.ConsentNeeded, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                             {
                                 PrimaryLog.Text += "\n" + LangRes.VersionCheckDifferent + LangRes.ConsentYes;
-                                await UpdateCBPL();
+                                await UpdateCbpLauncher();
                                 return;
                             }
                             else
@@ -339,7 +339,7 @@ namespace CBPSetupGUI
                         else
                         {
                             PrimaryLog.Text += "\n" + LangRes.VersionCheckDifferent + LangRes.ConsentIsCool;
-                            await UpdateCBPL();
+                            await UpdateCbpLauncher();
                             return;
                         }
                     }
@@ -353,7 +353,7 @@ namespace CBPSetupGUI
             }
             else
             {
-                await SlowDown();
+                await ArtificialDelay();
 
                 // ask user if it's okay to copy CBPL to RoN folder [can autoconsent]
                 if (Properties.Settings.Default.AutoConsent == false)
@@ -379,11 +379,11 @@ namespace CBPSetupGUI
             }
         }
 
-        async Task StartCBPL()
+        async Task StartCbpLauncher()
         {
-            await SlowDown();
+            await ArtificialDelay();
             PrimaryLog.Text += "\n" + LangRes.StartCBPL;
-            await SlowDown();
+            await ArtificialDelay();
             FirstTimeSlow();
 
             if (await ProcessCheck("CBPLauncher", 0) == false)
@@ -437,7 +437,7 @@ namespace CBPSetupGUI
             }
             else
             {
-                await SlowDown();
+                await ArtificialDelay();
                 await DelayedClose(LangRes.StartCBPLSuccess + "\n" + LangRes.WindowWillClose, 0);
                 return;
             }
@@ -457,7 +457,7 @@ namespace CBPSetupGUI
             await pause;
         }
 
-        async Task SlowDown()
+        async Task ArtificialDelay()
         {
             if (Properties.Settings.Default.SlowMode == true || Properties.Settings.Default.FirstTimeRun == true)
             {
@@ -470,7 +470,7 @@ namespace CBPSetupGUI
             return Process.GetProcessesByName(processName).Length > qty;
         }
 
-        async Task UpdateCBPL()
+        async Task UpdateCbpLauncher()
         {
             try
             {
@@ -480,7 +480,7 @@ namespace CBPSetupGUI
             }
             catch (Exception ex)
             {
-                await SlowDown();
+                await ArtificialDelay();
                 try
                 {
                     PrimaryLog.Text += "\n" + LangRes.OldVersionRestore;
@@ -520,7 +520,7 @@ namespace CBPSetupGUI
             {
                 //if copy is successful, don't need the old versions anymore
                 File.Delete(Path.Combine(CbpLauncherLocalExePath + "old"));
-                await SlowDown();
+                await ArtificialDelay();
             }
             catch (Exception ex)
             {
