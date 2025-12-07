@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using static CBPSetupGUI.App;//for SetLanguageDictionary, used for the English override
-using LangRes = CBPSetupGUI.Language.Resources;
+using LangRes = CBPSetupGUI.Language.Resources; // ease-of-use alias (apparently no performance overhead / penalty to do this)
 
 namespace CBPSetupGUI
 {
@@ -29,17 +29,15 @@ namespace CBPSetupGUI
             DefaultChecker();
         }
 
-        private static bool CBPL = false;
-
         // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
-        private static string CBPLExe = "";
-        private static string CBPLExeUpdate = "";
+        private static string CbpLauncherLocalExePath = "";
+        private static string CbpLauncherWorkshopExePath = "";
 
-        private static readonly string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static readonly string CBPSName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
+        private static readonly string ThisProcessLocation = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
+        private static readonly string ThisProcessName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
         
-        private static string CBPVersionFile = "";
-        private static int CBPVersion = 0;
+        private static string CbpVersionFile = "";
+        private static int CbpVersion = 0;
         private static bool CBPPR = false;//used for debugging
 
         //private static string netFrameworkVersion => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
@@ -64,11 +62,11 @@ namespace CBPSetupGUI
             int runningLocation = await FindRunningLocation();
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
-            await CheckForCBPL(runningLocation);
+            bool found = await CbpLauncherFound(runningLocation);
             await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
-            await CBPLVersionCheck();
+            await CBPLVersionCheck(found);
 
             // Step 4: launch CBP launcher
             await StartCBPL();
@@ -158,7 +156,7 @@ namespace CBPSetupGUI
         async Task CheckIfAlreadyRunning()
         {
             // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
-            if (await ProcessCheck(CBPSName, 1) == true)
+            if (await ProcessCheck(ThisProcessName, 1) == true)
             {
                 MessageBox.Show(LangRes.ErrorAlreadyRunning);
                 await DelayedClose(LangRes.ErrorAlreadyRunning + "\n" + LangRes.WindowWillClose, 1056);
@@ -175,25 +173,25 @@ namespace CBPSetupGUI
         async Task<int> FindRunningLocation()//there's not really anything to run async here
         {
             // RoN root folder
-            if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, "riseofnations.exe"))))
+            if (File.Exists(Path.GetFullPath(Path.Combine(ThisProcessLocation, "riseofnations.exe"))))
             {
                 return 1;
             }
 
             // workshop mods folder
-            else if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2287791153")) == CBPSFolder)
+            else if (Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\", "2287791153")) == ThisProcessLocation)
             {
                 return 2;
             }
 
             // local mods folder
-            else if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "mod-status.txt"))))
+            else if (File.Exists(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\", "mod-status.txt"))))
             {
                 return 3;
             }
 
             // workshop mods folder, but pre-release
-            else if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2528425253")) == CBPSFolder)
+            else if (Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\", "2528425253")) == ThisProcessLocation)
             {
                 return 4;
             }
@@ -204,7 +202,7 @@ namespace CBPSetupGUI
 
         // condenses multiple steps into one; slightly harder to read but easier to make for me /shrug
         // just remember that each of the paths are heavily duplicated (but I don't think it's worth the trouble of making more sophisticated logic to avoid it right now)
-        async Task CheckForCBPL(int location)
+        async Task<bool> CbpLauncherFound(int location)
         {
             // change the path it checks based on where it thinks it is
             // pretty sure this isn't a particularly efficient way of doing this, but it shouldn't really matter
@@ -222,38 +220,38 @@ namespace CBPSetupGUI
 
                     try
                     {
-                        CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPLauncher.exe"));
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
+                        CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, "CBPLauncher.exe"));
+                        CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
 
                         // Oct 2021: to be quite honest I'm not really sure why we're checking for CBP version anyway, given that it's CBP Launcher's job (not setup's) to update CBP
                         // we already read cbpl's version elsewhere, why do we care about CBP version (other than to see if CBP is installed at all)?
 
                         // check for the version file in the mod-is-loaded location, otherwise check for it in the mod-is-unloaded location
-                        if (File.Exists(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")))
+                        if (File.Exists(Path.Combine(ThisProcessLocation, @"mods\Community Balance Patch\version.txt")))
                         {
                             // check if using PR by reading local mods version.txt file and take the last 2 digits; if TryParse fails, its result is false
                             // this check should only be required for location 1
-                            CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Community Balance Patch\version.txt")));
-                            string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
+                            CbpVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"mods\Community Balance Patch\version.txt")));
+                            string CBPVersionEnd = CbpVersionFile.ToString().Substring(CbpVersionFile.Length - 2);
 
                             //10 because all the pre-release versions start at x.y.z.11
-                            if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
+                            if (int.TryParse(CBPVersionEnd, out CbpVersion) && CbpVersion > 10)
                             {
                                 CBPPR = true;//not currently utilised much beyond a sanity check
-                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
+                                CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
                             }
                         }
-                        else if (File.Exists(Path.Combine(CBPSFolder, @"mods\Unloaded Mods\Community Balance Patch\version.txt")))
+                        else if (File.Exists(Path.Combine(ThisProcessLocation, @"mods\Unloaded Mods\Community Balance Patch\version.txt")))
                         {
                             // even if CBP is unloaded, we should still update CBP Launcher, so should continue
-                            CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"mods\Unloaded Mods\Community Balance Patch\version.txt")));
-                            string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
+                            CbpVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"mods\Unloaded Mods\Community Balance Patch\version.txt")));
+                            string CBPVersionEnd = CbpVersionFile.ToString().Substring(CbpVersionFile.Length - 2);
 
                             //10 because all the pre-release versions start at x.y.z.11
-                            if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
+                            if (int.TryParse(CBPVersionEnd, out CbpVersion) && CbpVersion > 10)
                             {
                                 CBPPR = true;//not currently utilised much beyond a sanity check
-                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
+                                CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
                             }
                         }
                         else
@@ -272,27 +270,22 @@ namespace CBPSetupGUI
                     if (File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CBPLauncher.exe"))))
                     {
                         PrimaryLog.Text += "\n" + LangRes.FoundRootYes;
-                        CBPL = true;
+                        return true;
                     }
                     else
                     {
                         PrimaryLog.Text += "\n" + LangRes.FoundRootNo;
-                        CBPL = false;
+                        return false;
                     }
-                    break;
 
                 case int _ when (location == 2 || location == 4):
                     // 2 = Workshop mods folder (where we expect it to be the first time); 4 is pre-release
                     try
                     {
-                        CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"));
-                        ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
-
                         // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
-                        CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPLauncher.exe"));
-                        ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
-
-                        CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, @"Community Balance Patch\version.txt")));
+                        CbpLauncherLocalExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"));
+                        CbpLauncherWorkshopExePath = Path.GetFullPath(Path.Combine(ThisProcessLocation, "CBPLauncher.exe"));
+                        CbpVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"Community Balance Patch\version.txt")));
                     }
 
                     catch (Exception ex)
@@ -306,32 +299,31 @@ namespace CBPSetupGUI
                     {
                         PrimaryLog.Text += "\n" + LangRes.LocationCase2;
                     }
-
-                    if (location == 4)
+                    else if (location == 4)
                     {
                         PrimaryLog.Text += "\n" + LangRes.LocationCase4;
                     }
 
                     await SlowDown();
-                    if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"))))
+                    if (File.Exists(Path.GetFullPath(Path.Combine(ThisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe"))))
                     {
                         PrimaryLog.Text += "\n" + LangRes.FoundRootYes;
-                        CBPL = true;
+                        return true;
                     }
                     else
                     {
                         PrimaryLog.Text += "\n" + LangRes.FoundRootNo;
-                        CBPL = false;
+                        return false;
                     }
-                    break;
 
-                case 3: // 3 = local mods folder
+                case 3: // 3 = local mods folder [no longer a supported location]
                 default:
                     await SlowDown();
                     MessageBox.Show(LangRes.LocationCaseDefault);
                     await DelayedClose(LangRes.LocationCaseDefault + "\n" + LangRes.WindowWillClose, -1);
                     break;
             }
+            return false; // putting this in cases 0/3/default should be enough, but it's *not*
         }
 
         async Task AutoConsentQuestion()
@@ -348,17 +340,17 @@ namespace CBPSetupGUI
             await SlowDown();
         }
 
-        async Task CBPLVersionCheck()
+        async Task CBPLVersionCheck(bool launcherFound)
         {
-            if (CBPL == true)
+            if (launcherFound)
             {
                 try
                 {
                     //https://stackoverflow.com/questions/11350008/how-to-get-exe-file-version-number-from-file-path/23325102#23325102
-                    var newVersionShort = FileVersionInfo.GetVersionInfo(CBPLExeUpdate);
+                    var newVersionShort = FileVersionInfo.GetVersionInfo(CbpLauncherWorkshopExePath);
                     string newVersionFull = newVersionShort.FileVersion;
 
-                    var oldVersionShort = FileVersionInfo.GetVersionInfo(CBPLExe);
+                    var oldVersionShort = FileVersionInfo.GetVersionInfo(CbpLauncherLocalExePath);
                     string oldVersionFull = oldVersionShort.FileVersion;
 
                     await SlowDown();
@@ -400,7 +392,7 @@ namespace CBPSetupGUI
                     return;
                 }
             }
-            else if (CBPL == false)//reasonably one could expect a bool to never return anything except a true or not-true-therefore-false value, but this is actually a sermon on the world not always being reasonable T_T
+            else
             {
                 await SlowDown();
 
@@ -524,8 +516,8 @@ namespace CBPSetupGUI
             try
             {
                 // instead of deleting the old files, rename them (so that if the copy fails we haven't lost the originals)
-                File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
-                File.Copy(CBPLExeUpdate, CBPLExe);
+                File.Move(CbpLauncherLocalExePath, Path.Combine(CbpLauncherLocalExePath + "old"));
+                File.Copy(CbpLauncherWorkshopExePath, CbpLauncherLocalExePath);
             }
             catch (Exception ex)
             {
@@ -533,7 +525,7 @@ namespace CBPSetupGUI
                 try
                 {
                     PrimaryLog.Text += "\n" + LangRes.OldVersionRestore;
-                    File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
+                    File.Move(Path.Combine(CbpLauncherLocalExePath + "old"), CbpLauncherLocalExePath);
                     ///File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
                 }
                 catch (Exception ex2)
@@ -568,7 +560,7 @@ namespace CBPSetupGUI
             try
             {
                 //if copy is successful, don't need the old versions anymore
-                File.Delete(Path.Combine(CBPLExe + "old"));
+                File.Delete(Path.Combine(CbpLauncherLocalExePath + "old"));
                 await SlowDown();
             }
             catch (Exception ex)
@@ -583,9 +575,9 @@ namespace CBPSetupGUI
             try
             {
                 // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
-                ProcessStartInfo PSI = new ProcessStartInfo(CBPLExe)
+                ProcessStartInfo PSI = new ProcessStartInfo(CbpLauncherLocalExePath)
                 {
-                    WorkingDirectory = Path.GetDirectoryName(CBPLExe)
+                    WorkingDirectory = Path.GetDirectoryName(CbpLauncherLocalExePath)
                 };
                 Process.Start(PSI);
             }
@@ -600,7 +592,7 @@ namespace CBPSetupGUI
         {
             try
             {
-                File.Copy(CBPLExeUpdate, CBPLExe);
+                File.Copy(CbpLauncherWorkshopExePath, CbpLauncherLocalExePath);
             }
             catch (Exception ex)
             {
