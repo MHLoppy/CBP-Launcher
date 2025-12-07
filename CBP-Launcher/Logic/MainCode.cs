@@ -30,9 +30,10 @@ namespace CBPLauncher.Logic
     enum LauncherStatus
     {
         gettingReady,
-        readyCBPEnabled,
-        readyCBPDisabled,
-        readyCBPPREnabled,
+        readyCbpLoaded,
+        readyEeLoaded,
+        readyCbpPrLoaded,
+        readyCbpOldLoaded,
         loadFailed,
         unloadFailed,
         installFailed,
@@ -45,6 +46,8 @@ namespace CBPLauncher.Logic
         installProblem
     }
 
+    //public static 
+
     public class MainCode : ObservableObject
     {
         private string rootPath;
@@ -53,7 +56,7 @@ namespace CBPLauncher.Logic
         private string localMods;
         private string RoNPathFinal;
         private string RoNPathCheck;
-        private string workshopPath;
+        private string RonWorkshopPath;
         private string unloadedModsPath;
         private string RoNDataPath;
         private bool antiSpam = false;
@@ -668,8 +671,9 @@ namespace CBPLauncher.Logic
 
 
         public RelayCommand PlayButtonCommand { get; set; }
-        public RelayCommand LoadCBPCommand { get; set; }
-        public RelayCommand UnloadCBPCommand { get; set; }
+        public RelayCommand LoadCbpCommand { get; set; }
+        public RelayCommand LoadEeCommand { get; set; }
+
 
         public RelayCommand WorkshopCommand { get; set; }
         public RelayCommand GithubCommand { get; set; }
@@ -777,7 +781,7 @@ namespace CBPLauncher.Logic
                         LaunchButtonText = "Launch Game";
                         LaunchEnabled = false;
                         break;
-                    case LauncherStatus.readyCBPEnabled:
+                    case LauncherStatus.readyCbpLoaded:
                         LaunchStatusText = "Ready: CBP enabled";
                         LaunchStatusColor = Brushes.LimeGreen;
                         LaunchButtonText = "Launch Game";
@@ -786,7 +790,7 @@ namespace CBPLauncher.Logic
                         LogoRoNEE = false;
                         LogoCBPPR = false;
                         break;
-                    case LauncherStatus.readyCBPDisabled:
+                    case LauncherStatus.readyEeLoaded:
                         LaunchStatusText = "Ready: CBP disabled";
                         LaunchStatusColor = Brushes.Orange;
                         LaunchButtonText = "Launch Game";
@@ -795,7 +799,7 @@ namespace CBPLauncher.Logic
                         LogoRoNEE = true;
                         LogoCBPPR = false;
                         break;
-                    case LauncherStatus.readyCBPPREnabled:
+                    case LauncherStatus.readyCbpPrLoaded:
                         LaunchStatusText = "Ready: CBP PR enabled";
                         LaunchStatusColor = Brushes.CornflowerBlue;
                         LaunchButtonText = "Launch Game";
@@ -803,6 +807,15 @@ namespace CBPLauncher.Logic
                         LogoCBP = false;
                         LogoRoNEE = false;
                         LogoCBPPR = true;
+                        break;
+                    case LauncherStatus.readyCbpOldLoaded:
+                        LaunchStatusText = "Ready: Old CBP enabled";
+                        LaunchStatusColor = Brushes.CornflowerBlue;
+                        LaunchButtonText = "Launch Game";
+                        LaunchEnabled = true;
+                        LogoCBP = true;
+                        LogoRoNEE = false;
+                        LogoCBPPR = false;
                         break;
                     case LauncherStatus.loadFailed:
                         LaunchStatusText = "Error: unable to load CBP";
@@ -946,19 +959,12 @@ namespace CBPLauncher.Logic
             else
             {
                 //designtime baybeeee
-
-                //to stop strange A N G E R Y VS2019 error messages which don't actually matter
-                CBPFileListAll.Add("uwu");
-
-                //(turns out that didn't stop the messages  n w n
             }
         }
 
-        private DependencyObject dummy = new DependencyObject();
-
         private bool IsInDesignMode()
         {
-            return DesignerProperties.GetIsInDesignMode(dummy);
+            return DesignerProperties.GetIsInDesignMode(new DependencyObject());
         }
 
         private void BigBadWarning()
@@ -1156,7 +1162,7 @@ namespace CBPLauncher.Logic
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
-            /// TODO
+            /// OLD TODO
             /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
             /// (at the moment it just assumes they exist and eventually errors later on if they don't)
 
@@ -1191,7 +1197,7 @@ namespace CBPLauncher.Logic
             try
             {
                 EEPath = RoNPathFinal;
-                WorkshopPathDebug = workshopPath;
+                WorkshopPathDebug = RonWorkshopPath;
                 WorkshopPathCBPDebug = workshopPathCBP;
                 GetLauncherVersion();
 
@@ -1208,7 +1214,7 @@ namespace CBPLauncher.Logic
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
-            // create directories
+            // create directories TODO later: there are a lot of unnecessary steps here now after mod format migration
             try
             {
                 Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
@@ -1249,11 +1255,13 @@ namespace CBPLauncher.Logic
 
             try
             {
-                await AskDefaultLauncher();
+                // Alpha 10: I'm making the executive decision to default to CBP Launcher on an *opt-out* basis now that CBP is well-established
+                await SetDefaultLauncher();
 
-                await AskDefaultCBP();
+                // Alpha 10: This preference is less important now - maybe TODO skip this, default to CBP first time, then remember last-used every time after that?
+                await SetDefaultCBP();
 
-                // TODO: THIS BLOCK WAS COMMENTED OUT WHILE TESTING NOV 2025 UPDATES
+                // TODO: clean up
                 // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
                 //if (Properties.Settings.Default.DefaultCBP == true)
                 //{
@@ -1270,8 +1278,45 @@ namespace CBPLauncher.Logic
                 //        Status = LauncherStatus.readyCBPDisabled;
                 //    }
                 //}
+
+                /// REPLACING THE ABOVE COMMENTED-OUT-BLOCK WITH ALL LINES BELOW:
+                if (Properties.Settings.Default.HasMigratedToNewFormat == false)
+                {
+                    await MigrateToNewCbpFormat();
+                }
+
+                await CheckForAndInstallLatestCbpVersion();
+
+                // Step 2: (re-)load the game version that was last used [temporary scuffed semi-hardcoded implementation] TODO: improve
+                string lastUsed = Properties.Settings.Default.LastUsedGameVersion;
+                CBPLogger.GetInstance.Info($"Attempting to re-load game version: {lastUsed}.");
+                switch (lastUsed)
+                {
+                    case "CBP Latest":
+                        await LoadCbp("CBP_a10", "Community Balance Patch Alpha 10");
+                        break;
+                    case "Default RoN:EE":
+                        await LoadEe();
+                        break;
+                    case "CBP Alpha9d":
+                        await TempLoadA9d();
+                        break;
+                    case "CBP Pre-Release 1":
+                        await TempLoadPR1();
+                        break;
+                    case "CBP Pre-Release 2":
+                        await TempLoadPR2();
+                        break;
+                    case "CBP Pre-Release 3":
+                        await TempLoadPR3();
+                        break;
+                    default:
+                        CBPLogger.GetInstance.Warning("Unhandled version, falling back to CBP Latest.");
+                        await LoadCbp("CBP_a10", "Community Balance Patch Alpha 10");
+                        break;
+                }
             }
-            catch (Exception ex)
+            catch (Exception ex) // TODO later: there are definitely some overlapping try-catch and errors when doing it this godforsaken way
             {
                 MessageBox.Show($"Error with primary (old content_rendered) step: {ex}");
                 CBPLogger.GetInstance.Error($"Error with primary (old content_rendered) step: {ex}");
@@ -1280,16 +1325,17 @@ namespace CBPLauncher.Logic
             }
             //CBPDefaultChecker();
 
-            try
-            {
-                JunePatchCheck();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error checking for June RoN patch: {ex}");
-                CBPLogger.GetInstance.Error($"Error checking for June RoN patch: {ex}");
-                // this isn't essential, so in the unexpected case that this fails but nothing else does (?!?!?) it should be "okay" to continue
-            }
+            // TODO I think this is completely unneeded with new self-contained format now?
+            //try
+            //{
+            //    JunePatchCheck();
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"Error checking for June RoN patch: {ex}");
+            //    CBPLogger.GetInstance.Error($"Error checking for June RoN patch: {ex}");
+            //    // this isn't essential, so in the unexpected case that this fails but nothing else does (?!?!?) it should be "okay" to continue
+            //}
         }
 
         private async Task CreateCommands()
@@ -1427,20 +1473,26 @@ namespace CBPLauncher.Logic
                 await PlayButton_Click();
             });
 
-            LoadCBPCommand = new RelayCommand(async o =>
+            LoadCbpCommand = new RelayCommand(async o =>
             {
+                // TODO later: clean up
                 //await CheckForUpdates();
                 //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
+
+                await LoadCbp("CBP_a10", "Community Balance Patch Alpha 10");
             });
 
-            UnloadCBPCommand = new RelayCommand(async o =>
+            LoadEeCommand = new RelayCommand(async o =>
             {
+                // TODO later: clean up
                 //if (antiSpam == false)
                 //{
                 //    antiSpam = true;
                 //    await UnloadCBP();
                 //}
                 //antiSpam = false;
+
+                await LoadEe();
             });
 
             WorkshopCommand = new RelayCommand(o =>
@@ -1507,61 +1559,44 @@ namespace CBPLauncher.Logic
                 Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2528425253");
             });
 
-            InstallA9dCommand = new RelayCommand(o =>
+            InstallA9dCommand = new RelayCommand(async o =>
             {
-                InstallSelfContainedVersion("2287791153", "Community Balance Patch Alpha9d", "CBPA9D.delta", "riseofnations_CBPA9D.exe");
+                await InstallSelfContainedVersion("2287791153", "Community Balance Patch Alpha9d", "CBPA9D.delta", "riseofnations_CBPA9D.exe");
             });
 
-            LoadA9dCommand = new RelayCommand(o =>
+            LoadA9dCommand = new RelayCommand(async o =>
             {
-                string exe = "riseofnations_CBPa9d.exe";
-                LauncherStatus status = LauncherStatus.readyCBPEnabled;
-                LoadOtherVersion(exe, status, "CBP Alpha 9d", "CBPa9d");
+                TempLoadA9d();
             });
 
-            InstallPR1Command = new RelayCommand(o =>
+            InstallPR1Command = new RelayCommand(async o =>
             {
-                InstallSelfContainedVersion("2528425253", "Community Balance Patch PR1", "CBPPR1.delta", "riseofnations_CBPPR1.exe");
+                await InstallSelfContainedVersion("2528425253", "Community Balance Patch PR1", "CBPPR1.delta", "riseofnations_CBPPR1.exe");
             });
 
-            LoadPR1Command = new RelayCommand(o =>
+            LoadPR1Command = new RelayCommand(async o =>
             {
-                string exe = "riseofnations_CBPPR1.exe";
-                LauncherStatus status = LauncherStatus.readyCBPPREnabled;
-                LoadOtherVersion(exe, status, "CBP Pre-Release 1", "CBPPR1");
-
-                Properties.Settings.Default.UsePrerelease = true;
-                SaveSettings();
+                TempLoadPR1();
             });
 
-            InstallPR2Command = new RelayCommand(o =>
+            InstallPR2Command = new RelayCommand(async o =>
             {
-                InstallSelfContainedVersion("2528425253", "Community Balance Patch PR2", "CBPPR2.delta", "riseofnations_CBPPR2.exe");
+                await InstallSelfContainedVersion("2528425253", "Community Balance Patch PR2", "CBPPR2.delta", "riseofnations_CBPPR2.exe");
             });
 
-            LoadPR2Command = new RelayCommand(o =>
+            LoadPR2Command = new RelayCommand(async o =>
             {
-                string exe = "riseofnations_CBPPR2.exe";
-                LauncherStatus status = LauncherStatus.readyCBPPREnabled;
-                LoadOtherVersion(exe, status, "CBP Pre-Release 2", "CBPPR2");
-
-                Properties.Settings.Default.UsePrerelease = true;
-                SaveSettings();
+                TempLoadPR2();
             });
 
-            InstallPR3Command = new RelayCommand(o =>
+            InstallPR3Command = new RelayCommand(async o =>
             {
-                InstallSelfContainedVersion("2528425253", "Community Balance Patch PR3", "CBPPR3.delta", "riseofnations_CBPPR3.exe");
+                await InstallSelfContainedVersion("2528425253", "Community Balance Patch PR3", "CBPPR3.delta", "riseofnations_CBPPR3.exe");
             });
 
-            LoadPR3Command = new RelayCommand(o =>
+            LoadPR3Command = new RelayCommand(async o =>
             {
-                string exe = "riseofnations_CBPPR3.exe";
-                LauncherStatus status = LauncherStatus.readyCBPPREnabled;
-                LoadOtherVersion(exe, status, "CBP Pre-Release 3", "CBPPR3");
-
-                Properties.Settings.Default.UsePrerelease = true;
-                SaveSettings();
+                TempLoadPR3();
             });
 
             MinimiseCommand = new RelayCommand(o =>
@@ -1877,24 +1912,25 @@ namespace CBPLauncher.Logic
             //MessageBox.Show(RoNPathFinal);
 
             localMods = Path.Combine(RoNPathFinal, "mods");
-            workshopPath = Path.GetFullPath(Path.Combine(RoNPathFinal, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
+            RonWorkshopPath = Path.GetFullPath(Path.Combine(RoNPathFinal, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
 
             modnameCBP = "Community Balance Patch"; // this has to be static, which loses the benefit of having the version display in in-game mod manager, but acceptable because it will display in CBP Launcher instead
 
-            // for testing purposes, access pre-release (of a7)
-            if (Properties.Settings.Default.UsePrerelease == true)
-            {
-                workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-                CBPLogger.GetInstance.Debug("Using pre-release of CBP.");
-            }
-            else
-            {
-                workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-                CBPLogger.GetInstance.Debug("Using non-PR of CBP.");
-            }
-            //workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+            //// for testing purposes, access pre-release (of a7)
+            //if (Properties.Settings.Default.UsePrerelease == true)
+            //{
+            //    workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+            //    CBPLogger.GetInstance.Debug("Using pre-release of CBP.");
+            //}
+            //else
+            //{
+            //    workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+            //    CBPLogger.GetInstance.Debug("Using non-PR of CBP.");
+            //}
+            ////workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
+            workshopIDCBP = "2287791153"; // TODO later: clean up
 
-            workshopPathCBP = Path.Combine(Path.GetFullPath(workshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
+            workshopPathCBP = Path.Combine(Path.GetFullPath(RonWorkshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
             localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
             versionFileCBPLocal = Path.Combine(localPathCBP, "version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
             versionFileCBPWorkshop = Path.Combine(workshopPathCBP, "Community Balance Patch", "version.txt");
@@ -1966,7 +2002,7 @@ namespace CBPLauncher.Logic
                             }
                             await GenerateDynamicHelpText(helpXMLOrig);
 
-                            Status = LauncherStatus.readyCBPEnabled; //if the local version.txt matches the version found in the online file, then no patch required
+                            Status = LauncherStatus.readyCbpLoaded; //if the local version.txt matches the version found in the online file, then no patch required
                             Properties.Settings.Default.CBPLoaded = true;
                             Properties.Settings.Default.CBPUnloaded = false;
                             SaveSettings();
@@ -2777,10 +2813,7 @@ namespace CBPLauncher.Logic
                             // if the local and workshop versions are the same BUT the workshop version is different, then alert the user
                             if ((!localVersion.IsDifferentThan(workshopVersion)) && localVersion.IsDifferentThan(onlineVersion))// I assume it's faster to check this than straight up always-write files
                             {
-                                string newestVersion = VersionArray.versionStart[onlineVersion.major]
-                                                     + VersionArray.versionMiddle[onlineVersion.minor]
-                                                     + VersionArray.versionEnd[onlineVersion.subMinor]
-                                                     + VersionArray.versionHotfix[onlineVersion.hotfix];
+                                string newestVersion = VersionToString(onlineVersion);
 
                                 abortArchive = true;
                                 CBPLogger.GetInstance.Warning("Newer CBP released, but files not downloaded.");
@@ -2884,7 +2917,7 @@ namespace CBPLauncher.Logic
                             Properties.Settings.Default.CBPUnloaded = false;
                             SaveSettings();
 
-                            Status = LauncherStatus.readyCBPEnabled;
+                            Status = LauncherStatus.readyCbpLoaded;
                         }
                         catch (Exception ex)
                         {
@@ -2950,7 +2983,7 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.CBPUnloaded = false;
                     SaveSettings();
 
-                    Status = LauncherStatus.readyCBPEnabled;
+                    Status = LauncherStatus.readyCbpLoaded;
                 }
                 catch (Exception ex)
                 {
@@ -3023,7 +3056,7 @@ namespace CBPLauncher.Logic
 
                 UpdateLocalVersionNumber();
 
-                Status = LauncherStatus.readyCBPEnabled;
+                Status = LauncherStatus.readyCbpLoaded;
                 Properties.Settings.Default.CBPLoaded = true;
                 SaveSettings();
             }
@@ -3078,7 +3111,7 @@ namespace CBPLauncher.Logic
                         SaveSettings();
 
                         VersionTextInstalled = "CBP not loaded";
-                        Status = LauncherStatus.readyCBPDisabled;
+                        Status = LauncherStatus.readyEeLoaded;
                     }
                     else
                     {
@@ -3322,8 +3355,12 @@ namespace CBPLauncher.Logic
                 // if 0, there was no issue
             }
 
-            if (File.Exists(gameExe) && (Status == LauncherStatus.readyCBPEnabled || Status == LauncherStatus.readyCBPDisabled || Status == LauncherStatus.readyCBPPREnabled)) // make sure all "launch" button options are included here
+            if (File.Exists(gameExe) && (Status == LauncherStatus.readyCbpLoaded || Status == LauncherStatus.readyEeLoaded || Status == LauncherStatus.readyCbpPrLoaded || Status == LauncherStatus.readyCbpOldLoaded)) // make sure all "launch" button options are included here
             {
+                Properties.Settings.Default.LastUsedGameVersion = VersionTextInstalled;
+                SaveSettings();
+                CBPLogger.GetInstance.Info($"Last used game version set to {VersionTextInstalled}");
+
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
                 {
                     WorkingDirectory = RoNPathFinal //this change compared to reference app was suggested by VS itself - I'm assuming it's functionally equivalent at worst
@@ -3469,7 +3506,7 @@ namespace CBPLauncher.Logic
 
         private bool CheckCBPXml() // checks if CBP Icon (#ICONxxx) is already present in last game name
         {
-            // TODO: this will need to be updated in future when anything other than mainline and PR are in use
+            // TODO later: this will need to be updated in future when anything other than mainline and PR are in use
             if (Properties.Settings.Default.UsePrerelease)
             {
                 if (gameName.Contains("#ICON170") == true)
@@ -3678,7 +3715,7 @@ namespace CBPLauncher.Logic
 
             foreach (IPluginCBP plugin in pluginList)
             {
-                plugin.DoSomething(workshopPath, localMods);
+                plugin.DoSomething(RonWorkshopPath, localMods);
                 
                 // if plugin is loaded, add title to string for later display in menu status readout
                 if (plugin.CheckIfLoaded())
@@ -4236,8 +4273,8 @@ namespace CBPLauncher.Logic
 
                 foreach (IPluginCBP plugin in pluginList)
                 {
-                    plugin.DoSomething(workshopPath, localMods);
-                    plugin.UpdatePlugin(workshopPath, localMods);
+                    plugin.DoSomething(RonWorkshopPath, localMods);
+                    plugin.UpdatePlugin(RonWorkshopPath, localMods);
                     CBPLogger.GetInstance.Info(plugin.LoadResult);
                     CBPLogger.GetInstance.Info($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
                     CBPLogger.GetInstance.Info("\nPlugin location: " + pluginsPathList[pluginCounter]);
@@ -4275,7 +4312,7 @@ namespace CBPLauncher.Logic
             // (e.g. we know it's D:\Example, but it could be D:\Example\Arb or D:\Example\Arbitrary or both or neither)
             List<IPluginCBP> pluginsList = new List<IPluginCBP>();
 
-            DirectoryInfo di = new DirectoryInfo(workshopPath);
+            DirectoryInfo di = new DirectoryInfo(RonWorkshopPath);
             DirectoryInfo[] diArr = di.GetDirectories();
             foreach (DirectoryInfo dri in diArr)
             {
@@ -4465,13 +4502,15 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.LogKeepNumber = 30;
             Properties.Settings.Default.JunePatchFixApplied = false;
             Properties.Settings.Default.JunePatchHaveRunBefore = false;
+            Properties.Settings.Default.LastUsedGameVersion = "CBP Latest";
+            Properties.Settings.Default.HasMigratedToNewFormat = false;
 
             SaveSettings();
 
             CBPLogger.GetInstance.Info("Default settings manually written.");
         }
 
-        // TODO we could encapsulate settings like this (in a helper class; separate file):
+        // TODO later we could encapsulate settings like this (in a helper class; separate file):
         /// public static class MySettings
         /// {
         /// public static string MySetting
@@ -4612,7 +4651,7 @@ namespace CBPLauncher.Logic
 
                         CBPLogger.GetInstance.Info("Have attempted to restore original launcher.");
                         MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started."
-                            + "To use CBP Launcher again re-check this box or re-run first time setup and then choose the appropriate option(s).");
+                            + "To use CBP Launcher again re-check this box.");
                     }
                     else
                     {
@@ -4675,7 +4714,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task AskDefaultLauncher()
+        private async Task AskDefaultLauncher() // TODO clean up
         {
             if (Properties.Settings.Default.DefaultLauncherAnswered == false)
             {
@@ -4702,7 +4741,20 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task AskDefaultCBP()
+        private async Task SetDefaultLauncher()
+        {
+            if (Properties.Settings.Default.DefaultLauncherAnswered == false)
+            {
+                Properties.Settings.Default.DefaultLauncherAnswered = true;
+                Properties.Settings.Default.UseDefaultLauncher = false;
+                UseDefaultLauncherCheckbox = false;
+                SaveSettings();
+                await ReplaceRestoreDefaultLauncher();
+                CBPLogger.GetInstance.Info("First time setup: Defaulting to CBP Launcher.");
+            }
+        }
+
+        private async Task AskDefaultCBP() // TODO clean up
         {
             if (Properties.Settings.Default.FirstTimeRun == true)//this is a different variable (than some of the existing ones) right now almost purely because of implementation timing regarding bark/trireme etc
             {
@@ -4731,6 +4783,18 @@ namespace CBPLauncher.Logic
                     await UnloadCBP();
                     CBPLogger.GetInstance.Info("Defaulting to non-CBP.");
                 }
+            }
+        }
+
+        private async Task SetDefaultCBP() // TODO clean up
+        {
+            if (Properties.Settings.Default.FirstTimeRun == true)//this is a different variable (than some of the existing ones) right now almost purely because of implementation timing regarding bark/trireme etc
+            {
+                Properties.Settings.Default.FirstTimeRun = false;
+                Properties.Settings.Default.DefaultCBP = true;
+                CBPDefaultCheckbox = true;
+                SaveSettings();
+                CBPLogger.GetInstance.Info("First time setup: Defaulting to CBP.");
             }
         }
 
@@ -4775,19 +4839,30 @@ namespace CBPLauncher.Logic
                 //MessageBox.Show(string.Join(", ", archivedVersions));
                 //MessageBox.Show(versionFileCBP);
 
-                bool versionExists = archivedVersions.Contains(File.ReadAllText(versionFileCBPLocal));
+                // Nov 2025: for the sake of migration, making sure this works in both legacy loaded and legacy unloaded states
+                string localVersion;
+                string archiveSource;
+                if (File.Exists(versionFileCBPLocal)) // legacy loaded state
+                {
+                    localVersion = File.ReadAllText(versionFileCBPLocal);
+                    archiveSource = localPathCBP;
+                }
+                else // legacy unloaded state
+                {
+                    string versionPath = Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt");
+                    localVersion = File.ReadAllText(versionPath);
+                    archiveSource = Path.Combine(unloadedModsPath, "Community Balance Patch");
+                }
+
+                bool versionExists = archivedVersions.Contains(localVersion);
 
                 if ((versionExists == false) && (abortArchive == false))
                 {
                     //get the version BEFORE moving it so that we can rename it on the move action, rather than two separate actions (so that if it errors partway through, we don't get stuck with a no-ID archived CBP folder)
-                    Version archiveVersion = new Version(File.ReadAllText(Path.Combine(versionFileCBPLocal)));
+                    Version archiveVersion = new Version(localVersion);
+                    string archiveVersionNew = VersionToString(archiveVersion);
 
-                    string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
-                                             + VersionArray.versionMiddle[archiveVersion.minor]
-                                             + VersionArray.versionEnd[archiveVersion.subMinor]
-                                             + VersionArray.versionHotfix[archiveVersion.hotfix];
-
-                    Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
+                    Directory.Move(Path.Combine(archiveSource), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ")"));
                     CBPLogger.GetInstance.Info(archiveVersionNew + " has been archived.");
                     MessageBox.Show(archiveVersionNew + " has been archived.");
                 }
@@ -4795,14 +4870,10 @@ namespace CBPLauncher.Logic
                 {
                     if (MessageBox.Show("An archive was found with the same name as the current version. Do you want to make a new archive of this version but with a (2) at the end? Otherwise no archive will be made, and the current version will not be changed.", "Existing Archive Found", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        Version archiveVersion = new Version(File.ReadAllText(Path.Combine(versionFileCBPLocal)));
+                        Version archiveVersion = new Version(localVersion);
+                        string archiveVersionNew = VersionToString(archiveVersion);
 
-                        string archiveVersionNew = VersionArray.versionStart[archiveVersion.major]
-                                                 + VersionArray.versionMiddle[archiveVersion.minor]
-                                                 + VersionArray.versionEnd[archiveVersion.subMinor]
-                                                 + VersionArray.versionHotfix[archiveVersion.hotfix];
-
-                        Directory.Move(Path.Combine(localPathCBP), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ") (2)"));
+                        Directory.Move(Path.Combine(archiveSource), Path.Combine(archiveCBP, "Community Balance Patch " + "(" + archiveVersionNew + ") (2)"));
                         CBPLogger.GetInstance.Info(archiveVersionNew + " has been archived.");
                         MessageBox.Show(archiveVersionNew + " has been archived.");
                     }
@@ -5045,11 +5116,174 @@ namespace CBPLauncher.Logic
             else if (TabNumber == 4) SpLChecked = true;
         }
 
+        private async Task CheckForAndInstallLatestCbpVersion()
+        {
+            //TODO: check if online version check has a newer version than what workshop has downloaded (and tell the user if true)
+
+            bool workshopVersionIsNewerThanLocal = true;// TODO dynamically assign this by reading the relevant workshop file vs relevant local file
+            if (workshopVersionIsNewerThanLocal)
+            {
+                // TODO: before installing the new version (which will overwrite riseofnations_CBP.exe), make a "versioned" copy of that exe
+                //await InstallCbpVersion("CBP_a10.delta");
+            }
+        }
+
+        private async Task MigrateToNewCbpFormat()
+        {
+            try
+            {
+                CBPLogger.GetInstance.Info("Migration: Unloading old CBP format...");
+                if (Properties.Settings.Default.CBPLoaded) // note that there's a second CBPUnloaded setting too, because of legacy reasons
+                {
+                    await UnloadCBP();
+                }
+
+                CBPLogger.GetInstance.Info("Migration: Archiving old CBP format...");
+                await ArchiveNormal(); // The UI for the delete/archive setting was wired with the wrong binding, so no users actually have a delete>archive preference set and thus we can ignore it
+
+                // Create a new version.txt file in /Rise of Nations/CBP/ so that normal update processes can be checked against it
+                CBPLogger.GetInstance.Info("Migration: Creating new version.txt file...");
+                string newVersionFilePath = Path.Combine(folderCBProot, "version.txt");
+                string fileContents = "0.0.0.0";
+                File.WriteAllText(newVersionFilePath, fileContents);
+
+                CBPLogger.GetInstance.Info("Migration: Installing new CBP format (Alpha 10 DUMMY TEST with PR3)...");//TODO urgent un-dummy
+                await InstallCbpVersion("CBPPR3.delta");//TODO urgent un-dummy
+
+                Properties.Settings.Default.HasMigratedToNewFormat = true;
+                SaveSettings();
+            }
+            catch (Exception ex)
+            {
+                CBPLogger.GetInstance.Error($"Migration failed: {ex}");
+                MessageBox.Show($"Migration failed: {ex}");
+                LogManager.Shutdown();
+                Environment.Exit(0);
+            }
+        }
+
+        private async Task InstallCbpVersion(string patchNameTempHardcoded)
+        {
+            string folderPath = Path.Combine(RonWorkshopPath, "2287791153", "Community Balance Patch"); // Instead of having a versioned folder name like "CBP Alpha 10", the latest version uses this generic folder name
+            try
+            {
+                // TODO: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
+                // TODO URGENT: until the local version of the workshop files is updated, this will keep copying the wrong files lol
+                DirectoryCopy(folderPath, RoNPathFinal, true, true);
+
+                string localPatch;
+                string oldExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
+                string newExe = Path.Combine(RoNPathFinal, "riseofnations_CBP.exe");
+
+                // riseofnations.exe version 00.2024.06.2000 SHA256 hashes
+                string ronHash = "30478a44b577cb11ebcbbbf53d3e93ba02fd2aacf3bdefa6552c9b6449625079";
+                string laaHash = "75d9b49109d5eefe8ab9d73dc53f44f0e193c445b63c5b2e8e11ed9b90a6ef41";
+
+                bool nonLaaMatches = FileHashMatches(oldExe, ronHash);
+                bool laaMatches    = (!nonLaaMatches && FileHashMatches(oldExe, laaHash)); // avoids checking the LAA hash if the non-LAA hash matches
+
+                // transparently copy the LAA ("4GB patch") setting of the user's existing ron exe
+                if (nonLaaMatches)
+                {
+                    localPatch = Path.Combine(RoNPathFinal, patchNameTempHardcoded);
+                }
+                else if (laaMatches)
+                {
+                    var name = Path.GetFileNameWithoutExtension(patchNameTempHardcoded);
+                    var ext = Path.GetExtension(patchNameTempHardcoded);
+                    var laaPatchName = $"{name}_LAA{ext}";
+                    // TODO: logging
+
+                    localPatch = Path.Combine(RoNPathFinal, laaPatchName);
+                }
+                else
+                {
+                    throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000.");
+                }
+
+                // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (we don't want someone getting a wonky exe / virus) (TODO: make less janky)
+                //List<string> hashes = new List<string>()
+                //    {
+                //        "", // TODO: a10 hash (non-LAA)
+                //        "" // TODO: a10 hash (LAA)
+                //    };
+                //bool patchHashMatches = false;
+                //foreach (string hash in hashes)
+                //{
+                //    if (FileHashMatches(localPatch, hash))
+                //    {
+                //        patchHashMatches = true;
+                //        break;
+                //    }
+                //}
+                //if (!patchHashMatches)
+                //{
+                //    throw new IOException("Patch file does not match known hashes.");
+                //}
+                // TODO urgent actually implement this; temporaily removed for early launcher testing
+
+                using (var baseFile = File.OpenRead(oldExe))
+                {
+                    using (var outStream = File.Create(newExe))
+                    {
+                        BinaryPatch.Apply(baseFile, () => File.OpenRead(localPatch), outStream);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CBPLogger.GetInstance.Error($"CBP install failed: {ex}");
+                MessageBox.Show($"CBP install failed: {ex}");
+                LogManager.Shutdown();
+                Environment.Exit(0);
+            }
+        }
+
+        private async Task LoadCbp(string filePrefixTempHardcoded, string versionTempHardcoded)
+        {
+            // TODO later: properly get the version and prefix instead of semi-hardcoding it
+
+            gameExe = Path.Combine(RoNPathFinal, "riseofnations_CBP.exe"); // TODO later: double-check that this exists so as to catch the problem early if something goes wrong when launching
+
+            if (Properties.Settings.Default.AddIconGameName)
+            {
+                await AddIconGameName();
+            }
+
+            // the update of dynamic text on buttons (e.g., loaded plugins) has to write to a differently-named XML file than before
+            string helpXmlPath = Path.Combine(RoNDataPath, $"{filePrefixTempHardcoded}_help.xml");
+            //await GenerateDynamicHelpText(helpXmlPath);//TODO urgent commented out to simplify launcher testing
+
+            //TODO later: read the version file or otherwise extract the version somehow [temporarily semi-hardcoded]
+            VersionTextInstalled = versionTempHardcoded;
+            Status = LauncherStatus.readyCbpLoaded;
+            Properties.Settings.Default.UsePrerelease = false;
+            SaveSettings();
+        }
+
+        private async Task LoadEe()
+        {
+            gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
+
+            if (Properties.Settings.Default.AddIconGameName)
+            {
+                await AddIconGameName();
+            }
+
+            string helpXmlPath = Path.Combine(RoNDataPath, "help.xml");
+            await GenerateDynamicHelpText(helpXmlPath);
+
+            VersionTextInstalled = "Default RoN:EE";
+            Status = LauncherStatus.readyEeLoaded;
+            Properties.Settings.Default.UsePrerelease = false;
+            SaveSettings();
+        }
+
         private async Task InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName)
         {
-            string folderPath = Path.Combine(workshopPath, parentFolder, subFolderName);
+            string folderPath = Path.Combine(RonWorkshopPath, parentFolder, subFolderName);
             if (Directory.Exists(folderPath))
-            {// TODO: if the exe is already present locally, ask user if they want to re-copy files and overwrite the old ones
+            {// TODO later: if the exe is already present locally, ask user if they want to re-copy files and overwrite the old ones
                 try
                 {
                     // TODO: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
@@ -5058,8 +5292,6 @@ namespace CBPLauncher.Logic
                     string localPatch;
                     string oldExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
                     string newExe = Path.Combine(RoNPathFinal, exeName);
-                    string thisHash;
-                    string expectedHash;
 
                     // riseofnations.exe version 00.2024.06.2000 SHA256 hashes
                     string ronHash = "30478a44b577cb11ebcbbbf53d3e93ba02fd2aacf3bdefa6552c9b6449625079";
@@ -5128,7 +5360,7 @@ namespace CBPLauncher.Logic
             else
             {
                 MessageBox.Show($"Unable to locate {subFolderName} folder."
-                                + "\n\n(Are you subscribed to the right mod on Steam Workshop?)");
+                                + "\n\n(Are you missing a Steam Workshop subscription?)");
             }
         }
 
@@ -5141,7 +5373,7 @@ namespace CBPLauncher.Logic
                 gameExe = exePath;
                 Status = status;
 
-                //TODO read the version file or otherwise extract the version somehow [temporarily semi-hardcoded]
+                //TODO later: read the version file or otherwise extract the version somehow? [temporarily semi-hardcoded]
                 VersionTextInstalled = versionTempHardcoded;
 
                 //update the version icon (in lobby name) based on user's setting
@@ -5161,6 +5393,47 @@ namespace CBPLauncher.Logic
             }
         }
 
+        // TODO later: move these to not be dynamically loaded instead of hacky hardcoded implementations
+        private async Task TempLoadA9d()
+        {
+            string newExe = "riseofnations_CBPa9d.exe";
+            LauncherStatus status = LauncherStatus.readyCbpOldLoaded;
+            await LoadOtherVersion(newExe, status, "CBP Alpha 9d", "CBPa9d");
+
+            Properties.Settings.Default.UsePrerelease = false;
+            SaveSettings();
+        }
+
+        private async Task TempLoadPR1()
+        {
+            string newExe = "riseofnations_CBPPR1.exe";
+            LauncherStatus status = LauncherStatus.readyCbpPrLoaded;
+            await LoadOtherVersion(newExe, status, "CBP Pre-Release 1", "CBPPR1");
+
+            Properties.Settings.Default.UsePrerelease = true;
+            SaveSettings();
+        }
+
+        private async Task TempLoadPR2()
+        {
+            string newExe = "riseofnations_CBPPR2.exe";
+            LauncherStatus status = LauncherStatus.readyCbpPrLoaded;
+            await LoadOtherVersion(newExe, status, "CBP Pre-Release 2", "CBPPR2");
+
+            Properties.Settings.Default.UsePrerelease = true;
+            SaveSettings();
+        }
+
+        private async Task TempLoadPR3()
+        {
+            string newExe = "riseofnations_CBPPR3.exe";
+            LauncherStatus status = LauncherStatus.readyCbpPrLoaded;
+            await LoadOtherVersion(newExe, status, "CBP Pre-Release 3", "CBPPR3");
+
+            Properties.Settings.Default.UsePrerelease = true;
+            SaveSettings();
+        }
+
         private bool FileHashMatches(string filePath, string expectedHash)
         {
             string thisHash;
@@ -5176,6 +5449,16 @@ namespace CBPLauncher.Logic
             }
 
             return (thisHash == expectedHash);
+        }
+
+        private static string VersionToString(Version version)// Version's built-in ToString is being used for a different purpose already
+        {
+            string stringVersion = VersionArray.versionStart[version.major]
+                                 + VersionArray.versionMiddle[version.minor]
+                                 + VersionArray.versionEnd[version.subMinor]
+                                 + VersionArray.versionHotfix[version.hotfix];
+
+            return stringVersion;
         }
     }
 

@@ -128,5 +128,11 @@
     <Setting Name="JunePatchHaveRunBefore" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="LastUsedGameVersion" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CBP Latest</Value>
+    </Setting>
+    <Setting Name="HasMigratedToNewFormat" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

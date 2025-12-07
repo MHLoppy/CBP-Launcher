@@ -328,14 +328,14 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" TargetName="border">
                                 <Setter.Value>
-                                    <ImageBrush ImageSource="/Images/CBP central button right-crop 87px bw hover.png"/><!-- TODO -->
+                                    <ImageBrush ImageSource="/Images/CBP central button right-crop 87px bw hover.png"/>
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" TargetName="border">
                                 <Setter.Value>
-                                    <ImageBrush ImageSource="/Images/CBP central button right-crop 87px bw pressed.png"/><!-- TODO -->
+                                    <ImageBrush ImageSource="/Images/CBP central button right-crop 87px bw pressed.png"/>
                                 </Setter.Value>
                             </Setter>
                         </Trigger>

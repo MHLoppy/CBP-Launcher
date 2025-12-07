@@ -82,7 +82,7 @@
                 </Border>
 
                 <!-- left side: load/unload button -->
-                <Button Content="CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="53,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
+                <Button Content="CBP" Command="{Binding LoadCbpCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="53,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -90,7 +90,7 @@
                     </Button.Resources>
                 </Button>
 
-                <Button Content="EE" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="0,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
+                <Button Content="EE" Command="{Binding LoadEeCommand}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="0,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
