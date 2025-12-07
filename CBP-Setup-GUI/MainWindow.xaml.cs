@@ -57,7 +57,7 @@ namespace CBPSetupGUI
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
             bool found = await CbpLauncherFound(runningLocation);
-            await AutoConsentQuestion();
+            //await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
             await CBPLVersionCheck(found);
@@ -723,9 +723,9 @@ namespace CBPSetupGUI
             Properties.Settings.Default.SlowMode = false;
             Properties.Settings.Default.EnglishOverride = false;
             Properties.Settings.Default.FirstTimeRun = true;
-            Properties.Settings.Default.AutoConsent = false;
+            Properties.Settings.Default.AutoConsent = true;
             Properties.Settings.Default.FontSizeVisible = false;
-            Properties.Settings.Default.FontSize = 12;
+            Properties.Settings.Default.FontSize = 14;
             Properties.Settings.Default.Height = 420;
             Properties.Settings.Default.Width = 640;
             Properties.Settings.Default.NeedAskAutoConsent = false;

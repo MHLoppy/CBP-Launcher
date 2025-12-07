@@ -127,7 +127,7 @@
     <value>Unable to locate version.txt file. Maybe CBP is not installed? Try redoing first-time installation steps.</value>
   </data>
   <data name="ConsentIsCool" xml:space="preserve">
-    <value> (user auto-consented)</value>
+    <value> (auto-consent enabled)</value>
   </data>
   <data name="ConsentNeeded" xml:space="preserve">
     <value>Permission required</value>

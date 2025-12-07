@@ -88,7 +88,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  (user auto-consented).
+        ///   Looks up a localized string similar to  (auto-consent enabled).
         /// </summary>
         public static string ConsentIsCool {
             get {
