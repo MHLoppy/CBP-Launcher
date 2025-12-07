@@ -546,12 +546,12 @@ namespace CBPSetupGUI
                         MessageBox.Show(LangRes.ErrorPermissions);
                         await DelayedClose(LangRes.ErrorPermissions + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                     }
-                    if (ex is FileNotFoundException)
+                    else if (ex is FileNotFoundException)
                     {
                         MessageBox.Show(LangRes.ErrorFileNotFound);
                         await DelayedClose(LangRes.ErrorFileNotFound + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
                     }
-                    if (ex is IOException)
+                    else if (ex is IOException)
                     {
                         MessageBox.Show(LangRes.ErrorIO);
                         await DelayedClose(LangRes.ErrorIO + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
@@ -685,7 +685,7 @@ namespace CBPSetupGUI
             {
                 SlowModeCheckBox.IsChecked = true;
             }
-            else if (Properties.Settings.Default.SlowMode == false)
+            else
             {
                 SlowModeCheckBox.IsChecked = false;
             }
@@ -693,7 +693,7 @@ namespace CBPSetupGUI
             {
                 EnglishCheckBox.IsChecked = true;
             }
-            else if (Properties.Settings.Default.EnglishOverride == false)
+            else
             {
                 EnglishCheckBox.IsChecked = false;
             }
@@ -701,7 +701,7 @@ namespace CBPSetupGUI
             {
                 AutoConsentCheckBox.IsChecked = true;
             }
-            else if (Properties.Settings.Default.AutoConsent == false)
+            else
             {
                 AutoConsentCheckBox.IsChecked = false;
             }
