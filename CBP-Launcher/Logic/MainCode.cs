@@ -4655,7 +4655,7 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
-                        CBPLogger.GetInstance.Warning("CBP Setup GUIwas still running when restoring launcher, so no action has been taken.");
+                        CBPLogger.GetInstance.Warning("CBP Setup GUI was still running when restoring launcher, so no action has been taken.");
                         MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
                     }
                 }
@@ -4682,7 +4682,7 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
-                        CBPLogger.GetInstance.Warning("CBP Setup GUIwas still running when replacing launcher, so no action has been taken.");
+                        CBPLogger.GetInstance.Warning("CBP Setup GUI was still running when replacing launcher, so no action has been taken.");
                         MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
                     }
                 }
