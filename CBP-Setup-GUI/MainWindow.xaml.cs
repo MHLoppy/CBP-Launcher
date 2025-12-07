@@ -254,15 +254,6 @@ namespace CBPSetupGUI
                                     CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
                                 }
                             }
-                            //opted to not do this because I'm worried about supporting the use case long term;
-                            //it's much safer to just take the slightly ugly step of loading and immediately unloading CBP files in CBP Launcher for people who don't want CBP as default
-                            /*else if (MessageBox.Show(<are you intentionally not using CBP>, <title>, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                            {
-                                // NEW for CBP plugin system (unexpected use case of people who want to use CBP Launcher but possibly without EVER using CBP (+ covers case of people who just don't start off using CBP!)
-                                //instead of force-closing, allow the user to basically say "bru it's fine, I don't actually want CBP so it's not a problem and btw please remember that and don't ask again
-                                //another way of addressing this would be to ensure that CBP Launcher always does a load-unload on first run if the user says to NOT default to CBP
-                                // set property of "I want to never use CBP" to on?
-                            }*/
                             else
                             {
                                 MessageBox.Show(CBPSetupGUI.Language.Resources.CBPVersionFileNotFound);
