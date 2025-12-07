@@ -208,7 +208,7 @@
     <value>Found CBP Launcher in RoN's root folder.</value>
   </data>
   <data name="LocationCase0" xml:space="preserve">
-    <value>Error: Current folder location is unrecognised.</value>
+    <value>Error: Current folder location is not supported.</value>
   </data>
   <data name="LocationCase1" xml:space="preserve">
     <value>Looks like the root RoN folder.</value>

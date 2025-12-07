@@ -331,7 +331,7 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: Current folder location is unrecognised..
+        ///   Looks up a localized string similar to Error: Current folder location is not supported..
         /// </summary>
         public static string LocationCase0 {
             get {

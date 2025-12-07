@@ -333,46 +333,6 @@ namespace CBPSetupGUI
                         break;
 
                     case 3: // 3 = local mods folder
-
-                        PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase3;
-
-                        try
-                        {
-                            CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBPLauncher.exe"));
-                            ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
-
-                            CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
-                            ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
-
-                            CBPVersionFile = File.ReadAllText(Path.GetFullPath(Path.Combine(CBPSFolder, "version.txt")));
-                            string CBPVersionEnd = CBPVersionFile.ToString().Substring(CBPVersionFile.Length - 2);
-
-                            if (int.TryParse(CBPVersionEnd, out CBPVersion) && CBPVersion > 10)
-                            {
-                                CBPPR = true;//not currently utilised much beyond a sanity check
-                                CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2528425253", "CBPLauncher.exe"));
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(CBPSetupGUI.Language.Resources.LocationPathError);
-                            await DelayedClose(CBPSetupGUI.Language.Resources.LocationPathError + "\n" + ex + "\n" + CBPSetupGUI.Language.Resources.WindowWillClose, 3);
-                        }
-
-                        await SlowDown();
-
-                        if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"CBPLauncher.exe"))))
-                        {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootYes;
-                            CBPL = true;
-                        }
-                        else
-                        {
-                            PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.FoundRootNo;
-                            CBPL = false;
-                        }
-                        break;
-
                     default:
                         await SlowDown();
                         MessageBox.Show(CBPSetupGUI.Language.Resources.LocationCaseDefault);
