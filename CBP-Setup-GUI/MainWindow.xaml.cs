@@ -28,13 +28,6 @@ namespace CBPSetupGUI
             DefaultChecker();
         }
 
-        private static int Location = 0;
-        // 0 = unknown
-        // 1 = RoN root folder
-        // 2 = Workshop mods folder (where we expect it to be the first time)
-        // 3 = local mods folder
-        // 4 = Workshop mods folder, but pre-release
-
         private static bool CBPL = false;
 
         // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
@@ -63,20 +56,15 @@ namespace CBPSetupGUI
             //step -2: check .NET framework version
             //MessageBox.Show(netFrameworkVersion);
             
-            //step -1: make sure we can actually load the language files
             await CheckForLanguageFiles();
-
-            // Step 0: Check if CBPS and CBPL are already running (legacy: then check that language dll is up-to-date)
             await CheckIfAlreadyRunning();
-            //await DllCheck();
-            //await DllOffer();
 
             // Step 1: figure out what location exe is running from
-            await FindRunningLocation();
+            int runningLocation = await FindRunningLocation();
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
-            await CheckForCBPL();
-            //await AutoConsentQuestion();
+            await CheckForCBPL(runningLocation);
+            await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
             await CBPLVersionCheck();
@@ -182,40 +170,43 @@ namespace CBPSetupGUI
                 }
             }
 
-            async Task FindRunningLocation()//there's not really anything to run async here
+            async Task<int> FindRunningLocation()//there's not really anything to run async here
             {
+                // RoN root folder
                 if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, "riseofnations.exe"))))
                 {
-                    //RoN root folder
-                    Location = 1;
+                    return 1;
                 }
 
-                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2287791153")) == CBPSFolder)
+                // workshop mods folder
+                else if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2287791153")) == CBPSFolder)
                 {
-                    //workshop mods folder
-                    Location = 2;
+                    return 2;
                 }
 
-                if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "mod-status.txt"))))
+                // local mods folder
+                else if (File.Exists(Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "mod-status.txt"))))
                 {
-                    //local mods folder
-                    Location = 3;
+                    return 3;
                 }
 
-                if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2528425253")) == CBPSFolder)
+                // workshop mods folder, but pre-release
+                else if (Path.GetFullPath(Path.Combine(CBPSFolder, @"..\", "2528425253")) == CBPSFolder)
                 {
-                    //workshop mods folder, but pre-release
-                    Location = 4;
+                    return 4;
                 }
+
+                // Unknown location
+                else return 0;
             }
 
             // condenses multiple steps into one; slightly harder to read but easier to make for me /shrug
             // just remember that each of the paths are heavily duplicated (but I don't think it's worth the trouble of making more sophisticated logic to avoid it right now)
-            async Task CheckForCBPL()
+            async Task CheckForCBPL(int location)
             {
                 // change the path it checks based on where it thinks it is
                 // pretty sure this isn't a particularly efficient way of doing this, but it shouldn't really matter
-                switch (Location)
+                switch (location)
                 {
                     case 0: // 0 = unknown
 
@@ -230,10 +221,7 @@ namespace CBPSetupGUI
                         try
                         {
                             CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBPLauncher.exe"));
-                            ///CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
-
                             CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe"));
-                            ///CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
 
                             // Oct 2021: to be quite honest I'm not really sure why we're checking for CBP version anyway, given that it's CBP Launcher's job (not setup's) to update CBP
                             // we already read cbpl's version elsewhere, why do we care about CBP version (other than to see if CBP is installed at all)?
@@ -300,7 +288,7 @@ namespace CBPSetupGUI
                         }
                         break;
 
-                    case int _ when (Location == 2 || Location == 4)://parens just for my sake
+                    case int _ when (location == 2 || location == 4):
                         // 2 = Workshop mods folder (where we expect it to be the first time); 4 is pre-release
                         try
                         {
@@ -321,12 +309,12 @@ namespace CBPSetupGUI
                         }
                         await SlowDown();
 
-                        if (Location == 2)
+                        if (location == 2)
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase2;
                         }
 
-                        if (Location == 4)
+                        if (location == 4)
                         {
                             PrimaryLog.Text += "\n" + CBPSetupGUI.Language.Resources.LocationCase4;
                         }
@@ -585,9 +573,6 @@ namespace CBPSetupGUI
                     // instead of deleting the old files, rename them (so that if the copy fails we haven't lost the originals)
                     File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
                     File.Copy(CBPLExeUpdate, CBPLExe);
-
-                    ///File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
-                    ///File.Copy(CBPLDllUpdate, CBPLDll);
                 }
                 catch (Exception ex)
                 {
@@ -631,7 +616,6 @@ namespace CBPSetupGUI
                 {
                     //if copy is successful, don't need the old versions anymore
                     File.Delete(Path.Combine(CBPLExe + "old"));
-                    ///File.Delete(Path.Combine(CBPLDll + "old"));
                     await SlowDown();
                 }
                 catch (Exception ex)
@@ -674,7 +658,7 @@ namespace CBPSetupGUI
             }
         }
 
-        private static void RuleTheWaves()
+        private static void OverrideLanguageToEnglish()
         {
             if (Properties.Settings.Default.EnglishOverride == true)
             {
@@ -710,7 +694,7 @@ namespace CBPSetupGUI
         {
             Properties.Settings.Default.EnglishOverride = true;
             SaveSettings();
-            RuleTheWaves();
+            OverrideLanguageToEnglish();
         }
 
         private void EnglishCheckBox_UnChecked(object sender, RoutedEventArgs e)
@@ -723,7 +707,7 @@ namespace CBPSetupGUI
         {
             Properties.Settings.Default.AutoConsent = true;
             SaveSettings();
-            RuleTheWaves();
+            OverrideLanguageToEnglish();
         }
 
         private void AutoConsentCheckBox_UnChecked(object sender, RoutedEventArgs e)
