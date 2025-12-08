@@ -44,6 +44,10 @@
                 <skins:SpartanV1Mini/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type logic:SpartanV1AnnouncementsVM}">
+                <skins:SpartanV1Announcements/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type logic:SpartanV1PatchNotesVM}">
                 <skins:SpartanV1PatchNotes/>
             </DataTemplate>
@@ -69,6 +73,10 @@
                 <skins:ClassicPlusMini/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type logic:ClassicPlusAnnouncementsVM}">
+                <skins:ClassicPlusAnnouncements/>
+            </DataTemplate>
+            
             <DataTemplate DataType="{x:Type logic:ClassicPlusPatchNotesVM}">
                 <skins:ClassicPlusPatchNotes/>
             </DataTemplate>

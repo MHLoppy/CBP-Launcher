@@ -67,6 +67,30 @@
                         </Style>
                     </Button.Resources>
                 </Button>
+                
+                <!-- left side: announcements -->
+                <Button Command="{Binding AnnouncementsLeftCommand}" Width="134" Height="26" Margin="-70,-184,0,0" BorderThickness="0" Background="{Binding Spv1AnnLeftColor}" Panel.ZIndex="9">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8,8,0,0"/>
+                        </Style>
+                    </Button.Resources>
+                    <TextBlock FontSize="15" FontWeight="SemiBold" Padding="0,0,0,0">Announcements</TextBlock>
+                </Button>
+                <Button Command="{Binding AnnouncementsRightCommand}" Width="64" Height="26" Margin="142,-184,0,0" BorderThickness="0" Foreground="Gray" Background="#BABABA" Panel.ZIndex="9"><!-- temporary, manual "disabled" colors; isEnabled=False sets colors that are misleading on this skin -->
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8,8,0,0"/>
+                        </Style>
+                    </Button.Resources>
+                    <TextBlock FontSize="15" FontWeight="SemiBold" Padding="0,0,0,0">Old</TextBlock>
+                </Button>
+                <Button Command="{Binding AnnouncementsCloseCommand}" Width="80" Height="26" Margin="0,309,0,0" Background="#F4F4F4" Visibility="{Binding AnnouncementsVis, Converter={StaticResource BoolToVis}}" Panel.ZIndex="12">
+                    <TextBlock FontSize="15" FontWeight="SemiBold">Close</TextBlock>
+                </Button>
+                <Border CornerRadius="6,6,6,6" Margin="35,98,35,2" Opacity="1" Panel.ZIndex="10" Background="#DADADA" Visibility="{Binding AnnouncementsVis, Converter={StaticResource BoolToVis}}">
+                    <ContentControl Content="{Binding Announcements}" Margin="6,0,6,40"/>
+                </Border>
 
                 <!-- left side: rounded image background + image overlays -->
                 <Image Source="/Images/RoN EE logo (touchup) from game files.png" Margin="67,136,63,40" Stretch="Uniform" RenderOptions.BitmapScalingMode="Fant" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/><!-- perfect-ish fit-->
