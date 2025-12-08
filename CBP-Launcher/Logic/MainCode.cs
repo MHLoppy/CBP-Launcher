@@ -1462,9 +1462,24 @@ namespace CBPLauncher.Logic
                 Application.Current.MainWindow.WindowState = WindowState.Minimized;
             });
 
-            ExitCommand = new RelayCommand(o =>
+            ExitCommand = new RelayCommand(async o =>
             {
                 Application.Current.Shutdown();
+
+                if (updateSetupLater == true)
+                {
+                    await Delay(3000);
+                    if (Process.GetProcessesByName("patriots").Length < 1)
+                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                    else
+                    {
+                        await Delay(3000);
+                        if (Process.GetProcessesByName("patriots").Length < 1)
+                            File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
+                        else
+                            MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
+                    }
+                }
             });
 
             // combined with datatemplates in app.xaml, this means the view (skin) is switched when the vm (dummy code in this case) is switched
