@@ -103,6 +103,7 @@ namespace CBPLauncher.Skins
                     Paragraph myParagraph = new Paragraph();
                     myParagraph.Inlines.Add(new Run("Announcements could not be loaded.\n\n" + ex));
                     announcementsFlowDoc.Blocks.Add(myParagraph);
+                    announcementsFlowDoc.TextAlignment = TextAlignment.Left;
 
                     AnnouncementsFlowDocument.Document = announcementsFlowDoc;
                 }
@@ -112,14 +113,15 @@ namespace CBPLauncher.Skins
                 Paragraph paragraph = new Paragraph();
                 announcementsFlowDoc.Blocks.Add(paragraph);
                 // Run normaltext1 = new Run("Unable to load announcements file (maybe CBP isn't loaded).");
-                Run normaltext1 = new Run("Unable to load announcements file (If you just got the CBP Launcher update, you'll need to close and reopen it so that CBP Setup GUI is updated).");
+                Run normaltext1 = new Run("Unable to load announcements file (If you just got the CBP Launcher update, you'll need to restart the launcher to ensure that CBP Setup GUI is updated).");
                 paragraph.Inlines.Add(normaltext1);
 
                 announcementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-                announcementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
+                announcementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
                 announcementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
                 announcementsFlowDoc.FontSize = 14;
                 announcementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
+                announcementsFlowDoc.TextAlignment = TextAlignment.Left;
 
                 AnnouncementsFlowDocument.Document = announcementsFlowDoc;
             }

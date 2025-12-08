@@ -105,7 +105,7 @@ namespace CBPLauncher.Logic
         private List<string> CBPFileListAll = new List<string>();//the empty list seems to sometimes have a null error (in app.xaml of all places) in VS2019..... except it doesn't seem to matter at all ? ? ? ? ?
         private List<string> CBPFileListModded = new List<string>();
         private List<string> CBPFileListOriginal = new List<string>();
-        private bool updateSetupLater = false;
+        private bool updateSetupLater = true;
         private bool prereleaseFilesDetected = false;
         private string primaryDataCBP;
         private string secondaryDataCBP;
@@ -1464,22 +1464,49 @@ namespace CBPLauncher.Logic
 
             ExitCommand = new RelayCommand(async o =>
             {
-                Application.Current.Shutdown();
-
                 if (updateSetupLater == true)
                 {
-                    await Delay(3000);
-                    if (Process.GetProcessesByName("patriots").Length < 1)
-                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
-                    else
+                    try
                     {
-                        await Delay(3000);
-                        if (Process.GetProcessesByName("patriots").Length < 1)
-                            File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
-                        else
-                            MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
+                        var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"));
+                        string newVersionFull = newVersionShort.FileVersion;
+
+                        var oldVersionShort = FileVersionInfo.GetVersionInfo(patriotsOrig);
+                        string oldVersionFull = oldVersionShort.FileVersion;
+
+                        if (newVersionFull != oldVersionFull)
+                        {
+                            MessageBox.Show("CBP Launcher is trying to update CBP Setup GUI. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
+
+                            await Delay(3000);
+                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                            {
+                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                                CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                            }
+                            else
+                            {
+                                await Delay(3000);
+                                if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                                {
+                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
+                                    CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                }
+                                else
+                                {
+                                    MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
+                                    CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("" + ex);
                     }
                 }
+
+                Application.Current.Shutdown();
             });
 
             // combined with datatemplates in app.xaml, this means the view (skin) is switched when the vm (dummy code in this case) is switched
@@ -2730,12 +2757,17 @@ namespace CBPLauncher.Logic
                         if (Properties.Settings.Default.UseDefaultLauncher == false)
                         {
                             //keep CBP Setup GUI up to date
-                            if (Process.GetProcessesByName("patriots").Length < 1)
+                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                            {
                                 File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                                CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                updateSetupLater = false;
+                            }
                             else
                             {
                                 //set a flag to do it later so that user doesn't get slowed down
                                 updateSetupLater = true;
+                                CBPLogger.GetInstance.Debug("Delayed update of Setup GUI.");
                             }
                         }
 
@@ -3221,15 +3253,26 @@ namespace CBPLauncher.Logic
                 if (updateSetupLater == true)
                 {
                     await Delay(3000);
-                    if (Process.GetProcessesByName("patriots").Length < 1)
+                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                    {
                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                        CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                        updateSetupLater = false;
+                    }
                     else
                     {
                         await Delay(3000);
-                        if (Process.GetProcessesByName("patriots").Length < 1)
+                        if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                        {
                             File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
+                            CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                            updateSetupLater = false;
+                        }
                         else
+                        {
                             MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
+                            CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                        }
                     }
                 }
 
