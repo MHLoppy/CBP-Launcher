@@ -60,6 +60,7 @@ namespace CBPSetupGUI
             //await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
+            await CopyAnnouncementsFile();
             await KeepCbpLauncherUpdated(found);
 
             // Step 4: launch CBP launcher
@@ -297,6 +298,23 @@ namespace CBPSetupGUI
             }
 
             await ArtificialDelay();
+        }
+
+        async Task CopyAnnouncementsFile()
+        {
+            try
+            {
+                await ArtificialDelay();
+                string workshopVersionTxt = Path.Combine(Path.GetDirectoryName(CbpLauncherWorkshopExePath), "announcements.txt");
+                string localVersionTxt = Path.Combine(Path.GetDirectoryName(CbpLauncherLocalExePath), "CBP", "announcements.txt");
+
+                File.Copy(workshopVersionTxt, localVersionTxt, true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(LangRes.ErrorUnknown);
+                await DelayedClose(LangRes.ErrorUnknown + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+            }
         }
 
         async Task KeepCbpLauncherUpdated(bool launcherFound)
