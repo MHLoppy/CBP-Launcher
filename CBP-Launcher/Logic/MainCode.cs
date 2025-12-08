@@ -1171,23 +1171,22 @@ namespace CBPLauncher.Logic
 
                 await AskDefaultCBP();
 
-                // COMMENTED OUT FOR ANNOUNCEMENTS TEST TODO TODO RETURN
                 // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
-                //if (Properties.Settings.Default.DefaultCBP == true)
-                //{
-                //    await CheckForUpdates();
-                //};
-                //if (Properties.Settings.Default.DefaultCBP == false)
-                //{
-                //    if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
-                //    {
-                //        await UnloadCBP();
-                //    }
-                //    else
-                //    {
-                //        Status = LauncherStatus.readyCBPDisabled;
-                //    }
-                //}
+                if (Properties.Settings.Default.DefaultCBP == true)
+                {
+                    await CheckForUpdates();
+                }
+                if (Properties.Settings.Default.DefaultCBP == false)
+                {
+                    if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
+                    {
+                        await UnloadCBP();
+                    }
+                    else
+                    {
+                        Status = LauncherStatus.readyCBPDisabled;
+                    }
+                }
             }
             catch (Exception ex)
             {
