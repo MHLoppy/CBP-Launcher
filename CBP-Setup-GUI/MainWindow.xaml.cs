@@ -306,7 +306,11 @@ namespace CBPSetupGUI
             {
                 await ArtificialDelay();
                 string workshopVersionTxt = Path.Combine(Path.GetDirectoryName(CbpLauncherWorkshopExePath), "announcements.txt");
-                string localVersionTxt = Path.Combine(Path.GetDirectoryName(CbpLauncherLocalExePath), "CBP", "announcements.txt");
+                string cbpFolder = Path.Combine(Path.GetDirectoryName(CbpLauncherLocalExePath), "CBP");
+                string localVersionTxt = Path.Combine(cbpFolder, "announcements.txt");
+
+                // first create the CBP folder (function does nothing if it already exists)
+                Directory.CreateDirectory(cbpFolder);
 
                 File.Copy(workshopVersionTxt, localVersionTxt, true);
             }
