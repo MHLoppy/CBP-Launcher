@@ -3412,7 +3412,7 @@ namespace CBPLauncher.Logic
             if (Properties.Settings.Default.WarnCompatibility == true)
             {
                 // check compatibility again, otherwise can false-positive on a plugin that's actually loaded
-                //CheckPluginCompatibility();//TODO COMMENTED OUT FOR NOV 2025 TESTING
+                CheckPluginCompatibility();//TODO COMMENT OUT WHILE TESTING
 
                 // to prevent plugins from potentially loading old files (e.g. rules.xml) that are outdated with new CBP updates, check the CBP version in file headers
                 if (pluginFileProblem && (Properties.Settings.Default.CBPLoaded == true))
@@ -5447,7 +5447,7 @@ namespace CBPLauncher.Logic
 
             // the update of dynamic text on buttons (e.g., loaded plugins) has to write to a differently-named XML file than before
             string helpXmlPath = Path.Combine(RoNDataPath, $"{filePrefixTempHardcoded}_help.xml");
-            //await GenerateDynamicHelpText(helpXmlPath);//TODO urgent commented out to simplify launcher testing
+            await GenerateDynamicHelpText(helpXmlPath);//TODO commented out while testing
 
             //TODO later: read the version file or otherwise extract the version somehow [temporarily semi-hardcoded]
             VersionTextInstalled = versionTempHardcoded;
