@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CBPLauncher.Skins"
+             xmlns:logic="clr-namespace:CBPLauncher.Logic"
              mc:Ignorable="d"
              d:DesignWidth="870"
              d:DesignHeight="798"
@@ -78,6 +79,40 @@
                     </Label.Effect>
                 </Label>
 
+                <Button Command="{Binding AnnouncementsLeftCommand}" Width="136" Height="31" Margin="30,-14,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" BorderThickness="0" Style="{StaticResource ImageButtonHoverFixAnnouncementLeft}" logic:TabProperties.IsActive="{Binding AnnouncementsLeftActive}" Foreground="WhiteSmoke" Panel.ZIndex="15">
+                    <Button.Content>
+                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0,1,15,10" FontSize="14" FontWeight="SemiBold">Announcements</TextBlock>
+                    </Button.Content>
+                </Button>
+                <Button Command="{Binding AnnouncementsRightCommand}" Width="61" Height="31" Margin="166,-14,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" BorderBrush="{x:Null}" BorderThickness="0" Style="{StaticResource ImageButtonHoverFixAnnouncementRight}" logic:TabProperties.IsActive="{Binding AnnouncementsRightActive}" Foreground="Gray" Panel.ZIndex="15" IsEnabled="False">
+                    <Button.Content>
+                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0,1,15,10" FontSize="14" FontWeight="SemiBold">Old</TextBlock>
+                    </Button.Content>
+                </Button>
+                <Button Command="{Binding AnnouncementsCloseCommand}" Width="104" Height="20" Margin="15,210,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" BorderBrush="{x:Null}" BorderThickness="0" Style="{StaticResource ImageButtonHoverFixAnnouncementClose}" Foreground="WhiteSmoke" Visibility="{Binding AnnouncementsVis, Converter={StaticResource BoolToVis}}" Panel.ZIndex="15">
+                    <Button.Content>
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Padding="0,0,0,1">Close</TextBlock>
+                    </Button.Content>
+                </Button>
+                <Image Source="/Images/CBP Launcher announcements bg top.png" Width="211" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="23,7,0,0" Panel.ZIndex="10"/>
+                <Grid Margin="15,8,0,0" Width="211" Height="219" Visibility="{Binding AnnouncementsVis, Converter={StaticResource BoolToVis}}" Panel.ZIndex="10">
+                    <Grid.Background>
+                        <ImageBrush ImageSource="/Images/CBP Launcher announcements bg.png"/>
+                    </Grid.Background>
+                    <Grid.Effect>
+                        <DropShadowEffect ShadowDepth="3" BlurRadius="6"/>
+                    </Grid.Effect>
+                    <ContentControl Content="{Binding Announcements}" Margin="6,4,6,31"/>
+                </Grid>
+                <!--<Image Visibility="Visible" Source="/Images/CBP Launcher announcements bg.png" Margin="15,-2,0,0" Width="211" Height="229" Panel.ZIndex="10">
+                    <Image.Content>
+                        <ContentControl Content="{Binding CurrentTab}" Margin="4,4,4,29"/>
+                    </Image.Content>
+                    <Image.Effect>
+                        <DropShadowEffect ShadowDepth="2" BlurRadius="5"/>
+                    </Image.Effect>
+                </Image>-->
+
                 <!-- above the logo box (but not counting the FAR above logo box stuff) -->
                 <!-- This button is intended to be enabled when user enables *not* auto-updating CBP -->
                 <Button Content="Update?" HorizontalAlignment="Left" Margin="93,4,0,0" VerticalAlignment="Top" Width="70" Height="17" Padding="0,0,0,0" Visibility="Hidden"/>
@@ -150,10 +185,10 @@
 
                 <StackPanel Margin="138,5,0,0">
                     <!-- patch notes is default check (looks weird when switching skins but not a big deal) -->
-                    <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="{Binding CPPNChecked}"/>
-                    <RadioButton Name="CPMM" Content="Plugins" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPMMChecked}" Visibility="Visible"/>
-                    <RadioButton Name="CPO" Content="Options" Command="{Binding CPTabOptionsCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPOChecked}"/>
-                    <RadioButton Name="CPL" Content="Log" Command="{Binding CPTabLogCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPLChecked}"/>
+                    <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="True"/>
+                    <RadioButton Name="CPMM" Content="Plugins" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" Visibility="Visible"/>
+                    <RadioButton Name="CPO" Content="Options" Command="{Binding CPTabOptionsCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
+                    <RadioButton Name="CPL" Content="Log" Command="{Binding CPTabLogCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
                 </StackPanel>
 
                 <!-- ngl I feel amazing about realising I could do this to get the rounded corners without sacrificing the highlighting / selection color change -->

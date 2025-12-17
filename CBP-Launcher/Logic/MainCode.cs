@@ -46,7 +46,21 @@ namespace CBPLauncher.Logic
         installProblem
     }
 
-    //public static 
+    public static class TabProperties
+    {
+        public static readonly DependencyProperty IsActiveProperty =
+            DependencyProperty.RegisterAttached(
+                "IsActive",
+                typeof(bool),
+                typeof(TabProperties),
+                new PropertyMetadata(false));
+
+        public static void SetIsActive(UIElement element, bool value) =>
+            element.SetValue(IsActiveProperty, value);
+
+        public static bool GetIsActive(UIElement element) =>
+            (bool)element.GetValue(IsActiveProperty);
+    }
 
     public class MainCode : ObservableObject
     {
@@ -94,7 +108,7 @@ namespace CBPLauncher.Logic
         private List<string> CBPFileListAll = new List<string>();//the empty list seems to sometimes have a null error (in app.xaml of all places) in VS2019..... except it doesn't seem to matter at all ? ? ? ? ?
         private List<string> CBPFileListModded = new List<string>();
         private List<string> CBPFileListOriginal = new List<string>();
-        private bool updateSetupLater = false;
+        private bool updateSetupLater = true;
         private bool prereleaseFilesDetected = false;
         private string primaryDataCBP;
         private string secondaryDataCBP;
@@ -219,6 +233,62 @@ namespace CBPLauncher.Logic
                 OnPropertyChanged();
             }
         }
+
+        private bool _announcementsVis = false;
+        public bool AnnouncementsVis
+        {
+            get => _announcementsVis;
+            set
+            {
+                _announcementsVis = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _announcementsLeftActive = false;
+        public bool AnnouncementsLeftActive
+        {
+            get => _announcementsLeftActive;
+            set
+            {
+                _announcementsLeftActive = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _announcementsRightActive = false;
+        public bool AnnouncementsRightActive
+        {
+            get => _announcementsRightActive;
+            set
+            {
+                _announcementsRightActive = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Brush _spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+        public Brush Spv1AnnLeftColor
+        {
+            get => _spv1AnnLeftColor;
+            set
+            {
+                _spv1AnnLeftColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Brush _spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+        public Brush Spv1AnnRightColor
+        {
+            get => _spv1AnnRightColor;
+            set
+            {
+                _spv1AnnRightColor = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         private string eEPath;
         public string EEPath
@@ -673,6 +743,9 @@ namespace CBPLauncher.Logic
         public RelayCommand PlayButtonCommand { get; set; }
         public RelayCommand LoadCbpCommand { get; set; }
         public RelayCommand LoadEeCommand { get; set; }
+        public RelayCommand AnnouncementsLeftCommand { get; set; }
+        public RelayCommand AnnouncementsRightCommand { get; set; }
+        public RelayCommand AnnouncementsCloseCommand { get; set; }
 
 
         public RelayCommand WorkshopCommand { get; set; }
@@ -745,11 +818,24 @@ namespace CBPLauncher.Logic
             }
         }
 
+        private object _announcements;
+        public object Announcements
+        {
+            get { return _announcements; }
+            set
+            {
+                _announcements = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         // Skin "viewmodel"s
 
 
         public SpartanV1VM SpartanV1 { get; set; }
         public SpartanV1MiniVM SpartanV1Mini { get; set; }
+        public SpartanV1AnnouncementsVM SpartanV1Announcements { get; set; }
         public SpartanV1PatchNotesVM SpartanV1PatchNotes { get; set; }
         public SpartanV1ModManagerVM SpartanV1ModManager { get; set; }
         public SpartanV1OptionsVM SpartanV1Options { get; set; }
@@ -759,6 +845,7 @@ namespace CBPLauncher.Logic
 
         public ClassicPlusVM ClassicPlus { get; set; }
         public ClassicPlusMiniVM ClassicPlusMini { get; set; }
+        public ClassicPlusAnnouncementsVM ClassicPlusAnnouncements { get; set; }
         public ClassicPlusPatchNotesVM ClassicPlusPatchNotes { get; set; }
         public ClassicPlusModManagerVM ClassicPlusModManager { get; set; }
         public ClassicPlusOptionsVM ClassicPlusOptions { get; set; }
@@ -1495,6 +1582,45 @@ namespace CBPLauncher.Logic
                 await LoadEe();
             });
 
+            AnnouncementsLeftCommand = new RelayCommand(async o =>
+            {
+                AnnouncementsVis = true;
+                AnnouncementsLeftActive = true;
+                AnnouncementsRightActive = false;
+
+                if (CurrentSkin == SpartanV1)
+                {
+                    Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
+                    Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                }
+            });
+
+            AnnouncementsRightCommand = new RelayCommand(async o =>
+            {
+                // TODO old-announcements tab not implemented yet
+                AnnouncementsLeftActive = false;
+                AnnouncementsRightActive = true;
+
+                if (CurrentSkin == SpartanV1)
+                {
+                    Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                    Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
+                }
+            });
+
+            AnnouncementsCloseCommand = new RelayCommand(async o =>
+            {
+                AnnouncementsVis = false;
+                AnnouncementsLeftActive = false;
+                AnnouncementsRightActive = false;
+
+                if (CurrentSkin == SpartanV1)
+                {
+                    Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                    Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                }
+            });
+
             WorkshopCommand = new RelayCommand(o =>
             {
                 Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2287791153");
@@ -1604,8 +1730,50 @@ namespace CBPLauncher.Logic
                 Application.Current.MainWindow.WindowState = WindowState.Minimized;
             });
 
-            ExitCommand = new RelayCommand(o =>
+            ExitCommand = new RelayCommand(async o =>
             {
+                if (updateSetupLater == true)
+                {
+                    try
+                    {
+                        var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"));
+                        string newVersionFull = newVersionShort.FileVersion;
+
+                        var oldVersionShort = FileVersionInfo.GetVersionInfo(patriotsOrig);
+                        string oldVersionFull = oldVersionShort.FileVersion;
+
+                        if (newVersionFull != oldVersionFull)
+                        {
+                            MessageBox.Show("CBP Launcher is trying to update CBP Setup GUI. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
+
+                            await Delay(3000);
+                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                            {
+                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                                CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                            }
+                            else
+                            {
+                                await Delay(3000);
+                                if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                                {
+                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
+                                    CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                }
+                                else
+                                {
+                                    MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
+                                    CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("" + ex);
+                    }
+                }
+
                 Application.Current.Shutdown();
             });
 
@@ -1613,6 +1781,7 @@ namespace CBPLauncher.Logic
             // same for each of the tabs
             SpartanV1 = new SpartanV1VM();
             SpartanV1Mini = new SpartanV1MiniVM();
+            SpartanV1Announcements = new SpartanV1AnnouncementsVM();
             SpartanV1PatchNotes = new SpartanV1PatchNotesVM();
             SpartanV1ModManager = new SpartanV1ModManagerVM();
             SpartanV1Options = new SpartanV1OptionsVM();
@@ -1622,6 +1791,7 @@ namespace CBPLauncher.Logic
 
             ClassicPlus = new ClassicPlusVM();
             ClassicPlusMini = new ClassicPlusMiniVM();
+            ClassicPlusAnnouncements = new ClassicPlusAnnouncementsVM();
             ClassicPlusPatchNotes = new ClassicPlusPatchNotesVM();
             ClassicPlusModManager = new ClassicPlusModManagerVM();
             ClassicPlusOptions = new ClassicPlusOptionsVM();
@@ -1633,6 +1803,7 @@ namespace CBPLauncher.Logic
             {
                 CurrentSkin = SpartanV1;
                 CurrentTab = SpartanV1PatchNotes;
+                Announcements = SpartanV1Announcements;
             }
             else if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == true))
             {
@@ -1648,6 +1819,7 @@ namespace CBPLauncher.Logic
             {
                 CurrentSkin = ClassicPlus;
                 CurrentTab = ClassicPlusPatchNotes;
+                Announcements = ClassicPlusAnnouncements;
             }
 
             ChangeSkinCommand = new RelayCommand(o =>//convert this to a multi-choice command (e.g. dropdown selection)
@@ -1656,6 +1828,7 @@ namespace CBPLauncher.Logic
                 {
                     CurrentSkin = ClassicPlus;
                     CurrentTab = ClassicPlusOptions;
+                    Announcements = ClassicPlusAnnouncements;
 
                     // janky but functional for now
                     Properties.Settings.Default.SkinSpV1 = false;
@@ -1670,6 +1843,7 @@ namespace CBPLauncher.Logic
                 {
                     CurrentSkin = SpartanV1;
                     CurrentTab = SpartanV1Options;
+                    Announcements = SpartanV1Announcements;
 
                     // janky but functional for now
                     Properties.Settings.Default.SkinSpV1 = true;
@@ -2876,12 +3050,17 @@ namespace CBPLauncher.Logic
                         if (Properties.Settings.Default.UseDefaultLauncher == false)
                         {
                             //keep CBP Setup GUI up to date
-                            if (Process.GetProcessesByName("patriots").Length < 1)
+                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                            {
                                 File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                                CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                updateSetupLater = false;
+                            }
                             else
                             {
                                 //set a flag to do it later so that user doesn't get slowed down
                                 updateSetupLater = true;
+                                CBPLogger.GetInstance.Debug("Delayed update of Setup GUI.");
                             }
                         }
 
@@ -3371,15 +3550,26 @@ namespace CBPLauncher.Logic
                 if (updateSetupLater == true)
                 {
                     await Delay(3000);
-                    if (Process.GetProcessesByName("patriots").Length < 1)
+                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                    {
                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                        CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                        updateSetupLater = false;
+                    }
                     else
                     {
                         await Delay(3000);
-                        if (Process.GetProcessesByName("patriots").Length < 1)
+                        if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                        {
                             File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
+                            CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                            updateSetupLater = false;
+                        }
                         else
+                        {
                             MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
+                            CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                        }
                     }
                 }
 
@@ -3418,6 +3608,11 @@ namespace CBPLauncher.Logic
                 await Delay(1);//without this it seems like it doesn't work lol
                 CurrentTab = tab;
             }
+        }
+
+        private async Task ForceUpdateAnnouncements()
+        {
+            _announcements = new object();
         }
 
         // section for the #ICON169 / #ICON170 (CBP icon) XML editing

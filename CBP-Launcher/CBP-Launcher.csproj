@@ -288,6 +288,7 @@
     <Compile Include="Core\CBPLogger.cs" />
     <Compile Include="Core\ILogger.cs" />
     <Compile Include="Logic\BasicIO.cs" />
+    <Compile Include="Logic\ClassicPlusAnnouncementsVM.cs" />
     <Compile Include="Logic\ClassicPlusLogVM.cs" />
     <Compile Include="Logic\ClassicPlusMiniVM.cs" />
     <Compile Include="Logic\ClassicPlusModManagerVM.cs" />
@@ -297,6 +298,7 @@
     <Compile Include="Logic\ClassicPlusVM.cs" />
     <Compile Include="Logic\DummyTabVM.cs" />
     <Compile Include="Logic\MainCode.cs" />
+    <Compile Include="Logic\SpartanV1AnnouncementsVM.cs" />
     <Compile Include="Logic\SpartanV1DummyTabVM.cs" />
     <Compile Include="Logic\SpartanV1LogVM.cs" />
     <Compile Include="Logic\SpartanV1ModManagerVM.cs" />
@@ -316,6 +318,9 @@
       <DependentUpon>View-PrimaryWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Skins\ClassicPlusAnnouncements.xaml.cs">
+      <DependentUpon>ClassicPlusAnnouncements.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Skins\ClassicPlusOther.xaml.cs">
       <DependentUpon>ClassicPlusOther.xaml</DependentUpon>
     </Compile>
@@ -346,6 +351,9 @@
     <Compile Include="Old %28Maniac%29\Wrappers\BindingWrapper.cs" />
     <Compile Include="Old %28Maniac%29\Wrappers\SkinWrapper.xaml.cs">
       <DependentUpon>SkinWrapper.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\SpartanV1Announcements.xaml.cs">
+      <DependentUpon>SpartanV1Announcements.xaml</DependentUpon>
     </Compile>
     <Compile Include="Skins\SpartanV1DummyTab.xaml.cs">
       <DependentUpon>SpartanV1DummyTab.xaml</DependentUpon>
@@ -397,6 +405,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Skins\ClassicPlusAnnouncements.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Skins\ClassicPlusOther.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -434,6 +446,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Old %28Maniac%29\Wrappers\SkinWrapper.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1Announcements.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -529,6 +545,20 @@
     <Resource Include="Images\RoN CBP logo 02 opti resized PR.png" />
     <Resource Include="Images\CBP central button right-crop 87px bw active.png" />
     <Resource Include="Images\CBP central right-crop trim.png" />
+    <Resource Include="Images\CBP Launcher announcements bg top.png" />
+    <Resource Include="Images\CBP Launcher announcements bg.png" />
+    <Resource Include="Images\CBP Launcher announcements close hovered.png" />
+    <Resource Include="Images\CBP Launcher announcements close.png" />
+    <Resource Include="Images\CBP Launcher announcements left active hovered.png" />
+    <Resource Include="Images\CBP Launcher announcements left active.png" />
+    <Resource Include="Images\CBP Launcher announcements left disabled.png" />
+    <Resource Include="Images\CBP Launcher announcements left inactive hovered.png" />
+    <Resource Include="Images\CBP Launcher announcements left inactive.png" />
+    <Resource Include="Images\CBP Launcher announcements right active hovered.png" />
+    <Resource Include="Images\CBP Launcher announcements right active.png" />
+    <Resource Include="Images\CBP Launcher announcements right disabled.png" />
+    <Resource Include="Images\CBP Launcher announcements right inactive hovered.png" />
+    <Resource Include="Images\CBP Launcher announcements right inactive.png" />
     <Content Include="NLogOld.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
