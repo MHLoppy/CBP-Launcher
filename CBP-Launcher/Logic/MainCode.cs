@@ -829,10 +829,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-
         // Skin "viewmodel"s
-
-
         public SpartanV1VM SpartanV1 { get; set; }
         public SpartanV1MiniVM SpartanV1Mini { get; set; }
         public SpartanV1AnnouncementsVM SpartanV1Announcements { get; set; }
@@ -1049,9 +1046,12 @@ namespace CBPLauncher.Logic
             }
         }
 
+        // this object must stay as a global (not a local within IsInDesignMode(), otherwise VS2022 screams
+        //   a torrent of errors while in design time which don't actually affect compilation or runtime
+        private static readonly DependencyObject dummy = new DependencyObject(); 
         private bool IsInDesignMode()
         {
-            return DesignerProperties.GetIsInDesignMode(new DependencyObject());
+            return DesignerProperties.GetIsInDesignMode(dummy);
         }
 
         private void BigBadWarning()
