@@ -33,7 +33,7 @@ namespace CBPSetupGUI
         private static string CbpLauncherLocalExePath = "";
         private static string CbpLauncherWorkshopExePath = "";
         
-        private static bool CBPPR = false;//used for debugging
+        //private static bool CBPPR = false;//used for debugging
         //private static string netFrameworkVersion => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 
         private async void Window_ContentRendered(object sender, EventArgs e)
@@ -60,7 +60,7 @@ namespace CBPSetupGUI
             //await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
-            await CopyAnnouncementsFile();
+            await CopyTxtFiles();
             await KeepCbpLauncherUpdated(found);
 
             // Step 4: launch CBP launcher
@@ -300,19 +300,25 @@ namespace CBPSetupGUI
             await ArtificialDelay();
         }
 
-        async Task CopyAnnouncementsFile()
+        async Task CopyTxtFiles()
         {
             try
             {
                 await ArtificialDelay();
-                string workshopVersionTxt = Path.Combine(Path.GetDirectoryName(CbpLauncherWorkshopExePath), "announcements.txt");
-                string cbpFolder = Path.Combine(Path.GetDirectoryName(CbpLauncherLocalExePath), "CBP");
-                string localVersionTxt = Path.Combine(cbpFolder, "announcements.txt");
+                string workshopCbpRootFolder = Path.GetDirectoryName(CbpLauncherWorkshopExePath);
+                string workshopCbpLatestFolder = Path.Combine(workshopCbpRootFolder, "Community Balance Patch");
+                string workshopVersionTxt = Path.Combine(workshopCbpRootFolder, "announcements.txt");
+                string workshopPatchnotesTxt = Path.Combine(workshopCbpLatestFolder, "patchnotes.txt");
 
-                // first create the CBP folder (function does nothing if it already exists)
-                Directory.CreateDirectory(cbpFolder);
+                string localRonRootFolder = Path.GetDirectoryName(CbpLauncherLocalExePath);
+                string localCbpFolder = Path.Combine(localRonRootFolder, "CBP");
+                string localVersionTxt = Path.Combine(localCbpFolder, "announcements.txt");
+                string localPatchnotesTxt = Path.Combine(localCbpFolder, "patchnotes.txt");
 
+                // create the CBP folder before copying into it (does nothing if the folder already exists)
+                Directory.CreateDirectory(localCbpFolder);
                 File.Copy(workshopVersionTxt, localVersionTxt, true);
+                File.Copy(workshopPatchnotesTxt, localPatchnotesTxt, true);
             }
             catch (Exception ex)
             {
