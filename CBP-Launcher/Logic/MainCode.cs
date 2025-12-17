@@ -5713,9 +5713,9 @@ namespace CBPLauncher.Logic
         //cheeky bit of extra changes to convert the numerical/int based X.Y.Z into the versioning I already used before this launcher
         public static string[] versionStart = new string[14] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate "
                                                                , "1.", "2.", "3.", "4.", "5.", "6." // 1.x is 5 in the array (6th value including 0)
-                                                               , "Challenger " // Challenger is 11 (12th value including 0)
-                                                               , "Test Branch" // 12 (13th value including 0); when detected should re-route the the .A.B.C values to new results
-                                                               , "XBP" };      // 13 (14th value including 0); when detected should re-route the the .A.B.C values to new results
+                                                               , "Pre-Release " // Pre-Release is 11 (12th value including 0) [used to be Challenger]
+                                                               , "Test Branch"  // 12 (13th value including 0); when detected should re-route the the .A.B.C values to new results
+                                                               , "XBP" };       // 13 (14th value including 0); when detected should re-route the the .A.B.C values to new results
         public static string[] versionMiddle = new string[16] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" };
         public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
         public static string[] versionHotfix = new string[21] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)" // 0-9 respectively
