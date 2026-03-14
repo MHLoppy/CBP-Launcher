@@ -15,34 +15,34 @@ using System.Windows.Navigation;
 
 namespace CBPLauncher.Skins
 {
-    public partial class ClassicPlusAnnouncements : UserControl
+    public partial class ClassicPlusOldAnnouncements : UserControl
     {
-        public ClassicPlusAnnouncements()
+        public ClassicPlusOldAnnouncements()
         {
             InitializeComponent();
         }
 
-        FlowDocument announcementsFlowDoc = new FlowDocument();
-        readonly string fileName = "announcements.txt";
+        FlowDocument oldAnnouncementsFlowDoc = new FlowDocument();
+        readonly string fileName = "old_announcements.txt"; // TODO I absolutely hate how I've duplicated the entire component just to change one string
 
-        private void AnnFlowDoc_Initialized(object sender, EventArgs e)
+        private void OldAnnFlowDoc_Initialized(object sender, EventArgs e)
         {
             if (IsInDesignMode() == false)
             {
                 try
                 {
-                    LoadFormattedAnnouncements();
+                    LoadFormattedOldAnnouncements();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error loading announcements: " + ex);
+                    MessageBox.Show("Error loading old announcements: " + ex);
                 }
             }
             else
             {
                 //designtime baybeee
-                announcementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
-                AnnouncementsFlowDocument.Document = announcementsFlowDoc;
+                oldAnnouncementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
+                OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
             }
         }
 
@@ -51,13 +51,13 @@ namespace CBPLauncher.Skins
             return DesignerProperties.GetIsInDesignMode(new DependencyObject());
         }
 
-        void Announcements_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        void OldAnnouncements_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
 
-        private void LoadFormattedAnnouncements()
+        private void LoadFormattedOldAnnouncements()
         {
             //first check if file exists
             string txtPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "CBP", fileName));
@@ -84,17 +84,17 @@ namespace CBPLauncher.Skins
                     string formattedAnnouncements = "<html><body style='background-color: #000000; font-family: sans-serif; color: #C8C8C8;'>" + ProcessBBCodeFromTxtFile(announcements) + "</body></html>";
 
                     string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedAnnouncements, false);
-                    announcementsFlowDoc.Blocks.Add((Section)XamlReader.Parse(xaml));
+                    oldAnnouncementsFlowDoc.Blocks.Add((Section)XamlReader.Parse(xaml));
 
                     //because the document is larger than the pure HTML page was (in terms of visual space), the background needs to be set a bit differentl in order to cover the whole area:
-                    announcementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-                    announcementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-                    announcementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
-                    announcementsFlowDoc.FontSize = 15;
-                    announcementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
-                    announcementsFlowDoc.TextAlignment = TextAlignment.Left;
+                    oldAnnouncementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
+                    oldAnnouncementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
+                    oldAnnouncementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
+                    oldAnnouncementsFlowDoc.FontSize = 15;
+                    oldAnnouncementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
+                    oldAnnouncementsFlowDoc.TextAlignment = TextAlignment.Left;
 
-                    AnnouncementsFlowDocument.Document = announcementsFlowDoc;
+                    OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
                 }
                 catch (Exception ex)
                 {
@@ -102,29 +102,29 @@ namespace CBPLauncher.Skins
                     FlowDocument announcementsFlowDoc = new FlowDocument();
 
                     Paragraph myParagraph = new Paragraph();
-                    myParagraph.Inlines.Add(new Run("Announcements could not be loaded.\n\n" + ex));
-                    announcementsFlowDoc.Blocks.Add(myParagraph);
-                    announcementsFlowDoc.TextAlignment = TextAlignment.Left;
+                    myParagraph.Inlines.Add(new Run("Old announcements could not be loaded.\n\n" + ex));
+                    oldAnnouncementsFlowDoc.Blocks.Add(myParagraph);
+                    oldAnnouncementsFlowDoc.TextAlignment = TextAlignment.Left;
 
-                    AnnouncementsFlowDocument.Document = announcementsFlowDoc;
+                    OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
                 }
             }
             else
             {
                 Paragraph paragraph = new Paragraph();
-                announcementsFlowDoc.Blocks.Add(paragraph);
+                oldAnnouncementsFlowDoc.Blocks.Add(paragraph);
                 // Run normaltext1 = new Run("Unable to load announcements file (maybe CBP isn't loaded).");
-                Run normaltext1 = new Run("Unable to load announcements file.");
+                Run normaltext1 = new Run("Unable to load old announcements file.");
                 paragraph.Inlines.Add(normaltext1);
 
-                announcementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-                announcementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
-                announcementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
-                announcementsFlowDoc.FontSize = 14;
-                announcementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
-                announcementsFlowDoc.TextAlignment = TextAlignment.Left;
+                oldAnnouncementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
+                oldAnnouncementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
+                oldAnnouncementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
+                oldAnnouncementsFlowDoc.FontSize = 14;
+                oldAnnouncementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
+                oldAnnouncementsFlowDoc.TextAlignment = TextAlignment.Left;
 
-                AnnouncementsFlowDocument.Document = announcementsFlowDoc;
+                OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
             }
         }
 

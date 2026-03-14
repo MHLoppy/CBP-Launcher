@@ -46,7 +46,7 @@ namespace CBPLauncher.Skins
             }
             if (Properties.Settings.Default.DisablePluginLoading == true)
             {
-                ErrorTextBlock.Text = "Plugins are currently disabled.\nThis setting can be changed in the options tab.";
+                ErrorTextBlock.Text = "The current plugins system has been deprecated.";
                 return;
             }
 

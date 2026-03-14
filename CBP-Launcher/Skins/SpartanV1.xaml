@@ -77,7 +77,7 @@
                     </Button.Resources>
                     <TextBlock FontSize="15" FontWeight="SemiBold" Padding="0,0,0,0">Announcements</TextBlock>
                 </Button>
-                <Button Command="{Binding AnnouncementsRightCommand}" Width="64" Height="26" Margin="142,-184,0,0" BorderThickness="0" Foreground="Gray" Background="#BABABA" Panel.ZIndex="9">
+                <Button Command="{Binding AnnouncementsRightCommand}" Width="64" Height="26" Margin="142,-184,0,0" BorderThickness="0" Background="{Binding Spv1AnnRightColor}" Panel.ZIndex="9">
                     <!-- temporary, manual "disabled" colors; isEnabled=False sets colors that are misleading on this skin -->
                     <Button.Resources>
                         <Style TargetType="Border">

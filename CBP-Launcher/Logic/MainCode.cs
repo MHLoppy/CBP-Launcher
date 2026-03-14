@@ -833,6 +833,7 @@ namespace CBPLauncher.Logic
         public SpartanV1VM SpartanV1 { get; set; }
         public SpartanV1MiniVM SpartanV1Mini { get; set; }
         public SpartanV1AnnouncementsVM SpartanV1Announcements { get; set; }
+        public SpartanV1AnnouncementsVM SpartanV1OldAnnouncements { get; set; }
         public SpartanV1PatchNotesVM SpartanV1PatchNotes { get; set; }
         public SpartanV1ModManagerVM SpartanV1ModManager { get; set; }
         public SpartanV1OptionsVM SpartanV1Options { get; set; }
@@ -843,6 +844,7 @@ namespace CBPLauncher.Logic
         public ClassicPlusVM ClassicPlus { get; set; }
         public ClassicPlusMiniVM ClassicPlusMini { get; set; }
         public ClassicPlusAnnouncementsVM ClassicPlusAnnouncements { get; set; }
+        public ClassicPlusAnnouncementsVM ClassicPlusOldAnnouncements { get; set; }
         public ClassicPlusPatchNotesVM ClassicPlusPatchNotes { get; set; }
         public ClassicPlusModManagerVM ClassicPlusModManager { get; set; }
         public ClassicPlusOptionsVM ClassicPlusOptions { get; set; }
@@ -1590,21 +1592,31 @@ namespace CBPLauncher.Logic
 
                 if (CurrentSkin == SpartanV1)
                 {
+                    Announcements = new SpartanV1AnnouncementsVM();
                     Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
                     Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                }
+                else
+                {
+                    Announcements = new ClassicPlusAnnouncementsVM();
                 }
             });
 
             AnnouncementsRightCommand = new RelayCommand(async o =>
             {
-                // TODO old-announcements tab not implemented yet
+                AnnouncementsVis = true;
                 AnnouncementsLeftActive = false;
                 AnnouncementsRightActive = true;
 
                 if (CurrentSkin == SpartanV1)
                 {
+                    Announcements = new SpartanV1OldAnnouncementsVM();
                     Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
                     Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
+                }
+                else
+                {
+                    Announcements = new ClassicPlusOldAnnouncementsVM();
                 }
             });
 
@@ -5402,9 +5414,9 @@ namespace CBPLauncher.Logic
 
                 // Since CBPL and CBPS update each other (but CBPS handles announcements/patch notes copying),
                 //   do that during CBPL migration to cover first-time use case before CBPS is updated
-                string workshopAnnouncements = Path.Combine(workshopPathCBP, "Community Balance Patch", "announcements.txt");
-                string workshopOldAnnouncements = Path.Combine(workshopPathCBP, "Community Balance Patch", "old_announcements.txt");
-                string workshopPatchNotes = Path.Combine(workshopPathCBP, "Community Balance Patch", "patchnotes.txt");
+                string workshopAnnouncements = Path.Combine(workshopPathCBP, "announcements.txt");
+                string workshopOldAnnouncements = Path.Combine(workshopPathCBP, "old_announcements.txt");
+                string workshopPatchNotes = Path.Combine(workshopPathCBP, "patchnotes.txt");
                 string localAnnouncements = Path.Combine(folderCBProot, "announcements.txt");
                 string localOldAnnouncements = Path.Combine(folderCBProot, "old_announcements.txt");
                 string localPatchNotes = Path.Combine(folderCBProot, "patchnotes.txt");

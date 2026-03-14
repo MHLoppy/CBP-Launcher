@@ -307,6 +307,7 @@
     <Compile Include="Logic\ClassicPlusLogVM.cs" />
     <Compile Include="Logic\ClassicPlusMiniVM.cs" />
     <Compile Include="Logic\ClassicPlusModManagerVM.cs" />
+    <Compile Include="Logic\ClassicPlusOldAnnouncementsVM.cs" />
     <Compile Include="Logic\ClassicPlusOptionsVM.cs" />
     <Compile Include="Logic\ClassicPlusOtherVM.cs" />
     <Compile Include="Logic\ClassicPlusPatchNotesVM.cs" />
@@ -317,6 +318,7 @@
     <Compile Include="Logic\SpartanV1DummyTabVM.cs" />
     <Compile Include="Logic\SpartanV1LogVM.cs" />
     <Compile Include="Logic\SpartanV1ModManagerVM.cs" />
+    <Compile Include="Logic\SpartanV1OldAnnouncementsVM.cs" />
     <Compile Include="Logic\SpartanV1OptionsVM.cs" />
     <Compile Include="Logic\SpartanV1PatchNotesVM.cs" />
     <Compile Include="Logic\SpartanV1MiniVM.cs" />
@@ -335,6 +337,9 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Skins\ClassicPlusAnnouncements.xaml.cs">
       <DependentUpon>ClassicPlusAnnouncements.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Skins\ClassicPlusOldAnnouncements.xaml.cs">
+      <DependentUpon>ClassicPlusOldAnnouncements.xaml</DependentUpon>
     </Compile>
     <Compile Include="Skins\ClassicPlusOther.xaml.cs">
       <DependentUpon>ClassicPlusOther.xaml</DependentUpon>
@@ -382,6 +387,9 @@
     <Compile Include="Skins\SpartanV1ModManager.xaml.cs">
       <DependentUpon>SpartanV1ModManager.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Skins\SpartanV1OldAnnouncements.xaml.cs">
+      <DependentUpon>SpartanV1OldAnnouncements.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Skins\SpartanV1Options.xaml.cs">
       <DependentUpon>SpartanV1Options.xaml</DependentUpon>
     </Compile>
@@ -421,6 +429,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Skins\ClassicPlusAnnouncements.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\ClassicPlusOldAnnouncements.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -481,6 +493,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Skins\SpartanV1ModManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Skins\SpartanV1OldAnnouncements.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

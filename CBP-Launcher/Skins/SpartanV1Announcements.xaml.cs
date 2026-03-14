@@ -23,6 +23,7 @@ namespace CBPLauncher.Skins
         }
 
         FlowDocument announcementsFlowDoc = new FlowDocument();
+        string fileName = "announcements.txt";
 
         private void AnnFlowDoc_Initialized(object sender, EventArgs e)
         {
@@ -59,7 +60,7 @@ namespace CBPLauncher.Skins
         private void LoadFormattedAnnouncements()
         {
             //first check if file exists
-            string txtPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/announcements.txt"));
+            string txtPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "CBP", fileName));
             if (File.Exists(txtPath))
             {
                 try
