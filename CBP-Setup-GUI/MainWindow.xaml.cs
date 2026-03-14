@@ -307,17 +307,19 @@ namespace CBPSetupGUI
                 await ArtificialDelay();
                 string workshopCbpRootFolder = Path.GetDirectoryName(CbpLauncherWorkshopExePath);
                 string workshopCbpLatestFolder = Path.Combine(workshopCbpRootFolder, "Community Balance Patch");
-                string workshopVersionTxt = Path.Combine(workshopCbpRootFolder, "announcements.txt");
+                string workshopAnnouncementsTxt = Path.Combine(workshopCbpRootFolder, "announcements.txt");
+                string workshopOldAnnouncementsTxt = Path.Combine(workshopCbpRootFolder, "old_announcements.txt");
                 string workshopPatchnotesTxt = Path.Combine(workshopCbpLatestFolder, "patchnotes.txt");
 
                 string localRonRootFolder = Path.GetDirectoryName(CbpLauncherLocalExePath);
                 string localCbpFolder = Path.Combine(localRonRootFolder, "CBP");
-                string localVersionTxt = Path.Combine(localCbpFolder, "announcements.txt");
+                string localAnnouncementsTxt = Path.Combine(localCbpFolder, "announcements.txt");
+                string localOldAnnouncementsTxt = Path.Combine(localCbpFolder, "old_announcements.txt");
                 string localPatchnotesTxt = Path.Combine(localCbpFolder, "patchnotes.txt");
 
                 // create the CBP folder before copying into it (does nothing if the folder already exists)
                 Directory.CreateDirectory(localCbpFolder);
-                File.Copy(workshopVersionTxt, localVersionTxt, true);
+                File.Copy(workshopAnnouncementsTxt, localAnnouncementsTxt, true);
                 File.Copy(workshopPatchnotesTxt, localPatchnotesTxt, true);
             }
             catch (Exception ex)

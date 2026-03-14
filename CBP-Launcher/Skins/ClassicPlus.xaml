@@ -185,10 +185,10 @@
 
                 <StackPanel Margin="138,5,0,0">
                     <!-- patch notes is default check (looks weird when switching skins but not a big deal) -->
-                    <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="True"/>
-                    <RadioButton Name="CPMM" Content="Plugins" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" Visibility="Visible"/>
-                    <RadioButton Name="CPO" Content="Options" Command="{Binding CPTabOptionsCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
-                    <RadioButton Name="CPL" Content="Log" Command="{Binding CPTabLogCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0"/>
+                    <RadioButton Name="CPPN" Content="Patch Notes" Command="{Binding CPTabPatchNotesCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,6,-10,0" IsChecked="{Binding CPPNChecked}"/>
+                    <RadioButton Name="CPMM" Content="Plugins" Command="{Binding CPTabModManagerCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPMMChecked}" Visibility="Visible"/>
+                    <RadioButton Name="CPO" Content="Options" Command="{Binding CPTabOptionsCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPOChecked}"/>
+                    <RadioButton Name="CPL" Content="Log" Command="{Binding CPTabLogCommand}" Style="{StaticResource BBRadioButton2}" Height="32" Foreground="LightGray" FontSize="16" FontWeight="SemiBold" Margin="10,9,-10,0" IsChecked="{Binding CPLChecked}"/>
                 </StackPanel>
 
                 <!-- ngl I feel amazing about realising I could do this to get the rounded corners without sacrificing the highlighting / selection color change -->

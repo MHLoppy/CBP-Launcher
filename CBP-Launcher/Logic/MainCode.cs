@@ -1301,7 +1301,7 @@ namespace CBPLauncher.Logic
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
-            // create directories TODO later: there are a lot of unnecessary steps here now after mod format migration
+            // create directories | TODO later: there are a lot of unnecessary steps here now after mod format migration
             try
             {
                 Directory.CreateDirectory(Path.Combine(localMods, "Unloaded Mods")); // will be used to unload CBP
@@ -1374,18 +1374,18 @@ namespace CBPLauncher.Logic
 
                 await CheckForAndInstallLatestCbpVersion();
 
-                // Step 2: (re-)load the game version that was last used [temporary scuffed semi-hardcoded implementation] TODO: improve
+                // Step 2: (re-)load the game version that was last used [temporary scuffed semi-hardcoded implementation] TODO: improve, right now latest has a hardcoded version
                 string lastUsed = Properties.Settings.Default.LastUsedGameVersion;
                 CBPLogger.GetInstance.Info($"Attempting to re-load game version: {lastUsed}.");
                 switch (lastUsed)
                 {
-                    case "CBP Latest":
-                        await LoadCbp("CBP_a10", "Community Balance Patch Alpha 10");
+                    case "CBP Alpha 10":
+                        await LoadCbp("CBPa10", "CBP Alpha 10");
                         break;
                     case "Default RoN:EE":
                         await LoadEe();
                         break;
-                    case "CBP Alpha9d":
+                    case "CBP Alpha 9d":
                         await TempLoadA9d();
                         break;
                     case "CBP Pre-Release 1":
@@ -1398,8 +1398,8 @@ namespace CBPLauncher.Logic
                         await TempLoadPR3();
                         break;
                     default:
-                        CBPLogger.GetInstance.Warning("Unhandled version, falling back to CBP Latest.");
-                        await LoadCbp("CBP_a10", "Community Balance Patch Alpha 10");
+                        CBPLogger.GetInstance.Warning("Unhandled version, falling back to latest known CBP Version (Alpha 10).");
+                        await LoadCbp("CBPa10", "CBP Alpha 10");
                         break;
                 }
             }
@@ -1566,7 +1566,7 @@ namespace CBPLauncher.Logic
                 //await CheckForUpdates();
                 //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
 
-                await LoadCbp("CBP_a10", "Community Balance Patch Alpha 10");
+                await LoadCbp("CBPa10", "CBP Alpha 10");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
             });
 
             LoadEeCommand = new RelayCommand(async o =>
@@ -1687,7 +1687,7 @@ namespace CBPLauncher.Logic
 
             InstallA9dCommand = new RelayCommand(async o =>
             {
-                await InstallSelfContainedVersion("2287791153", "Community Balance Patch Alpha9d", "CBPA9D.delta", "riseofnations_CBPA9D.exe");
+                await InstallSelfContainedVersion("2287791153", "Community Balance Patch Alpha 9d", "CBPa9d.delta", "riseofnations_CBPa9d.exe");
             });
 
             LoadA9dCommand = new RelayCommand(async o =>
@@ -2120,7 +2120,7 @@ namespace CBPLauncher.Logic
             try // without the try you can accidentally create online-only DRM whoops
             {
                 // if CBP is unloaded, load the folder (but not the data files and extra stuff outside the folder yet) so that we can archive those files
-                // we also don't juse rely on the setting so that settings reset is better supported
+                // we also don't just rely on the setting so that settings reset is better supported
                 // (although to be honest, that could probably be made a pre-check where it checks for files then assigns settings based on that)
                 if (File.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")))
                 {
@@ -2134,15 +2134,16 @@ namespace CBPLauncher.Logic
                 WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
                 Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// latest available version as well as installed version
 
-                if (Properties.Settings.Default.UsePrerelease == true)//pr
-                {
-                    onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
-                }
+                // Alpha 10: the install for PRs is no longer done this way
+                //if (Properties.Settings.Default.UsePrerelease == true)//pr
+                //{
+                //    onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/versionpr.txt")); /// latest available version as well as installed version
+                //}
 
                 VersionTextLatest = "Latest CBP version: "
                      + VersionArray.versionStart[onlineVersion.major]
-                     + VersionArray.versionMiddle[onlineVersion.minor]  ///space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
-                     + VersionArray.versionEnd[onlineVersion.subMinor]  ///it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
+                     + VersionArray.versionMiddle[onlineVersion.minor]  /// space between major and minor moved to the string arrays in order to support the eventual 1.x release(s)
+                     + VersionArray.versionEnd[onlineVersion.subMinor]  /// it's nice to have a little bit of forward thinking in the mess of code sometimes ::fingerguns::
                      + VersionArray.versionHotfix[onlineVersion.hotfix];
                 CBPLogger.GetInstance.Debug(VersionTextLatest);
 
@@ -2191,10 +2192,11 @@ namespace CBPLauncher.Logic
                 }
 
                 // compatibility with a6c (maybe making it compatible was a mistake)
-                else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
-                {
-                    await OldInstallGameFiles(true, Version.zero);
-                }
+                // Alpha 10: compatibility with a6c migration is removed
+                //else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
+                //{
+                //    await OldInstallGameFiles(true, Version.zero);
+                //}
 
                 //this will only run if the local version file (if it exists) is not different to the online one
                 //update: no longer needed, because now we always start off by loading from unloaded if it exists (and this whole function is only called when the intended result is to load CBP)
@@ -4697,7 +4699,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.LogKeepNumber = 30;
             Properties.Settings.Default.JunePatchFixApplied = false;
             Properties.Settings.Default.JunePatchHaveRunBefore = false;
-            Properties.Settings.Default.LastUsedGameVersion = "CBP Latest";
+            Properties.Settings.Default.LastUsedGameVersion = "";
             Properties.Settings.Default.HasMigratedToNewFormat = false;
 
             SaveSettings();
@@ -5313,20 +5315,73 @@ namespace CBPLauncher.Logic
 
         private async Task CheckForAndInstallLatestCbpVersion()
         {
-            //TODO: check if online version check has a newer version than what workshop has downloaded (and tell the user if true)
+            // Get online version
+            WebClient webClient = new WebClient();
+            Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt"));
+            CBPLogger.GetInstance.Debug("Latest CBP version from online check: " + VersionToString(onlineVersion));
 
-            bool workshopVersionIsNewerThanLocal = true;// TODO dynamically assign this by reading the relevant workshop file vs relevant local file
-            if (workshopVersionIsNewerThanLocal)
+            // Get workshop version
+            Version workshopVersion;
+            if (File.Exists(versionFileCBPWorkshop))
             {
-                // TODO: before installing the new version (which will overwrite riseofnations_CBP.exe), make a "versioned" copy of that exe
-                //await InstallCbpVersion("CBP_a10.delta");
+                workshopVersion = new Version(File.ReadAllText(versionFileCBPWorkshop));
             }
+            else
+            {
+                throw new FileNotFoundException("Workshop version.txt file not found");
+            }
+
+            // Get local version
+            Version localVersion;
+            if (File.Exists(versionFileCBPWorkshop))
+            {
+                string newVersionFile = Path.Combine(folderCBProot, "version.txt");
+                localVersion = new Version(File.ReadAllText(newVersionFile));
+            }
+            else
+            {
+                throw new FileNotFoundException("Local version.txt file not in /CBP/ folder found");
+            }
+
+            bool workshopAndLocalDifferent = workshopVersion.IsDifferentThan(localVersion);
+            //bool workshopAndOnlineDifferent = workshopVersion.IsDifferentThan(onlineVersion
+            bool workshopAndOnlineDifferent = false;
+            bool workshopAndLocalMatch = !workshopAndLocalDifferent;
+            bool workshopAndOnlineMatch = !workshopAndOnlineDifferent;
+
+            if (workshopAndOnlineDifferent && workshopAndLocalMatch)
+            {
+                CBPLogger.GetInstance.Warning($"Newer CBP released ({VersionToString(onlineVersion)}), but files not downloaded from Steam.");
+                MessageBox.Show(VersionToString(onlineVersion) + " has been published, but Steam hasn't downloaded the new files yet so CBP Launcher is unable to install them.");
+            }
+            else if (workshopAndOnlineMatch && workshopAndLocalDifferent)
+            {
+                await ArchiveOldExe(localVersion);
+                await InstallCbpVersion("CBP.delta");
+            }
+            else if (workshopAndOnlineMatch && workshopAndLocalMatch)
+            {
+                CBPLogger.GetInstance.Info("Latest available version is currently installed, continuing...");
+            }
+        }
+
+        private async Task ArchiveOldExe(Version localVersion)
+        {
+            string cbpExePath = Path.Combine(RoNPathFinal, "riseofnations_CBP.exe");
+            string archivedExeName = "riseofnations_CBP" + VersionToShorthand(localVersion) + ".exe";
+            string archivedExePath = Path.Combine(RoNPathFinal, archivedExeName);
+            File.Move(cbpExePath, archivedExePath);
+            CBPLogger.GetInstance.Debug("Performed archive-by-renaming on existing CBP exe");
         }
 
         private async Task MigrateToNewCbpFormat()
         {
             try
             {
+                CBPLogger.GetInstance.Info("Migration: Disabling plugins...");
+                Properties.Settings.Default.DisablePluginLoading = true;
+                SaveSettings();
+
                 CBPLogger.GetInstance.Info("Migration: Unloading old CBP format...");
                 if (Properties.Settings.Default.CBPLoaded) // note that there's a second CBPUnloaded setting too, because of legacy reasons
                 {
@@ -5342,8 +5397,21 @@ namespace CBPLauncher.Logic
                 string fileContents = "0.0.0.0";
                 File.WriteAllText(newVersionFilePath, fileContents);
 
-                CBPLogger.GetInstance.Info("Migration: Installing new CBP format (Alpha 10 DUMMY TEST with PR3)...");//TODO urgent un-dummy
-                await InstallCbpVersion("CBPPR3.delta");//TODO urgent un-dummy
+                CBPLogger.GetInstance.Info("Migration: Installing new CBP format (Alpha 10+)...");
+                await InstallCbpVersion("CBP.delta");
+
+                // Since CBPL and CBPS update each other (but CBPS handles announcements/patch notes copying),
+                //   do that during CBPL migration to cover first-time use case before CBPS is updated
+                string workshopAnnouncements = Path.Combine(workshopPathCBP, "Community Balance Patch", "announcements.txt");
+                string workshopOldAnnouncements = Path.Combine(workshopPathCBP, "Community Balance Patch", "old_announcements.txt");
+                string workshopPatchNotes = Path.Combine(workshopPathCBP, "Community Balance Patch", "patchnotes.txt");
+                string localAnnouncements = Path.Combine(folderCBProot, "announcements.txt");
+                string localOldAnnouncements = Path.Combine(folderCBProot, "old_announcements.txt");
+                string localPatchNotes = Path.Combine(folderCBProot, "patchnotes.txt");
+
+                File.Copy(workshopAnnouncements, localAnnouncements, true);
+                File.Copy(workshopOldAnnouncements, localOldAnnouncements, true);
+                File.Copy(workshopPatchNotes, localPatchNotes, true);
 
                 Properties.Settings.Default.HasMigratedToNewFormat = true;
                 SaveSettings();
@@ -5396,26 +5464,35 @@ namespace CBPLauncher.Logic
                     throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000.");
                 }
 
-                // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (we don't want someone getting a wonky exe / virus) (TODO: make less janky)
-                //List<string> hashes = new List<string>()
-                //    {
-                //        "", // TODO: a10 hash (non-LAA)
-                //        "" // TODO: a10 hash (LAA)
-                //    };
-                //bool patchHashMatches = false;
-                //foreach (string hash in hashes)
-                //{
-                //    if (FileHashMatches(localPatch, hash))
-                //    {
-                //        patchHashMatches = true;
-                //        break;
-                //    }
-                //}
-                //if (!patchHashMatches)
-                //{
-                //    throw new IOException("Patch file does not match known hashes.");
-                //}
-                // TODO urgent actually implement this; temporaily removed for early launcher testing
+                // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (TODO: make less janky)
+                List<string> hashes = new List<string>()
+                {
+                    // SHA-256 of the bsdiff patch files; can do in windows using `certutil -hashfile "file-path-here" SHA256`
+                    "70ad1ccec62ec70741f2229c212e6b0b1630af00606cce079e4eecfd960c7c4e", // Alpha 9d non-LAA
+                    "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
+                    "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
+                    "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
+                    "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
+
+                    "cc9a2a83f8b778d4e75bbaf5d52be74aca7dba33d2114956f1dfd68e826cba84", // Alpha 9d LAA
+                    "6df9a625881699d375d43b67187fd24e3fb797208dc9e550c802a2110c27a8de", // PR1 LAA
+                    "b0190704ea894f3ab0f4db74c9501b4077bdfa56ef815c92c97beba05c0cd48c", // PR2 LAA
+                    "aaace60d1f05d3f35687a7e79e7d8aef24cbc374b733822c1e4a0215bed5443e", // PR3 LAA
+                    "fc70dd1eaa49cc4423b2291fadf96852162e4db0841ef3771f2188ca32b480a0", // Alpha 10 LAA
+                };
+                bool patchHashMatches = false;
+                foreach (string hash in hashes)
+                {
+                    if (FileHashMatches(localPatch, hash))
+                    {
+                        patchHashMatches = true;
+                        break;
+                    }
+                }
+                if (!patchHashMatches)
+                {
+                    throw new IOException("Patch file does not match known hashes.");
+                }
 
                 using (var baseFile = File.OpenRead(oldExe))
                 {
@@ -5424,6 +5501,10 @@ namespace CBPLauncher.Logic
                         BinaryPatch.Apply(baseFile, () => File.OpenRead(localPatch), outStream);
                     }
                 }
+
+                string workshopVersionTxtPath = Path.Combine(folderPath, "version.txt");
+                string localVersionTxtPath = Path.Combine(RoNPathFinal, "CBP", "version.txt");
+                File.Copy(workshopVersionTxtPath, localVersionTxtPath, true);
             }
             catch (Exception ex)
             {
@@ -5474,7 +5555,7 @@ namespace CBPLauncher.Logic
             SaveSettings();
         }
 
-        private async Task InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName)
+        private async Task InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName) // TODO: de-duplicate this absolute mess of a duplicate function
         {
             string folderPath = Path.Combine(RonWorkshopPath, parentFolder, subFolderName);
             if (Directory.Exists(folderPath))
@@ -5514,16 +5595,21 @@ namespace CBPLauncher.Logic
                         throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000.");
                     }
 
-                    // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (we don't want someone getting a wonky exe / virus) (TODO: make less janky)
+                    // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (TODO: make less janky)
                     List<string> hashes = new List<string>()
                     {
-                        // TODO: a9d hash (non-LAA + LAA)
+                        // SHA-256 of the bsdiff patch files; can do in windows using `certutil -hashfile "file-path-here" SHA256`
+                        "70ad1ccec62ec70741f2229c212e6b0b1630af00606cce079e4eecfd960c7c4e", // Alpha 9d non-LAA
                         "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
                         "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
                         "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
+                        "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
+
+                        "cc9a2a83f8b778d4e75bbaf5d52be74aca7dba33d2114956f1dfd68e826cba84", // Alpha 9d LAA
                         "6df9a625881699d375d43b67187fd24e3fb797208dc9e550c802a2110c27a8de", // PR1 LAA
                         "b0190704ea894f3ab0f4db74c9501b4077bdfa56ef815c92c97beba05c0cd48c", // PR2 LAA
                         "aaace60d1f05d3f35687a7e79e7d8aef24cbc374b733822c1e4a0215bed5443e", // PR3 LAA
+                        "fc70dd1eaa49cc4423b2291fadf96852162e4db0841ef3771f2188ca32b480a0", // Alpha 10 LAA
                     };
                     bool patchHashMatches = false;
                     foreach (string hash in hashes)
@@ -5549,6 +5635,7 @@ namespace CBPLauncher.Logic
                 }
                 catch (Exception ex)
                 {
+                    CBPLogger.GetInstance.Error($"Install failed: {ex}");
                     MessageBox.Show($"Install failed: {ex}");
                 }
             }
@@ -5654,6 +5741,26 @@ namespace CBPLauncher.Logic
                                  + VersionArray.versionHotfix[version.hotfix];
 
             return stringVersion;
+        }
+
+        private static string VersionToShorthand(Version version)
+        {
+            string shorthand = "";
+
+            if (version.hotfix >= 11) // Pre-Releases have "internal" numbering
+            {
+                shorthand += ("PR" + (version.hotfix - 10));
+                return shorthand;
+            }
+
+            else if (version.major == 2) shorthand += "a";  // Alpha
+            else if (version.major == 3) shorthand += "b";  // Beta
+            else if (version.major == 4) shorthand += "rc"; // Release Candidate
+
+            shorthand += VersionArray.versionMiddle[version.minor];
+            shorthand += VersionArray.versionEnd[version.subMinor];
+
+            return shorthand;
         }
     }
 

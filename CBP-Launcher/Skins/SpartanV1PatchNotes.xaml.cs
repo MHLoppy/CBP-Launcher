@@ -89,7 +89,7 @@ namespace CBPLauncher.Skins
             //Console.WriteLine(formattedPatchNotes);
 
             //first check if file exists
-            if (File.Exists(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"mods/Community Balance Patch/patchnotes.txt"))))
+            if (File.Exists(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/patchnotes.txt"))))
             {
                 try
                 {
@@ -108,7 +108,7 @@ namespace CBPLauncher.Skins
                     paragraph.Inlines.Add(normaltext2);
 
                     // patch notes - the main part of the flowdocument
-                    string patchnotes = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"mods/Community Balance Patch/patchnotes.txt"));//relies on CBP Launcher being in root folder (as expected)
+                    string patchnotes = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/patchnotes.txt"));//relies on CBP Launcher being in root folder (as expected)
                     string formattedPatchNotes = "<html><body style='background-color: #DFF3F3F3; font-family: sans-serif; color: #FF1A1A1A;'>" + ProcessBBCodeFromTxtFile(patchnotes) + "</body></html>";//#D6FBFBFB for background that's lighter than page, #D0F3F3F3 for same color
 
                     string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedPatchNotes, false);
