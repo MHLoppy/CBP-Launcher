@@ -3830,29 +3830,35 @@ namespace CBPLauncher.Logic
 
         private string GenerateMainMenuText()
         {
-            string config = "CBP configuration: ";
-            string config2 = TooltipConfig();
-            string primary = " ============================================ Primary files: ";
-            string primary2 = TooltipPrimary();
-            string secondary = " --------------------------------------------------------------------------------- Secondary files: ";
-            string secondary2 = TooltipSecondary();
-            string optional = " --------------------------------------------------------------------------------- Optional changes: ";
-            string optional2 = TooltipOptional();
-            string plugin = " ============================================ Loaded plugins: ";
-            string plugin2 = TooltipPlugins();
+            //string config = "CBP configuration: ";
+            //string config2 = TooltipConfig();
+            //string primary = " ============================================ Primary files: ";
+            //string primary2 = TooltipPrimary();
+            //string secondary = " --------------------------------------------------------------------------------- Secondary files: ";
+            //string secondary2 = TooltipSecondary();
+            //string optional = " --------------------------------------------------------------------------------- Optional changes: ";
+            //string optional2 = TooltipOptional();
+            //string plugin = " ============================================ Loaded plugins: ";
+            //string plugin2 = TooltipPlugins();
 
-            // the true is a placeholder (and probably the primary2 as well), but what was this for? maybe placeholder for plugins text? (which is intentionally not currently supported)
-            /*if (true)
-            {
-                primary2 = "All primary files loaded";
-            }*/
+            //// the true is a placeholder (and probably the primary2 as well), but what was this for? maybe placeholder for plugins text? (which is intentionally not currently supported)
+            ///*if (true)
+            //{
+            //    primary2 = "All primary files loaded";
+            //}*/
 
-            return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2 + plugin + plugin2;
+            //return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2 + plugin + plugin2;
+
+            // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
+            return "CBP Alpha 10 (a10) active.";
         }
 
         private string GenerateOtherMenuText()
         {
-            return "CBP is enabled. Configuration: " + TooltipConfig() + ". See main menu for more details.";
+            //return "CBP is enabled. Configuration: " + TooltipConfig() + ". See main menu for more details.";
+
+            // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
+            return "CBP Alpha 10 (a10) active.";
         }
 
         private string TooltipConfig()
@@ -4703,7 +4709,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.JustReset = false;
             Properties.Settings.Default.UseFancyLogging = false;
             Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
-            Properties.Settings.Default.WarnCompatibility = true;
+            Properties.Settings.Default.WarnCompatibility = false;//TODO flipped to false for Alpha 10+ due to plugin deprecation
             Properties.Settings.Default.DisablePluginLoading = true;
             Properties.Settings.Default.FuckStopTellingMe = false;
             Properties.Settings.Default.MicroSkin = false;
@@ -5392,6 +5398,7 @@ namespace CBPLauncher.Logic
             {
                 CBPLogger.GetInstance.Info("Migration: Disabling plugins...");
                 Properties.Settings.Default.DisablePluginLoading = true;
+                Properties.Settings.Default.WarnCompatibility = false;
                 SaveSettings();
 
                 CBPLogger.GetInstance.Info("Migration: Unloading old CBP format...");
