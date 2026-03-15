@@ -3416,6 +3416,9 @@ namespace CBPLauncher.Logic
 
         private async Task PlayButton_Click()
         {
+            /// TODO remove later: medium-term Alpha 10 debugging
+            CBPLogger.GetInstance.Debug("Play button clicked.");
+
             //legacy: from when Bark/Trireme OoS detection was needed
             //the setting that triggers this is toggled off after the first time the launcher is run
             //WarnLocalModDataFiles();
@@ -3425,6 +3428,9 @@ namespace CBPLauncher.Logic
             // only warn if user has not disabled this setting
             if (Properties.Settings.Default.WarnCompatibility == true)
             {
+                /// TODO remove later: medium-term Alpha 10 debugging
+                CBPLogger.GetInstance.Debug("WarnCompatibility is true.");
+
                 // check compatibility again, otherwise can false-positive on a plugin that's actually loaded
                 CheckPluginCompatibility();//TODO COMMENT OUT WHILE TESTING
 
@@ -3550,6 +3556,9 @@ namespace CBPLauncher.Logic
 
             if (File.Exists(gameExe) && (Status == LauncherStatus.readyCbpLoaded || Status == LauncherStatus.readyEeLoaded || Status == LauncherStatus.readyCbpPrLoaded || Status == LauncherStatus.readyCbpOldLoaded)) // make sure all "launch" button options are included here
             {
+                /// TODO remove later: medium-term Alpha 10 debugging
+                CBPLogger.GetInstance.Debug("Conditions met.");
+
                 Properties.Settings.Default.LastUsedGameVersion = VersionTextInstalled;
                 SaveSettings();
                 CBPLogger.GetInstance.Info($"Last used game version set to {VersionTextInstalled}");
