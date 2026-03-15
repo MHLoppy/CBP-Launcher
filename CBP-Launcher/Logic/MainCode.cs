@@ -5468,19 +5468,20 @@ namespace CBPLauncher.Logic
                 if (nonLaaMatches)
                 {
                     localPatch = Path.Combine(RoNPathFinal, patchNameTempHardcoded);
+                    CBPLogger.GetInstance.Info("RoN exe does not have LAA flag set - using non-LAA patch file.");
                 }
                 else if (laaMatches)
                 {
                     var name = Path.GetFileNameWithoutExtension(patchNameTempHardcoded);
                     var ext = Path.GetExtension(patchNameTempHardcoded);
                     var laaPatchName = $"{name}_LAA{ext}";
-                    // TODO: logging
 
+                    CBPLogger.GetInstance.Info("RoN exe has LAA flag set - using LAA patch file.");
                     localPatch = Path.Combine(RoNPathFinal, laaPatchName);
                 }
                 else
                 {
-                    throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000.");
+                    throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000 (EE 1.20 with June 2024 update). Other versions and pirated copies are not supported.");
                 }
 
                 // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (TODO: make less janky)
@@ -5505,12 +5506,13 @@ namespace CBPLauncher.Logic
                     if (FileHashMatches(localPatch, hash))
                     {
                         patchHashMatches = true;
+                        CBPLogger.GetInstance.Info($"Hash match: {hash}");
                         break;
                     }
                 }
                 if (!patchHashMatches)
                 {
-                    throw new IOException("Patch file does not match known hashes.");
+                    throw new IOException($"Patch file does not match known hashes: {localPatch}");
                 }
 
                 using (var baseFile = File.OpenRead(oldExe))
