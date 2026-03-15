@@ -9,19 +9,19 @@
              DataContext="{StaticResource MC}">
     <Grid Background="#EEF9F9F9" Margin="0,0,0,0">
         <StackPanel Orientation="Vertical" Margin="0,10,10,10" HorizontalAlignment="Center">
-            <Button Content="Steam Workshop: CBP Pre-releases" Command="{Binding WorkshopPRCommand}" Width="240" Height="32" FontSize="14" Margin="0,30,0,30"/>
+            <Button Content="Get other versions on Steam Workshop" Command="{Binding WorkshopPRCommand}" Width="250" Height="32" FontSize="14" Margin="0,20,0,30"/>
 
-            <StackPanel Orientation="Horizontal" Margin="10,14,10,10" HorizontalAlignment="Right">
-                <TextBlock Text="Alpha 9d (A9d)" Foreground="Black" FontSize="16" Margin="0,3,10,0"/>
+            <StackPanel Orientation="Horizontal" Margin="10,14,10,30" HorizontalAlignment="Right">
+                <TextBlock Text="Alpha 9d (a9d)" Foreground="Black" FontSize="16" Margin="0,3,10,0"/>
                 <Button Width="80" Height="30" Content="Install" Command="{Binding InstallA9dCommand}" FontSize="15" Margin="0,0,7,0"/>
                 <Button Width="80" Height="30" Content="Load" Command="{Binding LoadA9dCommand}" FontSize="15"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="10,14,10,10" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Margin="10,14,10,0" HorizontalAlignment="Right">
                 <TextBlock Text="Pre-Release 1 (PR1)" Foreground="Black" FontSize="16" Margin="0,3,10,0"/>
                 <Button Width="80" Height="30" Content="Install" Command="{Binding InstallPR1Command}" FontSize="15" Margin="0,0,7,0"/>
                 <Button Width="80" Height="30" Content="Load" Command="{Binding LoadPR1Command}" FontSize="15"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="10,14,10,10" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Margin="10,14,10,0" HorizontalAlignment="Right">
                 <TextBlock Text="Pre-Release 2 (PR2)" Foreground="Black" FontSize="16" Margin="0,3,10,0"/>
                 <Button Width="80" Height="30" Content="Install" Command="{Binding InstallPR2Command}" FontSize="15" Margin="0,0,7,0"/>
                 <Button Width="80" Height="30" Content="Load" Command="{Binding LoadPR2Command}" FontSize="15"/>

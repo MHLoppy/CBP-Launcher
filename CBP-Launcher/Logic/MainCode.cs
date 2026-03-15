@@ -1699,7 +1699,7 @@ namespace CBPLauncher.Logic
 
             InstallA9dCommand = new RelayCommand(async o =>
             {
-                await InstallSelfContainedVersion("2287791153", "Community Balance Patch Alpha 9d", "CBPa9d.delta", "riseofnations_CBPa9d.exe");
+                await InstallSelfContainedVersion("2528425253", "Community Balance Patch Alpha 9d", "CBPa9d.delta", "riseofnations_CBPa9d.exe");
             });
 
             LoadA9dCommand = new RelayCommand(async o =>
@@ -5333,28 +5333,40 @@ namespace CBPLauncher.Logic
 
         private async Task CheckForAndInstallLatestCbpVersion()
         {
-            // Get online version
-            WebClient webClient = new WebClient();
-            Version onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt"));
-            CBPLogger.GetInstance.Debug("Latest CBP version from online check: " + VersionToString(onlineVersion));
+            // Get online version, indicating *latest published* CBP version
+            Version onlineVersion;
+            try
+            {
+                WebClient webClient = new WebClient();
+                onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt"));
+                CBPLogger.GetInstance.Info("Latest CBP version from online check: " + VersionToString(onlineVersion));
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Online version check failed (this probably means either you aren't connected to the internet or MHLoppy's server is down)."
+                                + "\n\nThe update process will be skipped.");
+                return;
+            }
 
-            // Get workshop version
+            // Get workshop version, indicating *currently downloaded* CBP version
             Version workshopVersion;
             if (File.Exists(versionFileCBPWorkshop))
             {
                 workshopVersion = new Version(File.ReadAllText(versionFileCBPWorkshop));
+                CBPLogger.GetInstance.Debug("Downloaded version of CBP in Workshop: " + VersionToString(workshopVersion));
             }
             else
             {
                 throw new FileNotFoundException("Workshop version.txt file not found");
             }
 
-            // Get local version
+            // Get local version, indicating *currently installed* CBP version
             Version localVersion;
             if (File.Exists(versionFileCBPWorkshop))
             {
                 string newVersionFile = Path.Combine(folderCBProot, "version.txt");
                 localVersion = new Version(File.ReadAllText(newVersionFile));
+                CBPLogger.GetInstance.Debug("Installed version of CBP: " + VersionToString(localVersion));
             }
             else
             {
