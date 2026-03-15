@@ -5590,7 +5590,7 @@ namespace CBPLauncher.Logic
 
         private async Task InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName) // TODO: de-duplicate this absolute mess of a duplicate function
         {
-            string folderPath = Path.Combine(RonWorkshopPath, parentFolder, subFolderName);
+            string folderPath = Path.Combine(RonWorkshopPath, parentFolder, subFolderName, "Community Balance Patch");
             if (Directory.Exists(folderPath))
             {// TODO later: if the exe is already present locally, ask user if they want to re-copy files and overwrite the old ones
                 try
