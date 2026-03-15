@@ -5578,7 +5578,7 @@ namespace CBPLauncher.Logic
 
             if (Properties.Settings.Default.AddIconGameName)
             {
-                await AddIconGameName();
+                await RemoveIconGameName();
             }
 
             string helpXmlPath = Path.Combine(RoNDataPath, "help.xml");
