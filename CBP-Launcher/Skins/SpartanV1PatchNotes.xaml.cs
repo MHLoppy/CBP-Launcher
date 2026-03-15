@@ -97,14 +97,14 @@ namespace CBPLauncher.Skins
                     // https://stackoverflow.com/questions/2288999/how-can-i-get-a-flowdocument-hyperlink-to-launch-browser-and-go-to-url-in-a-wpf
                     Paragraph paragraph = new Paragraph();
                     myFlowDocument.Blocks.Add(paragraph);
-                    Run normaltext1 = new Run("These are only summaries with the most important details. Check the ");
+                    Run normaltext1 = new Run("For explanations and more details about these changes, check the ");
                     paragraph.Inlines.Add(normaltext1);
-                    Run linktext = new Run("Steam Workshop");
+                    Run linktext = new Run("full patch notes");
                     Hyperlink workshoplink = new Hyperlink(linktext);
-                    workshoplink.NavigateUri = new Uri("https://steamcommunity.com/sharedfiles/filedetails/changelog/2287791153");
+                    workshoplink.NavigateUri = new Uri("https://mhloppy.com/cbp-latest-patch");
                     workshoplink.RequestNavigate += new RequestNavigateEventHandler(Workshoplink_RequestNavigate);
                     paragraph.Inlines.Add(workshoplink); //ensure to add linkname, not linktextname
-                    Run normaltext2 = new Run(" for links to the full patch notes.");
+                    Run normaltext2 = new Run(".");
                     paragraph.Inlines.Add(normaltext2);
 
                     // patch notes - the main part of the flowdocument
