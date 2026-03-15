@@ -1699,42 +1699,42 @@ namespace CBPLauncher.Logic
 
             InstallA9dCommand = new RelayCommand(async o =>
             {
-                await InstallSelfContainedVersion("2528425253", "Community Balance Patch Alpha 9d", "CBPa9d.delta", "riseofnations_CBPa9d.exe");
+                await InstallSelfContainedVersion("2528425253", "CBP-Alpha9d", "CBPa9d.delta", "riseofnations_CBPa9d.exe");
             });
 
             LoadA9dCommand = new RelayCommand(async o =>
             {
-                TempLoadA9d();
+                await TempLoadA9d();
             });
 
             InstallPR1Command = new RelayCommand(async o =>
             {
-                await InstallSelfContainedVersion("2528425253", "Community Balance Patch PR1", "CBPPR1.delta", "riseofnations_CBPPR1.exe");
+                await InstallSelfContainedVersion("2528425253", "CBP-PR1", "CBPPR1.delta", "riseofnations_CBPPR1.exe");
             });
 
             LoadPR1Command = new RelayCommand(async o =>
             {
-                TempLoadPR1();
+                await TempLoadPR1();
             });
 
             InstallPR2Command = new RelayCommand(async o =>
             {
-                await InstallSelfContainedVersion("2528425253", "Community Balance Patch PR2", "CBPPR2.delta", "riseofnations_CBPPR2.exe");
+                await InstallSelfContainedVersion("2528425253", "CBP-PR2", "CBPPR2.delta", "riseofnations_CBPPR2.exe");
             });
 
             LoadPR2Command = new RelayCommand(async o =>
             {
-                TempLoadPR2();
+                await TempLoadPR2();
             });
 
             InstallPR3Command = new RelayCommand(async o =>
             {
-                await InstallSelfContainedVersion("2528425253", "Community Balance Patch PR3", "CBPPR3.delta", "riseofnations_CBPPR3.exe");
+                await InstallSelfContainedVersion("2528425253", "CBP-PR3", "CBPPR3.delta", "riseofnations_CBPPR3.exe");
             });
 
             LoadPR3Command = new RelayCommand(async o =>
             {
-                TempLoadPR3();
+                await TempLoadPR3();
             });
 
             MinimiseCommand = new RelayCommand(o =>
@@ -5625,7 +5625,7 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
-                        throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000.");
+                        throw new IOException("riseofnations.exe does not match known hashes of 00.2024.06.2000 (EE 1.20 with June 2024 update). Other versions and pirated copies are not supported.");
                     }
 
                     // for security and file integrity, hardcode and check vs a list of bsdiff patch hashes (TODO: make less janky)
