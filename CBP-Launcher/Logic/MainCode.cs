@@ -5553,6 +5553,7 @@ namespace CBPLauncher.Logic
             // TODO later: properly get the version and prefix instead of semi-hardcoding it
 
             gameExe = Path.Combine(RoNPathFinal, "riseofnations_CBP.exe"); // TODO later: double-check that this exists so as to catch the problem early if something goes wrong when launching
+            CBPLogger.GetInstance.Info($"Target exe set to {gameExe}");
 
             if (Properties.Settings.Default.AddIconGameName)
             {
@@ -5573,6 +5574,7 @@ namespace CBPLauncher.Logic
         private async Task LoadEe()
         {
             gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
+            CBPLogger.GetInstance.Info($"Target exe set to {gameExe}");
 
             if (Properties.Settings.Default.AddIconGameName)
             {
@@ -5665,6 +5667,9 @@ namespace CBPLauncher.Logic
                             BinaryPatch.Apply(baseFile, () => File.OpenRead(localPatch), outStream);
                         }
                     }
+
+                    MessageBox.Show($"Successfully installed {subFolderName}");
+                    CBPLogger.GetInstance.Info($"Installed {subFolderName}");
                 }
                 catch (Exception ex)
                 {
@@ -5687,6 +5692,7 @@ namespace CBPLauncher.Logic
             {
                 gameExe = exePath;
                 Status = status;
+                CBPLogger.GetInstance.Info($"Target exe set to {gameExe}");
 
                 //TODO later: read the version file or otherwise extract the version somehow? [temporarily semi-hardcoded]
                 VersionTextInstalled = versionTempHardcoded;
