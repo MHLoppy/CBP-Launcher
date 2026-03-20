@@ -3563,9 +3563,15 @@ namespace CBPLauncher.Logic
                 SaveSettings();
                 CBPLogger.GetInstance.Info($"Last used game version set to {VersionTextInstalled}");
 
+                string combinedArgs = string.Join(" ", ArgsHolder.StartupArgs);
+                string escapedArgs = combinedArgs.Replace("\"", "\\\"");
+                //string processedArgs = "\"" + escapedArgs + "\"";
+                CBPLogger.GetInstance.Info($"Passing these args to RoN process: {escapedArgs}");
+
                 ProcessStartInfo startInfo = new ProcessStartInfo(gameExe) // if you do this wrong (I don't fully remember what "wrong" was) the game can launch weirdly e.g. errors, bad mod loads etc.
                 {
-                    WorkingDirectory = RoNPathFinal //this change compared to reference app was suggested by VS itself - I'm assuming it's functionally equivalent at worst
+                    WorkingDirectory = RoNPathFinal, //this change compared to reference app was suggested by VS itself - I'm assuming it's functionally equivalent at worst
+                    Arguments = escapedArgs
                 };
                 Process.Start(startInfo);
                 //DEBUG: Process.Start(gameExe);

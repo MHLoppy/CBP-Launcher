@@ -5,6 +5,7 @@
              xmlns:logic="clr-namespace:CBPLauncher.Logic"
              xmlns:skins="clr-namespace:CBPLauncher.Skins"
              xmlns:core="clr-namespace:CBPLauncher.Core"
+             Startup="App_Startup"
              StartupUri="MainWindow.xaml">
 
     <!--     xmlns:v="clr-namespace:CBPLauncher.MVVM.View"

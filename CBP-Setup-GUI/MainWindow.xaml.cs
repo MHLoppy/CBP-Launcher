@@ -15,6 +15,13 @@ namespace CBPSetupGUI
 {
     public partial class MainWindow : Window
     {
+        public string[] Args { get; set; }
+
+        public void InitializeWithArgs(string[] args)
+        {
+            Args = args; // pre-stripped of process name, per App.xaml.cs
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -563,10 +570,15 @@ namespace CBPSetupGUI
         {
             try
             {
+                string combinedArgs = string.Join(" ", Args);
+                string escapedArgs = combinedArgs.Replace("\"", "\\\"");
+                string processedArgs = "\"" + escapedArgs + "\"";
+
                 // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
                 ProcessStartInfo PSI = new ProcessStartInfo(CbpLauncherLocalExePath)
                 {
-                    WorkingDirectory = Path.GetDirectoryName(CbpLauncherLocalExePath)
+                    WorkingDirectory = Path.GetDirectoryName(CbpLauncherLocalExePath),
+                    Arguments = processedArgs
                 };
                 Process.Start(PSI);
             }

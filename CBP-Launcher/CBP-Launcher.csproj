@@ -300,6 +300,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\ArgsHolder.cs" />
     <Compile Include="Core\CBPLogger.cs" />
     <Compile Include="Core\ILogger.cs" />
     <Compile Include="Logic\BasicIO.cs" />

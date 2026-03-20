@@ -13,6 +13,12 @@ namespace CBPSetupGUI
         {
             base.OnStartup(e);
             SetLanguageDictionary();
+
+            string[] args = e.Args; // Apparently this approach pre-strips what would otherwise be the first argument, being the process name
+            var mainWindow = new MainWindow();
+
+            mainWindow.InitializeWithArgs(args);
+            mainWindow.Show();
         }
 
         public static bool LangFallback = false;
