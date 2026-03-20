@@ -5389,8 +5389,7 @@ namespace CBPLauncher.Logic
             }
 
             bool workshopAndLocalDifferent = workshopVersion.IsDifferentThan(localVersion);
-            //bool workshopAndOnlineDifferent = workshopVersion.IsDifferentThan(onlineVersion
-            bool workshopAndOnlineDifferent = false;
+            bool workshopAndOnlineDifferent = workshopVersion.IsDifferentThan(onlineVersion);
             bool workshopAndLocalMatch = !workshopAndLocalDifferent;
             bool workshopAndOnlineMatch = !workshopAndOnlineDifferent;
 
