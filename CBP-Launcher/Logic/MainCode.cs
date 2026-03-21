@@ -5427,14 +5427,20 @@ namespace CBPLauncher.Logic
                 Properties.Settings.Default.WarnCompatibility = false;
                 SaveSettings();
 
-                CBPLogger.GetInstance.Info("Migration: Unloading old CBP format...");
-                if (Properties.Settings.Default.CBPLoaded) // note that there's a second CBPUnloaded setting too, because of legacy reasons
+                if (Properties.Settings.Default.CBPLoaded) // note that there's also a CBPUnloaded setting too, because of legacy reasons
                 {
                     await UnloadCBP();
                 }
 
-                CBPLogger.GetInstance.Info("Migration: Archiving old CBP format...");
-                await ArchiveNormal(); // The UI for the delete/archive setting was wired with the wrong binding, so no users actually have a delete>archive preference set and thus we can ignore it
+                if (Properties.Settings.Default.FirstTimeRun == false)
+                {
+                    CBPLogger.GetInstance.Info("Migration: Archiving old CBP format...");
+                    await ArchiveNormal(); // The UI for the delete/archive setting was wired with the wrong binding, so no users actually have a delete>archive preference set and thus we can ignore it
+                }
+                else
+                {
+                    CBPLogger.GetInstance.Info("Migration: Looks like first-time run, skipping archiving...");
+                }
 
                 // Create a new version.txt file in /Rise of Nations/CBP/ so that normal update processes can be checked against it
                 CBPLogger.GetInstance.Info("Migration: Creating new version.txt file...");
