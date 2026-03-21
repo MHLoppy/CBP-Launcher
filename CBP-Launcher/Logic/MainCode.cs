@@ -1096,7 +1096,7 @@ namespace CBPLauncher.Logic
         {
             // unreliably check if RoN was recently installed (the implication being that it may have been recently *re*installed, which we need to know about)
             string crossplay = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CrossplayNetLib.dll");
-            if ((RecentlyCreated(crossplay, 72) == true) && (Properties.Settings.Default.FuckStopTellingMe == false))
+            if ((RecentlyCreated(crossplay, 72) == true) && (Properties.Settings.Default.FuckStopTellingMe == false) && (Properties.Settings.Default.FirstTimeRun == false))
             {
                 CBPLogger.GetInstance.Warning("It looks like RoN may have been recently re-installed.");
 
