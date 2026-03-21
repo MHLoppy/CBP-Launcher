@@ -313,10 +313,10 @@ namespace CBPSetupGUI
             {
                 await ArtificialDelay();
                 string workshopCbpRootFolder = Path.GetDirectoryName(CbpLauncherWorkshopExePath);
-                string workshopCbpLatestFolder = Path.Combine(workshopCbpRootFolder, "Community Balance Patch");
+                //string workshopCbpLatestFolder = Path.Combine(workshopCbpRootFolder, "Community Balance Patch");
                 string workshopAnnouncementsTxt = Path.Combine(workshopCbpRootFolder, "announcements.txt");
                 string workshopOldAnnouncementsTxt = Path.Combine(workshopCbpRootFolder, "old_announcements.txt");
-                string workshopPatchnotesTxt = Path.Combine(workshopCbpLatestFolder, "patchnotes.txt");
+                string workshopPatchnotesTxt = Path.Combine(workshopCbpRootFolder, "patchnotes.txt");
 
                 string localRonRootFolder = Path.GetDirectoryName(CbpLauncherLocalExePath);
                 string localCbpFolder = Path.Combine(localRonRootFolder, "CBP");
