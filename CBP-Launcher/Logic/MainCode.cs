@@ -5432,14 +5432,15 @@ namespace CBPLauncher.Logic
                     await UnloadCBP();
                 }
 
-                if (Properties.Settings.Default.FirstTimeRun == false)
+                string unloadedVersionTxt = Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt");
+                if (File.Exists(unloadedVersionTxt)) // hacky way of checking for a first-time install since that bool controlling that is set before migration is called
                 {
                     CBPLogger.GetInstance.Info("Migration: Archiving old CBP format...");
                     await ArchiveNormal(); // The UI for the delete/archive setting was wired with the wrong binding, so no users actually have a delete>archive preference set and thus we can ignore it
                 }
                 else
                 {
-                    CBPLogger.GetInstance.Info("Migration: Looks like first-time run, skipping archiving...");
+                    CBPLogger.GetInstance.Info("Migration: Unloaded old CBP format not found (possible first-time CBP install), skipping archiving...");
                 }
 
                 // Create a new version.txt file in /Rise of Nations/CBP/ so that normal update processes can be checked against it
