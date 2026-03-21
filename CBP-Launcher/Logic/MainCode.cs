@@ -5636,15 +5636,16 @@ namespace CBPLauncher.Logic
                     if (ronMatch)
                     {
                         localPatch = Path.Combine(RoNPathFinal, patchName);
+                        CBPLogger.GetInstance.Info($"RoN exe does not have LAA flag set - using non-LAA patch file: {localPatch}");
                     }
                     else if (laaMatch)
                     {
                         var name = Path.GetFileNameWithoutExtension(patchName);
                         var ext = Path.GetExtension(patchName);
                         var laaPatchName = $"{name}_LAA{ext}";
-                        // TODO: logging
 
                         localPatch = Path.Combine(RoNPathFinal, laaPatchName);
+                        CBPLogger.GetInstance.Info($"RoN exe has LAA flag set - using LAA patch file: {localPatch}");
                     }
                     else
                     {
