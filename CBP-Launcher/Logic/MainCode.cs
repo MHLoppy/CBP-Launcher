@@ -5482,11 +5482,10 @@ namespace CBPLauncher.Logic
             string folderPath = Path.Combine(RonWorkshopPath, "2287791153", "Community Balance Patch"); // Instead of having a versioned folder name like "CBP Alpha 10", the latest version uses this generic folder name
             try
             {
-                // TODO: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
-                // TODO URGENT: until the local version of the workshop files is updated, this will keep copying the wrong files lol
+                // TODO later?: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
                 DirectoryCopy(folderPath, RoNPathFinal, true, true);
 
-                string localPatch;
+                string localPatch = Path.Combine(RoNPathFinal, patchNameTempHardcoded);
                 string oldExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
                 string newExe = Path.Combine(RoNPathFinal, "riseofnations_CBP.exe");
 
@@ -5497,20 +5496,14 @@ namespace CBPLauncher.Logic
                 bool nonLaaMatches = FileHashMatches(oldExe, ronHash);
                 bool laaMatches    = (!nonLaaMatches && FileHashMatches(oldExe, laaHash)); // avoids checking the LAA hash if the non-LAA hash matches
 
-                // transparently copy the LAA ("4GB patch") setting of the user's existing ron exe
+                // Check the LAA ("4GB patch") setting of the user's existing ron exe and that exe is valid patch target
                 if (nonLaaMatches)
                 {
-                    localPatch = Path.Combine(RoNPathFinal, patchNameTempHardcoded);
-                    CBPLogger.GetInstance.Info("RoN exe does not have LAA flag set - using non-LAA patch file.");
+                    CBPLogger.GetInstance.Info($"RoN exe does not have LAA flag set. Using non-LAA patch file: {localPatch}");
                 }
                 else if (laaMatches)
                 {
-                    var name = Path.GetFileNameWithoutExtension(patchNameTempHardcoded);
-                    var ext = Path.GetExtension(patchNameTempHardcoded);
-                    var laaPatchName = $"{name}_LAA{ext}";
-
-                    CBPLogger.GetInstance.Info("RoN exe has LAA flag set - using LAA patch file.");
-                    localPatch = Path.Combine(RoNPathFinal, laaPatchName);
+                    CBPLogger.GetInstance.Info($"RoN exe has LAA flag set. Using non-LAA patch file (LAA setting will be implicitly copied automatically): {localPatch}");
                 }
                 else
                 {
@@ -5521,17 +5514,13 @@ namespace CBPLauncher.Logic
                 List<string> hashes = new List<string>()
                 {
                     // SHA-256 of the bsdiff patch files; can do in windows using `certutil -hashfile "file-path-here" SHA256`
+                    // NOTE: LAA setting is implicitly passed through by default "automatically" as long as patch file is 
+                    //       generated using non-LAA-base.exe -> non-LAA-patched.exe so does not need to be handled here.
                     "70ad1ccec62ec70741f2229c212e6b0b1630af00606cce079e4eecfd960c7c4e", // Alpha 9d non-LAA
                     "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
                     "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
                     "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                     "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
-
-                    "cc9a2a83f8b778d4e75bbaf5d52be74aca7dba33d2114956f1dfd68e826cba84", // Alpha 9d LAA
-                    "6df9a625881699d375d43b67187fd24e3fb797208dc9e550c802a2110c27a8de", // PR1 LAA
-                    "b0190704ea894f3ab0f4db74c9501b4077bdfa56ef815c92c97beba05c0cd48c", // PR2 LAA
-                    "aaace60d1f05d3f35687a7e79e7d8aef24cbc374b733822c1e4a0215bed5443e", // PR3 LAA
-                    "fc70dd1eaa49cc4423b2291fadf96852162e4db0841ef3771f2188ca32b480a0", // Alpha 10 LAA
                 };
                 bool patchHashMatches = false;
                 foreach (string hash in hashes)
@@ -5621,7 +5610,7 @@ namespace CBPLauncher.Logic
                     // TODO: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
                     DirectoryCopy(folderPath, RoNPathFinal, true, true);
 
-                    string localPatch;
+                    string localPatch = Path.Combine(RoNPathFinal, patchName);
                     string oldExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
                     string newExe = Path.Combine(RoNPathFinal, exeName);
 
@@ -5632,20 +5621,14 @@ namespace CBPLauncher.Logic
                     bool ronMatch = FileHashMatches(oldExe, ronHash);
                     bool laaMatch = FileHashMatches(oldExe, laaHash);
 
-                    // transparently copy the LAA ("4GB patch") setting of the user's existing ron exe
+                    // Check the LAA ("4GB patch") setting of the user's existing ron exe and that exe is valid patch target
                     if (ronMatch)
                     {
-                        localPatch = Path.Combine(RoNPathFinal, patchName);
-                        CBPLogger.GetInstance.Info($"RoN exe does not have LAA flag set - using non-LAA patch file: {localPatch}");
+                        CBPLogger.GetInstance.Info($"RoN exe does not have LAA flag set. Using non-LAA patch file: {localPatch}");
                     }
                     else if (laaMatch)
                     {
-                        var name = Path.GetFileNameWithoutExtension(patchName);
-                        var ext = Path.GetExtension(patchName);
-                        var laaPatchName = $"{name}_LAA{ext}";
-
-                        localPatch = Path.Combine(RoNPathFinal, laaPatchName);
-                        CBPLogger.GetInstance.Info($"RoN exe has LAA flag set - using LAA patch file: {localPatch}");
+                        CBPLogger.GetInstance.Info($"RoN exe has LAA flag set. Using non-LAA patch file (LAA setting will be implicitly copied automatically): {localPatch}");
                     }
                     else
                     {
@@ -5656,17 +5639,13 @@ namespace CBPLauncher.Logic
                     List<string> hashes = new List<string>()
                     {
                         // SHA-256 of the bsdiff patch files; can do in windows using `certutil -hashfile "file-path-here" SHA256`
+                        // NOTE: LAA setting is implicitly passed through by default "automatically" as long as patch file is 
+                        //       generated using non-LAA-base.exe -> non-LAA-patched.exe so does not need to be handled here.
                         "70ad1ccec62ec70741f2229c212e6b0b1630af00606cce079e4eecfd960c7c4e", // Alpha 9d non-LAA
                         "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
                         "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
                         "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                         "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
-
-                        "cc9a2a83f8b778d4e75bbaf5d52be74aca7dba33d2114956f1dfd68e826cba84", // Alpha 9d LAA
-                        "6df9a625881699d375d43b67187fd24e3fb797208dc9e550c802a2110c27a8de", // PR1 LAA
-                        "b0190704ea894f3ab0f4db74c9501b4077bdfa56ef815c92c97beba05c0cd48c", // PR2 LAA
-                        "aaace60d1f05d3f35687a7e79e7d8aef24cbc374b733822c1e4a0215bed5443e", // PR3 LAA
-                        "fc70dd1eaa49cc4423b2291fadf96852162e4db0841ef3771f2188ca32b480a0", // Alpha 10 LAA
                     };
                     bool patchHashMatches = false;
                     foreach (string hash in hashes)
