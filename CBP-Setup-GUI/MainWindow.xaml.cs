@@ -328,6 +328,7 @@ namespace CBPSetupGUI
                 Directory.CreateDirectory(localCbpFolder);
                 File.Copy(workshopAnnouncementsTxt, localAnnouncementsTxt, true);
                 File.Copy(workshopPatchnotesTxt, localPatchnotesTxt, true);
+                File.Copy(workshopOldAnnouncementsTxt, localOldAnnouncementsTxt, true);
             }
             catch (Exception ex)
             {
