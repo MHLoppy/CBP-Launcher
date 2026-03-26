@@ -5864,15 +5864,22 @@ namespace CBPLauncher.Logic
     public class VersionArray //this seems like an inelegant way to implement the string array? but I wasn't sure where else to put it (and have it work)
     {
         //cheeky bit of extra changes to convert the numerical/int based X.Y.Z into the versioning I already used before this launcher
-        public static string[] versionStart = new string[14] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate "
-                                                               , "1.", "2.", "3.", "4.", "5.", "6." // 1.x is 5 in the array (6th value including 0)
-                                                               , "Pre-Release " // Pre-Release is 11 (12th value including 0) [used to be Challenger]
-                                                               , "Test Branch"  // 12 (13th value including 0); when detected should re-route the the .A.B.C values to new results
-                                                               , "XBP" };       // 13 (14th value including 0); when detected should re-route the the .A.B.C values to new results
-        public static string[] versionMiddle = new string[16] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" };
-        public static string[] versionEnd = new string[17] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" }; //e.g. can optionally just skip the subminor by intentionally using [0]
-        public static string[] versionHotfix = new string[21] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)" // 0-9 respectively
-                                                                , " (special)" // 10
-                                                                , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)", " (PR6)", " (PR7)", " (PR8)", " (PR9)", " (PR10+)" }; // 11-19 respectively, then 20 for 10+ because oh god why are there so many PRs
+        public static string[] versionStart = new string[15] { "not installed", "Pre-Alpha ", "Alpha ", "Beta ", "Release Candidate "
+                                                               , "1.", "2.", "3.", "4.", "5.", "6." // [5-10] (i.e., 6th-11th values)
+                                                               , "Challenger"                       // [11] (i.e., 12th value)
+                                                               , "Pre-Release "                     // [12] (i.e., 13th value)
+                                                               , "Test Branch"                      // [13] (i.e., 14th value)
+                                                               , "XBP" };                           // [14] (i.e., 15th value)
+        public static string[] versionMiddle = new string[32] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+                                                                , "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" // [10-19] (i.e., 11th-20th values)
+                                                                , "20", "21", "22", "23", "24", "25", "26", "27", "28", "29" // [20-29] (i.e., 21st-30th values)
+                                                                , "30", "31" };                                              // [30-31] (i.e., 31st-32nd values)
+        public static string[] versionEnd = new string[33] { "", "a", "b", "c", "d", "e", "f", "g", "h", "i"
+                                                             , "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"
+                                                             , "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}; // [21-32] i.e., 22nd-33rd values, used for test branch
+        public static string[] versionHotfix = new string[34] { "", " (hotfix 1)", " (hotfix 2)", " (hotfix 3)", " (hotfix 4)", " (hotfix 5)", " (hotfix 6)", " (hotfix 7)", " (hotfix 8)", " (hotfix 9)" // [0-9] i.e., 1st to 10th values
+                                                                , " (special)" // [10]
+                                                                , " (PR1)", " (PR2)", " (PR3)", " (PR4)", " (PR5)", " (PR6)", " (PR7)", " (PR8)", " (PR9)", " (PR10)", " (PR11)", " (PR12)", " (PR13)", " (PR14)", " (PR15)" // [11-19] i.e., 12th value to 21st value
+                                                                , "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033" }; //[26-33] i.e., 27th-34rd values, used for test branch
     }
 }
