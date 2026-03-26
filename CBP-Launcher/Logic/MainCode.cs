@@ -5617,9 +5617,11 @@ namespace CBPLauncher.Logic
                     // riseofnations.exe version 00.2024.06.2000 SHA256 hashes
                     string ronHash = "30478a44b577cb11ebcbbbf53d3e93ba02fd2aacf3bdefa6552c9b6449625079";
                     string laaHash = "75d9b49109d5eefe8ab9d73dc53f44f0e193c445b63c5b2e8e11ed9b90a6ef41";
+                    string fgbHash = "6ff7194c73b38c52d2ee5b62be98e63fa5ac36ae8e66059d6493f78eb7c65e94";
 
                     bool ronMatch = FileHashMatches(oldExe, ronHash);
                     bool laaMatch = FileHashMatches(oldExe, laaHash);
+                    bool fgbMatch = FileHashMatches(oldExe, fgbHash); // the 4GB Patch program automatically recalculates the program's internal checksum, but since RoN doesn't have one, the hash is different
 
                     // Check the LAA ("4GB patch") setting of the user's existing ron exe and that exe is valid patch target
                     if (ronMatch)
@@ -5628,7 +5630,11 @@ namespace CBPLauncher.Logic
                     }
                     else if (laaMatch)
                     {
-                        CBPLogger.GetInstance.Info($"RoN exe has LAA flag set. Using non-LAA patch file (LAA setting will be implicitly copied automatically): {localPatch}");
+                        CBPLogger.GetInstance.Info($"RoN exe has LAA flag set (LAA exe). Using non-LAA patch file (LAA setting will be implicitly copied automatically): {localPatch}");
+                    }
+                    else if (fgbMatch)
+                    {
+                        CBPLogger.GetInstance.Info($"RoN exe has LAA flag set (4GB patch exe). Using non-LAA patch file (LAA setting will be implicitly copied automatically): {localPatch}");
                     }
                     else
                     {
