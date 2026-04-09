@@ -18,7 +18,7 @@ _The Sound.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](
 ![CBP Launcher v0.5 spartan v1](https://i.imgur.com/LH8muOp.png)
 ![CBP Setup GUI v0.5](https://i.imgur.com/Scf5pH7.png)
 
-*screenshots show v0.5*
+*screenshots show a mix of v0.6 and v0.5*
 
 ### TODO
 - Able to function even if source of update checks becomes unavailable (target v0.7 - clunky implementation present in 0.6.6.1)
