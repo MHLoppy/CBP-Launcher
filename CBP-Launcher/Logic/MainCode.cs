@@ -1256,7 +1256,7 @@ namespace CBPLauncher.Logic
                 AssignZipPath();
 
                 // this starts a cycle through each of the automatic find-path attempts - if all fail, it just prompts user to input the path into a popup box instead
-                await FindPathAuto1();
+                await FindRoNPath();
             }
             catch (Exception ex)
             {
@@ -1965,115 +1965,144 @@ namespace CBPLauncher.Logic
             gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
         }
 
-        private async Task FindPathAuto1()
+        private async Task FindRoNPath()
         {
-            if (Properties.Settings.Default.RoNPathSetting == "no path")
+            string ronPath = await TryFindPathFromSettings()
+                          ?? await TryFindPathFromRegistry()
+                          ?? await TryFindPathFromDefaultLocations()
+                          ?? await TryFindPathFromUser();
+
+            if (ronPath != null)
             {
-                //I'm unsure if registry in non-English will actually have this exact path - do the names change per language?
-                using (RegistryKey ronReg = RegPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450"))
+                await RonPathFound(ronPath);
+            }
+            else
+            {
+                RonPathNotFoundShutdown();
+            }
+        }
+
+        private async Task<string> TryFindPathFromSettings()
+        {
+            string savedPath = Properties.Settings.Default.RoNPathSetting;
+
+            if (savedPath == "no path")
+            {
+                return null;
+            }
+
+            if (IsValidRonInstallPath(savedPath))
+            {
+                return savedPath;
+            }
+
+            return null;
+        }
+
+        private async Task<string> TryFindPathFromRegistry()
+        {
+            try
+            {
+                string ronRegPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450";
+                using (RegistryKey ronReg = RegPath.OpenSubKey(ronRegPath))
                 {
-                    // some RoN:EE installs (for some UNGODLY REASON WHICH I DON'T UNDERSTAND) don't have their location in the registry, so we have to work around that
-                    if (ronReg != null)
+                    if (ronReg == null)
                     {
-                        // success: automated primary
-                        string foundRonPath = RegPath.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450").GetValue("InstallLocation").ToString();
-                        await RoNPathFound(foundRonPath);
+                        CBPLogger.GetInstance.Debug("No valid RoN install path found in registry...");
+                        return null;
                     }
 
+                    string installLocation = ronReg.GetValue("InstallLocation")?.ToString(); // null-conditional avoids null reference error if calling ToString() on null
+                    if (IsValidRonInstallPath(installLocation))
+                    {
+                        CBPLogger.GetInstance.Debug($"Found RoN path using registry: {installLocation}");
+                        return installLocation;
+                    }
                     else
                     {
-                        CBPLogger.GetInstance.Debug("FindPathAuto1 unable to find path, moving to 2.");
-                        await FindPathAuto2();
+                        return null;
                     }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                RoNPathFinal = Properties.Settings.Default.RoNPathSetting;//moved here so that it works after upgrading settings
-
-                //a7 temp
-                RoNDataPath = Path.Combine(RoNPathFinal, "Data");
-
-                helpXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, helpXML));// now also used by dynamic cbp status generation
-                interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, interfaceXML));
-                setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, setupwinXML));
-                patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
-
-                CBPLogger.GetInstance.Debug("Using RoN path saved in settings: " + RoNPathFinal);
+                CBPLogger.GetInstance.Debug($"Registry lookup failed: {ex}");
+                return null;
             }
         }
 
-        private async Task FindPathAuto2()
+        private async Task<string> TryFindPathFromDefaultLocations()
         {
-            // try a default 64-bit install path, since that should probably work for most of the users with cursed registries
-            string foundRonPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + @"\Steam\SteamApps\common\Rise of Nations";
-
-            if (File.Exists(Path.Combine(foundRonPath, "riseofnations.exe")))
+            string programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+            string[] defaultPaths = new[]
             {
-                // success: automated secondary 1
-                await RoNPathFound(foundRonPath);
-            }
-            else
+                Path.Combine(programFilesX86, @"Steam\SteamApps\common\Rise of Nations"),
+                @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations"
+            };
+
+            foreach (string path in defaultPaths)
             {
-                CBPLogger.GetInstance.Debug("FindPathAuto2 unable to find path, moving to 3.");
-                await FindPathAuto3();
-            }
-        }
-
-        private async Task FindPathAuto3()
-        {
-            // old way of doing it, but used as as backup because I don't know if the environment call method ever fails or not
-            string foundRonPath = @"C:\Program Files (x86)\Steam\SteamApps\common\Rise of Nations";
-
-            if (File.Exists(Path.Combine(foundRonPath, "riseofnations.exe")))
-            {
-                // success: automated secondary 2
-                await RoNPathFound(foundRonPath);
-            }
-
-            // automated methods unable to locate RoN install path - ask user for path
-            else
-            {
-                CBPLogger.GetInstance.Debug("FindPathAuto3 unable to find path, moving to manual.");
-                await FindPathManual();
-            }
-        }
-
-        private async Task FindPathManual()
-        {
-            //people hate gotos (less so in C# but still) but this seems like a very reasonable substitute for a while-not-true loop that I haven't figured out how to implement here
-            AskManualPath:
-
-            string foundRonPath = Interaction.InputBox($"Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
-                                                        + "\n\n" + @"e.g. D:\Steamgames\common\Rise of Nations", "Unable to detect RoN install");
-
-            CBPLogger.GetInstance.Debug($"User has supplied {foundRonPath} as RoN path.");
-
-            // check that the user has input a seemingly valid location
-            if (File.Exists(Path.Combine(foundRonPath, "riseofnations.exe")))
-            {
-                // success: manual path
-                await RoNPathFound(foundRonPath);
-            }
-            else
-            {
-                // tell user invalid path, ask if they want to try again
-                string message = $"Rise of Nations install not detected in that location. "
-                               + "The path needs to be the folder that riseofnations.exe is located in (but not including the executable itself in that path)."
-                               + "\n\n Would you like to try entering a path again?";
-
-                if (MessageBox.Show(message, "Invalid Path", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (IsValidRonInstallPath(path))
                 {
-                    goto AskManualPath;
+                    CBPLogger.GetInstance.Debug($"Found RoN path at default location: {path}");
+                    return path;
+                }
+            }
+
+            CBPLogger.GetInstance.Debug("RoN not found in any default locations...");
+            return null;
+        }
+
+        private async Task<string> TryFindPathFromUser()
+        {
+            while (true)
+            {
+                string userpathTitle = "Unable to detect RoN install";
+                string userpathMessage = "Please provide the file path to the folder where Rise of Nations: Extended Edition is installed."
+                                         + "\n\ne.g. D:\\Steamgames\\common\\Rise of Nations";
+                string userPath = Interaction.InputBox(userpathMessage, userpathTitle);
+
+                CBPLogger.GetInstance.Debug($"User supplied RoN path: {userPath}");
+
+                if (IsValidRonInstallPath(userPath))
+                {
+                    return userPath;
+                }
+
+                string retryTitle = "Invalid Path";
+                string retryMessage = "Rise of Nations install not detected in that location."
+                                      + " The path needs to be to the folder containing riseofnations.exe."
+                                      + "\n\nWould you like to try again?";
+                if (MessageBox.Show(retryMessage, retryTitle, MessageBoxButton.YesNo) == MessageBoxResult.No)
+                {
+                    CBPLogger.GetInstance.Debug($"User supplied invalid path and declined to retry.");
+                    return null;
                 }
                 else
                 {
-                    MessageBox.Show("Launcher will now close.");
-                    CBPLogger.GetInstance.Warning("RoN path(s) provided by user not valid.");
-                    LogManager.Shutdown();
-                    Environment.Exit(0);
+                    CBPLogger.GetInstance.Debug($"User supplied invalid path and will retry...");
+                    // now loop back to asking for the path again
                 }
             }
+        }
+
+        private bool IsValidRonInstallPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
+
+            bool canFindRonExe = File.Exists(Path.Combine(path, "riseofnations.exe"));
+            return canFindRonExe;
+        }
+
+        private void RonPathNotFoundShutdown()
+        {
+            MessageBox.Show("RoN path could not be determined. Launcher will now close.");
+            CBPLogger.GetInstance.Warning("RoN path could not be determined.");
+            LogManager.Shutdown();
+            Environment.Exit(0);
         }
 
         private async Task AssignPaths()
@@ -4933,25 +4962,28 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task RoNPathFound(string foundRonPath)
+        private async Task RonPathFound(string foundRonPath)
         {
-            if (RoNPathFinal == $"no path")
+            if (RoNPathFinal == "no path")
             {
-                MessageBox.Show($"Rise of Nations detected in " + foundRonPath);
+                CBPLogger.GetInstance.Info($"Settings had no RoN path saved when RoN path was found, updating to: {foundRonPath}");
+
+                Properties.Settings.Default.RoNPathSetting = foundRonPath;
+                SaveSettings();
             }
+            else
+            {
+                CBPLogger.GetInstance.Info($"Settings had a RoN path saved when RoN path was found, using: {foundRonPath}");
+            }
+
             RoNPathFinal = foundRonPath;
             RoNDataPath = Path.Combine(RoNPathFinal, "Data");
-
-            Properties.Settings.Default.RoNPathSetting = RoNPathFinal;
-            SaveSettings();
 
             //a7 temp
             helpXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, helpXML));
             interfaceXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, interfaceXML));
             setupwinXMLOrig = Path.GetFullPath(Path.Combine(RoNDataPath, setupwinXML));
             patriotsOrig = Path.GetFullPath(Path.Combine(RoNPathFinal, "patriots.exe"));
-
-            CBPLogger.GetInstance.Debug("RoN path found: " + foundRonPath);
         }
 
         private async Task ArchiveNormal()
