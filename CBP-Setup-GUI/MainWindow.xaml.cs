@@ -16,6 +16,7 @@ namespace CBPSetupGUI
     public partial class MainWindow : Window
     {
         public string[] Args { get; set; }
+        private bool CbpLauncherIsRunning = false;
 
         public void InitializeWithArgs(string[] args)
         {
@@ -165,7 +166,9 @@ namespace CBPSetupGUI
                 await DelayedClose(LangRes.ErrorAlreadyRunning + "\n" + LangRes.WindowWillClose, 1056);
                 return;
             }
-            if (await ProcessCheck("CBPLauncher", 1) == true)
+
+            CbpLauncherIsRunning = await ProcessCheck("CBPLauncher", 1);
+            if (CbpLauncherIsRunning)
             {
                 MessageBox.Show(LangRes.CBPLCurrentlyRunning);
                 await DelayedClose(LangRes.CBPLCurrentlyRunning + "\n" + LangRes.WindowWillClose, 1056);
@@ -424,7 +427,7 @@ namespace CBPSetupGUI
             await ArtificialDelay();
             FirstTimeSlow();
 
-            if (await ProcessCheck("CBPLauncher", 0) == false)
+            if (CbpLauncherIsRunning == false)
             {
                 //ask user if it's okay to run CBP Launcher [can autoconsent]
                 if (Properties.Settings.Default.AutoConsent == false)
