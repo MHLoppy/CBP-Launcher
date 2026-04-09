@@ -72,12 +72,10 @@ namespace CBPLauncher.Logic
         private string RonWorkshopPath;
         private string unloadedModsPath;
         private string RoNDataPath;
-        private bool antiSpam = false;
+        //private bool antiSpam = false;
         private List<IPluginCBP> pluginList = null;
         private List<string> pluginsPathList = new List<string>();
         private string pluginTitles = "";
-
-        private bool BullshitButtonPress = false;
 
         //a7 temp
         private string helpXML = "help.xml";
@@ -108,7 +106,6 @@ namespace CBPLauncher.Logic
         private List<string> CBPFileListModded = new List<string>();
         private List<string> CBPFileListOriginal = new List<string>();
         private bool updateSetupLater = true;
-        private bool prereleaseFilesDetected = false;
         private string primaryDataCBP;
         private string secondaryDataCBP;
         private string primaryNonDataCBP;
@@ -1481,12 +1478,6 @@ namespace CBPLauncher.Logic
                 DetectBullshit_Inversion();
             });
 
-            /*DetectBullshitNowCommand = new RelayCommand(o =>
-            {
-                WarnLocalModDataFiles();
-                BullshitButtonPress = true;
-            });*/
-
             OptionalMaintainCommand = new RelayCommand(o =>
             {
                 OptionalMaintain_Inversion();
@@ -2249,82 +2240,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        // this is specifically to warn about the absolutely asinine damage bug (which can cause OoS's) that I discovered with Barks and Triremes - check their RoN wiki page X_X
-        // no longer needed because I found a fix to the bug instead of needing grating workarounds
-        /*private void WarnLocalModDataFiles()
-        {
-            //filter this at the top so that people who've turned it off are least affected by any performance hit / annoyance
-            if (Properties.Settings.Default.DetectBullshit || Properties.Settings.Default.FirstTimeRun)
-            {
-                try
-                {
-                    // get a list of the subfolders in the local mods folder, i.e. a list of local mods
-                    List<string> searchThisList = new List<string>(Directory.GetDirectories(localMods, "*", SearchOption.TopDirectoryOnly));
-                    string modList = "";
-                    bool sendWarning = false;
-
-                    // remove false positives from CBP (which is now avoiding using data files in this location) and unloaded mods (which avoids the loading path)
-                    //if (searchThisList.Contains(localPathCBP))
-                    //    searchThisList.Remove(localPathCBP);//actually now that the mod format has been updated, there are actually no /Data files there
-                    if (searchThisList.Contains(unloadedModsPath))
-                        searchThisList.Remove(unloadedModsPath);
-
-                    // if there's any subfolders left with XML files...
-                    foreach (string modFolder in searchThisList)
-                    {
-                        //we want to check only for XML files in a /Data directory, because otherwise there'll be false positives
-                        string modDataFolder = Path.Combine(modFolder, "Data");
-                        string modArtFolder = Path.Combine(modFolder, "art");// not sure if the search is case sensitive or not
-
-                        //this is a ~maybe~ overall better (possibly faster at same folders, but can also be slower *but* search ALL the folders maybe?)
-                        /*List<string> filteredFiles = Directory
-                                                     .EnumerateFiles(modFolder)
-                                                     .Where(file => file.EndsWith("xml", StringComparison.InvariantCultureIgnoreCase)
-                                                                 || file.EndsWith("tga", StringComparison.InvariantCultureIgnoreCase))
-                                                     .ToList();
-
-                        foreach (string s in filteredFiles)
-                            MessageBox.Show(s);*/
-
-                        //also filter out potential dropdown mods (info.xml in root of mod folder), because those aren't loaded by default
-                        /*if (Directory.Exists(modDataFolder) && !File.Exists(Path.Combine(modFolder, "info.xml")))
-                        {
-                            if (Directory.GetFiles(modDataFolder, "*.xml", SearchOption.TopDirectoryOnly).Length == 0
-                                && Directory.GetFiles(modArtFolder, "*.tga", SearchOption.AllDirectories).Length == 0) { }//if no match, all good
-                            else
-                            {
-                                //but if there is a match, add the path of that mod to the list and turn on the flag which sends the message
-                                modList += (modFolder + "\n\n");
-                                sendWarning = true;
-                            }
-                        }
-                    }
-
-                    if (sendWarning)
-                        MessageBox.Show("These local mods *may* contain files which trigger a known bug in the first game of every session: " + "\n\n" + modList
-                                    //+ "This bug can cause OoS issues in the first game of every session you play.\n\n"
-                                    + "To prevent this issue, either move/remove those mods, "
-                                    + "or make sure you ALWAYS start and quit from one game before playing any \"real\" games."
-                                    , "Potential OoS issue detected"
-                                    , MessageBoxButton.OK
-                                    , MessageBoxImage.Warning);
-
-                    //we only want this message to show on button press, not on automatic checks
-                    else if (BullshitButtonPress)
-                    {
-                        BullshitButtonPress = false;
-                        MessageBox.Show("No TGA art files or XML data files detected in local mods folder. Note that there are still other, less common files which could still cause the problem.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error with XML detection for bark/trireme OoS bug: " + ex);
-                    // not instaclosing because it should be a relatively non-problematic error.. hopefully
-                }
-            }
-            //else do nothing
-        }*/
-
         /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one (..for now), meaning that some stuff such as archiving doesn't need to be here too
         {         //later on can refactor the whole thing maybe
             if (Properties.Settings.Default.CBPUnloaded == false)
@@ -2787,7 +2702,6 @@ namespace CBPLauncher.Logic
 
                 try
                 {
-                    prereleaseFilesDetected = true;
                     //UnloadCBP();//had to replace with "custom" unloading, because this seems to trip a system.io access denied error (probably because I still want access to those files)
 
                     File.Delete(helpXMLOrig);
@@ -2803,8 +2717,6 @@ namespace CBPLauncher.Logic
 
                     Properties.Settings.Default.OldFilesRenamed = false;//yes I know this is almost definitely now redundant
                     SaveSettings();
-
-                    prereleaseFilesDetected = false;
                 }
                 catch (Exception ex)
                 {
@@ -3417,12 +3329,6 @@ namespace CBPLauncher.Logic
         {
             /// TODO remove later: medium-term Alpha 10 debugging
             CBPLogger.GetInstance.Debug("Play button clicked.");
-
-            //legacy: from when Bark/Trireme OoS detection was needed
-            //the setting that triggers this is toggled off after the first time the launcher is run
-            //WarnLocalModDataFiles();
-            //Properties.Settings.Default.FirstTimeRun = false;
-            //SaveSettings();
 
             // only warn if user has not disabled this setting
             if (Properties.Settings.Default.WarnCompatibility == true)
