@@ -1868,7 +1868,7 @@ namespace CBPLauncher.Logic
             {
                 SpToggleTabs(2);
                 CurrentTab = SpartanV1ModManager;
-                PluginSecurityWarning();
+                //PluginSecurityWarning();
             });
 
             SpV1TabOptionsCommand = new RelayCommand(o =>
@@ -1901,7 +1901,7 @@ namespace CBPLauncher.Logic
                 CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                 CPToggleTabs(2);
                 CurrentTab = ClassicPlusModManager;
-                PluginSecurityWarning();
+                //PluginSecurityWarning();
             });
 
             CPTabOptionsCommand = new RelayCommand(o =>
