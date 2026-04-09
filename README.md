@@ -14,7 +14,7 @@ _The Rules.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](
 
 _The Sound.xml Editor plugin bundled with CBP as of Alpha 8 can be found [here](https://github.com/MHLoppy/CBP-SE-Plugin)._
 
-![CBP Launcher v0.5 classic plus](https://i.imgur.com/EurwlsN.png)
+![CBP Launcher v0.5 classic plus](https://i.imgur.com/P8pp3rV.png)
 ![CBP Launcher v0.5 spartan v1](https://i.imgur.com/LH8muOp.png)
 ![CBP Setup GUI v0.5](https://i.imgur.com/Scf5pH7.png)
 
