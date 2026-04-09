@@ -160,14 +160,15 @@ namespace CBPSetupGUI
         {
             // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
             string thisProcessName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
-            if (await ProcessCheck(thisProcessName, 1) == true)
+            if (await HasMoreThanNumProcesses(thisProcessName, 1) == true)
             {
                 MessageBox.Show(LangRes.ErrorAlreadyRunning);
                 await DelayedClose(LangRes.ErrorAlreadyRunning + "\n" + LangRes.WindowWillClose, 1056);
                 return;
             }
 
-            CbpLauncherIsRunning = await ProcessCheck("CBPLauncher", 1);
+            // safeguard against *multiple* CBP Launcher instances running
+            CbpLauncherIsRunning = await HasMoreThanNumProcesses("CBPLauncher", 1);
             if (CbpLauncherIsRunning)
             {
                 MessageBox.Show(LangRes.CBPLCurrentlyRunning);
@@ -461,26 +462,30 @@ namespace CBPSetupGUI
 
         async Task Conclusion()
         {
-            await Delay(600); //wait too long and it could give a false negative on fast system (crash/close); too short and you get a false negative on a slow system (still loading)
-            if (await ProcessCheck("CBPLauncher", 0) == false)
+            int maxAttempts = 30;
+            int delayMs = 120;
+            bool launcherRunning = false;
+
+            for (int i = 0; i < maxAttempts; i++)
             {
-                // second try, reduce false negatives for slower systems (or just random OS hitches)
-                await Delay(3200);
-                if (await ProcessCheck("CBPLauncher", 0) == false)
+                if (await HasMoreThanNumProcesses("CBPLauncher", 0) == true)
                 {
-                    MessageBox.Show(LangRes.StartCBPLFail);
-                    await DelayedClose(LangRes.StartCBPLFail + "\n" + LangRes.WindowWillClose, -1);
-                    return;
+                    launcherRunning = true;
+                    break;
                 }
-                //no need for the slowdown since the delay is already long
-                await DelayedClose(LangRes.StartCBPLSuccess + "\n" + LangRes.WindowWillClose, 0);
-                return;
+                await Delay(delayMs);
+                delayMs += 10;
             }
-            else
+
+            if (launcherRunning)
             {
                 await ArtificialDelay();
                 await DelayedClose(LangRes.StartCBPLSuccess + "\n" + LangRes.WindowWillClose, 0);
-                return;
+            }
+            else
+            {
+                MessageBox.Show(LangRes.StartCBPLFail);
+                await DelayedClose(LangRes.StartCBPLFail + "\n" + LangRes.WindowWillClose, -1);
             }
         }
 
@@ -506,7 +511,7 @@ namespace CBPSetupGUI
             }
         }
 
-        async Task<bool> ProcessCheck(string processName, int qty) //not really anything to run async here
+        async Task<bool> HasMoreThanNumProcesses(string processName, int qty) //not really anything to run async here
         {
             return Process.GetProcessesByName(processName).Length > qty;
         }
