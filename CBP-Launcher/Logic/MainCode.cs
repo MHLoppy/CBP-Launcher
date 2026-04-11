@@ -1327,6 +1327,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info("RoN:EE detected in: " + EEPath);
                 CBPLogger.GetInstance.Info("Steam Workshop detected in: " + WorkshopPathDebug);
                 CBPLogger.GetInstance.Info("Steam Workshop (CBP) detected in: " + WorkshopPathCBPDebug);
+                await Task.Yield();
             }
             catch (Exception ex)
             {
@@ -1348,12 +1349,14 @@ namespace CBPLauncher.Logic
                 //new for late alpha 7; doing some path assigning too because this is the first time directories are created *after* the normal path assignment function
                 Directory.CreateDirectory(Path.Combine(EEPath, "CBP")); //used for CBP file storage going forward
                 folderCBProot = Path.Combine(RoNPathFinal, "CBP");
+                await Task.Yield();
 
                 //Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files")); //modded (CBP) files //decided to just use the existing CBP local mod directory
                 Directory.CreateDirectory(Path.Combine(folderCBProot, "Original files")); //copies of the user's original files (which are *not necessarily* RoN:EE's original files)
                 Directory.CreateDirectory(Path.Combine(folderCBProot, "CBP files"));
                 folderCBPmodded = Path.Combine(folderCBProot, "CBP files");
                 folderCBPoriginal = Path.Combine(folderCBProot, "Original files");
+                await Task.Yield();
 
                 Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest"));
                 Directory.CreateDirectory(Path.Combine(folderCBPoriginal, "conquest", "Napoleon"));
@@ -5369,19 +5372,23 @@ namespace CBPLauncher.Logic
         private async Task CheckForAndInstallLatestCbpVersion()
         {
             // Get online version, indicating *latest published* CBP version
-            Version onlineVersion;
-            try
+            // this seems to be nearly the entire wait time lmao, at least on my mid-range laptop
+            Version onlineVersion = new Version();
+            await Task.Run(() =>
             {
-                WebClient webClient = new WebClient();
-                onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt"));
-                CBPLogger.GetInstance.Info("Latest CBP version from online check: " + VersionToString(onlineVersion));
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Online version check failed (this probably means either you aren't connected to the internet or MHLoppy's server is down)."
-                                + "\n\nThe update process will be skipped.");
-                return;
-            }
+                try
+                {
+                    WebClient webClient = new WebClient();
+                    onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt"));
+                    CBPLogger.GetInstance.Info("Latest CBP version from online check: " + VersionToString(onlineVersion));
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Online version check failed (this probably means either you aren't connected to the internet or MHLoppy's server is down)."
+                                    + "\n\nThe update process will be skipped.");
+                    return;
+                }
+            });
 
             // Get workshop version, indicating *currently downloaded* CBP version
             Version workshopVersion;

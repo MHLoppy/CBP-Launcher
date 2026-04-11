@@ -19,37 +19,13 @@ namespace CBPLauncher.Skins
 {
     /// WARNING
     /// DO NOT use messagebox.show here - it will interrupt the flowdocument and crash it
+    /// also certain stuff related to the flowdoc MUST be done on the main thread or it will crash
     /// WARNING
-    public partial class ClassicPlusPatchNotes : UserControl//TODO: check for patch notes file before continuing
+    public partial class ClassicPlusPatchNotes : UserControl
     {
-        // tried to reduce memory usage by assigning this a single time here (except for again in the catch exception) instead of once in each block of relevant code, but it didn't seem to change memory usage
-        FlowDocument myFlowDocument = new FlowDocument();
-
         public ClassicPlusPatchNotes()
         {
             InitializeComponent();
-        }
-
-        private void FDViewer_Initialized(object sender, EventArgs e)
-        {
-            if (IsInDesignMode() == false)
-            {
-                try
-                {
-                    LoadFormattedPatchNotes();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error loading patch notes: " + ex);
-                }
-            }
-            else
-            {
-                //designtime baybeee
-
-                myFlowDocument.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
-                FDViewer.Document = myFlowDocument;
-            }
         }
 
         private DependencyObject dummy = new DependencyObject();
@@ -59,10 +35,158 @@ namespace CBPLauncher.Skins
             return DesignerProperties.GetIsInDesignMode(dummy);
         }
 
-        void PatchNotes_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        void PatchNotes_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
+        }
+
+        private void FDViewer_Initialized(object sender, EventArgs e)
+        {
+            if (IsInDesignMode() == false)
+            {
+                // Placeholder while loading
+                var placeholder = new FlowDocument();
+                placeholder.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
+                placeholder.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");//make the text illegible
+
+                placeholder.FontFamily = new FontFamily("Segoe UI");
+                placeholder.FontSize = 15;
+                placeholder.PagePadding = new Thickness(10, 10, 10, 5); // hyperlink height is higher lol
+                placeholder.TextAlignment = TextAlignment.Left;
+
+                // replicate top so it looks similar
+                Paragraph paragraph = new Paragraph();
+                placeholder.Blocks.Add(paragraph);
+                Run text1 = new Run("For explanations and more details about these changes, check the full patch notes.");
+                paragraph.Inlines.Add(text1);
+                string placeholderHtml = "<html><body style='background-color: #4B101010; font-family: sans-serif; color: #C8C8C8;'>";
+
+                // Add blank lines to fill space
+                for (int i = 0; i < 50; i++)
+                {
+                    placeholderHtml += "<br>&nbsp;</br>";
+                }
+                placeholderHtml += "</body></html>";
+
+                string placeholderXaml = HtmlToXamlConverter.ConvertHtmlToXaml(placeholderHtml, false);
+                placeholder.Blocks.Add((Section)XamlReader.Parse(placeholderXaml));
+
+                FDViewer.Document = placeholder;
+
+                BackgroundWorker worker = new BackgroundWorker();
+                worker.DoWork += (s, ev) =>
+                {
+                    try
+                    {
+                        // The doc (?) is fussy about being done on a background thread, so just do what we can in background
+                        string patchnotes = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/patchnotes.txt"));
+
+                        if (File.Exists(patchnotes))
+                        {
+                            string formattedPatchNotes = "<html><body style='background-color: #4B101010; font-family: sans-serif; color: #C8C8C8;'>" + ProcessBBCodeFromTxtFile(patchnotes) + "</body></html>";
+                            string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedPatchNotes, false);
+                            ev.Result = xaml;
+                        }
+                        else
+                        {
+                            ev.Result = null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ev.Result = ex;
+                    }
+                };
+                worker.RunWorkerCompleted += (s, ev) =>
+                {
+                    // All UI element creation on UI thread
+                    try
+                    {
+                        if (ev.Result is Exception ex)
+                        {
+                            FDViewer.Document = CreateErrorDocument("Error loading patch notes: " + ex);
+                        }
+                        else if (ev.Result is string xaml)
+                        {
+                            FDViewer.Document = LoadFormattedPatchNotes(xaml);
+                        }
+                        else
+                        {
+                            FDViewer.Document = LoadFormattedPatchNotes(null);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        FDViewer.Document = CreateErrorDocument("Error building document: " + ex);
+                    }
+                };
+                worker.RunWorkerAsync();
+            }
+            else
+            {
+                //designtime baybeee
+                var doc = new FlowDocument();
+                doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
+                FDViewer.Document = doc;
+            }
+        }
+
+        // Now takes pre-processed XAML string so we can offload better
+        private FlowDocument LoadFormattedPatchNotes(string xaml)
+        {
+            // this version is used when rendering directly in HTML (e.g. webbrowser control or cefsharp)
+            //string formattedPatchNotes = "<html><body style='background-color: #404040; font-family: sans-serif; color: #f8f8f8; font-size:90%;'>" + ProcessBBCodeFromTxtFile(patchnotes) + "</body></html>";
+
+            //WebBrowserControl.NavigateToString(formattedPatchNotes);//this is the integrated browser, which unfortunately doesn't render properly in transparent windows:
+            //https://web.archive.org/web/20150415020527/http://blogs.msdn.com/b/changov/archive/2009/01/19/webbrowser-control-on-transparent-wpf-window.aspx
+            //hence the unfortunate need to swap to another option e.g. CEF (much, much heavier than the integrated one though)
+
+            var doc = new FlowDocument();
+
+            // manually adding the hyperlink (and associated text) at the top (because flowdocuments don't handle URLs by default, even though they do display as if they do)
+            // https://stackoverflow.com/questions/2288999/how-can-i-get-a-flowdocument-hyperlink-to-launch-browser-and-go-to-url-in-a-wpf
+            Paragraph paragraph = new Paragraph();
+            doc.Blocks.Add(paragraph);
+            Run normaltext1 = new Run("For explanations and more details about these changes, check the ");
+            paragraph.Inlines.Add(normaltext1);
+            Run linktext = new Run("full patch notes");
+            Hyperlink workshoplink = new Hyperlink(linktext);
+            workshoplink.NavigateUri = new Uri("https://mhloppy.com/cbp-latest-patch");
+            workshoplink.RequestNavigate += new RequestNavigateEventHandler(PatchNotes_RequestNavigate);
+            paragraph.Inlines.Add(workshoplink);
+            Run normaltext2 = new Run(".");
+            paragraph.Inlines.Add(normaltext2);
+
+            // add patch notes - the main part of the flowdocument
+            if (xaml != null)
+            {
+                doc.Blocks.Add((Section)XamlReader.Parse(xaml));
+            }
+            else
+            {
+                Paragraph errorParagraph = new Paragraph();
+                errorParagraph.Inlines.Add(new Run("Unable to load patch notes file (maybe CBP isn't loaded)."));
+                doc.Blocks.Add(errorParagraph);
+            }
+
+            doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
+            doc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
+            doc.FontFamily = new FontFamily("Segoe UI");
+            doc.FontSize = 15;
+            doc.PagePadding = new Thickness(10, 5, 10, 5);
+            doc.TextAlignment = TextAlignment.Left;
+
+            return doc;
+        }
+
+        private FlowDocument CreateErrorDocument(string errorMessage)
+        {
+            var doc = new FlowDocument();
+            Paragraph myParagraph = new Paragraph();
+            myParagraph.Inlines.Add(new Run(errorMessage));
+            doc.Blocks.Add(myParagraph);
+            return doc;
         }
 
         /*private void CWB_IsBrowserInitializedChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -76,90 +200,6 @@ namespace CBPLauncher.Skins
                 //not initialized
             }
         }*/
-
-        private void LoadFormattedPatchNotes()
-        {
-            // this version is used when rendering directly in HTML (e.g. webbrowser control or cefsharp)
-            //string formattedPatchNotes = "<html><body style='background-color: #404040; font-family: sans-serif; color: #f8f8f8; font-size:90%;'>" + ProcessBBCodeFromTxtFile(patchnotes) + "</body></html>";
-
-            //WebBrowserControl.NavigateToString(formattedPatchNotes);//this is the integrated browser, which unfortunately doesn't render properly in transparent windows:
-            //https://web.archive.org/web/20150415020527/http://blogs.msdn.com/b/changov/archive/2009/01/19/webbrowser-control-on-transparent-wpf-window.aspx
-            //hence the unfortunate need to swap to another option e.g. CEF (much, much heavier than the integrated one though)
-
-            //Console.WriteLine(formattedPatchNotes);
-
-            //first check if file exists
-            if (File.Exists(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/patchnotes.txt"))))
-            {
-                try
-                {
-                    // manually adding the hyperlink (and associated text) at the top (because flowdocuments don't handle URLs by default, even though they do display as if they do)
-                    // https://stackoverflow.com/questions/2288999/how-can-i-get-a-flowdocument-hyperlink-to-launch-browser-and-go-to-url-in-a-wpf
-                    Paragraph paragraph = new Paragraph();
-                    myFlowDocument.Blocks.Add(paragraph);
-                    Run normaltext1 = new Run("For explanations and more details about these changes, check the ");
-                    paragraph.Inlines.Add(normaltext1);
-                    Run linktext = new Run("full patch notes");
-                    Hyperlink workshoplink = new Hyperlink(linktext);
-                    workshoplink.NavigateUri = new Uri("https://mhloppy.com/cbp-latest-patch");
-                    workshoplink.RequestNavigate += new RequestNavigateEventHandler(Workshoplink_RequestNavigate);
-                    paragraph.Inlines.Add(workshoplink); //ensure to add linkname, not linktextname
-                    Run normaltext2 = new Run(".");
-                    paragraph.Inlines.Add(normaltext2);
-
-                    // patch notes - the main part of the flowdocument
-                    string patchnotes = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"CBP/patchnotes.txt"));//relies on CBP Launcher being in root folder (as expected)
-                    string formattedPatchNotes = "<html><body style='background-color: #4B101010; font-family: sans-serif; color: #C8C8C8;'>" + ProcessBBCodeFromTxtFile(patchnotes) + "</body></html>";
-
-                    string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedPatchNotes, false);
-                    myFlowDocument.Blocks.Add((Section)XamlReader.Parse(xaml));
-
-                    //because the document is larger than the pure HTML page was (in terms of visual space), the background needs to be set a bit differentl in order to cover the whole area:
-                    myFlowDocument.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
-                    myFlowDocument.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
-                    myFlowDocument.FontFamily = new FontFamily("Segoe UI");
-                    myFlowDocument.FontSize = 15;
-                    myFlowDocument.PagePadding = new Thickness(10, 5, 10, 5);
-                    myFlowDocument.TextAlignment = TextAlignment.Left;
-
-                    FDViewer.Document = myFlowDocument;
-                }
-                catch (Exception ex)
-                {
-                    // not sure if this catch will work, but it doesn't hurt to try
-                    FlowDocument myFlowDocument = new FlowDocument();
-
-                    Paragraph myParagraph = new Paragraph();
-                    myParagraph.Inlines.Add(new Run("Patch notes could not be loaded.\n\n" + ex));
-                    myFlowDocument.Blocks.Add(myParagraph);
-
-                    FDViewer.Document = myFlowDocument;
-                }
-            }
-            else
-            {
-                Paragraph paragraph = new Paragraph();
-                myFlowDocument.Blocks.Add(paragraph);
-                Run normaltext1 = new Run("Unable to load patch notes file (maybe CBP isn't loaded).");
-                paragraph.Inlines.Add(normaltext1);
-
-                myFlowDocument.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
-                myFlowDocument.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
-                myFlowDocument.FontFamily = new FontFamily("Segoe UI");
-                myFlowDocument.FontSize = 15;
-                myFlowDocument.PagePadding = new Thickness(10, 5, 10, 5);
-
-                FDViewer.Document = myFlowDocument;
-            }
-
-            //CWB.LoadHtml(formattedPatchNotes);//throws a debugging error on exit, but for now I simply don't care enough to fix it (I assume it's because cwb isn't being shut down correctly)
-        }
-
-        private void Workshoplink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-            e.Handled = true;
-        }
 
         private string ProcessBBCodeFromTxtFile(string txtfile)
         {
