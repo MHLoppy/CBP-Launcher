@@ -1018,8 +1018,6 @@ namespace CBPLauncher.Logic
                     WriteDefaultSettings();
                 }
 
-                CheckReinstall();
-
                 InitializeMinimal();
             }
             else
@@ -1078,14 +1076,17 @@ namespace CBPLauncher.Logic
 
         internal async Task InitializeAsync()
         {
+            await CheckReinstall();
+
             await AutoRun();
             await CreateCommands();
             NotifyCommandsChanged();
+            await Task.Yield();
 
             // don't spend time loading plugins if not being used
             if (Properties.Settings.Default.DisablePluginLoading == false)
             {
-                LoadPlugins();
+                await LoadPlugins();
             }
             else
             {
@@ -1139,7 +1140,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void CheckReinstall()
+        private async Task CheckReinstall()
         {
             // unreliably check if RoN was recently installed (the implication being that it may have been recently *re*installed, which we need to know about)
             string crossplay = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CrossplayNetLib.dll");
@@ -1153,22 +1154,22 @@ namespace CBPLauncher.Logic
                 {
                     CBPLogger.GetInstance.Info("User said to reset settings.");
 
-                    ResetSettings(false);
+                    await ResetSettings(false);
                     Properties.Settings.Default.FuckStopTellingMe = true;
-                    SaveSettings();
+                    await SaveSettings();
                     MessageBox.Show("CBP Launcher's settings have been reset and it will now close. You should be able to run everything normally from here.");
                 }
                 else
                 {
                     Properties.Settings.Default.FuckStopTellingMe = true;
-                    SaveSettings();
+                    await SaveSettings();
                     CBPLogger.GetInstance.Info("User said not to reset settings.");
                 }
             }
             else if ((Properties.Settings.Default.FuckStopTellingMe == true) && (RecentlyCreated(crossplay, 72) == false))//try to ensure that repeat-reinstalls (more than 2 days apart) get the notification
             {
                 Properties.Settings.Default.FuckStopTellingMe = false;
-                SaveSettings();
+                await SaveSettings();
                 CBPLogger.GetInstance.Info("Reinstall-check setting reset (due to 3 days passing).");
             }
         }
@@ -1188,7 +1189,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void JunePatchCheck()
+        private async Task JunePatchCheck()
         {
             //if (!Properties.Settings.Default.JunePatchHaveRunBefore)
             //{
@@ -1213,13 +1214,13 @@ namespace CBPLauncher.Logic
                 // in case it's null without the settings file; it's not clear in docs and it's faster to do this
                 //   temporarily during launcher upgrade transition period than test
                 Properties.Settings.Default.JunePatchFixApplied = false;    
-                SaveSettings();
+                await SaveSettings();
 
                 // check if fix is needed (i.e., is the ron exe the newer one?)
-                if (IsThisExeJune2024(gameExe))
+                if (await IsThisExeJune2024(gameExe))
                 {
                     // if yes, apply fix to relevant game files that need it (CBP AND (!!) non-CBP files)
-                    ApplyJunePatchFix();
+                    await ApplyJunePatchFix();
                 }
                 else
                 {
@@ -1258,7 +1259,7 @@ namespace CBPLauncher.Logic
             {
                 if (Properties.Settings.Default.UpgradeRequired == true)
                 {
-                    UpgradeSettings();
+                    await UpgradeSettings();
                 }
             }
             catch (Exception ex)
@@ -1272,6 +1273,7 @@ namespace CBPLauncher.Logic
             try
             {
                 ReadRegistry();
+                await Task.Yield();
             }
             catch (Exception ex)
             {
@@ -1319,6 +1321,7 @@ namespace CBPLauncher.Logic
                 WorkshopPathDebug = RonWorkshopPath;
                 WorkshopPathCBPDebug = workshopPathCBP;
                 GetLauncherVersion();
+                await Task.Yield();
 
                 CBPLogger.GetInstance.Info("Current directory: " + rootPath);
                 CBPLogger.GetInstance.Info("RoN:EE detected in: " + EEPath);
@@ -1363,6 +1366,7 @@ namespace CBPLauncher.Logic
 
                 //not creating dir, but needs to be after so I'm putting it here
                 LogHeaderText = "Detailed logs are saved in the logs folder located in:\n" + folderCBProot;
+                await Task.Yield();
             }
             catch (Exception ex)
             {
@@ -1434,6 +1438,7 @@ namespace CBPLauncher.Logic
                         await LoadCbp("CBPa10", "CBP Alpha 10");
                         break;
                 }
+                await Task.Yield();
             }
             catch (Exception ex) // TODO later: there are definitely some overlapping try-catch and errors when doing it this godforsaken way
             {
@@ -1459,479 +1464,482 @@ namespace CBPLauncher.Logic
 
         private async Task CreateCommands()
         {
-            //RelayCommands (they don't all need to have objects passed to them, but it probably just hands them an unproblematic null in that case, so idk I just kept it)
-            CBPDefaultCommand = new RelayCommand(o =>
+            await Task.Run(() =>
             {
-                CBPDefaultCheckbox_Inversion();
-            });
-
-            UsePrereleaseCommand = new RelayCommand(o =>
-            {
-                //if (CheckForPRFiles())
-                //{
-                //    UsePrereleaseCheckbox_Inversion();
-                //    MessageBox.Show("Pre-release toggle modified. If there are specific instructions on the pre-release page, you should follow them. OTHERWISE, just restart CBP Launcher to use the new files.");
-                //}
-                //else
-                //{
-                //    MessageBox.Show("Pre-release folder not found. You can get the pre-release files from roncbp.com/pr (this link will redirect you to the Steam Workshop page)");
-                //    RefreshCheckboxValues();//ensure the checkbox doesn't desync from reality by refreshing it
-                //}
-            });
-
-            UseDefaultLauncherCommand = new RelayCommand(async o =>
-            {
-                UseDefaultLauncher_Inversion();
-                await ReplaceRestoreDefaultLauncher();
-            });
-
-            UsePrimaryFilesCommand = new RelayCommand(async o =>
-            {
-                UsePrimaryFiles_Inversion();
-                if (Properties.Settings.Default.CBPLoaded)
+                //RelayCommands (they don't all need to have objects passed to them, but it probably just hands them an unproblematic null in that case, so idk I just kept it)
+                CBPDefaultCommand = new RelayCommand(async o =>
                 {
-                    await GenerateLists();
-                    await LoadDirectFiles();
-                    await GenerateDynamicHelpText(helpXMLOrig);
-                }
-            });
+                    await CBPDefaultCheckbox_Inversion();
+                });
 
-            UseSecondaryFilesCommand = new RelayCommand(async o =>
-            {
-                UseSecondaryFiles_Inversion();
-                if (Properties.Settings.Default.CBPLoaded)//otherwise it can't find the files!
+                UsePrereleaseCommand = new RelayCommand(async o =>
                 {
-                    await GenerateLists();
-                    await LoadDirectFiles();
-                    await GenerateDynamicHelpText(helpXMLOrig);
-                }
-            });
+                    //if (CheckForPRFiles())
+                    //{
+                    //    UsePrereleaseCheckbox_Inversion();
+                    //    MessageBox.Show("Pre-release toggle modified. If there are specific instructions on the pre-release page, you should follow them. OTHERWISE, just restart CBP Launcher to use the new files.");
+                    //}
+                    //else
+                    //{
+                    //    MessageBox.Show("Pre-release folder not found. You can get the pre-release files from roncbp.com/pr (this link will redirect you to the Steam Workshop page)");
+                    //    RefreshCheckboxValues();//ensure the checkbox doesn't desync from reality by refreshing it
+                    //}
+                });
 
-            DetectBullshitCommand = new RelayCommand(o =>
-            {
-                DetectBullshit_Inversion();
-            });
-
-            OptionalMaintainCommand = new RelayCommand(o =>
-            {
-                OptionalMaintain_Inversion();
-            });
-
-            AddIconGameNameCommand = new RelayCommand(async o =>
-            {
-                AddIconGameName_Inversion();
-
-                if (Properties.Settings.Default.AddIconGameName)
-                    await AddIconGameName();
-                else
-                    await RemoveIconGameName();
-            });
-
-            UseFancyLoggingCommand = new RelayCommand(o =>
-            {
-                UseFancyLogging_Inversion();
-
-                if (Properties.Settings.Default.UseFancyLogging)
-                    MessageBox.Show("Fancy log viewer will be enabled on next startup.");
-                else
-                    MessageBox.Show("Fancy log viewer will be disabled on next startup.");
-            });
-
-            WarnCompatibilityCommand = new RelayCommand(o =>
-            {
-                WarnCompatibility_Inversion();
-            });
-
-            DisablePluginLoadingCommand = new RelayCommand(o =>
-            {
-                if (Properties.Settings.Default.AnyPluginsLoaded == true)
+                UseDefaultLauncherCommand = new RelayCommand(async o =>
                 {
-                    // tell user to unload their plugins
-                    MessageBox.Show("Existing plugins must be unloaded before disabling plugin loading.");
-                    return;
-                }
+                    await UseDefaultLauncher_Inversion();
+                    await ReplaceRestoreDefaultLauncher();
+                });
 
-                DisablePluginLoading_Inversion();
-
-                if (Properties.Settings.Default.DisablePluginLoading)
-                    MessageBox.Show("Plugin loading has been disabled.\n\nNOTE: ANY CHANGES PREVIOUSLY MADE BY PLUGINS ARE NOT AUTOMATICALLY UNDONE BY DISABLING PLUGIN LOADING.");
-                else
-                    MessageBox.Show("Plugin loading has been enabled.\n\nNote that plugins which rely on their own update function will not run this function until the next time CBP Launcher is started.");
-            });
-
-            ArchiveDeleteCommand = new RelayCommand(o =>
-            {
-                ArchiveDelete_Inversion();
-            });
-
-            OverridePathCommand = new RelayCommand(o =>
-            {
-                OverridePathPopup();
-            });
-
-            ResetSettingsCommand = new RelayCommand(o =>
-            {
-                if (MessageBox.Show("Are you sure you want to reset all settings?", "Confirm settings reset", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                UsePrimaryFilesCommand = new RelayCommand(async o =>
                 {
-                    ResetSettings(true);
-                }
-                else
-                {
-                    MessageBox.Show("No action has been taken.");
-                }
-            });
-
-            PlayButtonCommand = new RelayCommand(async o =>
-            {
-                await PlayButton_Click();
-            });
-
-            LoadCbpCommand = new RelayCommand(async o =>
-            {
-                // TODO later: clean up
-                //await CheckForUpdates();
-                //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
-
-                await LoadCbp("CBPa10", "CBP Alpha 10");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
-            });
-
-            LoadEeCommand = new RelayCommand(async o =>
-            {
-                // TODO later: clean up
-                //if (antiSpam == false)
-                //{
-                //    antiSpam = true;
-                //    await UnloadCBP();
-                //}
-                //antiSpam = false;
-
-                await LoadEe();
-            });
-
-            AnnouncementsLeftCommand = new RelayCommand(async o =>
-            {
-                AnnouncementsVis = true;
-                AnnouncementsLeftActive = true;
-                AnnouncementsRightActive = false;
-
-                if (CurrentSkin == SpartanV1)
-                {
-                    Announcements = new SpartanV1AnnouncementsVM();
-                    Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
-                    Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
-                }
-                else
-                {
-                    Announcements = new ClassicPlusAnnouncementsVM();
-                }
-            });
-
-            AnnouncementsRightCommand = new RelayCommand(async o =>
-            {
-                AnnouncementsVis = true;
-                AnnouncementsLeftActive = false;
-                AnnouncementsRightActive = true;
-
-                if (CurrentSkin == SpartanV1)
-                {
-                    Announcements = new SpartanV1OldAnnouncementsVM();
-                    Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
-                    Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
-                }
-                else
-                {
-                    Announcements = new ClassicPlusOldAnnouncementsVM();
-                }
-            });
-
-            AnnouncementsCloseCommand = new RelayCommand(async o =>
-            {
-                AnnouncementsVis = false;
-                AnnouncementsLeftActive = false;
-                AnnouncementsRightActive = false;
-
-                if (CurrentSkin == SpartanV1)
-                {
-                    Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
-                    Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
-                }
-            });
-
-            WorkshopCommand = new RelayCommand(o =>
-            {
-                Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2287791153");
-            });
-
-            GithubCommand = new RelayCommand(o =>
-            {
-                Process.Start("https://github.com/MHLoppy/CBP-Launcher");
-            });
-
-            DiscordCommand = new RelayCommand(o =>
-            {
-                Process.Start("https://discord.gg/wh7YWJgjwf");
-            });
-
-            SkinSpartanV1Command = new RelayCommand(o =>
-            {
-                CurrentSkin = SpartanV1;
-                Properties.Settings.Default.MicroSkin = false;
-                SaveSettings();
-            });
-
-            SkinSpartanV1MiniCommand = new RelayCommand(o =>
-            {
-                CurrentSkin = SpartanV1Mini;
-                Properties.Settings.Default.MicroSkin = true;
-                SaveSettings();
-            });
-
-            SkinClassicPlusMiniCommand = new RelayCommand(o =>
-            {
-                CurrentSkin = ClassicPlusMini;
-                Properties.Settings.Default.MicroSkin = true;
-                SaveSettings();
-            });
-
-            SkinClassicPlusCommand = new RelayCommand(o =>
-            {
-                CurrentSkin = ClassicPlus;
-                Properties.Settings.Default.MicroSkin = false;
-                SaveSettings();
-            });
-
-            //JunePatchFixCommand = new RelayCommand(async o =>
-            //{
-            //    // check if fix is needed (i.e., is the ron exe the newer one?)
-            //    if (IsThisExeJune2024(gameExe))
-            //    {
-            //        // if yes, apply fix to relevant game files that need it (CBP AND (!!) non-CBP files)
-            //        ApplyJunePatchFix();
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show("Your Rise of Nations exe doesn't match the exe from the June 2024 patch, so no action has been taken." 
-            //                        + "\n\nPlease report this issue so that it can be resolved!");
-            //    }
-            //});
-
-            // TODO: these new commands and functions need logging
-            WorkshopPRCommand = new RelayCommand(o =>
-            {
-                Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2528425253");
-            });
-
-            InstallA9dCommand = new RelayCommand(async o =>
-            {
-                await InstallSelfContainedVersion("2528425253", "CBP-Alpha9d", "CBPa9d.delta", "riseofnations_CBPa9d.exe");
-            });
-
-            LoadA9dCommand = new RelayCommand(async o =>
-            {
-                await TempLoadA9d();
-            });
-
-            InstallPR1Command = new RelayCommand(async o =>
-            {
-                await InstallSelfContainedVersion("2528425253", "CBP-PR1", "CBPPR1.delta", "riseofnations_CBPPR1.exe");
-            });
-
-            LoadPR1Command = new RelayCommand(async o =>
-            {
-                await TempLoadPR1();
-            });
-
-            InstallPR2Command = new RelayCommand(async o =>
-            {
-                await InstallSelfContainedVersion("2528425253", "CBP-PR2", "CBPPR2.delta", "riseofnations_CBPPR2.exe");
-            });
-
-            LoadPR2Command = new RelayCommand(async o =>
-            {
-                await TempLoadPR2();
-            });
-
-            InstallPR3Command = new RelayCommand(async o =>
-            {
-                await InstallSelfContainedVersion("2528425253", "CBP-PR3", "CBPPR3.delta", "riseofnations_CBPPR3.exe");
-            });
-
-            LoadPR3Command = new RelayCommand(async o =>
-            {
-                await TempLoadPR3();
-            });
-
-            MinimiseCommand = new RelayCommand(o =>
-            {
-                Application.Current.MainWindow.WindowState = WindowState.Minimized;
-            });
-
-            ExitCommand = new RelayCommand(async o =>
-            {
-                if (updateSetupLater == true)
-                {
-                    try
+                    await UsePrimaryFiles_Inversion();
+                    if (Properties.Settings.Default.CBPLoaded)
                     {
-                        var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"));
-                        string newVersionFull = newVersionShort.FileVersion;
+                        await GenerateLists();
+                        await LoadDirectFiles();
+                        await GenerateDynamicHelpText(helpXMLOrig);
+                    }
+                });
 
-                        var oldVersionShort = FileVersionInfo.GetVersionInfo(patriotsOrig);
-                        string oldVersionFull = oldVersionShort.FileVersion;
+                UseSecondaryFilesCommand = new RelayCommand(async o =>
+                {
+                    await UseSecondaryFiles_Inversion();
+                    if (Properties.Settings.Default.CBPLoaded)//otherwise it can't find the files!
+                    {
+                        await GenerateLists();
+                        await LoadDirectFiles();
+                        await GenerateDynamicHelpText(helpXMLOrig);
+                    }
+                });
 
-                        if (newVersionFull != oldVersionFull)
+                DetectBullshitCommand = new RelayCommand(async o =>
+                {
+                    await DetectBullshit_Inversion();
+                });
+
+                OptionalMaintainCommand = new RelayCommand(async o =>
+                {
+                    await OptionalMaintain_Inversion();
+                });
+
+                AddIconGameNameCommand = new RelayCommand(async o =>
+                {
+                    await AddIconGameName_Inversion();
+
+                    if (Properties.Settings.Default.AddIconGameName)
+                        await AddIconGameName();
+                    else
+                        await RemoveIconGameName();
+                });
+
+                UseFancyLoggingCommand = new RelayCommand(async o =>
+                {
+                    await UseFancyLogging_Inversion();
+
+                    if (Properties.Settings.Default.UseFancyLogging)
+                        MessageBox.Show("Fancy log viewer will be enabled on next startup.");
+                    else
+                        MessageBox.Show("Fancy log viewer will be disabled on next startup.");
+                });
+
+                WarnCompatibilityCommand = new RelayCommand(async o =>
+                {
+                    await WarnCompatibility_Inversion();
+                });
+
+                DisablePluginLoadingCommand = new RelayCommand(async o =>
+                {
+                    if (Properties.Settings.Default.AnyPluginsLoaded == true)
+                    {
+                        // tell user to unload their plugins
+                        MessageBox.Show("Existing plugins must be unloaded before disabling plugin loading.");
+                        return;
+                    }
+
+                    await DisablePluginLoading_Inversion();
+
+                    if (Properties.Settings.Default.DisablePluginLoading)
+                        MessageBox.Show("Plugin loading has been disabled.\n\nNOTE: ANY CHANGES PREVIOUSLY MADE BY PLUGINS ARE NOT AUTOMATICALLY UNDONE BY DISABLING PLUGIN LOADING.");
+                    else
+                        MessageBox.Show("Plugin loading has been enabled.\n\nNote that plugins which rely on their own update function will not run this function until the next time CBP Launcher is started.");
+                });
+
+                ArchiveDeleteCommand = new RelayCommand(async o =>
+                {
+                    await ArchiveDelete_Inversion();
+                });
+
+                OverridePathCommand = new RelayCommand(async o =>
+                {
+                    await OverridePathPopup();
+                });
+
+                ResetSettingsCommand = new RelayCommand(async o =>
+                {
+                    if (MessageBox.Show("Are you sure you want to reset all settings?", "Confirm settings reset", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        await ResetSettings(true);
+                    }
+                    else
+                    {
+                        MessageBox.Show("No action has been taken.");
+                    }
+                });
+
+                PlayButtonCommand = new RelayCommand(async o =>
+                {
+                    await PlayButton_Click();
+                });
+
+                LoadCbpCommand = new RelayCommand(async o =>
+                {
+                    // TODO later: clean up
+                    //await CheckForUpdates();
+                    //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
+
+                    await LoadCbp("CBPa10", "CBP Alpha 10");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
+                });
+
+                LoadEeCommand = new RelayCommand(async o =>
+                {
+                    // TODO later: clean up
+                    //if (antiSpam == false)
+                    //{
+                    //    antiSpam = true;
+                    //    await UnloadCBP();
+                    //}
+                    //antiSpam = false;
+
+                    await LoadEe();
+                });
+
+                AnnouncementsLeftCommand = new RelayCommand(o =>
+                {
+                    AnnouncementsVis = true;
+                    AnnouncementsLeftActive = true;
+                    AnnouncementsRightActive = false;
+
+                    if (CurrentSkin == SpartanV1)
+                    {
+                        Announcements = new SpartanV1AnnouncementsVM();
+                        Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
+                        Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                    }
+                    else
+                    {
+                        Announcements = new ClassicPlusAnnouncementsVM();
+                    }
+                });
+
+                AnnouncementsRightCommand = new RelayCommand(o =>
+                {
+                    AnnouncementsVis = true;
+                    AnnouncementsLeftActive = false;
+                    AnnouncementsRightActive = true;
+
+                    if (CurrentSkin == SpartanV1)
+                    {
+                        Announcements = new SpartanV1OldAnnouncementsVM();
+                        Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                        Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#F4F4F4");
+                    }
+                    else
+                    {
+                        Announcements = new ClassicPlusOldAnnouncementsVM();
+                    }
+                });
+
+                AnnouncementsCloseCommand = new RelayCommand(o =>
+                {
+                    AnnouncementsVis = false;
+                    AnnouncementsLeftActive = false;
+                    AnnouncementsRightActive = false;
+
+                    if (CurrentSkin == SpartanV1)
+                    {
+                        Spv1AnnLeftColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                        Spv1AnnRightColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#DADADA");
+                    }
+                });
+
+                WorkshopCommand = new RelayCommand(o =>
+                {
+                    Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2287791153");
+                });
+
+                GithubCommand = new RelayCommand(o =>
+                {
+                    Process.Start("https://github.com/MHLoppy/CBP-Launcher");
+                });
+
+                DiscordCommand = new RelayCommand(o =>
+                {
+                    Process.Start("https://discord.gg/wh7YWJgjwf");
+                });
+
+                SkinSpartanV1Command = new RelayCommand(async o =>
+                {
+                    CurrentSkin = SpartanV1;
+                    Properties.Settings.Default.MicroSkin = false;
+                    await SaveSettings();
+                });
+
+                SkinSpartanV1MiniCommand = new RelayCommand(async o =>
+                {
+                    CurrentSkin = SpartanV1Mini;
+                    Properties.Settings.Default.MicroSkin = true;
+                    await SaveSettings();
+                });
+
+                SkinClassicPlusMiniCommand = new RelayCommand(async o =>
+                {
+                    CurrentSkin = ClassicPlusMini;
+                    Properties.Settings.Default.MicroSkin = true;
+                    await SaveSettings();
+                });
+
+                SkinClassicPlusCommand = new RelayCommand(async o =>
+                {
+                    CurrentSkin = ClassicPlus;
+                    Properties.Settings.Default.MicroSkin = false;
+                    await SaveSettings();
+                });
+
+                //JunePatchFixCommand = new RelayCommand(async o =>
+                //{
+                //    // check if fix is needed (i.e., is the ron exe the newer one?)
+                //    if (IsThisExeJune2024(gameExe))
+                //    {
+                //        // if yes, apply fix to relevant game files that need it (CBP AND (!!) non-CBP files)
+                //        ApplyJunePatchFix();
+                //    }
+                //    else
+                //    {
+                //        MessageBox.Show("Your Rise of Nations exe doesn't match the exe from the June 2024 patch, so no action has been taken." 
+                //                        + "\n\nPlease report this issue so that it can be resolved!");
+                //    }
+                //});
+
+                // TODO: these new commands and functions need logging
+                WorkshopPRCommand = new RelayCommand(async o =>
+                {
+                    await Task.Run(() => Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2528425253"));
+                });
+
+                InstallA9dCommand = new RelayCommand(async o =>
+                {
+                    await InstallSelfContainedVersion("2528425253", "CBP-Alpha9d", "CBPa9d.delta", "riseofnations_CBPa9d.exe");
+                });
+
+                LoadA9dCommand = new RelayCommand(async o =>
+                {
+                    await TempLoadA9d();
+                });
+
+                InstallPR1Command = new RelayCommand(async o =>
+                {
+                    await InstallSelfContainedVersion("2528425253", "CBP-PR1", "CBPPR1.delta", "riseofnations_CBPPR1.exe");
+                });
+
+                LoadPR1Command = new RelayCommand(async o =>
+                {
+                    await TempLoadPR1();
+                });
+
+                InstallPR2Command = new RelayCommand(async o =>
+                {
+                    await InstallSelfContainedVersion("2528425253", "CBP-PR2", "CBPPR2.delta", "riseofnations_CBPPR2.exe");
+                });
+
+                LoadPR2Command = new RelayCommand(async o =>
+                {
+                    await TempLoadPR2();
+                });
+
+                InstallPR3Command = new RelayCommand(async o =>
+                {
+                    await InstallSelfContainedVersion("2528425253", "CBP-PR3", "CBPPR3.delta", "riseofnations_CBPPR3.exe");
+                });
+
+                LoadPR3Command = new RelayCommand(async o =>
+                {
+                    await TempLoadPR3();
+                });
+
+                MinimiseCommand = new RelayCommand(o =>
+                {
+                    Application.Current.MainWindow.WindowState = WindowState.Minimized;
+                });
+
+                ExitCommand = new RelayCommand(async o =>
+                {
+                    if (updateSetupLater == true)
+                    {
+                        try
                         {
-                            MessageBox.Show("CBP Launcher is trying to update CBP Setup GUI. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
+                            var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"));
+                            string newVersionFull = newVersionShort.FileVersion;
 
-                            await Delay(3000);
-                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                            var oldVersionShort = FileVersionInfo.GetVersionInfo(patriotsOrig);
+                            string oldVersionFull = oldVersionShort.FileVersion;
+
+                            if (newVersionFull != oldVersionFull)
                             {
-                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
-                                CBPLogger.GetInstance.Debug("Updated Setup GUI.");
-                            }
-                            else
-                            {
+                                MessageBox.Show("CBP Launcher is trying to update CBP Setup GUI. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
+
                                 await Delay(3000);
                                 if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
                                 {
-                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
+                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
                                     CBPLogger.GetInstance.Debug("Updated Setup GUI.");
                                 }
                                 else
                                 {
-                                    MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
-                                    CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                                    await Delay(3000);
+                                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                                    {
+                                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
+                                        CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
+                                        CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                                    }
                                 }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("" + ex);
+                        }
                     }
-                    catch (Exception ex)
+
+                    Application.Current.Shutdown();
+                });
+
+                ChangeSkinCommand = new RelayCommand(async o =>//convert this to a multi-choice command (e.g. dropdown selection)
+                {
+                    if (CurrentSkin == SpartanV1)
                     {
-                        MessageBox.Show("" + ex);
+                        CurrentSkin = ClassicPlus;
+                        CurrentTab = ClassicPlusOptions;
+                        Announcements = ClassicPlusAnnouncements;
+
+                        // janky but functional for now
+                        Properties.Settings.Default.SkinSpV1 = false;
+                        await SaveSettings();
+
+                        //don't allow resize
+                        /*Application.Current.MainWindow.ResizeMode = ResizeMode.NoResize;
+
+                        MessageBox.Show(Application.Current.MainWindow.ResizeMode.ToString());*/
                     }
-                }
+                    else
+                    {
+                        CurrentSkin = SpartanV1;
+                        CurrentTab = SpartanV1Options;
+                        Announcements = SpartanV1Announcements;
 
-                Application.Current.Shutdown();
-            });
+                        // janky but functional for now
+                        Properties.Settings.Default.SkinSpV1 = true;
+                        await SaveSettings();
 
-            ChangeSkinCommand = new RelayCommand(o =>//convert this to a multi-choice command (e.g. dropdown selection)
-            {
-                if (CurrentSkin == SpartanV1)
+                        //allow resize
+                        /*Application.Current.MainWindow.ResizeMode = ResizeMode.CanResizeWithGrip;
+
+                        MessageBox.Show(Application.Current.MainWindow.ResizeMode.ToString());*/
+                    }
+                });
+
+                SpV1TabPatchNotesCommand = new RelayCommand(o =>
                 {
-                    CurrentSkin = ClassicPlus;
-                    CurrentTab = ClassicPlusOptions;
-                    Announcements = ClassicPlusAnnouncements;
+                    SpToggleTabs(1);
+                    CurrentTab = SpartanV1PatchNotes;
+                });
 
-                    // janky but functional for now
-                    Properties.Settings.Default.SkinSpV1 = false;
-                    SaveSettings();
-
-                    //don't allow resize
-                    /*Application.Current.MainWindow.ResizeMode = ResizeMode.NoResize;
-
-                    MessageBox.Show(Application.Current.MainWindow.ResizeMode.ToString());*/
-                }
-                else
+                SpV1TabModManagerCommand = new RelayCommand(o =>
                 {
-                    CurrentSkin = SpartanV1;
+                    SpToggleTabs(2);
+                    CurrentTab = SpartanV1ModManager;
+                    //PluginSecurityWarning();
+                });
+
+                SpV1TabOptionsCommand = new RelayCommand(o =>
+                {
+                    SpToggleTabs(3);
                     CurrentTab = SpartanV1Options;
-                    Announcements = SpartanV1Announcements;
+                });
 
-                    // janky but functional for now
-                    Properties.Settings.Default.SkinSpV1 = true;
-                    SaveSettings();
+                SpV1TabLogCommand = new RelayCommand(o =>
+                {
+                    SpToggleTabs(4);
+                    CurrentTab = SpartanV1Log;
+                });
 
-                    //allow resize
-                    /*Application.Current.MainWindow.ResizeMode = ResizeMode.CanResizeWithGrip;
+                SpV1TabOtherCommand = new RelayCommand(o =>
+                {
+                    SpToggleTabs(0);
+                    CurrentTab = SpartanV1Other;
+                });
 
-                    MessageBox.Show(Application.Current.MainWindow.ResizeMode.ToString());*/
-                }
-            });
+                CPTabPatchNotesCommand = new RelayCommand(o =>
+                {
+                    CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
+                    CPToggleTabs(1);
+                    CurrentTab = ClassicPlusPatchNotes;
+                });
 
-            SpV1TabPatchNotesCommand = new RelayCommand(o =>
-            {
-                SpToggleTabs(1);
-                CurrentTab = SpartanV1PatchNotes;
-            });
+                CPTabModManagerCommand = new RelayCommand(o =>
+                {
+                    CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
+                    CPToggleTabs(2);
+                    CurrentTab = ClassicPlusModManager;
+                    //PluginSecurityWarning();
+                });
 
-            SpV1TabModManagerCommand = new RelayCommand(o =>
-            {
-                SpToggleTabs(2);
-                CurrentTab = SpartanV1ModManager;
-                //PluginSecurityWarning();
-            });
+                CPTabOptionsCommand = new RelayCommand(o =>
+                {
+                    CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
+                    CPToggleTabs(3);
+                    CurrentTab = ClassicPlusOptions;
+                });
 
-            SpV1TabOptionsCommand = new RelayCommand(o =>
-            {
-                SpToggleTabs(3);
-                CurrentTab = SpartanV1Options;
-            });
+                CPTabLogCommand = new RelayCommand(o =>
+                {
+                    CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
+                    CPToggleTabs(4);
+                    CurrentTab = ClassicPlusLog;
+                });
 
-            SpV1TabLogCommand = new RelayCommand(o =>
-            {
-                SpToggleTabs(4);
-                CurrentTab = SpartanV1Log;
-            });
+                CPTabOtherCommand = new RelayCommand(o =>
+                {
+                    CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw active.png", UriKind.Absolute));
+                    CPToggleTabs(0);
+                    CurrentTab = ClassicPlusOther;
+                });
 
-            SpV1TabOtherCommand = new RelayCommand(o =>
-            {
-                SpToggleTabs(0);
-                CurrentTab = SpartanV1Other;
-            });
+                ConfigOptionalCommand = new RelayCommand(async o =>
+                {
+                    await ConfigureOptionalChanges();
+                });
 
-            CPTabPatchNotesCommand = new RelayCommand(o =>
-            {
-                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
-                CPToggleTabs(1);
-                CurrentTab = ClassicPlusPatchNotes;
-            });
+                OptionalCurrentCommand = new RelayCommand(async o =>
+                {
+                    await OptionalChangeUseExisting();
+                });
 
-            CPTabModManagerCommand = new RelayCommand(o =>
-            {
-                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
-                CPToggleTabs(2);
-                CurrentTab = ClassicPlusModManager;
-                //PluginSecurityWarning();
-            });
+                OptionalDefaultCommand = new RelayCommand(async o =>
+                {
+                    await OptionalChangeUseDefault();
+                });
 
-            CPTabOptionsCommand = new RelayCommand(o =>
-            {
-                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
-                CPToggleTabs(3);
-                CurrentTab = ClassicPlusOptions;
-            });
-
-            CPTabLogCommand = new RelayCommand(o =>
-            {
-                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
-                CPToggleTabs(4);
-                CurrentTab = ClassicPlusLog;
-            });
-
-            CPTabOtherCommand = new RelayCommand(o =>
-            {
-                CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw active.png", UriKind.Absolute));
-                CPToggleTabs(0);
-                CurrentTab = ClassicPlusOther;
-            });
-
-            ConfigOptionalCommand = new RelayCommand(async o =>
-            {
-                await ConfigureOptionalChanges();
-            });
-
-            OptionalCurrentCommand = new RelayCommand(async o =>
-            {
-                await OptionalChangeUseExisting();
-            });
-
-            OptionalDefaultCommand = new RelayCommand(async o =>
-            {
-                await OptionalChangeUseDefault();
-            });
-
-            OptionalReplacementCommand = new RelayCommand(async o =>
-            {
-                await OptionalChangeUseReplacement();
+                OptionalReplacementCommand = new RelayCommand(async o =>
+                {
+                    await OptionalChangeUseReplacement();
+                });
             });
         }
 
@@ -2217,7 +2225,7 @@ namespace CBPLauncher.Logic
                     Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
                     Properties.Settings.Default.CBPLoaded = true;
                     Properties.Settings.Default.CBPUnloaded = false;
-                    SaveSettings();
+                    await SaveSettings();
                 }
 
                 WebClient webClient = new WebClient();                                                               /// Moved this section from reference to here in order to display
@@ -2269,7 +2277,7 @@ namespace CBPLauncher.Logic
                             Status = LauncherStatus.readyCbpLoaded; //if the local version.txt matches the version found in the online file, then no patch required
                             Properties.Settings.Default.CBPLoaded = true;
                             Properties.Settings.Default.CBPUnloaded = false;
-                            SaveSettings();
+                            await SaveSettings();
                         }
                     }
                     catch (Exception ex)
@@ -2419,10 +2427,14 @@ namespace CBPLauncher.Logic
             try
             {
                 if (File.Exists(Path.Combine(primaryDataCBP, filename)))
-                    File.Copy(Path.Combine(primaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
+                {
+                    await Task.Run(() => File.Copy(Path.Combine(primaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true));
+                }
 
                 else if (File.Exists(Path.Combine(secondaryDataCBP, filename)))
-                    File.Copy(Path.Combine(secondaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true);
+                {
+                    await Task.Run(() => File.Copy(Path.Combine(secondaryDataCBP, filename), Path.Combine(RoNDataPath, filename), true));
+                }
             }
             catch (Exception ex)
             {
@@ -2745,7 +2757,7 @@ namespace CBPLauncher.Logic
             //apparently using FileInfo (.Name) is much (non-trivially) heavier than Path.GetFileName
 
             //primary files
-            string[] primaryFiles = Directory.GetFiles(primaryDataCBP);
+            string[] primaryFiles = await Task.Run(() => Directory.GetFiles(primaryDataCBP));
             foreach (string filename in primaryFiles)
             {
                 CBPFileListAll.Add(
@@ -2756,7 +2768,7 @@ namespace CBPLauncher.Logic
             }
 
             //secondary files
-            string[] secondaryFiles = Directory.GetFiles(secondaryDataCBP);
+            string[] secondaryFiles = await Task.Run(() => Directory.GetFiles(secondaryDataCBP));
             foreach (string filename in secondaryFiles)
             {
                 CBPFileListAll.Add(
@@ -2803,7 +2815,7 @@ namespace CBPLauncher.Logic
                     { File.Move(patriotsOrig + " (original)", patriotsOrig); }
 
                     Properties.Settings.Default.OldFilesRenamed = false;//yes I know this is almost definitely now redundant
-                    SaveSettings();
+                    await SaveSettings();
                 }
                 catch (Exception ex)
                 {
@@ -2832,7 +2844,7 @@ namespace CBPLauncher.Logic
                     }
 
                     Properties.Settings.Default.FilesBackedUp = true;
-                    SaveSettings();
+                    await SaveSettings();
                 }
                 catch (Exception ex)
                 {
@@ -2875,7 +2887,7 @@ namespace CBPLauncher.Logic
                     await BackupConquestFiles();
 
                     Properties.Settings.Default.NonDataFilesBackedUp = true;
-                    SaveSettings();
+                    await SaveSettings();
                 }
                 catch (Exception ex)
                 {
@@ -3106,7 +3118,7 @@ namespace CBPLauncher.Logic
 
                             Properties.Settings.Default.CBPLoaded = true;
                             Properties.Settings.Default.CBPUnloaded = false;
-                            SaveSettings();
+                            await SaveSettings();
 
                             Status = LauncherStatus.readyCbpLoaded;
                         }
@@ -3172,7 +3184,7 @@ namespace CBPLauncher.Logic
 
                     Properties.Settings.Default.CBPLoaded = true;
                     Properties.Settings.Default.CBPUnloaded = false;
-                    SaveSettings();
+                    await SaveSettings();
 
                     Status = LauncherStatus.readyCbpLoaded;
                 }
@@ -3299,7 +3311,7 @@ namespace CBPLauncher.Logic
 
                         Properties.Settings.Default.CBPUnloaded = true;
                         Properties.Settings.Default.CBPLoaded = false;
-                        SaveSettings();
+                        await SaveSettings();
 
                         VersionTextInstalled = "CBP not loaded";
                         Status = LauncherStatus.readyEeLoaded;
@@ -3424,7 +3436,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Debug("WarnCompatibility is true.");
 
                 // check compatibility again, otherwise can false-positive on a plugin that's actually loaded
-                CheckPluginCompatibility();//TODO COMMENT OUT WHILE TESTING
+                await CheckPluginCompatibility();//TODO COMMENT OUT WHILE TESTING
 
                 // to prevent plugins from potentially loading old files (e.g. rules.xml) that are outdated with new CBP updates, check the CBP version in file headers
                 if (pluginFileProblem && (Properties.Settings.Default.CBPLoaded == true))
@@ -3552,7 +3564,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Debug("Conditions met.");
 
                 Properties.Settings.Default.LastUsedGameVersion = VersionTextInstalled;
-                SaveSettings();
+                await SaveSettings();
                 CBPLogger.GetInstance.Info($"Last used game version set to {VersionTextInstalled}");
 
                 string combinedArgs = string.Join(" ", ArgsHolder.StartupArgs);
@@ -3631,7 +3643,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task ForceUpdateAnnouncements()
+        private void ForceUpdateAnnouncements()
         {
             _announcements = new object();
         }
@@ -3753,86 +3765,96 @@ namespace CBPLauncher.Logic
 
         private async Task AddCBPXml()
         {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(playerProfile);
-            XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
-
-            if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == false))
+            await Task.Run(() =>
             {
-                //remove PR icon
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
+                XmlDocument doc = new XmlDocument();
+                doc.Load(playerProfile);
+                XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
 
-                //add non-PR icon
-                xmlNode.InnerText = "#ICON169" + xmlNode.InnerText;
-                doc.Save(playerProfile);
+                if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == false))
+                {
+                    //remove PR icon
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
 
-                CBPLogger.GetInstance.Info("#ICON169 added. Game name: " + xmlNode.InnerText);
-            }
-            else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
-            {
-                //remove non-PR icon
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");
+                    //add non-PR icon
+                    xmlNode.InnerText = "#ICON169" + xmlNode.InnerText;
+                    doc.Save(playerProfile);
 
-                //add PR icon
-                xmlNode.InnerText = "#ICON170" + xmlNode.InnerText;
-                doc.Save(playerProfile);
+                    CBPLogger.GetInstance.Info("#ICON169 added. Game name: " + xmlNode.InnerText);
+                }
+                else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
+                {
+                    //remove non-PR icon
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");
 
-                CBPLogger.GetInstance.Info("#ICON170 added. Game name: " + xmlNode.InnerText);
-            }
+                    //add PR icon
+                    xmlNode.InnerText = "#ICON170" + xmlNode.InnerText;
+                    doc.Save(playerProfile);
+
+                    CBPLogger.GetInstance.Info("#ICON170 added. Game name: " + xmlNode.InnerText);
+                }
+            });
         }
 
         private async Task RemoveCBPXml()
         {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(playerProfile);
-            XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
-
-            if (CheckCBPXml() == true)
+            await Task.Run(() =>
             {
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//(slightly reduced chance of affecting user's spacing by doing it this way?)
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
-                xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
-                doc.Save(playerProfile);
-            }
+                XmlDocument doc = new XmlDocument();
+                doc.Load(playerProfile);
+                XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
 
-            CBPLogger.GetInstance.Info("CBP icons removed from " + playerProfile);
+                if (CheckCBPXml() == true)
+                {
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//(slightly reduced chance of affecting user's spacing by doing it this way?)
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
+                    xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170", "");
+                    doc.Save(playerProfile);
+                }
+
+                CBPLogger.GetInstance.Info("CBP icons removed from " + playerProfile);
+            });
         }
 
         // section for the dynamic help.xml text
         private async Task GenerateDynamicHelpText(string targetHelpXmlPath)
         {
-            if (Properties.Settings.Default.UseSecondaryFileList && CheckIfCBPFile(targetHelpXmlPath))//helpXMLOrig is just /Rise of Nations/Data/help.xml, not necessarily *actually* original ever since bark/trireme changes
+            await Task.Run(() =>
             {
-                try
+                if (Properties.Settings.Default.UseSecondaryFileList && CheckIfCBPFile(targetHelpXmlPath))//helpXMLOrig is just /Rise of Nations/Data/help.xml, not necessarily *actually* original ever since bark/trireme changes
                 {
-                    XmlDocument doc = new XmlDocument();
-                    doc.Load(targetHelpXmlPath);
+                    try
+                    {
+                        XmlDocument doc = new XmlDocument();
+                        doc.Load(targetHelpXmlPath);
 
-                    XmlNode node = doc.SelectSingleNode("ROOT/TOPMENU/ENTRY[@name='cbp_status']");//main menu
-                    node.ChildNodes[0].InnerText = GenerateMainMenuText();
+                        XmlNode node = doc.SelectSingleNode("ROOT/TOPMENU/ENTRY[@name='cbp_status']");//main menu
+                        node.ChildNodes[0].InnerText = GenerateMainMenuText();
 
-                    XmlNode node2 = doc.SelectSingleNode("ROOT/SETUPWIN/BUTTON/ENTRY[@name='CBP_STATUS']");//actual game lobby (pick nations, change rules)
-                    node2.ChildNodes[0].InnerText = GenerateOtherMenuText();
+                        XmlNode node2 = doc.SelectSingleNode("ROOT/SETUPWIN/BUTTON/ENTRY[@name='CBP_STATUS']");//actual game lobby (pick nations, change rules)
+                        node2.ChildNodes[0].InnerText = GenerateOtherMenuText();
 
-                    XmlNode node3 = doc.SelectSingleNode("ROOT/GAMESPYTITLE/BUTTON/ENTRY[@name='CBP_STATUS']");//general multiplayer lobby (see list of open lobbies)
-                    node3.ChildNodes[0].InnerText = GenerateOtherMenuText();// we use the same string as node2
+                        XmlNode node3 = doc.SelectSingleNode("ROOT/GAMESPYTITLE/BUTTON/ENTRY[@name='CBP_STATUS']");//general multiplayer lobby (see list of open lobbies)
+                        node3.ChildNodes[0].InnerText = GenerateOtherMenuText();// we use the same string as node2
 
-                    // log the strings
-                    CBPLogger.GetInstance.Debug("Main menu readout: " + node.ChildNodes[0].InnerText);
-                    CBPLogger.GetInstance.Debug("Other readout (1): " + node2.ChildNodes[0].InnerText);
-                    CBPLogger.GetInstance.Debug("Other readout (2): " + node3.ChildNodes[0].InnerText);
+                        // log the strings
+                        CBPLogger.GetInstance.Debug("Main menu readout: " + node.ChildNodes[0].InnerText);
+                        CBPLogger.GetInstance.Debug("Other readout (1): " + node2.ChildNodes[0].InnerText);
+                        CBPLogger.GetInstance.Debug("Other readout (2): " + node3.ChildNodes[0].InnerText);
 
-                    doc.Save(targetHelpXmlPath);
+                        doc.Save(targetHelpXmlPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        CBPLogger.GetInstance.Error("Error updating menu tooltips: " + ex);
+                        MessageBox.Show("Error updating menu tooltips: " + ex);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    CBPLogger.GetInstance.Error("Error updating menu tooltips: " + ex);
-                    MessageBox.Show("Error updating menu tooltips: " + ex);
-                }
-            }
+            });
+
         }
 
         private string GenerateMainMenuText()
@@ -4072,7 +4094,7 @@ namespace CBPLauncher.Logic
                 File.Copy(defaultHeli, currentHeli, true);
 
                 Properties.Settings.Default.OptionalAsianHeli = false;
-                SaveSettings();
+                await SaveSettings();
 
                 // prepare modern emotes
                 optCounter++;
@@ -4089,7 +4111,7 @@ namespace CBPLauncher.Logic
                 File.Copy(defaultEmotes, currentEmotes, true);
 
                 Properties.Settings.Default.OptionalEmotes = false;
-                SaveSettings();
+                await SaveSettings();
 
                 // prepare radar jam
                 optCounter++;
@@ -4106,7 +4128,7 @@ namespace CBPLauncher.Logic
                 File.Copy(defaultJam, currentJam, true);
 
                 Properties.Settings.Default.OptionalRadarJam = false;
-                SaveSettings();
+                await SaveSettings();
 
                 // prepare asian spy
                 optCounter++;
@@ -4127,7 +4149,7 @@ namespace CBPLauncher.Logic
                 File.Copy(defaultSpyModel, currentSpyModel, true);
 
                 Properties.Settings.Default.OptionalAsianSpy = false;
-                SaveSettings();
+                await SaveSettings();
 
                 //the last optional change to configure should reset the counter to guarantee no persistence issues
                 //because of how I set things up (simpler), it also can't easily close the window lol
@@ -4156,7 +4178,7 @@ namespace CBPLauncher.Logic
                 File.Copy(replacementHeli, currentHeli, true);
 
                 Properties.Settings.Default.OptionalAsianHeli = true;
-                SaveSettings();
+                await SaveSettings();
 
                 // prepare modern emotes
                 optCounter++;
@@ -4173,7 +4195,7 @@ namespace CBPLauncher.Logic
                 File.Copy(replacementEmotes, currentEmotes, true);
 
                 Properties.Settings.Default.OptionalEmotes = true;
-                SaveSettings();
+                await SaveSettings();
 
                 // prepare radar jam
                 optCounter++;
@@ -4190,7 +4212,7 @@ namespace CBPLauncher.Logic
                 File.Copy(replacementJam, currentJam, true);
 
                 Properties.Settings.Default.OptionalRadarJam = true;
-                SaveSettings();
+                await SaveSettings();
 
                 // prepare asian spy
                 optCounter++;
@@ -4211,7 +4233,7 @@ namespace CBPLauncher.Logic
                 File.Copy(replacementSpyModel, currentSpyModel, true);
 
                 Properties.Settings.Default.OptionalAsianSpy = true;
-                SaveSettings();
+                await SaveSettings();
 
                 //the last optional change to configure should reset the counter to guarantee no persistence issues
                 //because of how I set things up (simpler), it also can't easily close the window lol
@@ -4479,7 +4501,7 @@ namespace CBPLauncher.Logic
             else return false;
         }
 
-        private void LoadPlugins()
+        private async Task LoadPlugins()
         {
             try
             {//can use plugin.LoadResult for logging
@@ -4495,28 +4517,31 @@ namespace CBPLauncher.Logic
 
                 foreach (IPluginCBP plugin in pluginList)
                 {
-                    plugin.DoSomething(RonWorkshopPath, localMods);
-                    plugin.UpdatePlugin(RonWorkshopPath, localMods);
-                    CBPLogger.GetInstance.Info(plugin.LoadResult);
-                    CBPLogger.GetInstance.Info($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
-                    CBPLogger.GetInstance.Info("\nPlugin location: " + pluginsPathList[pluginCounter]);
-                    pluginCounter++;
-                    CBPLogger.GetInstance.Info("====================");
+                    await Task.Run(() =>
+                    {
+                        plugin.DoSomething(RonWorkshopPath, localMods);
+                        plugin.UpdatePlugin(RonWorkshopPath, localMods);
+                        CBPLogger.GetInstance.Info(plugin.LoadResult);
+                        CBPLogger.GetInstance.Info($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
+                        CBPLogger.GetInstance.Info("\nPlugin location: " + pluginsPathList[pluginCounter]);
+                        pluginCounter++;
+                        CBPLogger.GetInstance.Info("====================");
+                    });
                 }
 
-                CheckPluginCompatibility();
+                await CheckPluginCompatibility();
 
                 if (pluginList != null)
                 {
                     Properties.Settings.Default.AnyPluginsLoaded = true;
-                    SaveSettings();
+                    await SaveSettings();
 
                     CBPLogger.GetInstance.Info("Any plugins with auto-updating logic have been given a chance to run their logic.");
                 }
                 else
                 {
                     Properties.Settings.Default.AnyPluginsLoaded = false;
-                    SaveSettings();
+                    await SaveSettings();
 
                     CBPLogger.GetInstance.Info("No plugins detected.");
                 }
@@ -4572,7 +4597,7 @@ namespace CBPLauncher.Logic
             return pluginsList;
         }
 
-        private void CheckPluginCompatibility()
+        private async Task CheckPluginCompatibility()
         {
             Properties.Settings.Default.PluginCompatibilityIssue = false;
             Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
@@ -4589,17 +4614,17 @@ namespace CBPLauncher.Logic
                         Properties.Settings.Default.MultiplayerCompatibilityIssue = true;
                 }
             }
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void PluginSecurityWarning()
+        private async Task PluginSecurityWarning()
         {
             if (Properties.Settings.Default.FirstTimePlugins)
             {
                 MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.", "Plugin Security Warning", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 Properties.Settings.Default.FirstTimePlugins = false;
-                SaveSettings();
+                await SaveSettings();
             }
         }
 
@@ -4665,13 +4690,13 @@ namespace CBPLauncher.Logic
         }
 
         //settings section
-        private void ResetSettings(bool showMessage)
+        private async Task ResetSettings(bool showMessage)
         {
             //Properties.Settings.Default.Reset();
-            WriteDefaultSettings();
+            await WriteDefaultSettings();
 
             Properties.Settings.Default.JustReset = true;
-            SaveSettings();
+            await SaveSettings();
 
             CBPLogger.GetInstance.Info("Settings reset.");
             if (showMessage)
@@ -4681,7 +4706,7 @@ namespace CBPLauncher.Logic
         }
 
         //dumb way to avoid having to distribute the config file (people are already having trouble following directions for two exes, I don't want to complicate it further)
-        private void WriteDefaultSettings()
+        private async Task WriteDefaultSettings()
         {
             Properties.Settings.Default.DefaultCBP = true;
             Properties.Settings.Default.CBPUnloaded = false;
@@ -4727,7 +4752,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.LastUsedGameVersion = "";
             Properties.Settings.Default.HasMigratedToNewFormat = false;
 
-            SaveSettings();
+            await SaveSettings();
 
             CBPLogger.GetInstance.Info("Default settings manually written.");
         }
@@ -4745,79 +4770,79 @@ namespace CBPLauncher.Logic
         ///           }
         ///       }
         /// }
-        private void CBPDefaultCheckbox_Inversion()
+        private async Task CBPDefaultCheckbox_Inversion()
         {
             Properties.Settings.Default.DefaultCBP = !Properties.Settings.Default.DefaultCBP;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void UsePrereleaseCheckbox_Inversion()
+        private async Task UsePrereleaseCheckbox_Inversion()
         {
             Properties.Settings.Default.UsePrerelease = !Properties.Settings.Default.UsePrerelease;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void UseDefaultLauncher_Inversion()
+        private async Task UseDefaultLauncher_Inversion()
         {
             Properties.Settings.Default.UseDefaultLauncher = !Properties.Settings.Default.UseDefaultLauncher;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void UsePrimaryFiles_Inversion()
+        private async Task UsePrimaryFiles_Inversion()
         {
             Properties.Settings.Default.UsePrimaryFileList = !Properties.Settings.Default.UsePrimaryFileList;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void UseSecondaryFiles_Inversion()
+        private async Task UseSecondaryFiles_Inversion()
         {
             Properties.Settings.Default.UseSecondaryFileList = !Properties.Settings.Default.UseSecondaryFileList;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void DetectBullshit_Inversion()
+        private async Task DetectBullshit_Inversion()
         {
             Properties.Settings.Default.DetectBullshit = !Properties.Settings.Default.DetectBullshit;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void OptionalMaintain_Inversion()
+        private async Task OptionalMaintain_Inversion()
         {
             Properties.Settings.Default.OptionalMaintain = !Properties.Settings.Default.OptionalMaintain;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void AddIconGameName_Inversion()
+        private async Task AddIconGameName_Inversion()
         {
             Properties.Settings.Default.AddIconGameName = !Properties.Settings.Default.AddIconGameName;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void UseFancyLogging_Inversion()
+        private async Task UseFancyLogging_Inversion()
         {
             Properties.Settings.Default.UseFancyLogging = !Properties.Settings.Default.UseFancyLogging;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void WarnCompatibility_Inversion()
+        private async Task WarnCompatibility_Inversion()
         {
             Properties.Settings.Default.WarnCompatibility = !Properties.Settings.Default.WarnCompatibility;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void DisablePluginLoading_Inversion()
+        private async Task DisablePluginLoading_Inversion()
         {
             Properties.Settings.Default.DisablePluginLoading = !Properties.Settings.Default.DisablePluginLoading;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void ArchiveDelete_Inversion()
+        private async Task ArchiveDelete_Inversion()
         {
             Properties.Settings.Default.ArchiveDelete = !Properties.Settings.Default.ArchiveDelete;
-            SaveSettings();
+            await SaveSettings();
         }
 
-        private void OverridePathPopup()
+        private async Task OverridePathPopup()
         {
             //clunky (should probably use a while loop?) but functional
             OverridePathStart:
@@ -4834,7 +4859,7 @@ namespace CBPLauncher.Logic
             {
                 // directly save the path
                 Properties.Settings.Default.RoNPathSetting = newPath;
-                SaveSettings();
+                await SaveSettings();
 
                 MessageBox.Show("New path saved.\n\nPlease restart CBP Launcher to ensure the new path is loaded correctly.");
             }
@@ -4916,19 +4941,19 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void SaveSettings()
+        private async Task SaveSettings()
         {
-            Properties.Settings.Default.Save();
+            await Task.Run(() => Properties.Settings.Default.Save());
         }
 
-        private void UpgradeSettings()
+        private async Task UpgradeSettings()
         {
             // don't want to import settings if they were just reset (otherwise that defeats the purpose)
             if (Properties.Settings.Default.JustReset == false)
             {
                 Properties.Settings.Default.Upgrade();
                 Properties.Settings.Default.UpgradeRequired = false;
-                SaveSettings();
+                await SaveSettings();
 
                 // removed this message to reduce popups for first-timer users
                 //MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
@@ -4948,7 +4973,7 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.DefaultLauncherAnswered = true;
                     Properties.Settings.Default.UseDefaultLauncher = false;
                     UseDefaultLauncherCheckbox = false;
-                    SaveSettings();
+                    await SaveSettings();
                     await ReplaceRestoreDefaultLauncher();
                     CBPLogger.GetInstance.Info("Using CBP Launcher.");
                 }
@@ -4957,7 +4982,7 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.DefaultLauncherAnswered = true;
                     Properties.Settings.Default.UseDefaultLauncher = true;
                     UseDefaultLauncherCheckbox = true;
-                    SaveSettings();
+                    await SaveSettings();
                     CBPLogger.GetInstance.Info("Using default launcher.");
                 }
             }
@@ -4970,7 +4995,7 @@ namespace CBPLauncher.Logic
                 Properties.Settings.Default.DefaultLauncherAnswered = true;
                 Properties.Settings.Default.UseDefaultLauncher = false;
                 UseDefaultLauncherCheckbox = false;
-                SaveSettings();
+                await SaveSettings();
                 await ReplaceRestoreDefaultLauncher();
                 CBPLogger.GetInstance.Info("First time setup: Defaulting to CBP Launcher.");
             }
@@ -4988,7 +5013,7 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.FirstTimeRun = false;
                     Properties.Settings.Default.DefaultCBP = true;
                     CBPDefaultCheckbox = true;
-                    SaveSettings();
+                    await SaveSettings();
                     CBPLogger.GetInstance.Info("Defaulting to CBP.");
                 }
                 else
@@ -4996,7 +5021,7 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.FirstTimeRun = false;
                     Properties.Settings.Default.DefaultCBP = false;
                     CBPDefaultCheckbox = false;
-                    SaveSettings();
+                    await SaveSettings();
 
                     // we want to ensure CBP files are "on hand" even if the person doesn't want to initially use CBP
                     // (because I don't want to continously handle the edge case of someone who has no CBP files on hand when they're expected by code)
@@ -5015,7 +5040,7 @@ namespace CBPLauncher.Logic
                 Properties.Settings.Default.FirstTimeRun = false;
                 Properties.Settings.Default.DefaultCBP = true;
                 CBPDefaultCheckbox = true;
-                SaveSettings();
+                await SaveSettings();
                 CBPLogger.GetInstance.Info("First time setup: Defaulting to CBP.");
             }
         }
@@ -5027,7 +5052,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info($"Settings had no RoN path saved when RoN path was found, updating to: {foundRonPath}");
 
                 Properties.Settings.Default.RoNPathSetting = foundRonPath;
-                SaveSettings();
+                await SaveSettings();
             }
             else
             {
@@ -5250,7 +5275,7 @@ namespace CBPLauncher.Logic
             await pause;
         }
 
-        private bool IsThisExeJune2024(string path)
+        private async Task<bool> IsThisExeJune2024(string path)
         {
             // June 2024 exe is exactly 9,925,120 bytes
             // (hash would be an alternative, if including dual-case support for an LAA patched exe)
@@ -5269,7 +5294,7 @@ namespace CBPLauncher.Logic
         // [Nov 2025] It turns out the other reason for doing it the original way post-June-2024-patch is because
         //   attaching the mini-patch to a button allows all the other stuff to run first e.g., setting up paths,
         //   the absence of which makes it much harder to run the mini-patch
-        private void ApplyJunePatchFix()
+        private async Task ApplyJunePatchFix()
         {
             try
             {
@@ -5290,7 +5315,7 @@ namespace CBPLauncher.Logic
 
                 // if fix applied, change setting and save settings
                 Properties.Settings.Default.JunePatchFixApplied = true;
-                SaveSettings();
+                await SaveSettings();
 
                 // force refresh of button visibility (I HATE IT TOO, PLEASE PUT THE GUN DOWN)
                 //JunePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
@@ -5420,7 +5445,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info("Migration: Disabling plugins...");
                 Properties.Settings.Default.DisablePluginLoading = true;
                 Properties.Settings.Default.WarnCompatibility = false;
-                SaveSettings();
+                await SaveSettings();
 
                 if (Properties.Settings.Default.CBPLoaded) // note that there's also a CBPUnloaded setting too, because of legacy reasons
                 {
@@ -5461,7 +5486,7 @@ namespace CBPLauncher.Logic
                 File.Copy(workshopPatchNotes, localPatchNotes, true);
 
                 Properties.Settings.Default.HasMigratedToNewFormat = true;
-                SaveSettings();
+                await SaveSettings();
             }
             catch (Exception ex)
             {
@@ -5478,7 +5503,7 @@ namespace CBPLauncher.Logic
             try
             {
                 // TODO later?: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
-                DirectoryCopy(folderPath, RoNPathFinal, true, true);
+                await Task.Run(() => DirectoryCopy(folderPath, RoNPathFinal, true, true));
 
                 string localPatch = Path.Combine(RoNPathFinal, patchNameTempHardcoded);
                 string oldExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
@@ -5573,7 +5598,7 @@ namespace CBPLauncher.Logic
             VersionTextInstalled = versionTempHardcoded;
             Status = LauncherStatus.readyCbpLoaded;
             Properties.Settings.Default.UsePrerelease = false;
-            SaveSettings();
+            await SaveSettings();
         }
 
         private async Task LoadEe()
@@ -5592,7 +5617,7 @@ namespace CBPLauncher.Logic
             VersionTextInstalled = "Default RoN:EE";
             Status = LauncherStatus.readyEeLoaded;
             Properties.Settings.Default.UsePrerelease = false;
-            SaveSettings();
+            await SaveSettings();
         }
 
         private async Task InstallSelfContainedVersion(string parentFolder, string subFolderName, string patchName, string exeName) // TODO: de-duplicate this absolute mess of a duplicate function
@@ -5603,7 +5628,7 @@ namespace CBPLauncher.Logic
                 try
                 {
                     // TODO: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
-                    DirectoryCopy(folderPath, RoNPathFinal, true, true);
+                    await Task.Run(() => DirectoryCopy(folderPath, RoNPathFinal, true, true));
 
                     string localPatch = Path.Combine(RoNPathFinal, patchName);
                     string oldExe = Path.Combine(RoNPathFinal, "riseofnations.exe");
@@ -5724,7 +5749,7 @@ namespace CBPLauncher.Logic
             await LoadOtherVersion(newExe, status, "CBP Alpha 9d", "CBPa9d");
 
             Properties.Settings.Default.UsePrerelease = false;
-            SaveSettings();
+            await SaveSettings();
         }
 
         private async Task TempLoadPR1()
@@ -5734,7 +5759,7 @@ namespace CBPLauncher.Logic
             await LoadOtherVersion(newExe, status, "CBP Pre-Release 1", "CBPPR1");
 
             Properties.Settings.Default.UsePrerelease = true;
-            SaveSettings();
+            await SaveSettings();
         }
 
         private async Task TempLoadPR2()
@@ -5744,7 +5769,7 @@ namespace CBPLauncher.Logic
             await LoadOtherVersion(newExe, status, "CBP Pre-Release 2", "CBPPR2");
 
             Properties.Settings.Default.UsePrerelease = true;
-            SaveSettings();
+            await SaveSettings();
         }
 
         private async Task TempLoadPR3()
@@ -5754,7 +5779,7 @@ namespace CBPLauncher.Logic
             await LoadOtherVersion(newExe, status, "CBP Pre-Release 3", "CBPPR3");
 
             Properties.Settings.Default.UsePrerelease = true;
-            SaveSettings();
+            await SaveSettings();
         }
 
         private bool FileHashMatches(string filePath, string expectedHash)
