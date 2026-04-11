@@ -5,6 +5,7 @@
              xmlns:logic="clr-namespace:CBPLauncher.Logic"
              xmlns:skins="clr-namespace:CBPLauncher.Skins"
              xmlns:core="clr-namespace:CBPLauncher.Core"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
              Startup="App_Startup"
              StartupUri="MainWindow.xaml">
 
@@ -19,6 +20,10 @@
             <!--<wrappers:BindingWrapper x:Key="BindingWrapper"/>-->
 
             <ResourceDictionary.MergedDictionaries>
+                <!-- ModernWpfUI package (including the ui namespace) -->
+                <ui:ThemeResources/>
+                <ui:XamlControlsResources/>
+
                 <ResourceDictionary Source="Theme/BBRadioButton.xaml"/>
                 <!--<ResourceDictionary Source="Theme/BBScrollbar.xaml"/>-->
                 <ResourceDictionary Source="Theme/LauncherPrimaryButton.xaml"/>
@@ -26,7 +31,7 @@
                 <ResourceDictionary Source="Theme/RoNCheckbox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <logic:MainCode x:Key="MC"/>
+            <logic:MainCode x:Key="MainCodeInstance"/>
             <!--<core-->
 
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
