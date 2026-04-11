@@ -5,12 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CBPLauncher.Skins"
              xmlns:logic="clr-namespace:CBPLauncher.Logic"
-             xmlns:ui="http://schemas.modernwpf.com/2019"
              mc:Ignorable="d"
              d:DesignWidth="870"
              d:DesignHeight="798"
              Background="Transparent"
-             DataContext="{StaticResource MainCodeInstance}">
+             DataContext="{StaticResource MC}">
     <!-- This outer grid is just so that text can be display at the top of the outer grid (outside of the "main" area) -->
     <Grid>
         <Grid.RowDefinitions>
@@ -58,8 +57,7 @@
                     </Button.Content>
                 </Button>
                 <Image Source="/Images/CBP Launcher announcements bg top.png" Width="211" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="23,7,0,0" Panel.ZIndex="10"/>
-                <Grid Margin="15,17,0,0" Width="211" Height="219" VerticalAlignment="Top" Visibility="Hidden" Panel.ZIndex="10">
-                <!--<Grid Margin="15,17,0,0" Width="211" Height="219" VerticalAlignment="Top" Visibility="{Binding AnnouncementsVis, Converter={StaticResource BoolToVis}}" Panel.ZIndex="10">-->
+                <Grid Margin="15,17,0,0" Width="211" Height="219" VerticalAlignment="Top" Visibility="{Binding AnnouncementsVis, Converter={StaticResource BoolToVis}}" Panel.ZIndex="10">
                     <Grid.Background>
                         <ImageBrush ImageSource="/Images/CBP Launcher announcements bg.png"/>
                     </Grid.Background>
@@ -124,7 +122,6 @@
                 <Button Content="Update?" HorizontalAlignment="Left" Margin="93,4,0,0" VerticalAlignment="Top" Width="70" Height="17" Padding="0,0,0,0" Visibility="Hidden"/>
 
                 <!-- logo in box -->
-                
                 <Image Source="/Images/RoN EE logo (touchup) from game files.png" RenderOptions.BitmapScalingMode="Fant" Margin="38,20,22,40" Stretch="Uniform" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/>
                 <!--<Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="71,54,57,74" Stretch="Uniform" Visibility="Hidden"/>-->
                 <Image Source="/Images/RoN CBP logo 02 opti resized.png" RenderOptions.BitmapScalingMode="Fant" Margin="32,15,19,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/>
