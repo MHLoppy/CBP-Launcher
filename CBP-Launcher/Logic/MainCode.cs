@@ -151,7 +151,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private string launchButtonText = "...";
+        private string launchButtonText = "Loading...";
         public string LaunchButtonText
         {
             get => launchButtonText;
@@ -992,34 +992,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        /*public static async Task<MainCode> CreateAsync()
-        {
-            MainCode uwu = new MainCode();
-            await uwu.InitializeAsync();
-            return uwu;
-        }
-
-        public MainCode() { }
-        private async Task InitializeAsync()
-        {
-            //things to do automagically
-
-            if (IsInDesignMode() == false)
-            {
-                // moved into separate function
-                await AutoRunWrapper();
-            }
-            else
-            {
-                //designtime baybeeee
-
-                //to stop strange A N G E R Y VS2019 error messages which don't actually matter
-                CBPFileListAll.Add("uwu");
-
-                //(turns out that didn't stop the messages  n w n
-            }
-        }*/
-
         public MainCode()
         {
             if (IsInDesignMode() == false)
@@ -1031,17 +1003,84 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info("CBP Launcher " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
                 if ((Properties.Settings.Default.FirstTimeRun == true) && (Properties.Settings.Default.JustReset == false))
+                {
                     WriteDefaultSettings();
+                }
 
                 CheckReinstall();
 
-                // moved into separate function
-                AutoRunWrapper();
+                InitializeMinimal();
             }
             else
             {
                 //designtime baybeeee
             }
+        }
+
+        private void InitializeMinimal()
+        {
+            // combined with datatemplates in app.xaml, this means the view (skin) is switched when the vm (dummy code in this case) is switched
+            // same for each of the tabs
+            SpartanV1 = new SpartanV1VM();
+            SpartanV1Mini = new SpartanV1MiniVM();
+            SpartanV1Announcements = new SpartanV1AnnouncementsVM();
+            SpartanV1PatchNotes = new SpartanV1PatchNotesVM();
+            SpartanV1ModManager = new SpartanV1ModManagerVM();
+            SpartanV1Options = new SpartanV1OptionsVM();
+            SpartanV1Log = new SpartanV1LogVM();
+            SpartanV1Other = new SpartanV1OtherVM();
+            SpartanV1DummyTab = new SpartanV1DummyTabVM();
+
+            ClassicPlus = new ClassicPlusVM();
+            ClassicPlusMini = new ClassicPlusMiniVM();
+            ClassicPlusAnnouncements = new ClassicPlusAnnouncementsVM();
+            ClassicPlusPatchNotes = new ClassicPlusPatchNotesVM();
+            ClassicPlusModManager = new ClassicPlusModManagerVM();
+            ClassicPlusOptions = new ClassicPlusOptionsVM();
+            ClassicPlusLog = new ClassicPlusLogVM();
+            ClassicPlusOther = new ClassicPlusOtherVM();
+            ClassicPlusDummyTab = new DummyTabVM();
+
+            if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == false))
+            {
+                CurrentSkin = SpartanV1;
+                CurrentTab = SpartanV1PatchNotes;
+                Announcements = SpartanV1Announcements;
+            }
+            else if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == true))
+            {
+                CurrentSkin = SpartanV1Mini;
+                CurrentTab = SpartanV1PatchNotes;
+            }
+            else if ((Properties.Settings.Default.SkinSpV1 == false) && (Properties.Settings.Default.MicroSkin == true))
+            {
+                CurrentSkin = ClassicPlusMini;
+                CurrentTab = ClassicPlusPatchNotes;
+            }
+            else
+            {
+                CurrentSkin = ClassicPlus;
+                CurrentTab = ClassicPlusPatchNotes;
+                Announcements = ClassicPlusAnnouncements;
+            }
+        }
+
+        internal async Task InitializeAsync()
+        {
+            await AutoRun();
+            await CreateCommands();
+            NotifyCommandsChanged();
+
+            // don't spend time loading plugins if not being used
+            if (Properties.Settings.Default.DisablePluginLoading == false)
+            {
+                LoadPlugins();
+            }
+            else
+            {
+                CBPLogger.GetInstance.Info("Plugin loading is disabled.");
+            }
+            RefreshCheckboxValues();
         }
 
         // this object must stay as a global (not a local within IsInDesignMode(), otherwise VS2022 screams
@@ -1199,23 +1238,6 @@ namespace CBPLauncher.Logic
             ArchiveDeleteCheckbox = Properties.Settings.Default.ArchiveDelete;
 
             CBPLogger.GetInstance.Debug("Checkbox values refreshed.");
-        }
-
-        private async Task AutoRunWrapper()
-        {
-            await AutoRun();
-            await CreateCommands();
-
-            // don't spend time loading plugins if not being used
-            if (Properties.Settings.Default.DisablePluginLoading == false)
-            {
-                LoadPlugins();
-            }
-            else
-            {
-                CBPLogger.GetInstance.Info("Plugin loading is disabled.");
-            }
-            RefreshCheckboxValues();
         }
 
         private async Task AutoRun()
@@ -1779,51 +1801,6 @@ namespace CBPLauncher.Logic
                 Application.Current.Shutdown();
             });
 
-            // combined with datatemplates in app.xaml, this means the view (skin) is switched when the vm (dummy code in this case) is switched
-            // same for each of the tabs
-            SpartanV1 = new SpartanV1VM();
-            SpartanV1Mini = new SpartanV1MiniVM();
-            SpartanV1Announcements = new SpartanV1AnnouncementsVM();
-            SpartanV1PatchNotes = new SpartanV1PatchNotesVM();
-            SpartanV1ModManager = new SpartanV1ModManagerVM();
-            SpartanV1Options = new SpartanV1OptionsVM();
-            SpartanV1Log = new SpartanV1LogVM();
-            SpartanV1Other = new SpartanV1OtherVM();
-            SpartanV1DummyTab = new SpartanV1DummyTabVM();
-
-            ClassicPlus = new ClassicPlusVM();
-            ClassicPlusMini = new ClassicPlusMiniVM();
-            ClassicPlusAnnouncements = new ClassicPlusAnnouncementsVM();
-            ClassicPlusPatchNotes = new ClassicPlusPatchNotesVM();
-            ClassicPlusModManager = new ClassicPlusModManagerVM();
-            ClassicPlusOptions = new ClassicPlusOptionsVM();
-            ClassicPlusLog = new ClassicPlusLogVM();
-            ClassicPlusOther = new ClassicPlusOtherVM();
-            ClassicPlusDummyTab = new DummyTabVM();
-
-            if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == false))
-            {
-                CurrentSkin = SpartanV1;
-                CurrentTab = SpartanV1PatchNotes;
-                Announcements = SpartanV1Announcements;
-            }
-            else if ((Properties.Settings.Default.SkinSpV1 == true) && (Properties.Settings.Default.MicroSkin == true))
-            {
-                CurrentSkin = SpartanV1Mini;
-                CurrentTab = SpartanV1PatchNotes;
-            }
-            else if ((Properties.Settings.Default.SkinSpV1 == false) && (Properties.Settings.Default.MicroSkin == true))
-            {
-                CurrentSkin = ClassicPlusMini;
-                CurrentTab = ClassicPlusPatchNotes;
-            }
-            else
-            {
-                CurrentSkin = ClassicPlus;
-                CurrentTab = ClassicPlusPatchNotes;
-                Announcements = ClassicPlusAnnouncements;
-            }
-
             ChangeSkinCommand = new RelayCommand(o =>//convert this to a multi-choice command (e.g. dropdown selection)
             {
                 if (CurrentSkin == SpartanV1)
@@ -1944,6 +1921,75 @@ namespace CBPLauncher.Logic
             {
                 await OptionalChangeUseReplacement();
             });
+        }
+
+        private void NotifyCommandsChanged()
+        {
+            OnPropertyChanged(nameof(CBPDefaultCommand));
+            OnPropertyChanged(nameof(UsePrereleaseCommand));
+            OnPropertyChanged(nameof(UseDefaultLauncherCommand));
+            OnPropertyChanged(nameof(ResetSettingsCommand));
+            OnPropertyChanged(nameof(UsePrimaryFilesCommand));
+            OnPropertyChanged(nameof(UseSecondaryFilesCommand));
+            OnPropertyChanged(nameof(DetectBullshitCommand));
+            OnPropertyChanged(nameof(DetectBullshitNowCommand));
+            OnPropertyChanged(nameof(ConfigOptionalCommand));
+            OnPropertyChanged(nameof(OptionalMaintainCommand));
+            OnPropertyChanged(nameof(AddIconGameNameCommand));
+            OnPropertyChanged(nameof(UseFancyLoggingCommand));
+            OnPropertyChanged(nameof(WarnCompatibilityCommand));
+            OnPropertyChanged(nameof(DisablePluginLoadingCommand));
+            OnPropertyChanged(nameof(OverridePathCommand));
+            OnPropertyChanged(nameof(ArchiveDeleteCommand));
+
+            OnPropertyChanged(nameof(PlayButtonCommand));
+            OnPropertyChanged(nameof(LoadCbpCommand));
+            OnPropertyChanged(nameof(LoadEeCommand));
+            OnPropertyChanged(nameof(AnnouncementsLeftCommand));
+            OnPropertyChanged(nameof(AnnouncementsRightCommand));
+            OnPropertyChanged(nameof(AnnouncementsCloseCommand));
+
+            OnPropertyChanged(nameof(WorkshopCommand));
+            OnPropertyChanged(nameof(GithubCommand));
+            OnPropertyChanged(nameof(DiscordCommand));
+
+            OnPropertyChanged(nameof(SkinSpartanV1Command));
+            OnPropertyChanged(nameof(SkinSpartanV1MiniCommand));
+            OnPropertyChanged(nameof(SpV1TabPatchNotesCommand));
+            OnPropertyChanged(nameof(SpV1TabModManagerCommand));
+            OnPropertyChanged(nameof(SpV1TabOptionsCommand));
+            OnPropertyChanged(nameof(SpV1TabLogCommand));
+            OnPropertyChanged(nameof(SpV1TabOtherCommand));
+
+            OnPropertyChanged(nameof(SkinClassicPlusCommand));
+            OnPropertyChanged(nameof(SkinClassicPlusMiniCommand));
+            OnPropertyChanged(nameof(CPTabPatchNotesCommand));
+            OnPropertyChanged(nameof(CPTabModManagerCommand));
+            OnPropertyChanged(nameof(CPTabOptionsCommand));
+            OnPropertyChanged(nameof(CPTabLogCommand));
+            OnPropertyChanged(nameof(CPTabOtherCommand));
+
+            OnPropertyChanged(nameof(OptionalCurrentCommand));
+            OnPropertyChanged(nameof(OptionalDefaultCommand));
+            OnPropertyChanged(nameof(OptionalReplacementCommand));
+
+            OnPropertyChanged(nameof(WorkshopPRCommand));
+            OnPropertyChanged(nameof(InstallA9dCommand));
+            OnPropertyChanged(nameof(LoadA9dCommand));
+            OnPropertyChanged(nameof(InstallPR1Command));
+            OnPropertyChanged(nameof(LoadPR1Command));
+            OnPropertyChanged(nameof(InstallPR2Command));
+            OnPropertyChanged(nameof(LoadPR2Command));
+            OnPropertyChanged(nameof(InstallPR3Command));
+            OnPropertyChanged(nameof(LoadPR3Command));
+
+            OnPropertyChanged(nameof(MinimiseCommand));
+            OnPropertyChanged(nameof(ExitCommand));
+
+            //OnPropertyChanged(nameof(JunePatchFixCommand));
+
+            //test commands
+            OnPropertyChanged(nameof(ChangeSkinCommand));
         }
 
         private bool CheckForPRFiles()

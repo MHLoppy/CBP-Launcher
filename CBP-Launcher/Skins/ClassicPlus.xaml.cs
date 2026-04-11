@@ -23,17 +23,6 @@ namespace CBPLauncher.Skins
         public ClassicPlus()
         {
             InitializeComponent();
-
-            /*if (Properties.Settings.Default.SkinSpV1 == false)
-            {
-                // select patch notes tab
-                CPPN.IsChecked = true;
-            }
-            else
-            {
-                // select options tab
-                CPO.IsChecked = true;
-            }*/
         }
     }
 }

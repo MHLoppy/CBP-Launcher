@@ -23,17 +23,6 @@ namespace CBPLauncher.Skins
         public SpartanV1()
         {
             InitializeComponent();
-
-            /*if (Properties.Settings.Default.SkinSpV1 == true)
-            {
-                // select patch notes tab
-                SpV1TabButtonPatchNotes.IsChecked = true;
-            }
-            else
-            {
-                // select options tab
-                SpV1TabButtonOptions.IsChecked = true;
-            }*/
         }
     }
 }

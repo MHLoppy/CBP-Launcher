@@ -1,360 +1,534 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading; // Task.Delay would be nicer but seems harder to use for a simple non-async delay
-//using CBPLauncher; // in case I need to move dirs
-using CBPSetup.Language;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+using LangRes = CBPSetup.Language.Resources; // ease-of-use alias (apparently no performance overhead / penalty to do this)
 
 namespace CBPSetup
 {
     class Program
     {
-        private static void Main()
+        static long swInit;
+        static long swUpgrade;
+        static long swDefault;
+        static long swLang;
+        static long swRunning;
+        static long swLocation;
+        static long swFound;
+        static long swTxt;
+        static long swUpdated;
+        static long swLaunch;
+        static long swConclusion;
+
+        private enum RunningLocation
         {
-            Console.WriteLine(Resources.CBPSTestString.ToString());
-
-            // Step 0: don't overlap the streams (check if already running)
-            MasculinityCheck();
-
-            // Step 1: figure out what location exe is running from
-            WhereTheBloodyHellAreYou();
-
-            //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
-            CheckForCBPL();
-
-            //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
-            CBPLVersionCheck();
-
-            // Step 4: launch CBP launcher, then close this
-            StartCBPL();
-
-            //CBPS exits if CBP Launcher is running
-            ProcessCheck("CBP Launcher");
-            Conclusion();
+            Unknown                = 0,
+            RonRoot                = 1,
+            WorkshopMods           = 2,
+            LocalMods              = 3,
+            WorkshopModsPreRelease = 4
         }
 
-        private static int Location = 0;
-        // 0 = unknown
-        // 1 = RoN root folder (where we want it)
-        // 2 = Workshop mods folder (where we expect it to be the first time)
-        // 3 = local mods folder
-        // 4 = Workshop mods folder, but pre-release
+        public static string TextLog = "";
+        public static string[] Args;
+        private static bool cbpLauncherIsRunning = false;
 
-        private static bool CBPL = false;
+        private static void Main(string[] args)
+        {
+            var sw = Stopwatch.StartNew();
+            Args = args;
+            sw.Stop();
+            swInit = sw.ElapsedMilliseconds;
 
-        private static string CBPLExe = "";
-        private static string CBPLExeUpdate = "";
+            foreach (string arg in args)
+            {
+                TextLog += arg;
+            }
+            foreach (string arg in Args)
+            {
+                TextLog += arg;
+            }
+
+            sw.Restart();
+            if (Properties.Settings.Default.UpgradeRequired == true)
+            {
+                ReplacementSettingsReset();
+                UpgradeSettings();
+                SaveSettings();
+            }
+            sw.Stop();
+            swUpgrade = sw.ElapsedMilliseconds;
+
+            sw.Restart();
+            sw.Stop();
+            swDefault = sw.ElapsedMilliseconds;
+
+            Primary();
+        }
 
         // CBP Setup handles updating CBP Launcher (and its language files); CBPL handles updating CBPS (and its language files)
-        private static string CBPLDll = "";
-        private static string CBPLDllUpdate = "";
+        private static string CbpLauncherLocalExePath = "";
+        private static string CbpLauncherWorkshopExePath = "";
 
-        private static string CBPSFolder = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
-        private static string CBPSExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Setup.exe"));
+        //private static bool CBPPR = false;//used for debugging
+        //private static string netFrameworkVersion => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
 
-        private static void MasculinityCheck()
+        static private void Primary()
+        {
+            //step -2: check .NET framework version
+            //MessageBox.Show(netFrameworkVersion);
+
+            var sw = Stopwatch.StartNew();
+
+            sw.Stop();
+            swLang = sw.ElapsedMilliseconds;
+            sw.Restart();
+            CheckIfAlreadyRunning();
+            sw.Stop();
+            swRunning = sw.ElapsedMilliseconds;
+            sw.Restart();
+
+            // Step 1: figure out what location exe is running from
+            RunningLocation runningLocation = FindRunningLocation();
+            sw.Stop();
+            swLocation = sw.ElapsedMilliseconds;
+            sw.Restart();
+
+            //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
+            bool found = CbpLauncherFound(runningLocation);
+            sw.Stop();
+            swFound = sw.ElapsedMilliseconds;
+            sw.Restart();
+            //await AutoConsentQuestion();
+
+            //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
+            CopyTxtFiles();
+            sw.Stop();
+            swTxt = sw.ElapsedMilliseconds;
+            sw.Restart();
+            KeepCbpLauncherUpdated(found);
+            sw.Stop();
+            swUpdated = sw.ElapsedMilliseconds;
+            sw.Restart();
+
+            // Step 4: launch CBP launcher
+            StartCbpLauncher();
+            sw.Stop();
+            swLaunch = sw.ElapsedMilliseconds;
+            sw.Restart();
+
+            //CBPS exits if CBP Launcher is running
+            Conclusion();
+            sw.Stop();
+            swConclusion = sw.ElapsedMilliseconds;
+        }
+
+        private static void CheckIfAlreadyRunning()
         {
             // longwinded way of checking if another copy of the process is already running; mutex would be better but slightly more complex
-            if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location)).Count() > 1)
+            string thisProcessName = Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location); //"CBP Setup"
+            if (HasMoreThanNumProcesses(thisProcessName, 1) == true)
             {
-                // there probably won't be enough time to see this (even if you're literally recording the screen)
-                Console.WriteLine("It looks like CBP Setup is already running in another thread. (window will close in 5 seconds)");
-                Thread.Sleep(5000);
-                Environment.Exit(1056);
+                ControlledClose(LangRes.ErrorAlreadyRunning + "\n" + LangRes.WindowWillClose, 1056);
+                return;
+            }
+
+            // safeguard against there being *multiple* CBP Launcher instances running
+            cbpLauncherIsRunning = HasMoreThanNumProcesses("CBPLauncher", 1);
+            if (cbpLauncherIsRunning)
+            {
+                ControlledClose(LangRes.CBPLCurrentlyRunning + "\n" + LangRes.WindowWillClose, 1056);
+                return;
             }
         }
 
-        private static void WhereTheBloodyHellAreYou()
+        private static RunningLocation FindRunningLocation()
         {
-
-            if (File.Exists
-                (Path.GetFullPath
-                (Path.Combine
-                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                    , "riseofnations.exe"))))
+            string thisProcessLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            if (File.Exists(Path.Combine(thisProcessLocation, "riseofnations.exe")))
             {
-                //RoN root folder
-                Location = 1;
+                return RunningLocation.RonRoot;
             }
 
-            if (Path.GetFullPath
-                (Path.Combine
-                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                    , @"..\"
-                    , "2287791153")).ToString() == Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
-                {
-                //workshop mods folder
-                Location = 2;
+            var parentDirectoryName = new DirectoryInfo(thisProcessLocation).Parent?.Name; // null guard seems good practice, though normally unnecessary here
+            if (parentDirectoryName == "2287791153")
+            {
+                return RunningLocation.WorkshopMods;
+            }
+            if (parentDirectoryName == "2528425253")
+            {
+                return RunningLocation.WorkshopModsPreRelease;
             }
 
-            if (File.Exists
-                (Path.GetFullPath
-                (Path.Combine
-                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                    , @"..\"
-                    , "mod-status.txt"))))
+            if (File.Exists(Path.Combine(thisProcessLocation, @"..\", "mod-status.txt"))) // (this location is currently unsupported)
             {
-                //local mods folder
-                Location = 3;
+                return RunningLocation.LocalMods;
             }
-            
-            if (Path.GetFullPath
-                (Path.Combine
-                    (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                    , @"..\"
-                    , "2528425253")).ToString() == Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)).ToString())
-            {
-                //workshop mods folder, but pre-release
-                Location = 4;
-            }
+
+            return RunningLocation.Unknown;
         }
 
         // condenses multiple steps into one; slightly harder to read but easier to make for me /shrug
-        // just remember that each paths are heavily duplicated (but I don't think it's worth the trouble of making more sophisticated logic to avoid it right now)
-        private static void CheckForCBPL()
+        // just remember that each of the paths are heavily duplicated (but I don't think it's worth the trouble of making more sophisticated logic to avoid it right now)
+        private static bool CbpLauncherFound(RunningLocation location)
         {
-            // change the path it checks based on where it thinks it is
-            // pretty sure this isn't a particularly efficient way of doing this, but it shouldn't really matter
-            switch (Location)
+            string thisProcessLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            switch (location)
             {
-                case 0:
-                    Console.WriteLine("Unable to ascertain current location. (window will close in 5 seconds)");
-                    Thread.Sleep(5000);
-                    Environment.Exit(3);
+                case RunningLocation.Unknown:
+
+                    ControlledClose(LangRes.LocationCase0 + "\n" + LangRes.WindowWillClose, 3);
                     break;
 
-                case 1:
-                    Console.WriteLine("Looks like the root RoN folder.");
+                case RunningLocation.RonRoot:
 
-                    CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                    CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
+                    TextLog += "\n" + LangRes.LocationCase1;
 
-                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
-
-
-                    if (File.Exists
-                        (Path.GetFullPath
-                        (Path.Combine
-                            (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                            , "CBP Launcher.exe"))))
+                    try
                     {
-                        Console.WriteLine("Found CBP Launcher in RoN's root folder.");
-                        CBPL = true;
+                        CbpLauncherLocalExePath = Path.Combine(thisProcessLocation, "CBPLauncher.exe");
+                        CbpLauncherWorkshopExePath = Path.Combine(thisProcessLocation, @"..\..", @"workshop\content\287450\2287791153", "CBPLauncher.exe");
+                    }
+                    catch (Exception ex)
+                    {
+                        ControlledClose(LangRes.LocationPathError + "\n" + ex + "\n" + LangRes.WindowWillClose, 3);
+                    }
+
+                    if (File.Exists(Path.Combine(thisProcessLocation, "CBPLauncher.exe")))
+                    {
+                        TextLog += "\n" + LangRes.FoundRootYes;
+                        return true;
                     }
                     else
                     {
-                        Console.WriteLine("Can't find CBP Launcher in RoN's root folder.");
-                        CBPL = false;
-                    }
-                    break;
-
-                case int n when (Location == 2 || Location == 4)://parens just for my sake
-
-                    CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.exe"));
-                    CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"common\Rise of Nations", "CBP Launcher.Language.dll"));
-
-                    // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same location both on normal and pre-release versions
-                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.exe"));
-                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, "CBP Launcher.Language.dll"));
-
-                    if (Location == 2)
-                    {
-                        Console.WriteLine("Looks like the Workshop mods folder for normal CBP.");
+                        TextLog += "\n" + LangRes.FoundRootNo;
+                        return false;
                     }
 
-                    if (Location == 4)
+                case RunningLocation _ when (location == RunningLocation.WorkshopMods || location == RunningLocation.WorkshopModsPreRelease):
+                    try
                     {
-                        Console.WriteLine("Looks like the Workshop mods folder for pre-release CBP.");
+                        // because CBP Setup is running from each respective mod folder, the launcher/dll are automatically going to be in the same *relative* location both on normal and pre-release versions
+                        CbpLauncherLocalExePath = Path.Combine(thisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe");
+                        CbpLauncherWorkshopExePath = Path.Combine(thisProcessLocation, "CBPLauncher.exe");
                     }
 
-                    if (File.Exists
-                        (Path.GetFullPath
-                        (Path.Combine
-                            (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                            , @"..\..\..\.."
-                            , @"common\Rise of Nations"
-                            , "CBP Launcher.exe"))))
+                    catch (Exception ex)
                     {
-                        Console.WriteLine("Found CBP Launcher in RoN's root folder.");
-                        CBPL = true;
+                        ControlledClose(LangRes.LocationPathError + "\n" + ex + "\n" + LangRes.WindowWillClose, 3);
+                    }
+
+                    if (location == RunningLocation.WorkshopMods)
+                    {
+                        TextLog += "\n" + LangRes.LocationCase2;
+                    }
+                    else if (location == RunningLocation.WorkshopModsPreRelease)
+                    {
+                        TextLog += "\n" + LangRes.LocationCase4;
+                    }
+
+                    if (File.Exists(Path.Combine(thisProcessLocation, @"..\..\..\..", @"common\Rise of Nations", "CBPLauncher.exe")))
+                    {
+                        TextLog += "\n" + LangRes.FoundRootYes;
+                        return true;
                     }
                     else
                     {
-                        Console.WriteLine("Can't find CBP Launcher in RoN's root folder.");
-                        CBPL = false;
+                        TextLog += "\n" + LangRes.FoundRootNo;
+                        return false;
                     }
-                    break;
 
-                case 3:
-                    Console.WriteLine("Looks like the local mods folder (it probably shouldn't be here except for testing).");
-
-                    CBPLExe = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.exe"));
-                    CBPLDll = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..", "CBP Launcher.Language.dll"));
-
-                    CBPLExeUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.exe"));
-                    CBPLDllUpdate = Path.GetFullPath(Path.Combine(CBPSFolder, @"..\..\..\..", @"workshop\content\287450\2287791153", "CBP Launcher.Language.dll"));
-
-                    if (File.Exists
-                        (Path.GetFullPath
-                        (Path.Combine
-                            (Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                            , @"..\.."
-                            , @"CBP Launcher.exe"))))
-                    {
-                        Console.WriteLine("Found CBP Launcher in RoN's root folder.");
-                        CBPL = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Can't find CBP Launcher in RoN's root folder.");
-                        CBPL = false;
-                    }
-                    break;
-
+                case RunningLocation.LocalMods:
                 default:
-                    Console.WriteLine("Location result unexpected. (window will close in 5 seconds)");
-                    Thread.Sleep(5000);
-                    Environment.Exit(-1);
+                    ControlledClose(LangRes.LocationCaseDefault + "\n" + LangRes.WindowWillClose, -1);
                     break;
+            }
+            return false; // putting this in cases 0/3/default should be enough, but it's *not*
+        }
+
+        private static void CopyTxtFiles()
+        {
+            try
+            {
+                string workshopCbpRootFolder = Path.GetDirectoryName(CbpLauncherWorkshopExePath);
+                //string workshopCbpLatestFolder = Path.Combine(workshopCbpRootFolder, "Community Balance Patch");
+                string workshopAnnouncementsTxt = Path.Combine(workshopCbpRootFolder, "announcements.txt");
+                string workshopOldAnnouncementsTxt = Path.Combine(workshopCbpRootFolder, "old_announcements.txt");
+                string workshopPatchnotesTxt = Path.Combine(workshopCbpRootFolder, "patchnotes.txt");
+
+                string localRonRootFolder = Path.GetDirectoryName(CbpLauncherLocalExePath);
+                string localCbpFolder = Path.Combine(localRonRootFolder, "CBP");
+                string localAnnouncementsTxt = Path.Combine(localCbpFolder, "announcements.txt");
+                string localOldAnnouncementsTxt = Path.Combine(localCbpFolder, "old_announcements.txt");
+                string localPatchnotesTxt = Path.Combine(localCbpFolder, "patchnotes.txt");
+
+                // create the CBP folder before copying into it (does nothing if the folder already exists)
+                Directory.CreateDirectory(localCbpFolder);
+                File.Copy(workshopAnnouncementsTxt, localAnnouncementsTxt, true);
+                File.Copy(workshopPatchnotesTxt, localPatchnotesTxt, true);
+                File.Copy(workshopOldAnnouncementsTxt, localOldAnnouncementsTxt, true);
+            }
+            catch (Exception ex)
+            {
+                ControlledClose(LangRes.ErrorUnknown + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
             }
         }
 
-        private static void CBPLVersionCheck()
+        private static void KeepCbpLauncherUpdated(bool launcherFound)
         {
-            if (CBPL == true)
-            {
-                Console.WriteLine("CBPLExe: " + CBPLExe);
-
-                //https://stackoverflow.com/questions/11350008/how-to-get-exe-file-version-number-from-file-path/23325102#23325102
-                var newVersionShort = FileVersionInfo.GetVersionInfo(CBPLExe);
-                string newVersionFull = newVersionShort.FileVersion;
-
-                var oldVersionShort = FileVersionInfo.GetVersionInfo(CBPSExe);
-                string oldVersionFull = oldVersionShort.FileVersion;
-
-                if (newVersionFull == oldVersionFull)
-                {
-                    Console.WriteLine("CBP Launcher in the RoN folder is the same as the downloaded Workshop version.");
-                    return;
-                }
-                else
-                {
-                    Console.WriteLine("CBP Launcher in the RoN folder is not the same as the downloaded Workshop version. Replacing former with latter...");
-
-                    try
-                    {
-                        File.Move(CBPLExe, Path.Combine(CBPLExe + "old"));
-                        File.Copy(CBPLExeUpdate, CBPLExe);
-
-                        File.Move(CBPLDll, Path.Combine(CBPLDll + "old"));
-                        File.Copy(CBPLDllUpdate, CBPLDll);
-                    }
-                    catch (Exception ex)
-                    {
-                        try
-                        {
-                            Console.WriteLine("Trying to restore old versions...");
-                            File.Move(Path.Combine(CBPLExe + "old"), CBPLExe);
-                            File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
-                        }
-                        catch (Exception ex2)
-                        {
-                            Console.WriteLine("Error restoring old versions: " + ex2);
-                        }
-
-                        if (ex is UnauthorizedAccessException)
-                        {
-                            Console.WriteLine("Permissions error replacing CBP Launcher with new version. Try running CBP Setup as admin instead?\n" + ex);
-                            Console.ReadLine();
-                            Environment.Exit(-1);
-                        }
-                        if (ex is FileNotFoundException)
-                        {
-                            Console.WriteLine("Error replacing CBP Launcher with new version - file not found.\n" + ex);
-                            Console.ReadLine();
-                            Environment.Exit(-1);
-                        }
-                        if (ex is IOException)
-                        {
-                            Console.WriteLine("Error replacing CBP Launcher with new version - maybe old version was not deleted or wrong path?\n" + ex);
-                            Console.ReadLine();
-                            Environment.Exit(-1);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Unknown error replacing CBP Launcher with new version.\n" + ex);
-                            Console.ReadLine();
-                            Environment.Exit(-1);
-                        }
-                    }
-                    Console.WriteLine("Looks like the file update worked fine, deleting old files...");
-
-                    try
-                    {
-                        File.Delete(Path.Combine(CBPLExe + "old"));
-                        File.Delete(Path.Combine(CBPLDll + "old"));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error deleting the old files.\n" + ex);
-                        Console.ReadLine();
-                        Environment.Exit(-1);
-                    }
-                }
-            }
-            else if (CBPL == false)
+            if (launcherFound)
             {
                 try
                 {
-                    Console.WriteLine("CBPLExe: " + CBPLExe);
-                    File.Copy(CBPLExeUpdate, CBPLExe);
+                    //https://stackoverflow.com/questions/11350008/how-to-get-exe-file-version-number-from-file-path/23325102#23325102
+                    var newVersionShort = FileVersionInfo.GetVersionInfo(CbpLauncherWorkshopExePath);
+                    string newVersionFull = newVersionShort.FileVersion;
+
+                    var oldVersionShort = FileVersionInfo.GetVersionInfo(CbpLauncherLocalExePath);
+                    string oldVersionFull = oldVersionShort.FileVersion;
+
+                    if (newVersionFull == oldVersionFull)
+                    {
+                        TextLog += "\n" + LangRes.VersionCheckSame;
+                        return;
+                    }
+                    else
+                    {
+                        TextLog += "\n" + LangRes.VersionCheckDifferent + LangRes.ConsentIsCool;
+                        UpdateCbpLauncher();
+                        return;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("CBPLExe: " + CBPLExe);
-                    Console.WriteLine("Error copying CBP Launcher into RoN root folder\n" + ex);
-                    Console.ReadLine();
-                    Environment.Exit(0);
+                    ControlledClose(LangRes.VersionCheckFail + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+                    return;
                 }
+            }
+            else
+            {
+                TextLog += "\n" + LangRes.CopyToRootConsent + LangRes.ConsentIsCool;
+                CopyToRoot();
+                return;
             }
         }
 
-        private static void StartCBPL()
+        private static void StartCbpLauncher()
         {
-            Console.WriteLine("Time to start CBP Launcher!");
-            Console.WriteLine(Resources.CBPSTestString.ToString());
+            TextLog += "\n" + LangRes.StartCBPL;
+            FirstTimeSlow();
 
-            // I'm not actually sure if this whole shebang is necessary just to start it, but I've done it anyway
-            ProcessStartInfo startInfo = new ProcessStartInfo(CBPLExe)
+            if (cbpLauncherIsRunning == false)
             {
-                WorkingDirectory = CBPLExe + @"..\"
-            };
-            Process.Start(CBPLExe);
-            Thread.Sleep(5000);
-        }
-
-        public static bool ProcessCheck(string processName)
-        {
-            return Process.GetProcessesByName(processName).Length > 0;
+                TextLog += "\n" + LangRes.StartCBPLConsent + LangRes.ConsentIsCool;
+                StartCBPLProcess();
+                return;
+            }
+            else
+            {
+                ControlledClose(LangRes.StartCBPLAlreadyRunning + "\n" + LangRes.WindowWillClose, -1);
+                return;
+            }
         }
 
         private static void Conclusion()
         {
-            if (ProcessCheck("CBP Launcher") == false)
+            int maxAttempts = 30;
+            int delayMs = 60;
+            bool launcherRunning = false;
+
+            for (int i = 0; i < maxAttempts; i++)
             {
-                Console.WriteLine("It looks like CBP Launcher didn't start :(");
-                Console.ReadLine();
-                Environment.Exit(0);
+                if (HasMoreThanNumProcesses("CBPLauncher", 0) == true)
+                {
+                    launcherRunning = true;
+                    break;
+                }
+                Delay(delayMs);
+                delayMs += 20;
+            }
+
+            if (launcherRunning)
+            {
+                ControlledClose(LangRes.StartCBPLSuccess + "\n" + LangRes.WindowWillClose, 0);
             }
             else
             {
-                Console.WriteLine("CBP Launcher detected as running; job complete. Window will close in 5 seconds.");
-                Thread.Sleep(5000);
-                Environment.Exit(0);
+                ControlledClose(LangRes.StartCBPLFail + "\n" + LangRes.WindowWillClose, -1);
             }
+        }
+
+        private static void ControlledClose(string str, int code)
+        {
+            TextLog += "\n" + str;
+
+            string message = $"\ninit: {swInit}"
+                            + $"\nupgrade: {swUpgrade}"
+                            + $"\ndefault: {swDefault}"
+                            + $"\nlanguage: {swLang}"
+                            + $"\nrunning: {swRunning}"
+                            + $"\nlocation: {swLocation}"
+                            + $"\nfound: {swFound}"
+                            + $"\ntxt: {swTxt}"
+                            + $"\nupdated: {swUpdated}"
+                            + $"\nlaunch: {swLaunch}"
+                            + $"\nconclusion: {swConclusion}";
+            //MessageBox.Show(message);//STOPWATCH
+
+            TextLog += message;
+
+            string logPath = "CBPSetup_log.txt";
+            RunningLocation runLoc = FindRunningLocation();
+            if (runLoc == RunningLocation.RonRoot)
+            {
+                var here = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                var hereParent = new DirectoryInfo(here).Parent?.Name;
+                logPath = Path.Combine(hereParent, "CBP", "logs", logPath);
+            }
+            File.WriteAllText(logPath, TextLog);
+
+            Environment.Exit(code);
+        }
+
+        private static void Delay(int ms)
+        {
+            Thread.Sleep(ms);
+        }
+
+        private static bool HasMoreThanNumProcesses(string processName, int qty)
+        {
+            return Process.GetProcessesByName(processName).Length > qty;
+        }
+
+        private static void UpdateCbpLauncher()
+        {
+            try
+            {
+                // instead of deleting the old files, rename them (so that if the copy fails we haven't lost the originals)
+                File.Move(CbpLauncherLocalExePath, Path.Combine(CbpLauncherLocalExePath, "old"));
+                File.Copy(CbpLauncherWorkshopExePath, CbpLauncherLocalExePath);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    TextLog += "\n" + LangRes.OldVersionRestore;
+                    File.Move(Path.Combine(CbpLauncherLocalExePath, "old"), CbpLauncherLocalExePath);
+                    ///File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
+                }
+                catch (Exception ex2)
+                {
+                    TextLog += LangRes.OldVersionRestoreError + "\n" + ex2;
+                }
+
+                if (ex is UnauthorizedAccessException)
+                {
+                    ControlledClose(LangRes.ErrorPermissions + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+                }
+                else if (ex is FileNotFoundException)
+                {
+                    ControlledClose(LangRes.ErrorFileNotFound + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+                }
+                else if (ex is IOException)
+                {
+                    ControlledClose(LangRes.ErrorIO + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+                }
+                else
+                {
+                    ControlledClose(LangRes.ErrorUnknown + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+                }
+            }
+            TextLog += "\n" + LangRes.DeletingFiles;
+
+            try
+            {
+                // if copy is successful, don't need the old versions anymore
+                File.Delete(Path.Combine(CbpLauncherLocalExePath, "old"));
+            }
+            catch (Exception ex)
+            {
+                ControlledClose(LangRes.DeletingFilesError + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+            }
+        }
+
+        private static void StartCBPLProcess()
+        {
+            try
+            {
+                string combinedArgs = string.Join(" ", Args);
+                string escapedArgs = combinedArgs.Replace("\"", "\\\"");
+                string processedArgs = "\"" + escapedArgs + "\"";
+
+                TextLog += $"\nArgs: {processedArgs}";
+                TextLog += $"\nLauncher path: {CbpLauncherLocalExePath}";
+
+                ProcessStartInfo PSI = new ProcessStartInfo(CbpLauncherLocalExePath)
+                {
+                    WorkingDirectory = Path.GetDirectoryName(CbpLauncherLocalExePath),
+                    Arguments = processedArgs
+                };
+                Process.Start(PSI);
+            }
+            catch (Exception ex)
+            {
+                ControlledClose(LangRes.StartCBPLProblem + "\n" + ex, -1);
+            }
+        }
+
+        private static void CopyToRoot()
+        {
+            try
+            {
+                File.Copy(CbpLauncherWorkshopExePath, CbpLauncherLocalExePath);
+            }
+            catch (Exception ex)
+            {
+                ControlledClose(LangRes.CopyToRootError + "\n" + ex + "\n" + LangRes.WindowWillClose, -1);
+                return;
+            }
+        }
+
+        private static void FirstTimeSlow()
+        {
+            if (Properties.Settings.Default.FirstTimeRun == true)
+            {
+                Properties.Settings.Default.FirstTimeRun = false;
+                SaveSettings();
+            }
+        }
+
+        private static void SaveSettings()
+        {
+            Properties.Settings.Default.Save();
+        }
+
+        private static void UpgradeSettings()
+        {
+            Properties.Settings.Default.Upgrade();
+            Properties.Settings.Default.UpgradeRequired = false;
+        }
+
+        private static void ReplacementSettingsReset()
+        {
+            Properties.Settings.Default.UpgradeRequired = true;
+            Properties.Settings.Default.SlowMode = false;
+            Properties.Settings.Default.EnglishOverride = false;
+            Properties.Settings.Default.FirstTimeRun = true;
+            Properties.Settings.Default.AutoConsent = true;
+            Properties.Settings.Default.FontSizeVisible = false;
+            Properties.Settings.Default.FontSize = 14;
+            Properties.Settings.Default.Height = 420;
+            Properties.Settings.Default.Width = 640;
+            Properties.Settings.Default.NeedAskAutoConsent = false;
+
+            SaveSettings();
         }
     }
 }
