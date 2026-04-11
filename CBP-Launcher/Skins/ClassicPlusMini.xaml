@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:CBPLauncher.Skins"
              mc:Ignorable="d" 
              d:DesignWidth="870"
-             d:DesignHeight="798"
-             DataContext="{StaticResource MainCodeInstance}">
+             d:DesignHeight="798">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="47"/>

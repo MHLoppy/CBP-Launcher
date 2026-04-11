@@ -37,6 +37,7 @@
             </DataTemplate>
             
             <!-- Spartan V1 skin-->
+            <!-- NOTE: after moving to delayed load of some stuff, the XAML Designer threw a hissy fit and I didn't bother fixing all of its design-time complaints -->
             <DataTemplate DataType="{x:Type logic:SpartanV1VM}">
                 <skins:SpartanV1/>
             </DataTemplate>

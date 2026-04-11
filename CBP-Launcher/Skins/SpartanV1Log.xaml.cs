@@ -2,6 +2,7 @@
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,11 @@ namespace CBPLauncher.Skins
         public SpartanV1Log()
         {
             InitializeComponent();
+
+            if (!DesignerProperties.GetIsInDesignMode(this))
+            {
+                this.DataContext = Application.Current.Resources["MainCodeInstance"];
+            }
 
             if (Properties.Settings.Default.UseFancyLogging)
             {

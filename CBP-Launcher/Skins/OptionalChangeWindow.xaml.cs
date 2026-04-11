@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,11 @@ namespace CBPLauncher.Skins
         public OptionalChangeWindow()
         {
             InitializeComponent();
+
+            if (!DesignerProperties.GetIsInDesignMode(this))
+            {
+                this.DataContext = Application.Current.Resources["MainCodeInstance"];
+            }
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)

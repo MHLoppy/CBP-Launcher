@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:CBPLauncher.Skins"
              mc:Ignorable="d" 
              d:DesignWidth="870"
-             d:DesignHeight="798"
-             DataContext="{StaticResource MainCodeInstance}">
+             d:DesignHeight="798">
     <Grid>
         <Grid.ColumnDefinitions>
             <!-- Left and right columns are for wide skins (e.g. Spartan), middle two columns are shared between skins -->

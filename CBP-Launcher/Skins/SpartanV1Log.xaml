@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:CBPLauncher.Skins"
              xmlns:dj="clr-namespace:DJ;assembly=NLogViewer"
              mc:Ignorable="d" 
-             d:DesignHeight="422" d:DesignWidth="534"
-             DataContext="{StaticResource MainCodeInstance}">
+             d:DesignHeight="422" d:DesignWidth="534">
     <Grid>
 
         <Grid.ColumnDefinitions>
