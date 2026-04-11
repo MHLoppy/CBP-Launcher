@@ -19,6 +19,12 @@
             <!--<wrappers:BindingWrapper x:Key="BindingWrapper"/>-->
 
             <ResourceDictionary.MergedDictionaries>
+                <!-- Material Design Themes aka MaterialDesignInXaml https://www.nuget.org/packages/MaterialDesignThemes/ -->
+                <!--<materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />-->
+                
+                <!-- CBP Launcher's custom XAML controls -->
                 <ResourceDictionary Source="Theme/BBRadioButton.xaml"/>
                 <!--<ResourceDictionary Source="Theme/BBScrollbar.xaml"/>-->
                 <ResourceDictionary Source="Theme/LauncherPrimaryButton.xaml"/>

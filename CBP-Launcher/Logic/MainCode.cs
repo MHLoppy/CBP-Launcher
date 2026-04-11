@@ -197,6 +197,17 @@ namespace CBPLauncher.Logic
             }
         }*/
 
+        private bool spinnerActive = true;
+        public bool SpinnerActive
+        {
+            get => spinnerActive;
+            set
+            {
+                spinnerActive = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool logoRoNEE = false;
         public bool LogoRoNEE
         {
@@ -1081,6 +1092,7 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Info("Plugin loading is disabled.");
             }
             RefreshCheckboxValues();
+            SpinnerActive = false;
         }
 
         // this object must stay as a global (not a local within IsInDesignMode(), otherwise VS2022 screams

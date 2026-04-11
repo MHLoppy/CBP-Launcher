@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CBPLauncher.Skins"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignWidth="870"
              d:DesignHeight="798">
@@ -54,6 +55,19 @@
                 </Button>
 
                 <!-- left side: rounded image background + image overlays -->
+                <Grid Panel.ZIndex="100" Width="200" Height="200" Margin="35,98,35,2" Visibility="{Binding SpinnerActive, Converter={StaticResource BoolToVis}}">
+                    <Grid.Resources>
+                        <ResourceDictionary>
+                            <ResourceDictionary.MergedDictionaries>
+                                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Orange" SecondaryColor="DeepPurple" />
+
+                                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+                            </ResourceDictionary.MergedDictionaries>
+                        </ResourceDictionary>
+                    </Grid.Resources>
+
+                    <ProgressBar Style="{DynamicResource MaterialDesignCircularProgressBar}" Width="100" Height="100" IsIndeterminate="True" Foreground="#E7D58C"/>
+                </Grid>
                 <Image Source="/Images/RoN EE logo (touchup) from game files.png" Margin="67,136,63,40" Stretch="Uniform" RenderOptions.BitmapScalingMode="Fant" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/>
                 <!-- perfect-ish fit-->
                 <!--<Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="90,163,90,68" Stretch="Uniform" Visibility="Hidden"/>-->

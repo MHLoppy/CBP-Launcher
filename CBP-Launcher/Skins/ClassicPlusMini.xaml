@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CBPLauncher.Skins"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignWidth="870"
              d:DesignHeight="798">
@@ -57,6 +58,19 @@
                 <Button Content="Update?" HorizontalAlignment="Left" Margin="93,4,0,0" VerticalAlignment="Top" Width="70" Height="17" Padding="0,0,0,0" Visibility="Hidden"/>
 
                 <!-- logo in box -->
+                <Grid Panel.ZIndex="100" Width="189" Height="187" Margin="15,0,0,22" Visibility="{Binding SpinnerActive, Converter={StaticResource BoolToVis}}">
+                    <Grid.Resources>
+                        <ResourceDictionary>
+                            <ResourceDictionary.MergedDictionaries>
+                                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Orange" SecondaryColor="DeepPurple" />
+
+                                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+                            </ResourceDictionary.MergedDictionaries>
+                        </ResourceDictionary>
+                    </Grid.Resources>
+
+                    <ProgressBar Style="{DynamicResource MaterialDesignCircularProgressBar}" Width="100" Height="100" IsIndeterminate="True" Foreground="#E7D58C"/>
+                </Grid>
                 <Image Source="/Images/RoN EE logo (touchup) from game files.png" RenderOptions.BitmapScalingMode="Fant" Margin="38,20,22,40" Stretch="Uniform" Visibility="{Binding LogoRoNEE, Converter={StaticResource BoolToVis}}"/>
                 <!--<Image Source="/Images/RoN CBP logo (no rivets).png" RenderOptions.BitmapScalingMode="Fant" Margin="71,54,57,74" Stretch="Uniform" Visibility="Hidden"/>-->
                 <Image Source="/Images/RoN CBP logo 02 opti resized.png" RenderOptions.BitmapScalingMode="Fant" Margin="32,15,19,35" Stretch="Uniform" Visibility="{Binding LogoCBP, Converter={StaticResource BoolToVis}}"/>

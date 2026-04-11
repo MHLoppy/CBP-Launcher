@@ -1,0 +1,19 @@
+﻿<!-- Scopes the material design stuff to the wrapper, ensuring it doesn't interfere with existing usage of default controls [UNUSED] -->
+<UserControl x:Class="CBPLauncher.Theme.MatDesWrapper"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
+
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ProgressBar IsIndeterminate="True" Value="50" Width="100" Height="100"/>
+
+    <!--<ContentPresenter Content="{Binding Content, RelativeSource={RelativeSource AncestorType=UserControl}}" />-->
+</UserControl>
