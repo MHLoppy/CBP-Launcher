@@ -197,7 +197,7 @@ namespace CBPLauncher.Logic
             }
         }*/
 
-        private bool logoRoNEE = true;
+        private bool logoRoNEE = false;
         public bool LogoRoNEE
         {
             get => logoRoNEE;
