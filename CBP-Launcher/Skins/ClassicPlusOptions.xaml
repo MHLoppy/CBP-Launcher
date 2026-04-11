@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:CBPLauncher.Skins"
              mc:Ignorable="d" 
              d:DesignHeight="615" d:DesignWidth="454"
-             DataContext="{StaticResource MC}">
+             DataContext="{StaticResource MainCodeInstance}">
     <Grid>
 
         <Grid.ColumnDefinitions>

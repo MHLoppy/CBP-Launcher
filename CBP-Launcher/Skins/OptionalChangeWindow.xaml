@@ -10,7 +10,7 @@
         ResizeMode="CanMinimize"
         MouseDown="Window_MouseDown"
         WindowStartupLocation="CenterScreen"
-        DataContext="{StaticResource MC}">
+        DataContext="{StaticResource MainCodeInstance}">
     <Grid Background="LightGray">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>

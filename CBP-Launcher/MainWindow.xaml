@@ -13,7 +13,7 @@
         Background="Transparent"
         WindowStyle="None"
         AllowsTransparency="True"
-        DataContext="{StaticResource MC}"
+        DataContext="{StaticResource MainCodeInstance}"
         MouseDown="Window_MouseDown"
         ResizeMode="NoResize"
         ContentRendered="Window_ContentRendered">

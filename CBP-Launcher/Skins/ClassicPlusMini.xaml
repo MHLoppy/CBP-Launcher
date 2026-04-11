@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignWidth="870"
              d:DesignHeight="798"
-             DataContext="{StaticResource MC}">
+             DataContext="{StaticResource MainCodeInstance}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="47"/>

@@ -9,7 +9,7 @@
              d:DesignWidth="870"
              d:DesignHeight="798"
              Background="Transparent"
-             DataContext="{StaticResource MC}">
+             DataContext="{StaticResource MainCodeInstance}">
     <!-- This outer grid is just so that text can be display at the top of the outer grid (outside of the "main" area) -->
     <Grid>
         <Grid.RowDefinitions>

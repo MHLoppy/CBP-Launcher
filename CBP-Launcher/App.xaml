@@ -26,7 +26,7 @@
                 <ResourceDictionary Source="Theme/RoNCheckbox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <logic:MainCode x:Key="MC"/>
+            <logic:MainCode x:Key="MainCodeInstance"/>
             <!--<core-->
 
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
