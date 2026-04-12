@@ -1792,7 +1792,7 @@ namespace CBPLauncher.Logic
                             {
                                 MessageBox.Show("CBP Launcher is trying to update CBP Setup. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
 
-                                await Delay(3000);
+                                await Delay(2500);
                                 if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                                 {
                                     File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
@@ -1800,7 +1800,7 @@ namespace CBPLauncher.Logic
                                 }
                                 else
                                 {
-                                    await Delay(3000);
+                                    await Delay(3500);
                                     if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                                     {
                                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
@@ -3367,9 +3367,9 @@ namespace CBPLauncher.Logic
 
                 //try to check on a loop whether CBP Setup GUI is running
                 int i = 0;
-                while (i < 10)//if we're waiting more than 7.2 seconds, something is wrong because it should close in ~5 seconds max
+                while (i < 30)//if we're waiting more than 7.2 seconds, something is wrong because it should close in ~5 seconds max
                 {
-                    await Delay(800);
+                    await Delay(300);
 
                     if (Process.GetProcessesByName("patriots").Length > 0)
                     {
@@ -3585,7 +3585,7 @@ namespace CBPLauncher.Logic
 
                 if (updateSetupLater == true)
                 {
-                    await Delay(3000);
+                    await Delay(2500);
                     if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                     {
                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
@@ -3594,7 +3594,7 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
-                        await Delay(3000);
+                        await Delay(3500);
                         if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                         {
                             File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
