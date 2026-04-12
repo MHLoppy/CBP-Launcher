@@ -1782,7 +1782,7 @@ namespace CBPLauncher.Logic
                     {
                         try
                         {
-                            var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"));
+                            var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetup.exe"));
                             string newVersionFull = newVersionShort.FileVersion;
 
                             var oldVersionShort = FileVersionInfo.GetVersionInfo(patriotsOrig);
@@ -1790,26 +1790,26 @@ namespace CBPLauncher.Logic
 
                             if (newVersionFull != oldVersionFull)
                             {
-                                MessageBox.Show("CBP Launcher is trying to update CBP Setup GUI. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
+                                MessageBox.Show("CBP Launcher is trying to update CBP Setup. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
 
                                 await Delay(3000);
-                                if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                                if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                                 {
-                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
-                                    CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                                    CBPLogger.GetInstance.Debug("Updated CBP Setup.");
                                 }
                                 else
                                 {
                                     await Delay(3000);
-                                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                                     {
-                                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
-                                        CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
+                                        CBPLogger.GetInstance.Debug("Updated CBP Setup.");
                                     }
                                     else
                                     {
-                                        MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
-                                        CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                                        MessageBox.Show("CBP Setup was not updated (if you rarely see this message you can probably ignore it)");
+                                        CBPLogger.GetInstance.Debug("CBP Setup was not updated.");
                                     }
                                 }
                             }
@@ -3076,18 +3076,18 @@ namespace CBPLauncher.Logic
 
                         if (Properties.Settings.Default.UseDefaultLauncher == false)
                         {
-                            //keep CBP Setup GUI up to date
-                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                            //keep CBP Setup up to date
+                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                             {
-                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
-                                CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                                CBPLogger.GetInstance.Debug("Updated CBP Setup.");
                                 updateSetupLater = false;
                             }
                             else
                             {
                                 //set a flag to do it later so that user doesn't get slowed down
                                 updateSetupLater = true;
-                                CBPLogger.GetInstance.Debug("Delayed update of Setup GUI.");
+                                CBPLogger.GetInstance.Debug("Delayed update of CBP Setup.");
                             }
                         }
 
@@ -3321,9 +3321,9 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
-                        MessageBox.Show($"CBP Setup GUI (patriots.exe) doesn't seem to be closing, so CBP Launcher will be closed.");
+                        MessageBox.Show($"CBP Setup (patriots.exe) doesn't seem to be closing, so CBP Launcher will be closed.");
                         Status = LauncherStatus.unloadFailed;
-                        CBPLogger.GetInstance.Error($"CBP Setup GUI (patriots.exe) wasn't closing >:(");
+                        CBPLogger.GetInstance.Error($"CBP Setup (patriots.exe) wasn't closing >:(");
                         LogManager.Shutdown();
                         Environment.Exit(-1);
                     }
@@ -3586,25 +3586,25 @@ namespace CBPLauncher.Logic
                 if (updateSetupLater == true)
                 {
                     await Delay(3000);
-                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                     {
-                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
-                        CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
+                        CBPLogger.GetInstance.Debug("Updated CBP Setup.");
                         updateSetupLater = false;
                     }
                     else
                     {
                         await Delay(3000);
-                        if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
+                        if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
                         {
-                            File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig, true);
-                            CBPLogger.GetInstance.Debug("Updated Setup GUI.");
+                            File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
+                            CBPLogger.GetInstance.Debug("Updated CBP Setup.");
                             updateSetupLater = false;
                         }
                         else
                         {
-                            MessageBox.Show("CBP Setup GUI was not updated (if you rarely see this message you can probably ignore it)");
-                            CBPLogger.GetInstance.Debug("Setup GUI was not updated.");
+                            MessageBox.Show("CBP Setup was not updated (if you rarely see this message you can probably ignore it)");
+                            CBPLogger.GetInstance.Debug("CBP Setup was not updated.");
                         }
                     }
                 }
@@ -4895,7 +4895,7 @@ namespace CBPLauncher.Logic
                 {
                     if (await CheckIfSetupRunning() == false)
                     {
-                        //delete local copy of CBP Setup GUI (which has been renamed to patriots.exe), then restore the old patriots.exe (the original launcher)
+                        //delete local copy of CBP Setup (which has been renamed to patriots.exe), then restore the old patriots.exe (the original launcher)
                         File.Delete(patriotsOrig);
                         File.Move(patriotsOrig + " (original)", patriotsOrig);
 
@@ -4905,8 +4905,8 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
-                        CBPLogger.GetInstance.Warning("CBP Setup GUI was still running when restoring launcher, so no action has been taken.");
-                        MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
+                        CBPLogger.GetInstance.Warning("CBP Setup was still running when restoring launcher, so no action has been taken.");
+                        MessageBox.Show("Minor error: CBP Setup seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
                     }
                 }
                 catch (Exception ex)
@@ -4916,24 +4916,24 @@ namespace CBPLauncher.Logic
                 }
             }
 
-            //replace old launcher with CBP Setup GUI
+            //replace old launcher with CBP Setup
             if (!File.Exists(patriotsOrig + " (original)") && Properties.Settings.Default.UseDefaultLauncher == false)
             {
                 try
                 {
                     if (await CheckIfSetupRunning() == false)
                     {
-                        //rename the original launcher and then replace it with CBP Setup GUI (but renamed to patriots.exe)
+                        //rename the original launcher and then replace it with CBP Setup (but renamed to patriots.exe)
                         File.Move(patriotsOrig, patriotsOrig + " (original)");
-                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetupGUI.exe"), patriotsOrig);
+                        File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig);
 
                         CBPLogger.GetInstance.Info("Have attempted to replace original launcher.");
                         MessageBox.Show("Have attempted to replace original launcher - CBP Launcher should be active when RoN is started.");
                     }
                     else
                     {
-                        CBPLogger.GetInstance.Warning("CBP Setup GUI was still running when replacing launcher, so no action has been taken.");
-                        MessageBox.Show("Minor error: CBP Setup GUI seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
+                        CBPLogger.GetInstance.Warning("CBP Setup was still running when replacing launcher, so no action has been taken.");
+                        MessageBox.Show("Minor error: CBP Setup seems to still be running so no action has been taken (but this might make the checkbox seem wonky until CBP Launcher is restarted).");
                     }
                 }
                 catch (Exception ex)
