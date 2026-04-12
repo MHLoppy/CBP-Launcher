@@ -1793,7 +1793,7 @@ namespace CBPLauncher.Logic
                                 MessageBox.Show("CBP Launcher is trying to update CBP Setup. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
 
                                 await Delay(2500);
-                                if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
+                                if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
                                 {
                                     File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
                                     CBPLogger.GetInstance.Debug("Updated CBP Setup.");
@@ -1801,7 +1801,7 @@ namespace CBPLauncher.Logic
                                 else
                                 {
                                     await Delay(3500);
-                                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
+                                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
                                     {
                                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
                                         CBPLogger.GetInstance.Debug("Updated CBP Setup.");
@@ -3077,7 +3077,7 @@ namespace CBPLauncher.Logic
                         if (Properties.Settings.Default.UseDefaultLauncher == false)
                         {
                             //keep CBP Setup up to date
-                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
+                            if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
                             {
                                 File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
                                 CBPLogger.GetInstance.Debug("Updated CBP Setup.");
@@ -3586,7 +3586,7 @@ namespace CBPLauncher.Logic
                 if (updateSetupLater == true)
                 {
                     await Delay(2500);
-                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
+                    if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
                     {
                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);//should make sure it's closed first? maybe do a version check too?
                         CBPLogger.GetInstance.Debug("Updated CBP Setup.");
@@ -3595,7 +3595,7 @@ namespace CBPLauncher.Logic
                     else
                     {
                         await Delay(3500);
-                        if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1)
+                        if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
                         {
                             File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
                             CBPLogger.GetInstance.Debug("Updated CBP Setup.");
