@@ -1790,7 +1790,7 @@ namespace CBPLauncher.Logic
 
                             if (newVersionFull != oldVersionFull)
                             {
-                                MessageBox.Show("CBP Launcher is trying to update CBP Setup. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
+                                MessageBox.Show("CBP Launcher is trying to update CBP Setup and will close itself afterwards. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
 
                                 await Delay(2500);
                                 if (Process.GetProcessesByName("patriots").Length < 1 && Process.GetProcessesByName("CBP Setup").Length < 1 && Process.GetProcessesByName("CBP Setup GUI").Length < 1)
