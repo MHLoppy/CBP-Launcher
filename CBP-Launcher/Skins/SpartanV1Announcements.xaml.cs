@@ -22,115 +22,115 @@ namespace CBPLauncher.Skins
             InitializeComponent();
         }
 
-        FlowDocument announcementsFlowDoc = new FlowDocument();
-        string fileName = "announcements.txt";
-
-        private void AnnFlowDoc_Initialized(object sender, EventArgs e)
-        {
-            if (IsInDesignMode() == false)
-            {
-                try
-                {
-                    LoadFormattedAnnouncements();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error loading announcements: " + ex);
-                }
-            }
-            else
-            {
-                //designtime baybeee
-                announcementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
-                AnnouncementsFlowDocument.Document = announcementsFlowDoc;
-            }
-        }
-
         private bool IsInDesignMode()
         {
             return DesignerProperties.GetIsInDesignMode(new DependencyObject());
         }
 
-        void Announcements_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        readonly string fileName = "announcements.txt"; // TODO I absolutely hate how I've duplicated the entire component just to change one string
+
+        void RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
 
-        private void LoadFormattedAnnouncements()
+        private void AnnFlowDoc_Initialized(object sender, EventArgs e)
         {
-            //first check if file exists
-            string txtPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "CBP", fileName));
-            if (File.Exists(txtPath))
+            if (IsInDesignMode() == false)
             {
-                try
+                // Announcements aren't visible at initial load, so no placeholder should be needed
+                BackgroundWorker worker = new BackgroundWorker();
+                worker.DoWork += (s, ev) =>
                 {
-                    // manually adding the hyperlink (and associated text) at the top (because flowdocuments don't handle URLs by default, even though they do display as if they do)
-                    // https://stackoverflow.com/questions/2288999/how-can-i-get-a-flowdocument-hyperlink-to-launch-browser-and-go-to-url-in-a-wpf
-                    //Paragraph paragraph = new Paragraph();
-                    //announcementsFlowDoc.Blocks.Add(paragraph);
-                    //Run normaltext1 = new Run("These are only summaries with the most important details. Check the ");
-                    //paragraph.Inlines.Add(normaltext1);
-                    //Run linktext = new Run("Steam Workshop");
-                    //Hyperlink workshoplink = new Hyperlink(linktext);
-                    //workshoplink.NavigateUri = new Uri("https://steamcommunity.com/sharedfiles/filedetails/changelog/2287791153");
-                    //workshoplink.RequestNavigate += new RequestNavigateEventHandler(Workshoplink_RequestNavigate);
-                    //paragraph.Inlines.Add(workshoplink); //ensure to add linkname, not linktextname
-                    //Run normaltext2 = new Run(" for links to the full patch notes.");
-                    //paragraph.Inlines.Add(normaltext2);
+                    try
+                    {
+                        // The doc (?) is fussy about being done on a background thread, so just do what we can in background
+                        string announcements = Path.Combine(Directory.GetCurrentDirectory(), "CBP", fileName);
 
-                    // announcements - the main part of the flowdocument
-                    string announcements = txtPath;//relies on CBP Launcher being in root folder (as expected)
-                    string formattedAnnouncements = "<html><body style='background-color: #DFF3F3F3; font-family: sans-serif; color: #FF1A1A1A;'>" + ProcessBBCodeFromTxtFile(announcements) + "</body></html>";//#D6FBFBFB for background that's lighter than page, #D0F3F3F3 for same color
-                    string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedAnnouncements, false);
-                    announcementsFlowDoc.Blocks.Add((Section)XamlReader.Parse(xaml));
-
-                    //because the document is larger than the pure HTML page was (in terms of visual space), the background needs to be set a bit differentl in order to cover the whole area:
-                    announcementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");
-                    announcementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1A1A1A");
-                    announcementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
-                    announcementsFlowDoc.FontSize = 15;
-                    announcementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
-                    announcementsFlowDoc.TextAlignment = TextAlignment.Left;
-
-                    AnnouncementsFlowDocument.Document = announcementsFlowDoc;
-                }
-                catch (Exception ex)
+                        if (File.Exists(announcements))
+                        {
+                            string formattedAnnouncements = "<html><body style='background-color: #DFF3F3F3; font-family: sans-serif; color: #FF1A1A1A;'>" + ProcessBBCodeFromTxtFile(announcements) + "</body></html>";
+                            string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedAnnouncements, false);
+                            ev.Result = xaml;
+                        }
+                        else
+                        {
+                            ev.Result = null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ev.Result = ex;
+                    }
+                };
+                worker.RunWorkerCompleted += (s, ev) =>
                 {
-                    // not sure if this catch will work, but it doesn't hurt to try
-                    FlowDocument announcementsFlowDoc = new FlowDocument();
-
-                    Paragraph myParagraph = new Paragraph();
-                    myParagraph.Inlines.Add(new Run("Announcements could not be loaded.\n\n" + ex));
-                    announcementsFlowDoc.Blocks.Add(myParagraph);
-                    announcementsFlowDoc.TextAlignment = TextAlignment.Left;
-
-                    AnnouncementsFlowDocument.Document = announcementsFlowDoc;
-                }
+                    // All UI element creation on UI thread
+                    try
+                    {
+                        if (ev.Result is Exception ex)
+                        {
+                            AnnouncementsFlowDocument.Document = CreateErrorDocument("Error loading announcements: " + ex);
+                        }
+                        else if (ev.Result is string xaml)
+                        {
+                            AnnouncementsFlowDocument.Document = LoadFormattedAnnouncements(xaml);
+                        }
+                        else
+                        {
+                            AnnouncementsFlowDocument.Document = LoadFormattedAnnouncements(null);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        AnnouncementsFlowDocument.Document = CreateErrorDocument("Error building document: " + ex);
+                    }
+                };
+                worker.RunWorkerAsync();
             }
             else
             {
-                Paragraph paragraph = new Paragraph();
-                announcementsFlowDoc.Blocks.Add(paragraph);
-                // Run normaltext1 = new Run("Unable to load announcements file (maybe CBP isn't loaded).");
-                Run normaltext1 = new Run("Unable to load announcements file (If you just got the CBP Launcher update, you'll need to restart the launcher to ensure that CBP Setup GUI is updated).");
-                paragraph.Inlines.Add(normaltext1);
-
-                announcementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");
-                announcementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1A1A1A");
-                announcementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
-                announcementsFlowDoc.FontSize = 15;
-                announcementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
-                announcementsFlowDoc.TextAlignment = TextAlignment.Left;
-
-                AnnouncementsFlowDocument.Document = announcementsFlowDoc;
+                //designtime baybeee
+                var doc = new FlowDocument();
+                doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
+                AnnouncementsFlowDocument.Document = doc;
             }
         }
 
-        private void Workshoplink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        private FlowDocument LoadFormattedAnnouncements(string xaml)
         {
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-            e.Handled = true;
+            var doc = new FlowDocument();
+
+            // add announcements - the main part of the flowdocument
+            if (xaml != null)
+            {
+                doc.Blocks.Add((Section)XamlReader.Parse(xaml));
+            }
+            else
+            {
+                Paragraph errorParagraph = new Paragraph();
+                errorParagraph.Inlines.Add(new Run("Unable to load announcements."));
+                doc.Blocks.Add(errorParagraph);
+            }
+
+            doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");
+            doc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1A1A1A");
+            doc.FontFamily = new FontFamily("Segoe UI");
+            doc.FontSize = 15;
+            doc.PagePadding = new Thickness(5, 5, 5, 5);
+            doc.TextAlignment = TextAlignment.Left;
+
+            return doc;
+        }
+
+        private FlowDocument CreateErrorDocument(string errorMessage)
+        {
+            var doc = new FlowDocument();
+            Paragraph myParagraph = new Paragraph();
+            myParagraph.Inlines.Add(new Run(errorMessage));
+            doc.Blocks.Add(myParagraph);
+            return doc;
         }
 
         private string ProcessBBCodeFromTxtFile(string txtfile)

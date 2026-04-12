@@ -126,6 +126,7 @@
     <Compile Include="Logic\ClassicPlusPatchNotesVM.cs" />
     <Compile Include="Logic\ClassicPlusVM.cs" />
     <Compile Include="Logic\DummyTabVM.cs" />
+    <Compile Include="Logic\FlowDocumentBuilder.cs" />
     <Compile Include="Logic\MainCode.cs" />
     <Compile Include="Logic\SpartanV1AnnouncementsVM.cs" />
     <Compile Include="Logic\SpartanV1DummyTabVM.cs" />

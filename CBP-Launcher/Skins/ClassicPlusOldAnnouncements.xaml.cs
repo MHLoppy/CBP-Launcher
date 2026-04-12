@@ -22,116 +22,115 @@ namespace CBPLauncher.Skins
             InitializeComponent();
         }
 
-        FlowDocument oldAnnouncementsFlowDoc = new FlowDocument();
-        readonly string fileName = "old_announcements.txt"; // TODO I absolutely hate how I've duplicated the entire component just to change one string
-
-        private void OldAnnFlowDoc_Initialized(object sender, EventArgs e)
-        {
-            if (IsInDesignMode() == false)
-            {
-                try
-                {
-                    LoadFormattedOldAnnouncements();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error loading old announcements: " + ex);
-                }
-            }
-            else
-            {
-                //designtime baybeee
-                oldAnnouncementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
-                OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
-            }
-        }
-
         private bool IsInDesignMode()
         {
             return DesignerProperties.GetIsInDesignMode(new DependencyObject());
         }
 
-        void OldAnnouncements_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        readonly string fileName = "old_announcements.txt"; // TODO I absolutely hate how I've duplicated the entire component just to change one string
+
+        void RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
 
-        private void LoadFormattedOldAnnouncements()
+        private void OldAnnFlowDoc_Initialized(object sender, EventArgs e)
         {
-            //first check if file exists
-            string txtPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "CBP", fileName));
-            if (File.Exists(txtPath))
+            if (IsInDesignMode() == false)
             {
-                try
+                // Announcements aren't visible at initial load, so no placeholder should be needed
+                BackgroundWorker worker = new BackgroundWorker();
+                worker.DoWork += (s, ev) =>
                 {
-                    // manually adding the hyperlink (and associated text) at the top (because flowdocuments don't handle URLs by default, even though they do display as if they do)
-                    // https://stackoverflow.com/questions/2288999/how-can-i-get-a-flowdocument-hyperlink-to-launch-browser-and-go-to-url-in-a-wpf
-                    //Paragraph paragraph = new Paragraph();
-                    //announcementsFlowDoc.Blocks.Add(paragraph);
-                    //Run normaltext1 = new Run("These are only summaries with the most important details. Check the ");
-                    //paragraph.Inlines.Add(normaltext1);
-                    //Run linktext = new Run("Steam Workshop");
-                    //Hyperlink workshoplink = new Hyperlink(linktext);
-                    //workshoplink.NavigateUri = new Uri("https://steamcommunity.com/sharedfiles/filedetails/changelog/2287791153");
-                    //workshoplink.RequestNavigate += new RequestNavigateEventHandler(Workshoplink_RequestNavigate);
-                    //paragraph.Inlines.Add(workshoplink); //ensure to add linkname, not linktextname
-                    //Run normaltext2 = new Run(" for links to the full patch notes.");
-                    //paragraph.Inlines.Add(normaltext2);
+                    try
+                    {
+                        // The doc (?) is fussy about being done on a background thread, so just do what we can in background
+                        string oldAnnouncements = Path.Combine(Directory.GetCurrentDirectory(), "CBP", fileName);
 
-                    // announcements - the main part of the flowdocument
-                    string announcements = txtPath;//relies on CBP Launcher being in root folder (as expected)
-                    string formattedAnnouncements = "<html><body style='background-color: #000000; font-family: sans-serif; color: #C8C8C8;'>" + ProcessBBCodeFromTxtFile(announcements) + "</body></html>";
-
-                    string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedAnnouncements, false);
-                    oldAnnouncementsFlowDoc.Blocks.Add((Section)XamlReader.Parse(xaml));
-
-                    //because the document is larger than the pure HTML page was (in terms of visual space), the background needs to be set a bit differentl in order to cover the whole area:
-                    oldAnnouncementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-                    oldAnnouncementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-                    oldAnnouncementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
-                    oldAnnouncementsFlowDoc.FontSize = 15;
-                    oldAnnouncementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
-                    oldAnnouncementsFlowDoc.TextAlignment = TextAlignment.Left;
-
-                    OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
-                }
-                catch (Exception ex)
+                        if (File.Exists(oldAnnouncements))
+                        {
+                            string formattedOldAnnouncements = "<html><body style='background-color: #000000; font-family: sans-serif; color: #C8C8C8;'>" + ProcessBBCodeFromTxtFile(oldAnnouncements) + "</body></html>";
+                            string xaml = HtmlToXamlConverter.ConvertHtmlToXaml(formattedOldAnnouncements, false);
+                            ev.Result = xaml;
+                        }
+                        else
+                        {
+                            ev.Result = null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ev.Result = ex;
+                    }
+                };
+                worker.RunWorkerCompleted += (s, ev) =>
                 {
-                    // not sure if this catch will work, but it doesn't hurt to try
-                    FlowDocument announcementsFlowDoc = new FlowDocument();
-
-                    Paragraph myParagraph = new Paragraph();
-                    myParagraph.Inlines.Add(new Run("Old announcements could not be loaded.\n\n" + ex));
-                    oldAnnouncementsFlowDoc.Blocks.Add(myParagraph);
-                    oldAnnouncementsFlowDoc.TextAlignment = TextAlignment.Left;
-
-                    OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
-                }
+                    // All UI element creation on UI thread
+                    try
+                    {
+                        if (ev.Result is Exception ex)
+                        {
+                            OldAnnouncementsFlowDocument.Document = CreateErrorDocument("Error loading old announcements: " + ex);
+                        }
+                        else if (ev.Result is string xaml)
+                        {
+                            OldAnnouncementsFlowDocument.Document = LoadFormattedOldAnnouncements(xaml);
+                        }
+                        else
+                        {
+                            OldAnnouncementsFlowDocument.Document = LoadFormattedOldAnnouncements(null);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        OldAnnouncementsFlowDocument.Document = CreateErrorDocument("Error building document: " + ex);
+                    }
+                };
+                worker.RunWorkerAsync();
             }
             else
             {
-                Paragraph paragraph = new Paragraph();
-                oldAnnouncementsFlowDoc.Blocks.Add(paragraph);
-                // Run normaltext1 = new Run("Unable to load announcements file (maybe CBP isn't loaded).");
-                Run normaltext1 = new Run("Unable to load old announcements file.");
-                paragraph.Inlines.Add(normaltext1);
-
-                oldAnnouncementsFlowDoc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-                oldAnnouncementsFlowDoc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEEEEE");
-                oldAnnouncementsFlowDoc.FontFamily = new FontFamily("Segoe UI");
-                oldAnnouncementsFlowDoc.FontSize = 14;
-                oldAnnouncementsFlowDoc.PagePadding = new Thickness(5, 5, 5, 5);
-                oldAnnouncementsFlowDoc.TextAlignment = TextAlignment.Left;
-
-                OldAnnouncementsFlowDocument.Document = oldAnnouncementsFlowDoc;
+                //designtime baybeee
+                var doc = new FlowDocument();
+                doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E2363636");
+                OldAnnouncementsFlowDocument.Document = doc;
             }
         }
 
-        private void Workshoplink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        private FlowDocument LoadFormattedOldAnnouncements(string xaml)
         {
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-            e.Handled = true;
+            var doc = new FlowDocument();
+
+            // add old announcements - the main part of the flowdocument
+            if (xaml != null)
+            {
+                doc.Blocks.Add((Section)XamlReader.Parse(xaml));
+            }
+            else
+            {
+                Paragraph errorParagraph = new Paragraph();
+                errorParagraph.Inlines.Add(new Run("Unable to load old announcements."));
+                doc.Blocks.Add(errorParagraph);
+            }
+
+            doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
+            doc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
+            doc.FontFamily = new FontFamily("Segoe UI");
+            doc.FontSize = 15;
+            doc.PagePadding = new Thickness(5, 5, 5, 5);
+            doc.TextAlignment = TextAlignment.Left;
+
+            return doc;
+        }
+
+        private FlowDocument CreateErrorDocument(string errorMessage)
+        {
+            var doc = new FlowDocument();
+            Paragraph myParagraph = new Paragraph();
+            myParagraph.Inlines.Add(new Run(errorMessage));
+            doc.Blocks.Add(myParagraph);
+            return doc;
         }
 
         private string ProcessBBCodeFromTxtFile(string txtfile)
