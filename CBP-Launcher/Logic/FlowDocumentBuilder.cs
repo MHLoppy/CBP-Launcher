@@ -127,7 +127,7 @@ namespace CBPLauncher.Logic
             return doc;
         }
 
-        // WIP
+        // WIP [see ddg convo]
         //private static FlowDocument LoadFormattedDocumentPatchnotes(string filePath, ColorScheme colors)
         //{
         //    // this version is used when rendering directly in HTML (e.g. webbrowser control or cefsharp)
