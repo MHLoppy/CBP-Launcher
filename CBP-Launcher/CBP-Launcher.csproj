@@ -411,6 +411,7 @@
     <Resource Include="Images\CBP Launcher announcements right disabled.png" />
     <Resource Include="Images\CBP Launcher announcements right inactive hovered.png" />
     <Resource Include="Images\CBP Launcher announcements right inactive.png" />
+    <Resource Include="Images\CBP Launcher primary button custom dark recreation.png" />
     <Content Include="NLogOld.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

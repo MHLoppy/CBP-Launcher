@@ -26,10 +26,19 @@
                             <!--<Setter Property="BorderBrush" TargetName="border" Value="Transparent"/>-->
                             <!-- p.s. these two were not originally transparent, those are replacements by me while testing - turns out you need to remove them entirely to get the image working? -->
                         </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
+                            
+                        <!--<Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" TargetName="border" Value="#FFC4E5F6"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                        </Trigger>-->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <ImageBrush ImageSource="/Images/CBP Launcher primary button custom dark recreation.png"/>
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
+                        
                         <Trigger Property="ToggleButton.IsChecked" Value="True">
                             <Setter Property="Background" TargetName="border" Value="#FFBCDDEE"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
