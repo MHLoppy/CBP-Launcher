@@ -5881,7 +5881,7 @@ namespace CBPLauncher.Logic
                                                                , "1.", "2.", "3.", "4.", "5.", "6." // [5-10] (i.e., 6th-11th values)
                                                                , "Challenger"                       // [11] (i.e., 12th value)
                                                                , "Pre-Release "                     // [12] (i.e., 13th value)
-                                                               , "Test Branch"                      // [13] (i.e., 14th value)
+                                                               , "Test Branch "                     // [13] (i.e., 14th value)
                                                                , "XBP" };                           // [14] (i.e., 15th value)
         public static string[] versionMiddle = new string[32] { "", "1", "2", "3", "4", "5", "6", "7", "8", "9"
                                                                 , "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" // [10-19] (i.e., 11th-20th values)
