@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -1076,6 +1077,8 @@ namespace CBPLauncher.Logic
 
         internal async Task InitializeAsync()
         {
+            Mouse.OverrideCursor = Cursors.Wait;
+
             await CheckReinstall();
 
             await AutoRun();
@@ -1094,6 +1097,7 @@ namespace CBPLauncher.Logic
             }
             RefreshCheckboxValues();
             SpinnerActive = false;
+            Mouse.OverrideCursor = null;
         }
 
         // this object must stay as a global (not a local within IsInDesignMode(), otherwise VS2022 screams
@@ -1782,6 +1786,8 @@ namespace CBPLauncher.Logic
                     {
                         try
                         {
+                            Mouse.OverrideCursor = Cursors.Wait;
+
                             var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetup.exe"));
                             string newVersionFull = newVersionShort.FileVersion;
 
@@ -1822,6 +1828,10 @@ namespace CBPLauncher.Logic
                         {
                             MessageBox.Show("" + ex);
                             CBPLogger.GetInstance.Error($"Error updating CBP Setup while exiting: {ex}");
+                        }
+                        finally
+                        {
+                            Mouse.OverrideCursor = null;
                         }
                     }
 
