@@ -127,8 +127,6 @@ namespace CBPLauncher.Logic
         /// ===== END OF MOD LIST =====
 
         // new MVVM-like strings etc
-        public RegistryKey RegPath;
-
         private string regPathDebug;
         public string RegPathDebug
         {
@@ -1272,19 +1270,6 @@ namespace CBPLauncher.Logic
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
 
-            try
-            {
-                ReadRegistry();
-                await Task.Yield();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error reading registry: {ex}");
-                CBPLogger.GetInstance.Error($"Error reading registry: {ex}");
-                LogManager.Shutdown();
-                Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
-            }
-
             /// OLD TODO
             /// use File.Exists and/or Directory.Exists to confirm that CBP files have actually downloaded from Workshop
             /// (at the moment it just assumes they exist and eventually errors later on if they don't)
@@ -2089,10 +2074,12 @@ namespace CBPLauncher.Logic
 
         private async Task<string> TryFindPathFromRegistry()
         {
+            RegistryKey regPath = await ReadRegistry();
+
             try
             {
                 string ronRegPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 287450";
-                using (RegistryKey ronReg = RegPath.OpenSubKey(ronRegPath))
+                using (RegistryKey ronReg = regPath.OpenSubKey(ronRegPath))
                 {
                     if (ronReg == null)
                     {
@@ -3424,26 +3411,34 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private void ReadRegistry() // apparently this is not a good method for this? use using instead? (but I don't know how to make that work with the bit-check :( ) https://stackoverflow.com/questions/1675864/read-a-registry-key
+        private async Task<RegistryKey> ReadRegistry() // apparently this is not a good method for this? use using instead? (but I don't know how to make that work with the bit-check :( ) https://stackoverflow.com/questions/1675864/read-a-registry-key
         {
-            try
+            RegistryKey regPath = null;
+            await Task.Run(() =>
             {
-                if (Environment.Is64BitOperatingSystem) //I don't *fully* understand what's going on here (ported from stackexchange), but this block seems to be needed to prevent null value return due to 32/64 bit differences???
+                try
                 {
-                    RegPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
-                }
-                else
-                {
-                    RegPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
-                }
+                    if (Environment.Is64BitOperatingSystem) //I don't *fully* understand what's going on here (ported from stackexchange), but this block seems to be needed to prevent null value return due to 32/64 bit differences???
+                    {
+                        regPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+                    }
+                    else
+                    {
+                        regPath = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
+                    }
 
-                RegPathDebug = "Debug: registry read as " + RegPath;
-                CBPLogger.GetInstance.Debug("Registry read as " + RegPath);
-            }
-            catch (Exception ex)
-            {
-                CBPLogger.GetInstance.Error("Error with ReadRegistry:" + ex);
-            }
+                    RegPathDebug = "Debug: registry read as " + regPath;
+                    CBPLogger.GetInstance.Debug("Registry read as " + regPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading registry: {ex}");
+                    CBPLogger.GetInstance.Error($"Error reading registry: {ex}");
+                    LogManager.Shutdown();
+                    Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
+                }
+            });
+            return regPath;
         }
 
         private async Task PlayButton_Click()
