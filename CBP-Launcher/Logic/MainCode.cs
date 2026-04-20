@@ -1845,6 +1845,7 @@ namespace CBPLauncher.Logic
                         CurrentSkin = ClassicPlus;
                         CurrentTab = ClassicPlusOptions;
                         Announcements = ClassicPlusAnnouncements;
+                        CPOChecked = true;
 
                         // janky but functional for now
                         Properties.Settings.Default.SkinSpV1 = false;
@@ -1860,6 +1861,7 @@ namespace CBPLauncher.Logic
                         CurrentSkin = SpartanV1;
                         CurrentTab = SpartanV1Options;
                         Announcements = SpartanV1Announcements;
+                        SpOChecked = true;
 
                         // janky but functional for now
                         Properties.Settings.Default.SkinSpV1 = true;
