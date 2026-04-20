@@ -792,6 +792,8 @@ namespace CBPLauncher.Logic
         public RelayCommand LoadPR2Command { get; set; }
         public RelayCommand InstallPR3Command { get; set; }
         public RelayCommand LoadPR3Command { get; set; }
+        public RelayCommand InstallPR4Command { get; set; }
+        public RelayCommand LoadPR4Command { get; set; }
 
 
         public RelayCommand MinimiseCommand { get; set; }
@@ -1425,16 +1427,19 @@ namespace CBPLauncher.Logic
                         await LoadEe();
                         break;
                     case "CBP Alpha 9d":
-                        await TempLoadA9d();
+                        await LoadRonVersion("CBP Alpha 9d", "CBPa9d", "riseofnations_CBPa9d.exe", false, LauncherStatus.readyCbpOldLoaded);
                         break;
                     case "CBP Pre-Release 1":
-                        await TempLoadPR1();
+                        await LoadRonVersion("CBP Pre-Release 1", "CBPPR1", "riseofnations_CBPPR1.exe", true, LauncherStatus.readyCbpPrLoaded);
                         break;
                     case "CBP Pre-Release 2":
-                        await TempLoadPR2();
+                        await LoadRonVersion("CBP Pre-Release 2", "CBPPR2", "riseofnations_CBPPR2.exe", true, LauncherStatus.readyCbpPrLoaded);
                         break;
                     case "CBP Pre-Release 3":
-                        await TempLoadPR3();
+                        await LoadRonVersion("CBP Pre-Release 3", "CBPPR3", "riseofnations_CBPPR3.exe", true, LauncherStatus.readyCbpPrLoaded);
+                        break;
+                    case "CBP Pre-Release 4":
+                        await LoadRonVersion("CBP Pre-Release 4", "CBPPR4", "riseofnations_CBPPR4.exe", true, LauncherStatus.readyCbpPrLoaded);
                         break;
                     default:
                         CBPLogger.GetInstance.Warning("Unhandled version, falling back to latest known CBP Version (Alpha 10).");
@@ -1738,7 +1743,7 @@ namespace CBPLauncher.Logic
 
                 LoadA9dCommand = new RelayCommand(async o =>
                 {
-                    await TempLoadA9d();
+                    await LoadRonVersion("CBP Pre-Release 1", "CBPPR1", "riseofnations_CBPPR1.exe", false, LauncherStatus.readyCbpOldLoaded);
                 });
 
                 InstallPR1Command = new RelayCommand(async o =>
@@ -1748,7 +1753,7 @@ namespace CBPLauncher.Logic
 
                 LoadPR1Command = new RelayCommand(async o =>
                 {
-                    await TempLoadPR1();
+                    await LoadRonVersion("CBP Pre-Release 1", "CBPPR1", "riseofnations_CBPPR1.exe", true, LauncherStatus.readyCbpPrLoaded);
                 });
 
                 InstallPR2Command = new RelayCommand(async o =>
@@ -1758,7 +1763,7 @@ namespace CBPLauncher.Logic
 
                 LoadPR2Command = new RelayCommand(async o =>
                 {
-                    await TempLoadPR2();
+                    await LoadRonVersion("CBP Pre-Release 2", "CBPPR2", "riseofnations_CBPPR2.exe", true, LauncherStatus.readyCbpPrLoaded);
                 });
 
                 InstallPR3Command = new RelayCommand(async o =>
@@ -1768,7 +1773,17 @@ namespace CBPLauncher.Logic
 
                 LoadPR3Command = new RelayCommand(async o =>
                 {
-                    await TempLoadPR3();
+                    await LoadRonVersion("CBP Pre-Release 3", "CBPPR3", "riseofnations_CBPPR3.exe", true, LauncherStatus.readyCbpPrLoaded);
+                });
+
+                InstallPR4Command = new RelayCommand(async o =>
+                {
+                    await InstallSelfContainedVersion("2528425253", "CBP-PR4", "CBPPR4.delta", "riseofnations_CBPPR4.exe");
+                });
+
+                LoadPR4Command = new RelayCommand(async o =>
+                {
+                    await LoadRonVersion("CBP Pre-Release 4", "CBPPR4", "riseofnations_CBPPR4.exe", true, LauncherStatus.readyCbpPrLoaded);
                 });
 
                 MinimiseCommand = new RelayCommand(o =>
@@ -2005,6 +2020,8 @@ namespace CBPLauncher.Logic
             OnPropertyChanged(nameof(LoadPR2Command));
             OnPropertyChanged(nameof(InstallPR3Command));
             OnPropertyChanged(nameof(LoadPR3Command));
+            OnPropertyChanged(nameof(InstallPR4Command));
+            OnPropertyChanged(nameof(LoadPR4Command));
 
             OnPropertyChanged(nameof(MinimiseCommand));
             OnPropertyChanged(nameof(ExitCommand));
@@ -5547,6 +5564,7 @@ namespace CBPLauncher.Logic
                     "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
                     "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
                     "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
+                    "TODO", // TODO: add PR4 non-LAA
                     "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
                 };
                 bool patchHashMatches = false;
@@ -5678,6 +5696,7 @@ namespace CBPLauncher.Logic
                         "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
                         "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
                         "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
+                        "TODO", // TODO: add PR4 non-LAA
                         "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
                     };
                     bool patchHashMatches = false;
@@ -5748,44 +5767,11 @@ namespace CBPLauncher.Logic
             }
         }
 
-        // TODO later: move these to not be dynamically loaded instead of hacky hardcoded implementations
-        private async Task TempLoadA9d()
+        private async Task LoadRonVersion(string versionName, string shortName, string newExe, bool usePrerelease, LauncherStatus completedStatus)
         {
-            string newExe = "riseofnations_CBPa9d.exe";
-            LauncherStatus status = LauncherStatus.readyCbpOldLoaded;
-            await LoadOtherVersion(newExe, status, "CBP Alpha 9d", "CBPa9d");
+            await LoadOtherVersion(newExe, completedStatus, versionName, shortName);
 
-            Properties.Settings.Default.UsePrerelease = false;
-            await SaveSettings();
-        }
-
-        private async Task TempLoadPR1()
-        {
-            string newExe = "riseofnations_CBPPR1.exe";
-            LauncherStatus status = LauncherStatus.readyCbpPrLoaded;
-            await LoadOtherVersion(newExe, status, "CBP Pre-Release 1", "CBPPR1");
-
-            Properties.Settings.Default.UsePrerelease = true;
-            await SaveSettings();
-        }
-
-        private async Task TempLoadPR2()
-        {
-            string newExe = "riseofnations_CBPPR2.exe";
-            LauncherStatus status = LauncherStatus.readyCbpPrLoaded;
-            await LoadOtherVersion(newExe, status, "CBP Pre-Release 2", "CBPPR2");
-
-            Properties.Settings.Default.UsePrerelease = true;
-            await SaveSettings();
-        }
-
-        private async Task TempLoadPR3()
-        {
-            string newExe = "riseofnations_CBPPR3.exe";
-            LauncherStatus status = LauncherStatus.readyCbpPrLoaded;
-            await LoadOtherVersion(newExe, status, "CBP Pre-Release 3", "CBPPR3");
-
-            Properties.Settings.Default.UsePrerelease = true;
+            Properties.Settings.Default.UsePrerelease = usePrerelease;
             await SaveSettings();
         }
 
