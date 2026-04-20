@@ -47,6 +47,11 @@
                     <Button Width="80" Height="30" Content="Install" Command="{Binding InstallPR3Command}" FontSize="15" Margin="0,0,7,0"/>
                     <Button Width="80" Height="30" Content="Load" Command="{Binding LoadPR3Command}" FontSize="15"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="10,14,10,10" HorizontalAlignment="Right">
+                    <TextBlock Text="Pre-Release 4 (PR4)" Foreground="WhiteSmoke" FontSize="16" Margin="0,3,10,0"/>
+                    <Button Width="80" Height="30" Content="Install" Command="{Binding InstallPR4Command}" FontSize="15" Margin="0,0,7,0"/>
+                    <Button Width="80" Height="30" Content="Load" Command="{Binding LoadPR4Command}" FontSize="15"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </Grid>
