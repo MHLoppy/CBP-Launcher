@@ -794,6 +794,8 @@ namespace CBPLauncher.Logic
         public RelayCommand WorkshopPRCommand { get; set; }
         public RelayCommand InstallA9dCommand { get; set; }
         public RelayCommand LoadA9dCommand { get; set; }
+        public RelayCommand InstallA10Command { get; set; }
+        public RelayCommand LoadA10Command { get; set; }
         public RelayCommand InstallPR1Command { get; set; }
         public RelayCommand LoadPR1Command { get; set; }
         public RelayCommand InstallPR2Command { get; set; }
@@ -1755,7 +1757,17 @@ namespace CBPLauncher.Logic
 
                 LoadA9dCommand = new RelayCommand(async o =>
                 {
-                    await LoadRonVersion("CBP Pre-Release 1", "CBPPR1", "riseofnations_CBPPR1.exe", false, LauncherStatus.readyCbpOldLoaded);
+                    await LoadRonVersion("CBP Alpha 9d", "CBPa9d", "riseofnations_CBPa9d.exe", false, LauncherStatus.readyCbpOldLoaded);
+                });
+
+                InstallA10Command = new RelayCommand(async o =>
+                {
+                    await InstallSelfContainedVersion("2528425253", "CBP-Alpha10", "CBPa10.delta", "riseofnations_CBPa10.exe");
+                });
+
+                LoadA10Command = new RelayCommand(async o =>
+                {
+                    await LoadRonVersion("CBP Alpha 10", "CBPa10", "riseofnations_CBPa10.exe", false, LauncherStatus.readyCbpOldLoaded);
                 });
 
                 InstallPR1Command = new RelayCommand(async o =>
@@ -2039,6 +2051,8 @@ namespace CBPLauncher.Logic
             OnPropertyChanged(nameof(WorkshopPRCommand));
             OnPropertyChanged(nameof(InstallA9dCommand));
             OnPropertyChanged(nameof(LoadA9dCommand));
+            OnPropertyChanged(nameof(InstallA10Command));
+            OnPropertyChanged(nameof(LoadA10Command));
             OnPropertyChanged(nameof(InstallPR1Command));
             OnPropertyChanged(nameof(LoadPR1Command));
             OnPropertyChanged(nameof(InstallPR2Command));
