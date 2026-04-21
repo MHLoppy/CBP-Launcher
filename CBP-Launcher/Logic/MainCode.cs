@@ -5487,7 +5487,32 @@ namespace CBPLauncher.Logic
 
                 if (Properties.Settings.Default.CBPLoaded) // note that there's also a CBPUnloaded setting too, because of legacy reasons
                 {
-                    await UnloadCBP();
+                    // Try to handle my best guess at this with no log is provided: https://steamcommunity.com/workshop/filedetails/discussion/2287791153/2971776551518902263/?ctp=3#c800093196998931185
+                    if (Directory.Exists(localPathCBP))
+                    {
+                        CBPLogger.GetInstance.Debug($"Migration: CBP was loaded and local mods CBP folder found in {localPathCBP}, unloading...");
+                        await UnloadCBP();
+                    }
+                    else
+                    {
+                        CBPLogger.GetInstance.Debug($"Migration: CBP was loaded, but {localPathCBP} missing. Asking user whether to skip...");
+
+                        string title = "Folder missing";
+                        string msg = $"CBP's legacy \"loaded\" setting was on, but the {localPathCBP} folder doesn't exist."
+                            + "This may happen if you used CBP a long time ago but stopped, and then at some point you reinstalled or moved your RoN install."
+                            + "If this is roughly accurate, you should be able to skip unloading without any issues. If it's not, please report this issue."
+                            + "\n\nDo you want to skip unloading?";
+
+                        if (MessageBox.Show(msg, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        {
+                            CBPLogger.GetInstance.Debug($"User said to skip unloading, continuing...");
+                        }
+                        else
+                        {
+                            CBPLogger.GetInstance.Debug($"User said not to skip, continuing with unload...");
+                            await UnloadCBP();
+                        }
+                    }
                 }
 
                 string unloadedVersionTxt = Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt");
