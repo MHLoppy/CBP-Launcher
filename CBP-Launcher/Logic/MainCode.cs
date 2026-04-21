@@ -5402,6 +5402,7 @@ namespace CBPLauncher.Logic
         {
             // Get online version, indicating *latest published* CBP version
             // this seems to be nearly the entire wait time lmao, at least on my mid-range laptop
+            bool hasConnection = false;
             Version onlineVersion = new Version();
             await Task.Run(() =>
             {
@@ -5409,6 +5410,7 @@ namespace CBPLauncher.Logic
                 {
                     WebClient webClient = new WebClient();
                     onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt"));
+                    hasConnection = true;
                     CBPLogger.GetInstance.Info("Latest CBP version from online check: " + VersionToString(onlineVersion));
                 }
                 catch (Exception)
@@ -5449,7 +5451,7 @@ namespace CBPLauncher.Logic
             bool workshopAndLocalMatch = !workshopAndLocalDifferent;
             bool workshopAndOnlineMatch = !workshopAndOnlineDifferent;
 
-            if (workshopAndOnlineDifferent && workshopAndLocalMatch)
+            if (hasConnection && workshopAndOnlineDifferent && workshopAndLocalMatch)
             {
                 CBPLogger.GetInstance.Warning($"Newer CBP released ({VersionToString(onlineVersion)}), but files not downloaded from Steam.");
                 MessageBox.Show(VersionToString(onlineVersion) + " has been published, but Steam hasn't downloaded the new files yet so CBP Launcher is unable to install them.");
