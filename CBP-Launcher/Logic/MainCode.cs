@@ -1416,7 +1416,7 @@ namespace CBPLauncher.Logic
                         await LoadEe();
                         break;
                     case "CBP Alpha 9d":
-                        await LoadRonVersion("CBP Alpha 9d", "CBPa9d", "riseofnations_CBPa9d.exe", false, LauncherStatus.readyCbpOldLoaded);
+                        await LoadRonVersion("CBP Alpha 9d", "CBPa9d", "riseofnations_CBPa9d.exe", true, LauncherStatus.readyCbpOldLoaded);
                         break;
                     case "CBP Pre-Release 1":
                         await LoadRonVersion("CBP Pre-Release 1", "CBPPR1", "riseofnations_CBPPR1.exe", true, LauncherStatus.readyCbpPrLoaded);
@@ -5810,6 +5810,7 @@ namespace CBPLauncher.Logic
         {
             await LoadOtherVersion(newExe, completedStatus, versionName, shortName);
 
+            // Old versions also trigger this flag because although pre-release was its original purpose, really it just means "not the latest stable CBP release"
             Properties.Settings.Default.UsePrerelease = usePrerelease;
             await SaveSettings();
         }
