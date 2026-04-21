@@ -47,6 +47,13 @@ namespace CBPLauncher.Logic
         installProblem
     }
 
+    enum LatestVersionStatus
+    {
+        thisIsLatest,
+        latestIsNotDownloaded,
+        newVersionJustInstalled
+    }
+
     public static class TabProperties
     {
         public static readonly DependencyProperty IsActiveProperty =
@@ -77,6 +84,8 @@ namespace CBPLauncher.Logic
         private List<IPluginCBP> pluginList = null;
         private List<string> pluginsPathList = new List<string>();
         private string pluginTitles = "";
+
+        private LatestVersionStatus latestCbpStatus;
 
         //a7 temp
         private string helpXML = "help.xml";
@@ -1372,10 +1381,10 @@ namespace CBPLauncher.Logic
 
             try
             {
-                // Alpha 10: I'm making the executive decision to default to CBP Launcher on an *opt-out* basis now that CBP is well-established
+                // Alpha 10+: I'm making the executive decision to default to CBP Launcher on an *opt-out* basis now that CBP is well-established
                 await SetDefaultLauncher();
 
-                // Alpha 10: This preference is less important now - maybe TODO skip this, default to CBP first time, then remember last-used every time after that?
+                // Alpha 10+: This preference is less important now - maybe TODO skip this, default to CBP first time, then remember last-used every time after that?
                 await SetDefaultCBP();
 
                 // TODO: clean up
@@ -1407,13 +1416,27 @@ namespace CBPLauncher.Logic
                 // Step 2: (re-)load the game version that was last used [temporary scuffed semi-hardcoded implementation] TODO: improve, right now latest has a hardcoded version
                 string lastUsed = Properties.Settings.Default.LastUsedGameVersion;
                 CBPLogger.GetInstance.Info($"Attempting to re-load game version: {lastUsed}.");
+
+                if (latestCbpStatus == LatestVersionStatus.thisIsLatest || latestCbpStatus == LatestVersionStatus.latestIsNotDownloaded)
+                {
+                    // do the normal switch (the one that's already there below)
+                }
+                else if (latestCbpStatus == LatestVersionStatus.newVersionJustInstalled)
+                {
+                    // Re-target the user's saved last version (which is now out of date) to the latest version by falling through to the default case
+                    lastUsed = "Newer Than " + lastUsed;
+                }
+
                 switch (lastUsed)
                 {
-                    case "CBP Alpha 10":
-                        await LoadCbp("CBPa10", "CBP Alpha 10");
+                    case "CBP Alpha 11":
+                        await LoadCbp("CBPa11", "CBP Alpha 11");
                         break;
                     case "Default RoN:EE":
                         await LoadEe();
+                        break;
+                    case "CBP Alpha 10":
+                        await LoadRonVersion("CBP Alpha 10", "CBPa10", "riseofnations_CBPa10.exe", true, LauncherStatus.readyCbpOldLoaded);
                         break;
                     case "CBP Alpha 9d":
                         await LoadRonVersion("CBP Alpha 9d", "CBPa9d", "riseofnations_CBPa9d.exe", true, LauncherStatus.readyCbpOldLoaded);
@@ -1431,8 +1454,8 @@ namespace CBPLauncher.Logic
                         await LoadRonVersion("CBP Pre-Release 4", "CBPPR4", "riseofnations_CBPPR4.exe", true, LauncherStatus.readyCbpPrLoaded);
                         break;
                     default:
-                        CBPLogger.GetInstance.Warning("Unhandled version, falling back to latest known CBP Version (Alpha 10).");
-                        await LoadCbp("CBPa10", "CBP Alpha 10");
+                        CBPLogger.GetInstance.Warning($"Version {lastUsed} not explicitly handled, falling back to latest known CBP Version (Alpha 11).");
+                        await LoadCbp("CBPa11", "CBP Alpha 11");
                         break;
                 }
                 await Task.Yield();
@@ -1596,7 +1619,7 @@ namespace CBPLauncher.Logic
                     //await CheckForUpdates();
                     //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
 
-                    await LoadCbp("CBPa10", "CBP Alpha 10");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
+                    await LoadCbp("CBPa11", "CBP Alpha 11");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
                 });
 
                 LoadEeCommand = new RelayCommand(async o =>
@@ -3911,7 +3934,7 @@ namespace CBPLauncher.Logic
             //return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2 + plugin + plugin2;
 
             // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
-            return "CBP Alpha 10 (a10) active.";
+            return "CBP Alpha 11 (a11) active.";
         }
 
         private string GenerateOtherMenuText()
@@ -3919,7 +3942,7 @@ namespace CBPLauncher.Logic
             //return "CBP is enabled. Configuration: " + TooltipConfig() + ". See main menu for more details.";
 
             // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
-            return "CBP Alpha 10 (a10) active.";
+            return "CBP Alpha 11 (a11) active.";
         }
 
         private string TooltipConfig()
@@ -5453,16 +5476,19 @@ namespace CBPLauncher.Logic
 
             if (hasConnection && workshopAndOnlineDifferent && workshopAndLocalMatch)
             {
+                latestCbpStatus = LatestVersionStatus.latestIsNotDownloaded;
                 CBPLogger.GetInstance.Warning($"Newer CBP released ({VersionToString(onlineVersion)}), but files not downloaded from Steam.");
                 MessageBox.Show(VersionToString(onlineVersion) + " has been published, but Steam hasn't downloaded the new files yet so CBP Launcher is unable to install them.");
             }
             else if (workshopAndOnlineMatch && workshopAndLocalDifferent)
             {
                 await ArchiveOldExe(localVersion);
-                await InstallCbpVersion("CBP.delta");
+                await InstallLatestCbpVersion("CBP.delta");
+                latestCbpStatus = LatestVersionStatus.newVersionJustInstalled;
             }
             else if (workshopAndOnlineMatch && workshopAndLocalMatch)
             {
+                latestCbpStatus = LatestVersionStatus.thisIsLatest;
                 CBPLogger.GetInstance.Info("Latest available version is currently installed, continuing...");
             }
         }
@@ -5533,7 +5559,7 @@ namespace CBPLauncher.Logic
                 File.WriteAllText(newVersionFilePath, fileContents);
 
                 CBPLogger.GetInstance.Info("Migration: Installing new CBP format (Alpha 10+)...");
-                await InstallCbpVersion("CBP.delta");
+                await InstallLatestCbpVersion("CBP.delta");
 
                 // Since CBPL and CBPS update each other (but CBPS handles announcements/patch notes copying),
                 //   do that during CBPL migration to cover first-time use case before CBPS is updated
@@ -5560,7 +5586,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task InstallCbpVersion(string patchNameTempHardcoded)
+        private async Task InstallLatestCbpVersion(string patchNameTempHardcoded)
         {
             string folderPath = Path.Combine(RonWorkshopPath, "2287791153", "Community Balance Patch"); // Instead of having a versioned folder name like "CBP Alpha 10", the latest version uses this generic folder name
             try
@@ -5611,6 +5637,7 @@ namespace CBPLauncher.Logic
                     "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                     "TODO", // TODO: add PR4 non-LAA
                     "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
+                    "TODO", // TODO: add Alpha 10 non-LAA
                 };
                 bool patchHashMatches = false;
                 foreach (string hash in hashes)
@@ -5743,6 +5770,7 @@ namespace CBPLauncher.Logic
                         "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                         "TODO", // TODO: add PR4 non-LAA
                         "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
+                        "TODO", // TODO: add Alpha 11 non-LAA
                     };
                     bool patchHashMatches = false;
                     foreach (string hash in hashes)
