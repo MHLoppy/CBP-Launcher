@@ -15,18 +15,6 @@ namespace CBPSetup
 {
     class Program
     {
-        static long swInit;
-        static long swUpgrade;
-        static long swDefault;
-        static long swLang;
-        static long swRunning;
-        static long swLocation;
-        static long swFound;
-        static long swTxt;
-        static long swUpdated;
-        static long swLaunch;
-        static long swConclusion;
-
         private enum RunningLocation
         {
             Unknown                = 0,
@@ -42,10 +30,7 @@ namespace CBPSetup
 
         private static void Main(string[] args)
         {
-            var sw = Stopwatch.StartNew();
             Args = args;
-            sw.Stop();
-            swInit = sw.ElapsedMilliseconds;
 
             foreach (string arg in args)
             {
@@ -56,19 +41,12 @@ namespace CBPSetup
                 TextLog += arg;
             }
 
-            sw.Restart();
             if (Properties.Settings.Default.UpgradeRequired == true)
             {
                 ReplacementSettingsReset();
                 UpgradeSettings();
                 SaveSettings();
             }
-            sw.Stop();
-            swUpgrade = sw.ElapsedMilliseconds;
-
-            sw.Restart();
-            sw.Stop();
-            swDefault = sw.ElapsedMilliseconds;
 
             Primary();
         }
@@ -85,49 +63,24 @@ namespace CBPSetup
             //step -2: check .NET framework version
             //MessageBox.Show(netFrameworkVersion);
 
-            var sw = Stopwatch.StartNew();
-
-            sw.Stop();
-            swLang = sw.ElapsedMilliseconds;
-            sw.Restart();
             CheckIfAlreadyRunning();
-            sw.Stop();
-            swRunning = sw.ElapsedMilliseconds;
-            sw.Restart();
 
             // Step 1: figure out what location exe is running from
             RunningLocation runningLocation = FindRunningLocation();
-            sw.Stop();
-            swLocation = sw.ElapsedMilliseconds;
-            sw.Restart();
 
             //Step 2: does CBP launcher exist? (if no, say error, if yes continue)
             bool found = CbpLauncherFound(runningLocation);
-            sw.Stop();
-            swFound = sw.ElapsedMilliseconds;
-            sw.Restart();
             //await AutoConsentQuestion();
 
             //Step 3: is it up to date? if yes continue, if no, update it and continue (if error updating, say error)
             CopyTxtFiles();
-            sw.Stop();
-            swTxt = sw.ElapsedMilliseconds;
-            sw.Restart();
             KeepCbpLauncherUpdated(found);
-            sw.Stop();
-            swUpdated = sw.ElapsedMilliseconds;
-            sw.Restart();
 
             // Step 4: launch CBP launcher
             StartCbpLauncher();
-            sw.Stop();
-            swLaunch = sw.ElapsedMilliseconds;
-            sw.Restart();
 
             //CBPS exits if CBP Launcher is running
             Conclusion();
-            sw.Stop();
-            swConclusion = sw.ElapsedMilliseconds;
         }
 
         private static void CheckIfAlreadyRunning()
@@ -368,21 +321,6 @@ namespace CBPSetup
         private static void ControlledClose(string str, int code)
         {
             TextLog += "\n" + str;
-
-            string message = $"\ninit: {swInit}"
-                            + $"\nupgrade: {swUpgrade}"
-                            + $"\ndefault: {swDefault}"
-                            + $"\nlanguage: {swLang}"
-                            + $"\nrunning: {swRunning}"
-                            + $"\nlocation: {swLocation}"
-                            + $"\nfound: {swFound}"
-                            + $"\ntxt: {swTxt}"
-                            + $"\nupdated: {swUpdated}"
-                            + $"\nlaunch: {swLaunch}"
-                            + $"\nconclusion: {swConclusion}";
-            //MessageBox.Show(message);//STOPWATCH
-
-            TextLog += message;
 
             string logPath = "CBPSetup_log.txt";
             RunningLocation runLoc = FindRunningLocation();
