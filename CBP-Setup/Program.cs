@@ -330,7 +330,17 @@ namespace CBPSetup
                 var hereParent = new DirectoryInfo(here).Parent?.Name;
                 logPath = Path.Combine(hereParent, "CBP", "logs", logPath);
             }
-            File.WriteAllText(logPath, TextLog);
+
+            // "As soon as it worked, i removed the folder. I like to have it clean if everything is working."
+            // https://steamcommunity.com/workshop/filedetails/discussion/2287791153/2971776551518902263/?tscn=1777081371#c796716353141670473
+            if (Directory.Exists(logPath))
+            {
+                File.WriteAllText(logPath, TextLog);
+            }
+            else
+            {
+                File.WriteAllText("CBPSetup_log.txt", TextLog);
+            }
 
             Environment.Exit(code);
         }
