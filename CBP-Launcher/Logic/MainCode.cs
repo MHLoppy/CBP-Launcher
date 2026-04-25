@@ -1019,7 +1019,7 @@ namespace CBPLauncher.Logic
         {
             if (IsInDesignMode() == false)
             {
-                BigBadWarning();
+                DontRunFromUnsupportedLocation();
 
                 ConfigureNLog();
                 CBPLogger.GetInstance.Info("Logging has begun.");
@@ -1119,39 +1119,18 @@ namespace CBPLauncher.Logic
             return DesignerProperties.GetIsInDesignMode(dummy);
         }
 
-        private void BigBadWarning()
+        private void DontRunFromUnsupportedLocation()
         {
             // big bad error message if you try to run it from the wrong place
             if (Path.GetFileName(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."))) == "workshop")
             {
-                /*if (MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. You should be running CBP Setup GUI instead to install CBP Launcher to RoN's location.\n\nDo you want to continue loading CBP Launcher anyway?", "UNSUPPORTED LOCATION", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.No)
-                    Application.Current.MainWindow.Close();*/
+                string title = "Unsupported location";
+                string msg = "CBP Launcher has detected that you're trying to run it from the Steam Workshop folder, which it's not designed to do."
+                             + "\n\nIn the Steam Workshop folder you should be running CBP Setup GUI, not CBP Launcher.";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                //HnZ suggests don't even give them the option to say continue anyway. I don't personally agree, but can see where he's coming from
-                /*MessageBox.Show("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and can cause errors.\n\n Run CBP Setup GUI to install CBP Launcher to RoN's location.", "UNSUPPORTED LOCATION", MessageBoxButton.OK, MessageBoxImage.Stop);
-                Application.Current.MainWindow.Close();*/
-
-                string response = Interaction.InputBox("Running CBP Launcher from the Workshop folder is NOT SUPPORTED, and is likely to produce errors. "
-                                                        + "Run CBPSetupGUI.exe instead."
-                                                        + "\n\nIf you want to run CBP Launcher from here anyway, type \"I understand\"."
-                                                        , "UNSUPPORTED LOCATION");
-                if (response.Contains("I understand"))
-                {
-                    CBPLogger.GetInstance.Warning("User is continuing to run from Workshop location.");
-                    MessageBox.Show("I hope you know what you're doing uwu", "Continuing", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-                /*else if (response.Contains("reset"))
-                {
-                    ResetSettings(false);
-                    MessageBox.Show("CBP Launcher's settings have been reset and it will now close.");
-                    LogManager.Shutdown();
-                    Environment.Exit(0);
-                }*/
-                else
-                {
-                    LogManager.Shutdown();
-                    Environment.Exit(161);
-                }
+                LogManager.Shutdown();
+                Environment.Exit(161);
             }
         }
 
