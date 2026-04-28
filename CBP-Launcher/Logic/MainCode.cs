@@ -5628,7 +5628,7 @@ namespace CBPLauncher.Logic
                     "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
                     "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
                     "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
-                    "TODO", // TODO: add PR4 non-LAA
+                    "d384076ba6823df2df5f34283acb2fcd89788c656cbd8b659880ee87d01bba93", // PR4 non-LAA
                     "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
                     "TODO", // TODO: add Alpha 10 non-LAA
                 };
@@ -5761,7 +5761,7 @@ namespace CBPLauncher.Logic
                         "ab0b84a2cae42ecc2ed76703e6d83a265d12fb54b4e4c2cec8867b938bb9acb0", // PR1 non-LAA
                         "0f094495eb603967d7a77a9bd28491127baf5612c34a28d3b58cbdefe828016e", // PR2 non-LAA
                         "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
-                        "TODO", // TODO: add PR4 non-LAA
+                        "d384076ba6823df2df5f34283acb2fcd89788c656cbd8b659880ee87d01bba93", // PR4 non-LAA
                         "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
                         "TODO", // TODO: add Alpha 11 non-LAA
                     };
