@@ -4830,6 +4830,10 @@ namespace CBPLauncher.Logic
                 //MessageBox.Show("Have attempted to import settings from previous version of CBP Launcher (if these settings exist).");
                 CBPLogger.GetInstance.Info("Settings upgraded (if old settings exist).");
             }
+            else
+            {
+                CBPLogger.GetInstance.Info("Settings are not being upgraded because they were just reset...");
+            }
         }
 
         private async Task AskDefaultLauncher() // TODO clean up
