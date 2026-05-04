@@ -72,8 +72,6 @@ namespace CBPLauncher.Logic
 
     public class MainCode : ObservableObject
     {
-        private string rootPath;
-        private string gameZip;
         private string gameExe;
         private string localMods;
         private string RoNPathFinal;
@@ -1270,9 +1268,6 @@ namespace CBPLauncher.Logic
 
             try
             {
-                AssignZipPath();
-
-                // this starts a cycle through each of the automatic find-path attempts - if all fail, it just prompts user to input the path into a popup box instead
                 await FindRoNPath();
             }
             catch (Exception ex)
@@ -1304,7 +1299,7 @@ namespace CBPLauncher.Logic
                 GetLauncherVersion();
                 await Task.Yield();
 
-                CBPLogger.GetInstance.Info("Current directory: " + rootPath);
+                CBPLogger.GetInstance.Info("Current directory: " + AppDomain.CurrentDomain.BaseDirectory);
                 CBPLogger.GetInstance.Info("RoN:EE detected in: " + EEPath);
                 CBPLogger.GetInstance.Info("Steam Workshop detected in: " + WorkshopPathDebug);
                 CBPLogger.GetInstance.Info("Steam Workshop (CBP) detected in: " + WorkshopPathCBPDebug);
@@ -2063,13 +2058,6 @@ namespace CBPLauncher.Logic
             }
             CBPLogger.GetInstance.Debug("CBP PR folder not found.");
             return false;
-        }
-
-        private void AssignZipPath()
-        {
-            // core paths
-            rootPath = AppDomain.CurrentDomain.BaseDirectory;
-            gameZip = Path.Combine(rootPath, "Community Balance Patch.zip"); //static file name even with updates, otherwise you have to change this value!
         }
 
         private async Task FindRoNPath()
@@ -3199,36 +3187,6 @@ namespace CBPLauncher.Logic
                         MessageBox.Show($"Error installing CBP from Workshop files: {ex}");
                     }
                 }
-
-                // not currently used because the setting cannot be set by the user (unless they like, edit the settings file manually lol)
-                else if (Properties.Settings.Default.NoWorkshopFiles == true) // as of v0.3 release this option isn't even exposed to the user yet, but it'll be useful later
-                {
-                    CBPLogger.GetInstance.Warning("For some reason NoWorkshopFiles setting is true!?!?");
-
-                    // try using online files
-                    try
-                    {
-                        WebClient webClient = new WebClient();
-                        if (_isUpdate)
-                        {
-                            Status = LauncherStatus.installingUpdateOnline;
-                        }
-                        else
-                        {
-                            Status = LauncherStatus.installingFirstTimeOnline;
-                            _onlineVersion = new Version(webClient.DownloadString("http://mhloppy.com/CBP/version.txt")); /// maybe this should be ported to e.g. google drive as well? then again it's a 1KB file so I
-                                                                                                                          /// guess the main concern would be server downtime (either temporary or long term server-taken-offline-forever)
-                        }
-
-                        webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
-                        webClient.DownloadFileAsync(new Uri("https://drive.google.com/uc?export=download&id=1hQYZtdsTDihFi33Cc_BisRUHdXvSy5o4"), gameZip, _onlineVersion); //a6c old one https://drive.google.com/uc?export=download&id=1usd0ihBy5HWxsD6UiabV3ohzGxB7SxDD
-                    }
-                    catch (Exception ex)
-                    {
-                        Status = LauncherStatus.installFailed;
-                        MessageBox.Show($"Error retrieving patch files: {ex}");
-                    }
-                }
             }
 
             if (Properties.Settings.Default.CBPUnloaded == true)
@@ -3257,81 +3215,6 @@ namespace CBPLauncher.Logic
                     CBPLogger.GetInstance.Error($"Error loading CBP: {ex}");
                     MessageBox.Show($"Error loading CBP: {ex}");
                 }
-            }
-        }
-
-        private void DownloadGameCompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            try
-            {
-                var onlineVersion = ((Version)e.UserState); //I literally don't know when to use var vs other stuff, but it works here so I guess it's fine???
-
-                /// To make the online version be converted (not just the local version), need the near-duplicate code below (on this indent level).
-                /// Vs reference, it separates the conversion to string until after displaying the version number,
-                /// that way it displays e.g. "Alpha 6c" but actually writes e.g. "6.0.3" to version.txt so that future compares to that file will work
-                string onlineVersionString = ((Version)e.UserState).ToString();
-
-                try
-                {
-                    ZipFile.ExtractToDirectory(gameZip, localMods);
-                    File.Delete(gameZip); //extra file to local mods folder, then delete it after the extraction is done
-                }
-                catch (Exception ex)
-                {
-                    CBPLogger.GetInstance.Warning($"Entering fancy catch: {ex}");
-
-                    Status = LauncherStatus.installFailed;
-                    File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
-
-                    // show a message asking user if they want to ignore the error (and unlock the launch button)
-                    string message = $"If you've already installed CBP this error might be okay to ignore."
-                                     + " It may occur if you have the CBP files but no version.txt file to read from, causing the launcher to incorrectly think CBP is not installed."
-                                     + " It's also *probably* okay to ignore this if you want to just play non-CBP for now."
-                                     + "\n\nFull error: \n" + $"{ex}"
-                                     + "\n\nIgnore error and continue?";
-                    string title = "Error installing new patch files";
-
-                    // if they say yes, then also ask if they want to write a new version.txt file where the mod is supposed to be installed:
-                    if (MessageBox.Show(message, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        Status = LauncherStatus.installProblem;
-
-                        string message2 = $"If you're very confident that CBP is actually installed and the problem is just the version.txt file, you can write a new file to resolve this issue."
-                                          + "\n\nWould you like to write a new version.txt file?"
-                                          + "\n(AVOID DOING THIS IF YOU'RE NOT SURE!!)";
-
-                        string title2 = "Write new version.txt file?";
-
-                        if (MessageBox.Show(message2, title2, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                        {
-                            // currently do nothing; explicitly preferred over using if-not-yes-then-return in case I change this later
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        LogManager.Shutdown();
-                        Environment.Exit(0); /// if they say no, then application is kill;
-                    }                        /// Env.Exit used instead of App.Exit because it prevents more code from running
-                }                            /// App.Exit was writing the new version file even if you said no on the prompt - maybe could be resolved, but this is okay I think
-
-                File.WriteAllText(versionFileCBPLocal, onlineVersionString); // I thought this is where return would go, but it doesn't, so I evidently don't know what I'm doing
-
-                UpdateLocalVersionNumber();
-
-                Status = LauncherStatus.readyCbpLoaded;
-                Properties.Settings.Default.CBPLoaded = true;
-                SaveSettings();
-            }
-            catch (Exception ex)
-            {
-                Status = LauncherStatus.installFailed;
-                File.Delete(gameZip); //without this, the .zip will remain if it successfully downloads but then errors while unzipping
-                CBPLogger.GetInstance.Error($"Error installing new patch files: {ex}");
-                MessageBox.Show($"Error installing new patch files: {ex}");
             }
         }
 
