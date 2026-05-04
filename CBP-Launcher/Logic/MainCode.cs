@@ -1136,7 +1136,10 @@ namespace CBPLauncher.Logic
                     await ResetSettings(false);
                     Properties.Settings.Default.FuckStopTellingMe = true;
                     await SaveSettings();
-                    MessageBox.Show("CBP Launcher's settings have been reset and it will now close. You should be able to run everything normally from here.");
+                    MessageBox.Show("CBP Launcher's settings have been reset and it will now close. You should be able to open it again and run everything normally.");
+
+                    LogManager.Shutdown();
+                    Environment.Exit(0);
                 }
                 else
                 {
