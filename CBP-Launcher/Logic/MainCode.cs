@@ -1027,7 +1027,7 @@ namespace CBPLauncher.Logic
 
                 if ((Properties.Settings.Default.FirstTimeRun == true) && (Properties.Settings.Default.JustReset == false))
                 {
-                    WriteDefaultSettings();
+                    WriteDefaultSettings().Wait();
                 }
 
                 InitializeMinimal();
