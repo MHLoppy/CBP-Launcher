@@ -1308,25 +1308,6 @@ namespace CBPLauncher.Logic
                 // Alpha 10+: This preference is less important now - maybe TODO skip this, default to CBP first time, then remember last-used every time after that?
                 await SetDefaultCBP();
 
-                // TODO: clean up
-                // allow user to switch between CBP and unmodded, and if unmodded then CBP updating logic unneeded
-                //if (Properties.Settings.Default.DefaultCBP == true)
-                //{
-                //    await CheckForUpdates();
-                //};
-                //if (Properties.Settings.Default.DefaultCBP == false)
-                //{
-                //    if (Properties.Settings.Default.CBPUnloaded == false && Properties.Settings.Default.CBPLoaded == true)
-                //    {
-                //        await UnloadCBP();
-                //    }
-                //    else
-                //    {
-                //        Status = LauncherStatus.readyCBPDisabled;
-                //    }
-                //}
-
-                /// REPLACING THE ABOVE COMMENTED-OUT-BLOCK WITH ALL LINES BELOW:
                 if (Properties.Settings.Default.HasMigratedToNewFormat == false)
                 {
                     await MigrateToNewCbpFormat();
@@ -5486,6 +5467,8 @@ namespace CBPLauncher.Logic
             string folderPath = Path.Combine(RonWorkshopPath, parentFolder, subFolderName, "Community Balance Patch");
             if (Directory.Exists(folderPath))
             {// TODO later: if the exe is already present locally, ask user if they want to re-copy files and overwrite the old ones
+                CBPLogger.GetInstance.Info($"Installing from {folderPath}...");
+
                 try
                 {
                     // TODO: maybe should only selectively copy stuff to exclude e.g., changelog? (which would also mean not using the local patch file)
@@ -5569,6 +5552,8 @@ namespace CBPLauncher.Logic
             }
             else
             {
+                CBPLogger.GetInstance.Info($"Path seems invalid: {folderPath}");
+
                 MessageBox.Show($"Unable to locate {subFolderName} folder."
                                 + "\n\n(Are you missing a Steam Workshop subscription?)");
             }
