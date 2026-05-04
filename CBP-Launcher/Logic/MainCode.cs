@@ -1417,8 +1417,11 @@ namespace CBPLauncher.Logic
                         await LoadEe();
                         break;
                     case "CBP Alpha 10":
-                        await LoadRonVersion("CBP Alpha 10", "CBPa10", "riseofnations_CBPa10.exe", true, LauncherStatus.readyCbpOldLoaded);
+                        await LoadCbp("CBPa10", "CBP Alpha 10");
                         break;
+                    //case "CBP Alpha 10":
+                    //    await LoadRonVersion("CBP Alpha 10", "CBPa10", "riseofnations_CBPa10.exe", true, LauncherStatus.readyCbpOldLoaded);
+                    //    break;
                     case "CBP Alpha 9d":
                         await LoadRonVersion("CBP Alpha 9d", "CBPa9d", "riseofnations_CBPa9d.exe", true, LauncherStatus.readyCbpOldLoaded);
                         break;
@@ -1435,8 +1438,8 @@ namespace CBPLauncher.Logic
                         await LoadRonVersion("CBP Pre-Release 4", "CBPPR4", "riseofnations_CBPPR4.exe", true, LauncherStatus.readyCbpPrLoaded);
                         break;
                     default:
-                        CBPLogger.GetInstance.Warning($"Version {lastUsed} not explicitly handled, falling back to latest known CBP Version (Alpha 11).");
-                        await LoadCbp("CBPa11", "CBP Alpha 11");
+                        CBPLogger.GetInstance.Warning($"Version {lastUsed} not explicitly handled, falling back to latest known CBP Version (Alpha 10).");
+                        await LoadCbp("CBPa10", "CBP Alpha 10");
                         break;
                 }
                 await Task.Yield();
@@ -1600,7 +1603,7 @@ namespace CBPLauncher.Logic
                     //await CheckForUpdates();
                     //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
 
-                    await LoadCbp("CBPa11", "CBP Alpha 11");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
+                    await LoadCbp("CBPa10", "CBP Alpha 10");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
                 });
 
                 LoadEeCommand = new RelayCommand(async o =>
@@ -3927,7 +3930,7 @@ namespace CBPLauncher.Logic
             //return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2 + plugin + plugin2;
 
             // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
-            return "CBP Alpha 11 (a11) active.";
+            return "CBP Alpha 10 (a10) active.";
         }
 
         private string GenerateOtherMenuText()
@@ -3935,7 +3938,7 @@ namespace CBPLauncher.Logic
             //return "CBP is enabled. Configuration: " + TooltipConfig() + ". See main menu for more details.";
 
             // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
-            return "CBP Alpha 11 (a11) active.";
+            return "CBP Alpha 10 (a10) active.";
         }
 
         private string TooltipConfig()

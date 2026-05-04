@@ -328,20 +328,17 @@ namespace CBPSetup
             {
                 var here = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
                 var hereParent = new DirectoryInfo(here).Parent?.Name;
-                logPath = Path.Combine(hereParent, "CBP", "logs", logPath);
+                string potentialLogPath = Path.Combine(hereParent, "CBP", "logs", logPath);
+
+                // "As soon as it worked, i removed the folder. I like to have it clean if everything is working."
+                // https://steamcommunity.com/workshop/filedetails/discussion/2287791153/2971776551518902263/?tscn=1777081371#c796716353141670473
+                if (Directory.Exists(Path.GetDirectoryName(potentialLogPath)))
+                {
+                    logPath = potentialLogPath;
+                }
             }
 
-            // "As soon as it worked, i removed the folder. I like to have it clean if everything is working."
-            // https://steamcommunity.com/workshop/filedetails/discussion/2287791153/2971776551518902263/?tscn=1777081371#c796716353141670473
-            if (Directory.Exists(logPath))
-            {
-                File.WriteAllText(logPath, TextLog);
-            }
-            else
-            {
-                File.WriteAllText("CBPSetup_log.txt", TextLog);
-            }
-
+            File.WriteAllText(logPath, TextLog);
             Environment.Exit(code);
         }
 
@@ -357,19 +354,22 @@ namespace CBPSetup
 
         private static void UpdateCbpLauncher()
         {
+            string oldExePath = CbpLauncherLocalExePath + ".old";
+
             try
             {
                 // instead of deleting the old files, rename them (so that if the copy fails we haven't lost the originals)
-                File.Move(CbpLauncherLocalExePath, Path.Combine(CbpLauncherLocalExePath, "old"));
+                File.Move(CbpLauncherLocalExePath, oldExePath);
                 File.Copy(CbpLauncherWorkshopExePath, CbpLauncherLocalExePath);
             }
             catch (Exception ex)
             {
+                TextLog += ("\n" + ex);
+
                 try
                 {
                     TextLog += "\n" + LangRes.OldVersionRestore;
-                    File.Move(Path.Combine(CbpLauncherLocalExePath, "old"), CbpLauncherLocalExePath);
-                    ///File.Move(Path.Combine(CBPLDll + "old"), CBPLDll);
+                    File.Move(oldExePath, CbpLauncherLocalExePath);
                 }
                 catch (Exception ex2)
                 {
@@ -398,7 +398,7 @@ namespace CBPSetup
             try
             {
                 // if copy is successful, don't need the old versions anymore
-                File.Delete(Path.Combine(CbpLauncherLocalExePath, "old"));
+                File.Delete(oldExePath);
             }
             catch (Exception ex)
             {
