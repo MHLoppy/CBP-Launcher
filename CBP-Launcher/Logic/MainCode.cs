@@ -4709,40 +4709,41 @@ namespace CBPLauncher.Logic
 
         private async Task OverridePathPopup()
         {
-            //clunky (should probably use a while loop?) but functional
-            OverridePathStart:
-            
-            string newPath = Interaction.InputBox("This will allow you to override an automatically-detected RoN path with a new path. If you've reinstalled your game but in a new location, this may be required."
-                + "\n\nNote that this path will need to be input again if settings are reset.", "Override RoN Path", "filepath");
-
-            if (newPath == "filepath" || newPath == "")//turns out the cancel button returns a 0-length string lol
+            while (true)
             {
-                MessageBox.Show("No action taken.");
-                return;
-            }
-            else if (File.Exists(Path.Combine(newPath, "riseofnations.exe")))
-            {
-                // directly save the path
-                Properties.Settings.Default.RoNPathSetting = newPath;
-                await SaveSettings();
+                string newPath = Interaction.InputBox("This will allow you to override an automatically-detected RoN path with a new path."
+                    + " If you've reinstalled your game to a new location, this may be required."
+                    + "\n\nNote that this path will need to be input again if settings are reset."
+                    , "Override RoN Path"
+                    , "filepath");
 
-                MessageBox.Show("New path saved.\n\nPlease restart CBP Launcher to ensure the new path is loaded correctly.");
-            }
-            else
-            {
-                // tell user invalid path, ask if they want to try again
-                string message = $"Rise of Nations install not detected in that location. "
-                               + "The path needs to be the folder that riseofnations.exe is located in (but not including the executable itself in that path)."
-                               + "\n\n Would you like to try entering a path again?";
-
-                if (MessageBox.Show(message, "Invalid Path", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                // User cancelled
+                if (newPath == "filepath" || string.IsNullOrEmpty(newPath)) // The cancel button returns a 0-length string
                 {
-                    goto OverridePathStart;
+                    MessageBox.Show("No action taken.");
+                    return;
                 }
-                else
+
+                // Valid path found
+                if (File.Exists(Path.Combine(newPath, "riseofnations.exe")))
+                {
+                    Properties.Settings.Default.RoNPathSetting = newPath;
+                    await SaveSettings();
+                    MessageBox.Show("New path saved.\n\nPlease restart CBP Launcher to ensure the new path is loaded correctly.");
+                    return;
+                }
+
+                // Invalid path — ask to retry
+                string message = "Rise of Nations install not detected in that location. "
+                               + "The path needs to be the folder that riseofnations.exe is located in (but not including the executable itself in that path)."
+                               + "\n\nWould you like to try entering a path again?";
+
+                if (MessageBox.Show(message, "Invalid Path", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 {
                     CBPLogger.GetInstance.Warning("RoN path override provided by user was not valid.");
+                    return;
                 }
+                // Loop continues if Yes
             }
         }
 
