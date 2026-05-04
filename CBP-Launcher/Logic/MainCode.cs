@@ -2074,14 +2074,19 @@ namespace CBPLauncher.Logic
 
         private async Task FindRoNPath()
         {
-            string ronPath = await TryFindPathFromSettings()
-                          ?? await TryFindPathFromRegistry()
-                          ?? await TryFindPathFromDefaultLocations()
-                          ?? await TryFindPathFromUser();
+            string ronPath = await TryFindPathFromSettings();
+            bool isPathFromSettings = (ronPath != null);
+
+            if (ronPath == null)
+            {
+                ronPath = await TryFindPathFromRegistry()
+                       ?? await TryFindPathFromDefaultLocations()
+                       ?? await TryFindPathFromUser();
+            }
 
             if (ronPath != null)
             {
-                await RonPathFound(ronPath);
+                await RonPathFound(ronPath, isPathFromSettings);
             }
             else
             {
@@ -2092,10 +2097,11 @@ namespace CBPLauncher.Logic
         private async Task<string> TryFindPathFromSettings()
         {
             string savedPath = Properties.Settings.Default.RoNPathSetting;
-            CBPLogger.GetInstance.Debug($"Saved path from setting read: {savedPath}");
+            CBPLogger.GetInstance.Debug($"Saved path from setting read as: {savedPath}");
 
-            if (savedPath == "no path")
+            if (savedPath == "no path" || savedPath == null)
             {
+                CBPLogger.GetInstance.Info("No RoN path is saved in settings, so the discovered path will be saved.");
                 return null;
             }
 
@@ -5098,18 +5104,16 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task RonPathFound(string foundRonPath)
+        private async Task RonPathFound(string foundRonPath, bool saveThisPath)
         {
-            if (RoNPathFinal == "no path")
+            CBPLogger.GetInstance.Debug($"Using path: {foundRonPath}");
+
+            if (saveThisPath)
             {
-                CBPLogger.GetInstance.Info($"Settings had no RoN path saved when RoN path was found, updating to: {foundRonPath}");
+                CBPLogger.GetInstance.Info("Updating saved path in settings...");
 
                 Properties.Settings.Default.RoNPathSetting = foundRonPath;
                 await SaveSettings();
-            }
-            else
-            {
-                CBPLogger.GetInstance.Info($"Settings had a RoN path saved when RoN path was found, using: {foundRonPath}");
             }
 
             RoNPathFinal = foundRonPath;
