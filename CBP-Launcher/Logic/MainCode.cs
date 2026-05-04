@@ -2079,7 +2079,8 @@ namespace CBPLauncher.Logic
 
             if (ronPath == null)
             {
-                ronPath = await TryFindPathFromRegistry()
+                ronPath = await TryFindPathFronCurrentLocation()
+                       ?? await TryFindPathFromRegistry()
                        ?? await TryFindPathFromDefaultLocations()
                        ?? await TryFindPathFromUser();
             }
@@ -2108,6 +2109,17 @@ namespace CBPLauncher.Logic
             if (IsValidRonInstallPath(savedPath))
             {
                 return savedPath;
+            }
+
+            return null;
+        }
+
+        private async Task<string> TryFindPathFronCurrentLocation()
+        {
+            string here = AppDomain.CurrentDomain.BaseDirectory;
+            if (IsValidRonInstallPath(here))
+            {
+                return here;
             }
 
             return null;
