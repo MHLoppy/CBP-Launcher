@@ -4952,6 +4952,10 @@ namespace CBPLauncher.Logic
                 await SaveSettings();
                 await ReplaceRestoreDefaultLauncher();
                 CBPLogger.GetInstance.Info("First time setup: Defaulting to CBP Launcher.");
+
+                string msg = "CBP Launcher has replaced the default launcher. This can be reverted in CBP Launcher's settings, though this is not recommended if using CBP.";
+                string title = "Launcher replaced";
+                MessageBox.Show(msg, title);
             }
         }
 
