@@ -2020,9 +2020,11 @@ namespace CBPLauncher.Logic
             string here = AppDomain.CurrentDomain.BaseDirectory;
             if (IsValidRonInstallPath(here))
             {
+                CBPLogger.GetInstance.Info("Using current location as RoN path.");
                 return here;
             }
 
+            CBPLogger.GetInstance.Warning("Current location does not seem to be a valid RoN install path...");
             return null;
         }
 
