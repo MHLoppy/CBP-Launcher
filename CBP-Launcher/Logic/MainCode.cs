@@ -2092,6 +2092,7 @@ namespace CBPLauncher.Logic
         private async Task<string> TryFindPathFromSettings()
         {
             string savedPath = Properties.Settings.Default.RoNPathSetting;
+            CBPLogger.GetInstance.Debug($"Saved path from setting read: {savedPath}");
 
             if (savedPath == "no path")
             {
@@ -2129,6 +2130,7 @@ namespace CBPLauncher.Logic
                     }
                     else
                     {
+                        CBPLogger.GetInstance.Debug($"Invalid path read from registry: {installLocation}");
                         return null;
                     }
                 }
