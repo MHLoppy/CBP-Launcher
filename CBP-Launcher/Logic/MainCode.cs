@@ -723,17 +723,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        //private bool junePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
-        //public bool JunePatchFixButtonVisibility
-        //{
-        //    get => junePatchFixButtonVisibility;
-        //    set
-        //    {
-        //        junePatchFixButtonVisibility = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
-
         //RelayCommand definition things
         public RelayCommand CBPDefaultCommand { get; set; }
         public RelayCommand UsePrereleaseCommand { get; set; }
@@ -807,8 +796,6 @@ namespace CBPLauncher.Logic
         public RelayCommand MinimiseCommand { get; set; }
         public RelayCommand ExitCommand { get; set; }
 
-
-        //public RelayCommand JunePatchFixCommand { get; set; }
 
         //test commands
         public RelayCommand ChangeSkinCommand { get; set; }
@@ -1181,51 +1168,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task JunePatchCheck()
-        {
-            //if (!Properties.Settings.Default.JunePatchHaveRunBefore)
-            //{
-            //    CBPLogger.GetInstance.Info("First time running since June Patch.");
-            //    Properties.Settings.Default.JunePatchHaveRunBefore = true;
-
-            //    // due to the settings quirk, existing installs will be missing the default values for newly-added settings
-            //    // and again, need to force refresh
-            //    Properties.Settings.Default.JunePatchFixApplied = false;
-            //    SaveSettings();
-            //    JunePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
-            //}
-            //else
-            //{
-            //    CBPLogger.GetInstance.Info("Not first time running since June Patch.");
-            //}
-
-            if (!Properties.Settings.Default.JunePatchFixApplied)
-            {
-                CBPLogger.GetInstance.Info("Settings say that June Patch fix has not been applied.");
-
-                // in case it's null without the settings file; it's not clear in docs and it's faster to do this
-                //   temporarily during launcher upgrade transition period than test
-                Properties.Settings.Default.JunePatchFixApplied = false;    
-                await SaveSettings();
-
-                // check if fix is needed (i.e., is the ron exe the newer one?)
-                if (await IsThisExeJune2024(gameExe))
-                {
-                    // if yes, apply fix to relevant game files that need it (CBP AND (!!) non-CBP files)
-                    await ApplyJunePatchFix();
-                }
-                else
-                {
-                    MessageBox.Show("Your Rise of Nations exe doesn't match the exe from the June 2024 patch, so no action has been taken."
-                                    + "\n\nPlease report this issue so that it can be resolved!");
-                }
-            }
-            else
-            {
-                CBPLogger.GetInstance.Info("Settings say that June Patch fix already applied.");
-            }
-        }
-
         //since sometimes their underlying values are changed without refreshing them :(
         private void RefreshCheckboxValues()
         {
@@ -1447,18 +1389,6 @@ namespace CBPLauncher.Logic
                 Environment.Exit(0); // for now, if a core part of the program fails then it needs to close to prevent broken but user-accessible functionality
             }
             //CBPDefaultChecker();
-
-            // TODO I think this is completely unneeded with new self-contained format now?
-            //try
-            //{
-            //    JunePatchCheck();
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"Error checking for June RoN patch: {ex}");
-            //    CBPLogger.GetInstance.Error($"Error checking for June RoN patch: {ex}");
-            //    // this isn't essential, so in the unexpected case that this fails but nothing else does (?!?!?) it should be "okay" to continue
-            //}
         }
 
         private async Task CreateCommands()
@@ -1705,21 +1635,6 @@ namespace CBPLauncher.Logic
                     Properties.Settings.Default.MicroSkin = false;
                     await SaveSettings();
                 });
-
-                //JunePatchFixCommand = new RelayCommand(async o =>
-                //{
-                //    // check if fix is needed (i.e., is the ron exe the newer one?)
-                //    if (IsThisExeJune2024(gameExe))
-                //    {
-                //        // if yes, apply fix to relevant game files that need it (CBP AND (!!) non-CBP files)
-                //        ApplyJunePatchFix();
-                //    }
-                //    else
-                //    {
-                //        MessageBox.Show("Your Rise of Nations exe doesn't match the exe from the June 2024 patch, so no action has been taken." 
-                //                        + "\n\nPlease report this issue so that it can be resolved!");
-                //    }
-                //});
 
                 // TODO: these new commands and functions need logging
                 WorkshopPRCommand = new RelayCommand(async o =>
@@ -2041,8 +1956,6 @@ namespace CBPLauncher.Logic
 
             OnPropertyChanged(nameof(MinimiseCommand));
             OnPropertyChanged(nameof(ExitCommand));
-
-            //OnPropertyChanged(nameof(JunePatchFixCommand));
 
             //test commands
             OnPropertyChanged(nameof(ChangeSkinCommand));
@@ -4701,8 +4614,6 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.MicroSkin = false;
             Properties.Settings.Default.ArchiveDelete = false;
             Properties.Settings.Default.LogKeepNumber = 30;
-            Properties.Settings.Default.JunePatchFixApplied = false;
-            Properties.Settings.Default.JunePatchHaveRunBefore = false;
             Properties.Settings.Default.LastUsedGameVersion = "";
             Properties.Settings.Default.HasMigratedToNewFormat = false;
 
@@ -5229,64 +5140,6 @@ namespace CBPLauncher.Logic
         {
             Task pause = Task.Delay(ms);
             await pause;
-        }
-
-        private async Task<bool> IsThisExeJune2024(string path)
-        {
-            // June 2024 exe is exactly 9,925,120 bytes
-            // (hash would be an alternative, if including dual-case support for an LAA patched exe)
-            long length = new FileInfo(path).Length;
-
-            if (length == 9925120)
-                return true;
-            else
-                return false;
-        }
-
-        // [Jan 2025] Alright so at first glance you might think: why the hell don't you just ship the updated files normally?
-        //   Well, I'm pretty sure it's because we don't want to touch the already-shipped file lists;
-        //   doing a weird in-place patch on top of the existing stuff avoids having to interact with said lists
-        //
-        // [Nov 2025] It turns out the other reason for doing it the original way post-June-2024-patch is because
-        //   attaching the mini-patch to a button allows all the other stuff to run first e.g., setting up paths,
-        //   the absence of which makes it much harder to run the mini-patch
-        private async Task ApplyJunePatchFix()
-        {
-            try
-            {
-                // Source path for fixed files
-                string junePatchHelpSource     = Path.Combine(workshopPathCBP, "Community Balance Patch", "JunePatchFix", "EE_help.xml");
-                string junePatchEeSetupwinSource = Path.Combine(workshopPathCBP, "Community Balance Patch", "JunePatchFix", "EE_setupwin.xml");
-
-                // Destination path for fixed files
-                string junePatchHelpDest = Path.Combine(folderCBPoriginal, "help.xml");
-                string junePatchSetupwinDest = Path.Combine(folderCBPoriginal, "setupwin.xml");
-
-                CBPLogger.GetInstance.Info("June Patch Fix: re-syncing non-CBP files from " + junePatchHelpSource + " to " + junePatchHelpDest);
-                CBPLogger.GetInstance.Info("June Patch Fix: re-syncing non-CBP files from " + junePatchEeSetupwinSource + " to " + junePatchSetupwinDest);
-
-                // fix help.xml and setupwin.xml
-                File.Copy(junePatchHelpSource, junePatchHelpDest, true);            // (non-CBP, copy of original EE file)
-                File.Copy(junePatchEeSetupwinSource, junePatchSetupwinDest, true);  // (non-CBP, copy of original EE file)
-
-                // if fix applied, change setting and save settings
-                Properties.Settings.Default.JunePatchFixApplied = true;
-                await SaveSettings();
-
-                // force refresh of button visibility (I HATE IT TOO, PLEASE PUT THE GUN DOWN)
-                //JunePatchFixButtonVisibility = !Properties.Settings.Default.JunePatchFixApplied;
-
-                // fyi exactly zero people responded to this request even after >15 months
-                //MessageBox.Show("June Patch Fix attempted successfully. Please complete one full load/unload cycle to complete the process."
-                //                + "\n\nIf this works / doesn't work, it would be helpful to know in the Bug Reports / Technical Feedback thread on Steam (short URL: roncbp.com/discussion )");
-
-                CBPLogger.GetInstance.Info("June Patch fix applied.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error while applying June 2024 patch fix: " + ex);
-                CBPLogger.GetInstance.Error("Error applying June 2024 patch fix: " + ex);
-            }
         }
 
         private void CPToggleTabs(int TabNumber)
