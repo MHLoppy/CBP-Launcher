@@ -56,17 +56,17 @@
 
 
                 <!-- left side: top left status text -->
-                <Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light" Visibility="Hidden"/>
+                <!--<Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light" Visibility="Hidden"/>-->
                 <Label Content="{Binding VersionTextInstalled}" Margin="17,115,17,0" Foreground="#FFF0F0F0" FontSize="20" HorizontalContentAlignment="Center"/>
 
                 <!-- left side: update button (hidden unless "do NOT autoupdate CBP" is enabled) -->
-                <Button Content="Update" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" Height="24" Margin="126,86,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="14" Panel.ZIndex="2" IsEnabled="False" Visibility="Hidden">
+                <!--<Button Content="Update" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" Height="24" Margin="126,86,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="14" Panel.ZIndex="2" IsEnabled="False" Visibility="Hidden">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="9"/>
                         </Style>
                     </Button.Resources>
-                </Button>
+                </Button>-->
 
                 <!-- left side: announcements -->
                 <Button Command="{Binding AnnouncementsLeftCommand}" Width="134" Height="26" Margin="-70,-184,0,0" BorderThickness="0" Background="{Binding Spv1AnnLeftColor}" Panel.ZIndex="9">
@@ -149,7 +149,6 @@
             <Grid Grid.Column="0" Grid.Row="1" Grid.RowSpan="2">
                 <Button Content="{Binding LaunchButtonText}" Command="{Binding PlayButtonCommand}" HorizontalAlignment="Center" Margin="80,34,80,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Width="168" Height="50" FontSize="24" FontWeight="Bold" Foreground="#DDFFFFFF" Background="#FF016AC1"/>
                 <TextBlock Text="{Binding LaunchStatusText}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="22,83,22,0" VerticalAlignment="Top" MinWidth="0" Foreground="{Binding LaunchStatusColor}" Background="#66000000" Padding="2,0,2,0"/>
-                <Button Width="50" Height="50" Command="{Binding ChangeSkinCommand}" Margin="35,63,235,37" Visibility="Hidden"/>
             </Grid>
 
             <!-- expander / micro toggle button -->

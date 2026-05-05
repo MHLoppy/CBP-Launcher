@@ -103,11 +103,11 @@
                 </Button>-->
 
                 <!-- way above the logo box -->
-                <Label Content="Checking for updates..." Foreground="#f8f8f8" Margin="0,-30,-15,0" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Visibility="Hidden">
+                <!--<Label Content="Checking for updates..." Foreground="#f8f8f8" Margin="0,-30,-15,0" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold" Visibility="Hidden">
                     <Label.Effect>
                         <DropShadowEffect ShadowDepth="0" BlurRadius="5"/>
                     </Label.Effect>
-                </Label>
+                </Label>-->
 
                 <!--<Image Visibility="Visible" Source="/Images/CBP Launcher announcements bg.png" Margin="15,-2,0,0" Width="211" Height="229" Panel.ZIndex="10">
                     <Image.Content>
@@ -120,7 +120,7 @@
 
                 <!-- above the logo box (but not counting the FAR above logo box stuff) -->
                 <!-- This button is intended to be enabled when user enables *not* auto-updating CBP -->
-                <Button Content="Update?" HorizontalAlignment="Left" Margin="93,4,0,0" VerticalAlignment="Top" Width="70" Height="17" Padding="0,0,0,0" Visibility="Hidden"/>
+                <!--<Button Content="Update?" HorizontalAlignment="Left" Margin="93,4,0,0" VerticalAlignment="Top" Width="70" Height="17" Padding="0,0,0,0" Visibility="Hidden"/>-->
 
                 <!-- logo in box -->
                 <Grid Panel.ZIndex="100" Width="189" Height="187" Margin="15,0,0,22" Visibility="{Binding SpinnerActive, Converter={StaticResource BoolToVis}}">
