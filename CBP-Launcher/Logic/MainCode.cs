@@ -1637,57 +1637,8 @@ namespace CBPLauncher.Logic
                 {
                     if (updateSetupLater == true)
                     {
-                        try
-                        {
-                            Mouse.OverrideCursor = Cursors.Wait;
-
-                            var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetup.exe"));
-                            string newVersionFull = newVersionShort.FileVersion;
-
-                            var oldVersionShort = FileVersionInfo.GetVersionInfo(patriotsOrig);
-                            string oldVersionFull = oldVersionShort.FileVersion;
-
-                            if (newVersionFull == oldVersionFull)
-                            {
-                                Application.Current.Shutdown();
-                            }
-
-                            // With the polling-based refactor it should be fast enough that a popup message is probably worse UX
-                            //MessageBox.Show("CBP Launcher is updating CBP Setup and will close itself afterwards. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
-
-                            string[] processNames = { "patriots", "CBP Setup", "CBP Setup GUI" };
-                            bool allClosed = false;
-                            int maxRetries = 50;
-
-                            for (int i = 0; i < maxRetries; i++)
-                            {
-                                allClosed = processNames.All(name => Process.GetProcessesByName(name).Length == 0);
-                                if (allClosed) break;
-                                await Task.Delay(150);
-                            }
-
-                            if (allClosed)
-                            {
-                                File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
-                                CBPLogger.GetInstance.Debug("Updated CBP Setup.");
-                            }
-                            else
-                            {
-                                MessageBox.Show("CBP Setup could not be updated (if you very rarely see this message you can probably ignore it)");
-                                CBPLogger.GetInstance.Debug("CBP Setup was not updated.");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("" + ex);
-                            CBPLogger.GetInstance.Error($"Error updating CBP Setup while exiting: {ex}");
-                        }
-                        finally
-                        {
-                            Mouse.OverrideCursor = null;
-                        }
+                        await UpdateCbpSetup();
                     }
-
                     Application.Current.Shutdown();
                 });
 
@@ -5136,6 +5087,59 @@ namespace CBPLauncher.Logic
             }
 
             return (thisHash == expectedHash);
+        }
+
+        private async Task UpdateCbpSetup()
+        {
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+
+                var newVersionShort = FileVersionInfo.GetVersionInfo(Path.Combine(workshopPathCBP, "CBPSetup.exe"));
+                string newVersionFull = newVersionShort.FileVersion;
+
+                var oldVersionShort = FileVersionInfo.GetVersionInfo(patriotsOrig);
+                string oldVersionFull = oldVersionShort.FileVersion;
+
+                if (newVersionFull == oldVersionFull)
+                {
+                    Application.Current.Shutdown();
+                }
+
+                // With the polling-based refactor it should be fast enough that a popup message is probably worse UX
+                //MessageBox.Show("CBP Launcher is updating CBP Setup and will close itself afterwards. This should only take a few seconds.", "Please wait", MessageBoxButton.OK);
+
+                string[] processNames = { "patriots", "CBP Setup", "CBP Setup GUI" };
+                bool allClosed = false;
+                int maxRetries = 50;
+
+                for (int i = 0; i < maxRetries; i++)
+                {
+                    allClosed = processNames.All(name => Process.GetProcessesByName(name).Length == 0);
+                    if (allClosed) break;
+                    await Task.Delay(150);
+                }
+
+                if (allClosed)
+                {
+                    File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig, true);
+                    CBPLogger.GetInstance.Debug("Updated CBP Setup.");
+                }
+                else
+                {
+                    MessageBox.Show("CBP Setup could not be updated (if you very rarely see this message you can probably ignore it)");
+                    CBPLogger.GetInstance.Debug("CBP Setup was not updated.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("" + ex);
+                CBPLogger.GetInstance.Error($"Error updating CBP Setup while exiting: {ex}");
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         private static string VersionToString(Version version)// Version's built-in ToString is being used for a different purpose already
