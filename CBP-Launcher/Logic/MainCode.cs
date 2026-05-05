@@ -1383,9 +1383,9 @@ namespace CBPLauncher.Logic
                     await AddIconGameName_Inversion();
 
                     if (Properties.Settings.Default.AddIconGameName)
-                        await AddIconGameName();
+                        await AddIconToGameName();
                     else
-                        await RemoveIconGameName();
+                        await RemoveIconFromGameName();
                 });
 
                 UseFancyLoggingCommand = new RelayCommand(async o =>
@@ -2088,7 +2088,7 @@ namespace CBPLauncher.Logic
                             await LoadDirectFiles();
                             if (Properties.Settings.Default.AddIconGameName)
                             {
-                                await AddIconGameName();
+                                await AddIconToGameName();
                             }
                             await GenerateDynamicHelpText(helpXMLOrig);
 
@@ -2771,7 +2771,7 @@ namespace CBPLauncher.Logic
 
                             if (Properties.Settings.Default.AddIconGameName)
                             {
-                                await AddIconGameName();
+                                await AddIconToGameName();
                             }
                             await GenerateDynamicHelpText(helpXMLOrig);
                         }
@@ -2870,7 +2870,7 @@ namespace CBPLauncher.Logic
                         try
                         {
                             await UnloadDirectFiles();
-                            await RemoveIconGameName();
+                            await RemoveIconFromGameName();
                         }
                         catch (Exception ex)
                         {
@@ -3072,23 +3072,18 @@ namespace CBPLauncher.Logic
             }
         }
 
-        // section for the #ICON169 / #ICON170 (CBP icon) XML editing
-        private string appDataRoN;
-        private string playerProfileFolder;
-        private string currentUserXml;
-        private string playerProfile;
-        private string gameName;
-
         // add the icon to game names (function is called when CBP is loaded)
-        private async Task AddIconGameName()
+        private async Task AddIconToGameName()
         {
             try
             {
-                if (CheckForFile())
+                string playerProfileFolder = GetPlayerProfileFolder();
+                string ronUserFilePath = GetRonUserFilePath(playerProfileFolder);
+                if (string.IsNullOrEmpty(ronUserFilePath) == false)
                 {
-                    FindProfile();
-                    ReadGameName();
-                    await AddCBPXml();
+                    string playerProfile = GetProfile(ronUserFilePath, playerProfileFolder);
+                    string gameName = GetLastGameName(playerProfile);
+                    await AddCbpXml(gameName, playerProfile);
                 }
             }
             catch (Exception ex)
@@ -3099,15 +3094,17 @@ namespace CBPLauncher.Logic
         }
 
         // remove the icon from game names (function is called when CBP is unloaded)
-        private async Task RemoveIconGameName()
+        private async Task RemoveIconFromGameName()
         {
             try
             {
-                if (CheckForFile())
+                string playerProfileFolder = GetPlayerProfileFolder();
+                string ronUserFilePath = GetRonUserFilePath(playerProfileFolder);
+                if (string.IsNullOrEmpty(ronUserFilePath) == false)
                 {
-                    FindProfile();
-                    ReadGameName();
-                    await RemoveCBPXml();
+                    string playerProfile = GetProfile(ronUserFilePath, playerProfileFolder);
+                    string gameName = GetLastGameName(playerProfile);
+                    await RemoveCbpXml(gameName, playerProfile);
                 }
             }
             catch (Exception ex)
@@ -3117,46 +3114,54 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private bool CheckForFile()
+        private string GetPlayerProfileFolder()
         {
-            appDataRoN = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft Games\Rise of Nations");
-            playerProfileFolder = Path.Combine(appDataRoN, "PlayerProfile");
-            currentUserXml = Path.Combine(playerProfileFolder, "current_user.xml");
+            string appDataRoN = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Microsoft Games\Rise of Nations");
+            string playerProfileFolder = Path.Combine(appDataRoN, "PlayerProfile");
+
+            return playerProfileFolder;
+        }
+
+        private string GetRonUserFilePath(string playerProfileFolder)
+        {
+            
+            string currentUserXml = Path.Combine(playerProfileFolder, "current_user.xml");
 
             if (File.Exists(currentUserXml))
             {
                 CBPLogger.GetInstance.Info("Found file: " + currentUserXml);
-                return true;
+                return currentUserXml;
             }
             else
             {
                 CBPLogger.GetInstance.Info("Unable to find current user xml file");
-                return false;
+                return null;
             }
         }
 
-        private void FindProfile() // logic to find current user + their .dat file
+        private string GetProfile(string currentUserXml, string playerProfileFolder) // logic to find current user + their .dat file
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(currentUserXml);
             string ronName = doc.SelectSingleNode("ROOT/CURRENT_USER/@name").Value;
-
-            playerProfile = Path.Combine(playerProfileFolder, (ronName + ".dat"));
+            string playerProfile = Path.Combine(playerProfileFolder, (ronName + ".dat"));
 
             CBPLogger.GetInstance.Info("RoN username: " + ronName);
+            return playerProfile;
         }
 
-        private void ReadGameName() // reads the last game name (mostly as a building block for later functions + troubleshooting rather than to use itself)
+        private string GetLastGameName(string playerProfile) // reads the last game name (mostly as a building block for later functions + troubleshooting rather than to use itself)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(playerProfile);
             XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
-            gameName = xmlNode.InnerText;
+            string gameName = xmlNode.InnerText;
 
             CBPLogger.GetInstance.Info("Last game name: " + gameName);
+            return gameName;
         }
 
-        private bool CheckCBPXml() // checks if CBP Icon (#ICONxxx) is already present in last game name
+        private bool GameNameHasCbpIcon(string gameName) // checks if CBP Icon (#ICONxxx) is already present in last game name
         {
             // TODO later: this will need to be updated in future when anything other than mainline and PR are in use
             if (Properties.Settings.Default.UsePrerelease)
@@ -3187,7 +3192,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task AddCBPXml()
+        private async Task AddCbpXml(string gameName, string playerProfile)
         {
             await Task.Run(() =>
             {
@@ -3195,7 +3200,7 @@ namespace CBPLauncher.Logic
                 doc.Load(playerProfile);
                 XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
 
-                if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == false))
+                if ((GameNameHasCbpIcon(gameName) == false) && (Properties.Settings.Default.UsePrerelease == false))
                 {
                     //remove PR icon
                     xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON170 ", "");
@@ -3207,7 +3212,7 @@ namespace CBPLauncher.Logic
 
                     CBPLogger.GetInstance.Info("#ICON169 added. Game name: " + xmlNode.InnerText);
                 }
-                else if ((CheckCBPXml() == false) && (Properties.Settings.Default.UsePrerelease == true))
+                else if ((GameNameHasCbpIcon(gameName) == false) && (Properties.Settings.Default.UsePrerelease == true))
                 {
                     //remove non-PR icon
                     xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
@@ -3222,7 +3227,7 @@ namespace CBPLauncher.Logic
             });
         }
 
-        private async Task RemoveCBPXml()
+        private async Task RemoveCbpXml(string gameName, string playerProfile)
         {
             await Task.Run(() =>
             {
@@ -3230,7 +3235,7 @@ namespace CBPLauncher.Logic
                 doc.Load(playerProfile);
                 XmlNode xmlNode = doc.SelectSingleNode("ROOT/GAMESPY/LAST_GAME_NAME");
 
-                if (CheckCBPXml() == true)
+                if (GameNameHasCbpIcon(gameName))
                 {
                     xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169 ", "");
                     xmlNode.InnerText = xmlNode.InnerText.Replace("#ICON169", "");//(slightly reduced chance of affecting user's spacing by doing it this way?)
@@ -4767,7 +4772,7 @@ namespace CBPLauncher.Logic
 
             if (Properties.Settings.Default.AddIconGameName)
             {
-                await AddIconGameName();
+                await AddIconToGameName();
             }
 
             // the update of dynamic text on buttons (e.g., loaded plugins) has to write to a differently-named XML file than before
@@ -4788,7 +4793,7 @@ namespace CBPLauncher.Logic
 
             if (Properties.Settings.Default.AddIconGameName)
             {
-                await RemoveIconGameName();
+                await RemoveIconFromGameName();
             }
 
             string helpXmlPath = Path.Combine(RoNDataPath, "help.xml");
@@ -4913,7 +4918,7 @@ namespace CBPLauncher.Logic
                 //update the version icon (in lobby name) based on user's setting
                 if (Properties.Settings.Default.AddIconGameName)
                 {
-                    await AddIconGameName();
+                    await AddIconToGameName();
                 }
 
                 // the update of dynamic text on buttons (e.g., loaded plugins) has to write to a differently-named XML file than before
