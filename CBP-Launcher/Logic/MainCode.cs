@@ -1,7 +1,6 @@
 ﻿using BsDiff;
 using CBPLauncher.Core;
-using CBPSDK;
-using DJ;
+//using CBPSDK;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using NLog;
@@ -79,9 +78,6 @@ namespace CBPLauncher.Logic
         private string unloadedModsPath;
         private string RoNDataPath;
         //private bool antiSpam = false;
-        private List<IPluginCBP> pluginList = null;
-        private List<string> pluginsPathList = new List<string>();
-        private string pluginTitles = "";
 
         private LatestVersionStatus latestCbpStatus;
 
@@ -128,7 +124,6 @@ namespace CBPLauncher.Logic
         private string napoleonMap;
         private string worldMap;
         private string napoleonPostTurn;
-        private bool pluginFileProblem;
 
         //private string patchNotesCBP; //moved out to its own VM instead
 
@@ -612,17 +607,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private bool disablePluginLoadingCheckbox = Properties.Settings.Default.DisablePluginLoading;
-        public bool DisablePluginLoadingCheckbox
-        {
-            get => disablePluginLoadingCheckbox;
-            set
-            {
-                disablePluginLoadingCheckbox = value;
-                OnPropertyChanged();
-            }
-        }
-
         private bool archiveDeleteCheckbox = Properties.Settings.Default.ArchiveDelete;
         public bool ArchiveDeleteCheckbox
         {
@@ -737,7 +721,6 @@ namespace CBPLauncher.Logic
         public RelayCommand AddIconGameNameCommand { get; set; }
         public RelayCommand UseFancyLoggingCommand { get; set; }
         public RelayCommand WarnCompatibilityCommand { get; set; }
-        public RelayCommand DisablePluginLoadingCommand { get; set; }
         public RelayCommand OverridePathCommand { get; set; }
         public RelayCommand ArchiveDeleteCommand { get; set; }
 
@@ -1082,15 +1065,6 @@ namespace CBPLauncher.Logic
             NotifyCommandsChanged();
             await Task.Yield();
 
-            // don't spend time loading plugins if not being used
-            if (Properties.Settings.Default.DisablePluginLoading == false)
-            {
-                await LoadPlugins();
-            }
-            else
-            {
-                CBPLogger.GetInstance.Info("Plugin loading is disabled.");
-            }
             RefreshCheckboxValues();
             SpinnerActive = false;
             Mouse.OverrideCursor = null;
@@ -1184,7 +1158,6 @@ namespace CBPLauncher.Logic
             AddIconGameNameCheckbox = Properties.Settings.Default.AddIconGameName;
             UseFancyLoggerCheckBox = Properties.Settings.Default.UseFancyLogging;
             WarnCompatibilityCheckbox = Properties.Settings.Default.WarnCompatibility;
-            DisablePluginLoadingCheckbox = Properties.Settings.Default.DisablePluginLoading;
             ArchiveDeleteCheckbox = Properties.Settings.Default.ArchiveDelete;
 
             CBPLogger.GetInstance.Debug("Checkbox values refreshed.");
@@ -1460,23 +1433,6 @@ namespace CBPLauncher.Logic
                 WarnCompatibilityCommand = new RelayCommand(async o =>
                 {
                     await WarnCompatibility_Inversion();
-                });
-
-                DisablePluginLoadingCommand = new RelayCommand(async o =>
-                {
-                    if (Properties.Settings.Default.AnyPluginsLoaded == true)
-                    {
-                        // tell user to unload their plugins
-                        MessageBox.Show("Existing plugins must be unloaded before disabling plugin loading.");
-                        return;
-                    }
-
-                    await DisablePluginLoading_Inversion();
-
-                    if (Properties.Settings.Default.DisablePluginLoading)
-                        MessageBox.Show("Plugin loading has been disabled.\n\nNOTE: ANY CHANGES PREVIOUSLY MADE BY PLUGINS ARE NOT AUTOMATICALLY UNDONE BY DISABLING PLUGIN LOADING.");
-                    else
-                        MessageBox.Show("Plugin loading has been enabled.\n\nNote that plugins which rely on their own update function will not run this function until the next time CBP Launcher is started.");
                 });
 
                 ArchiveDeleteCommand = new RelayCommand(async o =>
@@ -1795,7 +1751,6 @@ namespace CBPLauncher.Logic
                 {
                     SpToggleTabs(2);
                     CurrentTab = SpartanV1ModManager;
-                    //PluginSecurityWarning();
                 });
 
                 SpV1TabOptionsCommand = new RelayCommand(o =>
@@ -1828,7 +1783,6 @@ namespace CBPLauncher.Logic
                     CPTabOtherButtonImage = new BitmapImage(new Uri("pack://application:,,,/Images/CBP central button right-crop 87px bw.png", UriKind.Absolute));
                     CPToggleTabs(2);
                     CurrentTab = ClassicPlusModManager;
-                    //PluginSecurityWarning();
                 });
 
                 CPTabOptionsCommand = new RelayCommand(o =>
@@ -1889,7 +1843,6 @@ namespace CBPLauncher.Logic
             OnPropertyChanged(nameof(AddIconGameNameCommand));
             OnPropertyChanged(nameof(UseFancyLoggingCommand));
             OnPropertyChanged(nameof(WarnCompatibilityCommand));
-            OnPropertyChanged(nameof(DisablePluginLoadingCommand));
             OnPropertyChanged(nameof(OverridePathCommand));
             OnPropertyChanged(nameof(ArchiveDeleteCommand));
 
@@ -3282,135 +3235,6 @@ namespace CBPLauncher.Logic
             /// TODO remove later: medium-term Alpha 10 debugging
             CBPLogger.GetInstance.Debug("Play button clicked.");
 
-            // only warn if user has not disabled this setting
-            if (Properties.Settings.Default.WarnCompatibility == true)
-            {
-                /// TODO remove later: medium-term Alpha 10 debugging
-                CBPLogger.GetInstance.Debug("WarnCompatibility is true.");
-
-                // check compatibility again, otherwise can false-positive on a plugin that's actually loaded
-                await CheckPluginCompatibility();//TODO COMMENT OUT WHILE TESTING
-
-                // to prevent plugins from potentially loading old files (e.g. rules.xml) that are outdated with new CBP updates, check the CBP version in file headers
-                if (pluginFileProblem && (Properties.Settings.Default.CBPLoaded == true))
-                {
-                    if (MessageBox.Show("One or more plugins has created an unsupported conflict with CBP files. To resolve this:"
-                        + "\n1) Unload any plugins that are marked as NOT CBP compatible AND/OR not multiplayer compatible by default (see each plugin's info)."
-                        + "\n2) Unload and then reload CBP."
-                        + "\n3) Reload/reconfigure any affected plugins."
-                        + "\n\n Ignore conflict and continue? (you probably can't play multiplayer without fixing this)"
-                        , "File incompatibility detected", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        return;//if user says *no*, abort game launch sequence - otherwise can do nothing and continue
-                    }
-                }
-                //different message depending on whether CBP is loaded or not
-                else if (pluginFileProblem && (Properties.Settings.Default.CBPLoaded == false))
-                {
-                    if (MessageBox.Show("One or more plugins has created an unsupported conflict with game files. To resolve this:"
-                        + "\n1) Unload any plugins that are marked as NOT CBP compatible AND/OR not multiplayer compatible by default (see each plugin's info)."
-                        + "\n2) Load and then unload CBP."
-                        + "\n3) Reload/reconfigure any affected plugins."
-                        + "\n\n Ignore error and continue? (you probably can't play multiplayer without fixing this)"
-                        , "File incompatibility detected", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        return;//if user says *no*, abort game launch sequence - otherwise can do nothing and continue
-                    }
-                }
-
-                // thought of a possibly more elegant way to implement this below!
-                /*if (CheckPluginCompatbilityIssue() && CheckMultiplayerIssue())
-                {
-                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
-
-                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP,"
-                        + " and is only multiplayer compatible if loaded and configured the same for ALL players in your game lobby. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        return;
-                    }
-                    else
-                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
-                }
-
-                else if (CheckPluginCompatbilityIssue())
-                {
-                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP...");
-
-                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP. Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        return;
-                    }
-                    else
-                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
-                }
-
-                else if (CheckMultiplayerIssue())
-                {
-                    CBPLogger.GetInstance.Warning("One or more loaded plugins are not default-multiplayer compatible...");
-
-                    if (MessageBox.Show("One or more of the plugins currently loaded is only multiplayer-compatible if loaded and configured the same for ALL players in your game lobby."
-                        + " Continue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        return;
-                    }
-                    else
-                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
-                }*/
-
-                //this sequence is probably faster because it only runs each of the two checks a single time each, although I haven't tested what happens after compiler optimisations so maybe it doesn't matter lol
-                int guraCuteShark = 0;//https://twitter.com/FluffyBlanket_/status/1417443845344616450
-
-                if (CheckPluginCompatbilityIssue())
-                    guraCuteShark += 1;
-                if (CheckMultiplayerIssue())
-                    guraCuteShark += 2;
-
-                //only plugin compatibility issue
-                if (guraCuteShark == 1)
-                {
-                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP...");
-
-                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP.\n\nContinue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        CBPLogger.GetInstance.Info("Aborting launch per user request.");
-                        return;
-                    }
-                    else
-                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
-                }
-
-                //only multiplayer compatibility issue
-                else if (guraCuteShark == 2)
-                {
-                    CBPLogger.GetInstance.Warning("One or more loaded plugins are not default-multiplayer compatible...");
-
-                    if (MessageBox.Show("One or more of the plugins currently loaded is only multiplayer-compatible if loaded and configured the same for ALL players in your game lobby."
-                        + "\n\nContinue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        CBPLogger.GetInstance.Info("Aborting launch per user request.");
-                        return;
-                    }
-                    else
-                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
-                }
-
-                //both plugin compatibiliy and multiplay compatibility issues
-                else if (guraCuteShark == 3)
-                {
-                    CBPLogger.GetInstance.Warning("One or more loaded plugins not compatible with CBP and are also not default-multiplayer compatible...");
-
-                    if (MessageBox.Show("One or more of the plugins currently loaded is not compatible with CBP,"
-                        + " and is only multiplayer compatible if loaded and configured the same for ALL players in your game lobby.\n\nContinue anyway?", "Plugin warning", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    {
-                        CBPLogger.GetInstance.Info("Aborting launch per user request.");
-                        return;
-                    }
-                    else
-                        CBPLogger.GetInstance.Warning("..but continuing anyway.");
-                }
-                // if 0, there was no issue
-            }
-
             if (File.Exists(gameExe) && (Status == LauncherStatus.readyCbpLoaded || Status == LauncherStatus.readyEeLoaded || Status == LauncherStatus.readyCbpPrLoaded || Status == LauncherStatus.readyCbpOldLoaded)) // make sure all "launch" button options are included here
             {
                 /// TODO remove later: medium-term Alpha 10 debugging
@@ -3743,93 +3567,93 @@ namespace CBPLauncher.Logic
             return "CBP Alpha 10 (a10) active.";
         }
 
-        private string TooltipConfig()
-        {
-            string configFirst = "undefined";
-            string configSecond = "undefined";
-            bool primary = Properties.Settings.Default.UsePrimaryFileList;
-            bool secondary = Properties.Settings.Default.UseSecondaryFileList;
+        //private string TooltipConfig()
+        //{
+        //    string configFirst = "undefined";
+        //    string configSecond = "undefined";
+        //    bool primary = Properties.Settings.Default.UsePrimaryFileList;
+        //    bool secondary = Properties.Settings.Default.UseSecondaryFileList;
 
-            if (primary && secondary)
-            {
-                configFirst = "Standard";
-                configSecond = "(default)";
-            }
-            else if ((primary == true) && (secondary == false))
-            {
-                configFirst = "Minimal";
-            }
-            else
-            {
-                configFirst = "Custom";
-            }
-            if (Properties.Settings.Default.OptionalAsianHeli || Properties.Settings.Default.OptionalEmotes || Properties.Settings.Default.OptionalRadarJam || Properties.Settings.Default.OptionalAsianSpy)
-            {
-                configSecond = "(with optional change(s))";
-            }
+        //    if (primary && secondary)
+        //    {
+        //        configFirst = "Standard";
+        //        configSecond = "(default)";
+        //    }
+        //    else if ((primary == true) && (secondary == false))
+        //    {
+        //        configFirst = "Minimal";
+        //    }
+        //    else
+        //    {
+        //        configFirst = "Custom";
+        //    }
+        //    if (Properties.Settings.Default.OptionalAsianHeli || Properties.Settings.Default.OptionalEmotes || Properties.Settings.Default.OptionalRadarJam || Properties.Settings.Default.OptionalAsianSpy)
+        //    {
+        //        configSecond = "(with optional change(s))";
+        //    }
 
-            return configFirst + " " + configSecond;
-        }
+        //    return configFirst + " " + configSecond;
+        //}
 
-        private string TooltipPrimary()
-        {
-            if (Properties.Settings.Default.UsePrimaryFileList)
-                return "All primary files loaded";
-            else
-                return "Unknown configuration";
-        }
+        //private string TooltipPrimary()
+        //{
+        //    if (Properties.Settings.Default.UsePrimaryFileList)
+        //        return "All primary files loaded";
+        //    else
+        //        return "Unknown configuration";
+        //}
 
-        private string TooltipSecondary()
-        {
-            if (Properties.Settings.Default.UseSecondaryFileList)
-                return "All secondary files loaded";
-            else
-                return "Secondary files not loaded";//later on when individual files can be selected, this will be more relevant (and will need expansion)
-        }
+        //private string TooltipSecondary()
+        //{
+        //    if (Properties.Settings.Default.UseSecondaryFileList)
+        //        return "All secondary files loaded";
+        //    else
+        //        return "Secondary files not loaded";//later on when individual files can be selected, this will be more relevant (and will need expansion)
+        //}
 
-        private string TooltipOptional()
-        {
-            string optList = "";
-            if (Properties.Settings.Default.OptionalAsianHeli)
-                optList += "Asian Attack Helicopter, ";
-            if (Properties.Settings.Default.OptionalEmotes)
-                optList += "Modernised Emotes, ";
-            if (Properties.Settings.Default.OptionalRadarJam)
-                optList += "Reduced Radar Jam Effect, ";
-            if (Properties.Settings.Default.OptionalAsianSpy)
-                optList += "Modern Asian Spy";
+        //private string TooltipOptional()
+        //{
+        //    string optList = "";
+        //    if (Properties.Settings.Default.OptionalAsianHeli)
+        //        optList += "Asian Attack Helicopter, ";
+        //    if (Properties.Settings.Default.OptionalEmotes)
+        //        optList += "Modernised Emotes, ";
+        //    if (Properties.Settings.Default.OptionalRadarJam)
+        //        optList += "Reduced Radar Jam Effect, ";
+        //    if (Properties.Settings.Default.OptionalAsianSpy)
+        //        optList += "Modern Asian Spy";
 
-            if (string.IsNullOrEmpty(optList))
-                optList = "None";
+        //    if (string.IsNullOrEmpty(optList))
+        //        optList = "None";
 
-            return optList;
-        }
+        //    return optList;
+        //}
 
-        private string TooltipPlugins()
-        {
-            pluginList = ReadExtensions();
-            int pluginCounter = 0;
+        //private string TooltipPlugins()
+        //{
+        //    pluginList = ReadExtensions();
+        //    int pluginCounter = 0;
 
-            foreach (IPluginCBP plugin in pluginList)
-            {
-                plugin.DoSomething(RonWorkshopPath, localMods);
+        //    foreach (IPluginCBP plugin in pluginList)
+        //    {
+        //        plugin.DoSomething(RonWorkshopPath, localMods);
                 
-                // if plugin is loaded, add title to string for later display in menu status readout
-                if (plugin.CheckIfLoaded())
-                {
-                    if (pluginCounter == 0)
-                        pluginTitles += plugin.PluginTitle;
-                    else
-                        pluginTitles += ", " + plugin.PluginTitle;
+        //        // if plugin is loaded, add title to string for later display in menu status readout
+        //        if (plugin.CheckIfLoaded())
+        //        {
+        //            if (pluginCounter == 0)
+        //                pluginTitles += plugin.PluginTitle;
+        //            else
+        //                pluginTitles += ", " + plugin.PluginTitle;
 
-                    pluginCounter++;
-                }
-            }
-            if (string.IsNullOrEmpty(pluginTitles))
-                pluginTitles = "None";
+        //            pluginCounter++;
+        //        }
+        //    }
+        //    if (string.IsNullOrEmpty(pluginTitles))
+        //        pluginTitles = "None";
 
-            return pluginTitles;
-        }
+        //    return pluginTitles;
+        //}
 
         // section for the optional changes configuration
         private async Task ConfigureOptionalChanges()//the UI button is wired to this function; counter: 0
@@ -4334,214 +4158,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        // plugins section (but not all of it, some of it is in codebehind of modmanager tabs lol)
-        // tells user if plugins are incompatible with CBP
-        private bool CheckPluginCompatbilityIssue()
-        {
-            if ((Properties.Settings.Default.PluginCompatibilityIssue == true) && (Properties.Settings.Default.CBPLoaded == true))
-            {
-                return true;
-            }
-            else return false;
-        }
-
-        private bool CheckMultiplayerIssue()
-        {
-            if ((Properties.Settings.Default.MultiplayerCompatibilityIssue == true) && (Properties.Settings.Default.CBPLoaded == true))
-            {
-                return true;
-            }
-            else return false;
-        }
-
-        private async Task LoadPlugins()
-        {
-            try
-            {//can use plugin.LoadResult for logging
-                if (!File.Exists(Path.Combine(localMods, @"..\", "riseofnations.exe")))
-                {
-                    CBPLogger.GetInstance.Warning("Not running in expected folder; mod loading aborted.");
-                    return;
-                }
-
-                pluginList = ReadExtensions();
-                CBPLogger.GetInstance.Info($"{pluginList.Count} plugin(s) found");
-                int pluginCounter = 0;
-
-                foreach (IPluginCBP plugin in pluginList)
-                {
-                    await Task.Run(() =>
-                    {
-                        plugin.DoSomething(RonWorkshopPath, localMods);
-                        plugin.UpdatePlugin(RonWorkshopPath, localMods);
-                        CBPLogger.GetInstance.Info(plugin.LoadResult);
-                        CBPLogger.GetInstance.Info($"{plugin.PluginTitle} {plugin.PluginVersion} ({plugin.CBPCompatible}) by {plugin.PluginAuthor} | {plugin.PluginDescription}");
-                        CBPLogger.GetInstance.Info("\nPlugin location: " + pluginsPathList[pluginCounter]);
-                        pluginCounter++;
-                        CBPLogger.GetInstance.Info("====================");
-                    });
-                }
-
-                await CheckPluginCompatibility();
-
-                if (pluginList != null)
-                {
-                    Properties.Settings.Default.AnyPluginsLoaded = true;
-                    await SaveSettings();
-
-                    CBPLogger.GetInstance.Info("Any plugins with auto-updating logic have been given a chance to run their logic.");
-                }
-                else
-                {
-                    Properties.Settings.Default.AnyPluginsLoaded = false;
-                    await SaveSettings();
-
-                    CBPLogger.GetInstance.Info("No plugins detected.");
-                }
-            }
-            catch (Exception ex)
-            {
-                CBPLogger.GetInstance.Error("Error loading plugins: " + ex);
-                MessageBox.Show("Error loading plugins: " + ex);
-            }
-        }
-
-        private List<IPluginCBP> ReadExtensions()
-        {
-            // 0 we don't have all plugins in a single directory, they're actually distributed across multiple subfolders of a known folder location
-            // (e.g. we know it's D:\Example, but it could be D:\Example\Arb or D:\Example\Arbitrary or both or neither)
-            List<IPluginCBP> pluginsList = new List<IPluginCBP>();
-
-            DirectoryInfo di = new DirectoryInfo(RonWorkshopPath);
-            DirectoryInfo[] diArr = di.GetDirectories();
-            foreach (DirectoryInfo dri in diArr)
-            {
-                // 1) Read dll files from the specified location (a mod folder in our case)
-
-                CBPLogger.GetInstance.Debug("Plugin folder: " + dri.FullName);
-                string pluginFolder = dri.FullName;
-                string[] files = Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly);
-
-                // 2) Read from those files
-                foreach (string file in files)
-                {
-                    Assembly assembly = Assembly.LoadFile(Path.Combine(pluginFolder, file));
-
-                    // 3) Extract all the types that implement PluginCBP
-                    try
-                    {
-                        Type[] pluginTypes = assembly.GetTypes().Where(t => typeof(IPluginCBP).IsAssignableFrom(t) && !t.IsInterface).ToArray();
-
-                        foreach (Type pluginType in pluginTypes)
-                        {
-                            // 4) Creates new instance of the extracted type (PluginCBP?)
-                            object pluginInstance = Activator.CreateInstance(pluginType) as IPluginCBP;
-                            pluginsList.Add((IPluginCBP)pluginInstance);
-                            pluginsPathList.Add(file);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        CBPLogger.GetInstance.Error("Error loading plugins (RE): " + ex);
-                        MessageBox.Show("Error loading plugins (RE): " + ex);
-                    }
-                }
-            }
-            return pluginsList;
-        }
-
-        private async Task CheckPluginCompatibility()
-        {
-            Properties.Settings.Default.PluginCompatibilityIssue = false;
-            Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
-
-            foreach (IPluginCBP plugin in pluginList)
-            {
-                if ((plugin.CheckIfLoaded() == true))
-                {
-                    // we want these two compares to be independent so that we can end up with 4 different states (to present user with more specific message(s))
-                    if (plugin.CBPCompatible == false)
-                        Properties.Settings.Default.PluginCompatibilityIssue = true;
-
-                    if (plugin.DefaultMultiplayerCompatible == false)
-                        Properties.Settings.Default.MultiplayerCompatibilityIssue = true;
-                }
-            }
-            await SaveSettings();
-        }
-
-        private async Task PluginSecurityWarning()
-        {
-            if (Properties.Settings.Default.FirstTimePlugins)
-            {
-                MessageBox.Show("Plugins can potentially be a security risk, so you should only use plugins that you trust.", "Plugin Security Warning", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                Properties.Settings.Default.FirstTimePlugins = false;
-                await SaveSettings();
-            }
-        }
-
-        private async Task RecheckFileVersions()//unfortunately needed because user might load plugin in one CBP state, but unload it in another (or vice versa)
-        {
-            try
-            {
-                Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));//at some point this should definitely be spun out into a less-localised variable so that it can be used in multiple places
-                int fileProblems = 0;
-
-                // check each file in the modded list and make sure it's an up-to-date CBP file
-                foreach (string filename in CBPFileListModded)
-                {
-                    if (CheckIfCBPFile(filename) == true)
-                    {
-                        CBPLogger.GetInstance.Debug($"{filename} is a CBP file (just as we want)...");
-
-                        //it's a CBP file (but not necessarily the right version, so deal with that too)
-                        string text = File.ReadLines(Path.Combine(RoNDataPath, filename)).Skip(2).Take(1).First();
-                        Version fileVersion = new Version(text.Substring(9, 11));
-
-                        if (fileVersion.IsDifferentThan(localVersion))// I assume it's faster to check this than straight up always-write files
-                        {
-                            CBPLogger.GetInstance.Debug("..but isn't up to date (no action taken).");
-                            fileProblems++;
-                        }
-                        //else no action required
-                    }
-                    else
-                    {
-                        CBPLogger.GetInstance.Debug($"{filename} is not a CBP file, but should be (no action taken)");
-                        fileProblems++;
-                    }
-                }
-
-                // check each file in the original list and make sure it's **NOT** a CBP file (we don't care if it's user-modded, since they did that themselves)
-                foreach (string filename in CBPFileListOriginal)
-                {
-                    if (CheckIfCBPFile(filename) == true)
-                    {
-                        CBPLogger.GetInstance.Debug($"{filename} is a CBP file, but shouldn't be (no action taken).");
-                        fileProblems++;
-                    }
-                    else
-                    {
-                        CBPLogger.GetInstance.Debug($"{filename} is not a CBP file (just as we want) - no action taken.");
-                    }
-                }
-
-                if (fileProblems > 0)
-                {
-                    pluginFileProblem = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                CBPLogger.GetInstance.Error($"Error checking data files (plugin compatibility): {ex}");
-                MessageBox.Show("Error checking data files (plugin compatibility):\n\n" + ex);
-                //LogManager.Shutdown();
-                //Environment.Exit(-1);
-                //don't want to necessarily shut down just for this error
-            }
-        }
-
         //settings section
         private async Task ResetSettings(bool showMessage)
         {
@@ -4678,12 +4294,6 @@ namespace CBPLauncher.Logic
         private async Task WarnCompatibility_Inversion()
         {
             Properties.Settings.Default.WarnCompatibility = !Properties.Settings.Default.WarnCompatibility;
-            await SaveSettings();
-        }
-
-        private async Task DisablePluginLoading_Inversion()
-        {
-            Properties.Settings.Default.DisablePluginLoading = !Properties.Settings.Default.DisablePluginLoading;
             await SaveSettings();
         }
 
