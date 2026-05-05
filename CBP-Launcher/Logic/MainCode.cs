@@ -92,8 +92,6 @@ namespace CBPLauncher.Logic
         /// ===== START OF MOD LIST =====
 
         //Community Balance Patch
-        private string modnameCBP;
-        private string workshopIDCBP;
         private string workshopPathCBP;
         private string localPathCBP;
         private string versionFileCBPLocal;
@@ -121,8 +119,6 @@ namespace CBPLauncher.Logic
         private string napoleonMap;
         private string worldMap;
         private string napoleonPostTurn;
-
-        //private string patchNotesCBP; //moved out to its own VM instead
 
         /// ===== END OF MOD LIST =====
 
@@ -1994,33 +1990,15 @@ namespace CBPLauncher.Logic
             // create / find paths for RoN, Steam Workshop, and relevant mods
             gameExe = Path.Combine(RoNPathFinal, "riseofnations.exe"); //in EE v1.20 this is the main game exe, with patriots.exe as the launcher (in T&P main game was rise.exe)
 
-            //just in case the directory doesn't already exist - I'm actually not sure if it's ALWAYS created in a COMPLETELY FRESH install of RoN:EE
+            // The mods folder is NOT created on a completely fresh RoN install that has never been run before
             Directory.CreateDirectory(Path.Combine(RoNPathFinal, "mods"));
-
-            //debug (problems with paths seemingly being either 1) no path (as in string "no path", which is the default value), or 2) somehow thinking workshop folder is in steamapps/common/workshop instead of steamapps/workshop
-            //MessageBox.Show(RoNPathFinal);
 
             localMods = Path.Combine(RoNPathFinal, "mods");
             RonWorkshopPath = Path.GetFullPath(Path.Combine(RoNPathFinal, @"..\..", @"workshop\content\287450")); //maybe not the best method, but serviceable? Path.GetFullPath used to make final path more human-readable
 
-            modnameCBP = "Community Balance Patch"; // this has to be static, which loses the benefit of having the version display in in-game mod manager, but acceptable because it will display in CBP Launcher instead
-
-            //// for testing purposes, access pre-release (of a7)
-            //if (Properties.Settings.Default.UsePrerelease == true)
-            //{
-            //    workshopIDCBP = "2528425253"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-            //    CBPLogger.GetInstance.Debug("Using pre-release of CBP.");
-            //}
-            //else
-            //{
-            //    workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-            //    CBPLogger.GetInstance.Debug("Using non-PR of CBP.");
-            //}
-            ////workshopIDCBP = "2287791153"; // by separating the mod ID, more mods can be supported in the future and it can become a local/direct mods mod manager (direct needs more work still though)
-            workshopIDCBP = "2287791153"; // TODO later: clean up
-
-            workshopPathCBP = Path.Combine(Path.GetFullPath(RonWorkshopPath), workshopIDCBP); /// getfullpath ensures the slash is included between the two
-            localPathCBP = Path.Combine(Path.GetFullPath(localMods), modnameCBP);          /// I tried @"\" and "\\" and both made the first part (localMods) get ignored in the combined path
+            string cbpWorkshopId = "2287791153";
+            workshopPathCBP = Path.Combine(Path.GetFullPath(RonWorkshopPath), cbpWorkshopId);
+            localPathCBP = Path.Combine(Path.GetFullPath(localMods), "Community Balance Patch");
             versionFileCBPLocal = Path.Combine(localPathCBP, "version.txt"); // moved here in order to move with the data files (useful), and better structure to support other mods in future
             versionFileCBPWorkshop = Path.Combine(workshopPathCBP, "Community Balance Patch", "version.txt");
 
