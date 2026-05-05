@@ -1432,10 +1432,6 @@ namespace CBPLauncher.Logic
 
                 LoadCbpCommand = new RelayCommand(async o =>
                 {
-                    // TODO later: clean up
-                    //await CheckForUpdates();
-                    //await ForceUpdatePatchnotes();//otherwise patch notes might not get updated
-
                     await LoadCbp("CBPa10", "CBP Alpha 10");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
                 });
 
@@ -3074,30 +3070,6 @@ namespace CBPLauncher.Logic
             {
                 await UnloadCBP();
             }
-        }
-
-        private async Task ForceUpdatePatchnotes()
-        {
-            // temporarily save the current tab (patch notes), change the tab to a dummy tab (of same background color as the flowdoc background), then immediately swap back to the original tab (patch notes)
-            if (CurrentTab == ClassicPlusPatchNotes)
-            {
-                object tab = CurrentTab;
-                CurrentTab = ClassicPlusDummyTab;
-                await Delay(1);//without this it seems like it doesn't work lol
-                CurrentTab = tab;
-            }
-            if (CurrentTab == SpartanV1PatchNotes)
-            {
-                object tab = CurrentTab;
-                CurrentTab = SpartanV1DummyTab;
-                await Delay(1);//without this it seems like it doesn't work lol
-                CurrentTab = tab;
-            }
-        }
-
-        private void ForceUpdateAnnouncements()
-        {
-            _announcements = new object();
         }
 
         // section for the #ICON169 / #ICON170 (CBP icon) XML editing
