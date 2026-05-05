@@ -1239,10 +1239,8 @@ namespace CBPLauncher.Logic
 
             try
             {
-                // Alpha 10+: I'm making the executive decision to default to CBP Launcher on an *opt-out* basis now that CBP is well-established
+                // Alpha 10+: Now default to using both CBP and CBP Launcher on an *opt-out* basis now that CBP is well-established
                 await SetDefaultLauncher();
-
-                // Alpha 10+: This preference is less important now - maybe TODO skip this, default to CBP first time, then remember last-used every time after that?
                 await SetDefaultCBP();
 
                 if (Properties.Settings.Default.HasMigratedToNewFormat == false)
@@ -2981,14 +2979,10 @@ namespace CBPLauncher.Logic
 
         private async Task PlayButton_Click()
         {
-            /// TODO remove later: medium-term Alpha 10 debugging
             CBPLogger.GetInstance.Debug("Play button clicked.");
 
             if (File.Exists(gameExe) && (Status == LauncherStatus.readyCbpLoaded || Status == LauncherStatus.readyEeLoaded || Status == LauncherStatus.readyCbpPrLoaded || Status == LauncherStatus.readyCbpOldLoaded)) // make sure all "launch" button options are included here
             {
-                /// TODO remove later: medium-term Alpha 10 debugging
-                CBPLogger.GetInstance.Debug("Conditions met.");
-
                 Properties.Settings.Default.LastUsedGameVersion = VersionTextInstalled;
                 await SaveSettings();
                 CBPLogger.GetInstance.Info($"Last used game version set to {VersionTextInstalled}");
@@ -3004,7 +2998,6 @@ namespace CBPLauncher.Logic
                     Arguments = escapedArgs
                 };
                 Process.Start(startInfo);
-                //DEBUG: Process.Start(gameExe);
 
                 if (updateSetupLater == true)
                 {
@@ -3940,7 +3933,7 @@ namespace CBPLauncher.Logic
             Properties.Settings.Default.JustReset = false;
             Properties.Settings.Default.UseFancyLogging = false;
             Properties.Settings.Default.MultiplayerCompatibilityIssue = false;
-            Properties.Settings.Default.WarnCompatibility = false;//TODO flipped to false for Alpha 10+ due to plugin deprecation
+            Properties.Settings.Default.WarnCompatibility = false;// flipped to false for Alpha 10+ due to plugin deprecation
             Properties.Settings.Default.DisablePluginLoading = true;
             Properties.Settings.Default.FuckStopTellingMe = false;
             Properties.Settings.Default.MicroSkin = false;
@@ -4157,33 +4150,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task AskDefaultLauncher() // TODO clean up
-        {
-            if (Properties.Settings.Default.DefaultLauncherAnswered == false)
-            {
-                string message = $"CBP Launcher can quickly patch and unpatch RoN:EE, so that you can switch between versions easily if you want to. Do you want CBP Launcher to replace the default launcher?"
-                    + "\n\n(This option can be changed at any time)";
-
-                if (MessageBox.Show(message, "Default to CBP Launcher?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    Properties.Settings.Default.DefaultLauncherAnswered = true;
-                    Properties.Settings.Default.UseDefaultLauncher = false;
-                    UseDefaultLauncherCheckbox = false;
-                    await SaveSettings();
-                    await ReplaceRestoreDefaultLauncher();
-                    CBPLogger.GetInstance.Info("Using CBP Launcher.");
-                }
-                else
-                {
-                    Properties.Settings.Default.DefaultLauncherAnswered = true;
-                    Properties.Settings.Default.UseDefaultLauncher = true;
-                    UseDefaultLauncherCheckbox = true;
-                    await SaveSettings();
-                    CBPLogger.GetInstance.Info("Using default launcher.");
-                }
-            }
-        }
-
         private async Task SetDefaultLauncher()
         {
             if (Properties.Settings.Default.DefaultLauncherAnswered == false)
@@ -4201,39 +4167,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task AskDefaultCBP() // TODO clean up
-        {
-            if (Properties.Settings.Default.FirstTimeRun == true)//this is a different variable (than some of the existing ones) right now almost purely because of implementation timing regarding bark/trireme etc
-            {
-                string message = $"Do you want CBP to be loaded by default when CBP Launcher starts?"
-                               + "\n\n(CBP can be manually loaded or unloaded freely regardless of this answer, and this setting can be changed later)";
-
-                if (MessageBox.Show(message, "Default to CBP?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    Properties.Settings.Default.FirstTimeRun = false;
-                    Properties.Settings.Default.DefaultCBP = true;
-                    CBPDefaultCheckbox = true;
-                    await SaveSettings();
-                    CBPLogger.GetInstance.Info("Defaulting to CBP.");
-                }
-                else
-                {
-                    Properties.Settings.Default.FirstTimeRun = false;
-                    Properties.Settings.Default.DefaultCBP = false;
-                    CBPDefaultCheckbox = false;
-                    await SaveSettings();
-
-                    // we want to ensure CBP files are "on hand" even if the person doesn't want to initially use CBP
-                    // (because I don't want to continously handle the edge case of someone who has no CBP files on hand when they're expected by code)
-                    // it's rather clunky and friction-y for first-time user, but it's functional
-                    await CheckForUpdates();
-                    await UnloadCBP();
-                    CBPLogger.GetInstance.Info("Defaulting to non-CBP.");
-                }
-            }
-        }
-
-        private async Task SetDefaultCBP() // TODO clean up
+        private async Task SetDefaultCBP()
         {
             if (Properties.Settings.Default.FirstTimeRun == true)//this is a different variable (than some of the existing ones) right now almost purely because of implementation timing regarding bark/trireme etc
             {
@@ -4755,7 +4689,7 @@ namespace CBPLauncher.Logic
 
             // the update of dynamic text on buttons (e.g., loaded plugins) has to write to a differently-named XML file than before
             string helpXmlPath = Path.Combine(RoNDataPath, $"{filePrefixTempHardcoded}_help.xml");
-            await GenerateDynamicHelpText(helpXmlPath);//TODO commented out while testing
+            await GenerateDynamicHelpText(helpXmlPath);
 
             //TODO later: read the version file or otherwise extract the version somehow [temporarily semi-hardcoded]
             VersionTextInstalled = versionTempHardcoded;
