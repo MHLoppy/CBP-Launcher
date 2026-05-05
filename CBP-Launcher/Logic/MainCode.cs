@@ -38,8 +38,6 @@ namespace CBPLauncher.Logic
         installFailed,
         installingFirstTimeLocal,
         installingUpdateLocal,
-        installingFirstTimeOnline,
-        installingUpdateOnline,
         connectionProblemLoaded,
         connectionProblemUnloaded,
         installProblem
@@ -915,22 +913,6 @@ namespace CBPLauncher.Logic
                     case LauncherStatus.installingUpdateLocal:                          /// primary method: use workshop files;
                         LaunchStatusText = "Installing update from local files...";   /// local-mods CBP detected, but out of date compared to workshop version.txt
                         LaunchStatusColor = Brushes.Yellow;
-                        LaunchEnabled = false;
-                        LogoCBP = false;
-                        LogoRoNEE = false;
-                        LogoCBPPR = false;
-                        break;
-                    case LauncherStatus.installingFirstTimeOnline:                      /// backup method: use online files;
-                        LaunchStatusText = "Installing CBP from online files...";     /// means no local-mods CBP detected but can't find workshop files either
-                        LaunchStatusColor = Brushes.Yellow;
-                        LaunchEnabled = false;
-                        LogoCBP = false;
-                        LogoRoNEE = false;
-                        LogoCBPPR = false;
-                        break;
-                    case LauncherStatus.installingUpdateOnline:                         /// backup method: use online files; 
-                        LaunchStatusText = "Installing update from online files...";  /// local-mods CBP detected, but can't find workshop files and
-                        LaunchStatusColor = Brushes.Yellow;                       /// local files out of date compared to online version.txt
                         LaunchEnabled = false;
                         LogoCBP = false;
                         LogoRoNEE = false;
@@ -2582,7 +2564,6 @@ namespace CBPLauncher.Logic
                 CBPLogger.GetInstance.Debug("Settings say that data files are already backed up.");
             }
 
-            //I hate this but for 3 files I can live with it
             if (Properties.Settings.Default.NonDataFilesBackedUp == false)
             {
                 try
