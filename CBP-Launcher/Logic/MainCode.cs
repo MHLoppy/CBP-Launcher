@@ -2440,46 +2440,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        /*private void CopyArtFiles()
-        {
-            //copy art files from e.g. /mods/Community Balance Patch/Art/art/*
-            // /mods/Community Balance Patch/Art/art/snow/*
-
-            // to /art/xxxx and /art/snow/*
-
-            // again, should be global strings but clenched teeth for now
-
-            if (Properties.Settings.Default.ArtFilesCopied == false)
-            {
-                try
-                {
-                    string artEE = Path.Combine(RoNPathFinal, "art");
-                    string snowEE = Path.Combine(RoNPathFinal, "art", "snow");
-                    string artCBP = Path.Combine(localPathCBP, "Art Files", "art");
-                    string snowCBP = Path.Combine(RoNPathFinal, "Art Files", "art", "snow");
-
-                    // this does the /art/ folder
-                    string[] artFilesArray = Directory.GetFiles(artCBP);
-                    foreach (string artFile in artFilesArray)
-                    {
-                        // because these files could be updated over time, we should copy/overwrite all of them if the flag says so (otherwise there's complicated stuff about tracking versions etc)
-                        File.Copy("source", "destination", true);
-                        // log the copy I guess
-                    }
-
-                    // this does the art/snow folder
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error while copying art files: " + ex);
-                }
-            }
-            else
-            {
-                //log that
-            }
-        }*/
-
         private async Task UnloadDirectFiles()
         {
 
@@ -2508,27 +2468,6 @@ namespace CBPLauncher.Logic
                 Environment.Exit(-1);
             }
         }
-
-        /*//semi-forced into doing shitty hardcoded lists because of the sheer scope of the bark/trireme bug - I don't have the skill to do it dynamically, or the time to figure it out for just a few files
-        private void UnloadNonDataFiles()
-        {
-            // these would make more sense as global variables but this is tolerable for now
-            string conquestOriginal = Path.Combine(Path.Combine(folderCBPoriginal, "conquest"));
-            string conquestEE = Path.Combine(Path.Combine(RoNPathFinal, "conquest"));
-
-            string napoleonMap = File.ReadLines(Path.Combine(conquestOriginal, "CTW_Napoleon_Map_01.xml")).Skip(2).Take(1).First();
-            if (napoleonMap.Substring(5).StartsWith("CBP"))
-                File.Copy(Path.Combine(conquestOriginal, "CTW_Napoleon_Map_01.xml"), Path.Combine(conquestEE, "CTW_Napoleon_Map_01.xml"), true);
-
-            string worldMap = File.ReadLines(Path.Combine(conquestOriginal, "CTW_World_Map_01.xml")).Skip(2).Take(1).First();
-            if (worldMap.Substring(5).StartsWith("CBP"))
-                File.Copy(Path.Combine(conquestOriginal, "CTW_World_Map_01.xml"), Path.Combine(conquestEE, "CTW_World_Map_01.xml"), true);
-
-            //bhs file, different syntax etc from xml
-            string napoleonPostTurn = File.ReadLines(Path.Combine(conquestOriginal, "Napoleon", "napoleon_post_turn.bhs")).Skip(0).Take(1).First();
-            if (napoleonPostTurn.Substring(2).StartsWith("CBP"))
-                File.Copy(Path.Combine(conquestOriginal, "napoleon_post_turn.bhs"), Path.Combine(conquestEE, "napoleon_post_turn.bhs"), true);
-        }*/
 
         private bool CheckIfCBPFile(string filename)
         {
@@ -2568,14 +2507,6 @@ namespace CBPLauncher.Logic
 
                 CBPLogger.GetInstance.Debug("Added from secondary list to full list: " + filename);
             }
-
-            //custom file list logic can go here
-
-            //debug
-            /*foreach (string filename in CBPFileListAll)
-            {
-                Console.WriteLine(filename);//change to log later
-            }*/
         }
 
         // before loading/unload files, need copies of the originals
@@ -2656,25 +2587,6 @@ namespace CBPLauncher.Logic
             {
                 try
                 {
-                    /*
-                    // conquest/CTW_Napoleon_Map_01.xml
-                    string nMap = "CTW_Napoleon_Map_01.xml";
-                    if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", nMap)))
-                        File.Copy(Path.Combine(RoNPathFinal, "conquest", nMap), Path.Combine(folderCBPoriginal, "conquest", nMap));
-                    else CBPLogger.GetInstance.Debug("Backup of Napoleon Map file already exists - no action taken.");
-
-                    // conquest/CTW_World_Map_01.xml
-                    string wMap = "CTW_World_Map_01.xml";
-                    if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", wMap)))
-                        File.Copy(Path.Combine(RoNPathFinal, "conquest", wMap), Path.Combine(folderCBPoriginal, "conquest", wMap));
-                    else CBPLogger.GetInstance.Debug("Backup of World Map file already exists - no action taken.");
-
-                    // conquest/Napoleon/napoleon_post_turn.bhs
-                    string nPost = "napoleon_post_turn.bhs";
-                    if (!File.Exists(Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost)))
-                        File.Copy(Path.Combine(RoNPathFinal, "conquest", "Napoleon", nPost), Path.Combine(folderCBPoriginal, "conquest", "Napoleon", nPost));
-                    else CBPLogger.GetInstance.Debug("Backup of Napoleon post-turn file already exists - no action taken.");*/
-
                     await BackupConquestFiles();
 
                     Properties.Settings.Default.NonDataFilesBackedUp = true;
@@ -4535,7 +4447,6 @@ namespace CBPLauncher.Logic
                 await GenerateFileListModded();
                 await GenerateFileListOriginal();
                 await BackupOriginalFiles();
-                //CopyArtFiles();
             }
             catch (Exception ex)
             {
