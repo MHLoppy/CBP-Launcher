@@ -184,19 +184,6 @@ namespace CBPLauncher.Logic
             }
         }
 
-        // this can be used to lock out the load/unload buttons when doing I/O (e.g. optional changes)
-        // but for now I've decided to just check for it in the I/O function (partly because it's easier to do a routed event than a command for exiting on the button's press)
-        /*private bool loadUnloadAllowed = true;
-        public bool LoadUnloadAllowed
-        {
-            get => loadUnloadAllowed;
-            set
-            {
-                loadUnloadAllowed = value;
-                OnPropertyChanged();
-            }
-        }*/
-
         private bool spinnerActive = true;
         public bool SpinnerActive
         {
