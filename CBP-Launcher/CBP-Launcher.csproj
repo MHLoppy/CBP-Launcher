@@ -78,9 +78,6 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CBPSDK">
-      <HintPath>..\..\CBP-SDK\CBP-SDK\bin\Release\CBPSDK.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />

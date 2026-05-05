@@ -1,6 +1,5 @@
 ﻿using BsDiff;
 using CBPLauncher.Core;
-//using CBPSDK;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using NLog;

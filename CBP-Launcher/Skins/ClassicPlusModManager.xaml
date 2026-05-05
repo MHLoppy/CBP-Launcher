@@ -32,7 +32,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Name="ErrorTextBlock" Grid.ColumnSpan="6" Margin="0,100,0,0" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontSize="18" Panel.ZIndex="2"/>
+            <TextBlock Name="ErrorTextBlock" Text="The current plugins system has been deprecated." Grid.ColumnSpan="6" Margin="0,100,0,0" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontSize="18" Panel.ZIndex="2"/>
 
             <!-- Headers (title, version, author etc -->
             <TextBlock Grid.Column="0" Margin="0,2,0,0" FontWeight="SemiBold" Foreground="WhiteSmoke" Text="On" HorizontalAlignment="Center"/>
