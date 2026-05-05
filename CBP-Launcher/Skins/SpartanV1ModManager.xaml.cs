@@ -13,12 +13,11 @@ using CBPLauncher.Core;
 
 namespace CBPLauncher.Skins
 {
-    public partial class SpartanV1ModManager
+    public partial class SpartanV1ModManager : UserControl
     {
         public SpartanV1ModManager()
         {
             InitializeComponent();
-            DataContext = this;
         }
     }
 }

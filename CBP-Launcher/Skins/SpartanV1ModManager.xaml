@@ -43,10 +43,10 @@
 
             <!-- Plugin list -->
             <ListBox Grid.Column="0" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" Panel.ZIndex="-1"/>
-            <ListBox Grid.Column="1" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PCompat}"/>
-            <ListBox Grid.Column="2" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PTitles}"/>
-            <ListBox Grid.Column="3" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PAuthor}"/>
-            <ListBox Grid.Column="4" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" ItemsSource="{Binding PVersion}"/>
+            <ListBox Grid.Column="1" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB"/>
+            <ListBox Grid.Column="2" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB"/>
+            <ListBox Grid.Column="3" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB"/>
+            <ListBox Grid.Column="4" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB"/>
             <ListBox Grid.Column="5" Margin="0,20,0,0" Background="#DFF3F3F3" BorderBrush="#BBBBBBBB" Panel.ZIndex="-1"/>
         </Grid>
     </Grid>

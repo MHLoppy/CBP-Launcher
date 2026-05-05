@@ -13,12 +13,11 @@ using CBPLauncher.Core;
 
 namespace CBPLauncher.Skins
 {
-    public partial class ClassicPlusModManager
+    public partial class ClassicPlusModManager : UserControl
     {
         public ClassicPlusModManager()
         {
             InitializeComponent();
-            DataContext = this;
         }
     }
 }
