@@ -2177,30 +2177,6 @@ namespace CBPLauncher.Logic
                     }
                 }
 
-                // compatibility with a6c (maybe making it compatible was a mistake)
-                // Alpha 10: compatibility with a6c migration is removed
-                //else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
-                //{
-                //    await OldInstallGameFiles(true, Version.zero);
-                //}
-
-                //this will only run if the local version file (if it exists) is not different to the online one
-                //update: no longer needed, because now we always start off by loading from unloaded if it exists (and this whole function is only called when the intended result is to load CBP)
-                /*else if (File.Exists(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")))
-                {
-                    //to simplify archiving etc, just load the mod first (but not the direct files, to save time)
-                    Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
-                    Version localVersion = new Version(File.ReadAllText(versionFileCBPLocal));
-
-                    //Version localVersion = new Version(File.ReadAllText(Path.Combine(unloadedModsPath, "Community Balance Patch", "version.txt")));
-                    await OldInstallGameFiles(true, Version.zero);
-                    await GenerateLists();
-                    await LoadDirectFiles();
-                    await GenerateDynamicHelpText();
-                    if (Properties.Settings.Default.AddIconGameName)
-                        await AddIconGameName();
-                }*/
-
                 else
                 {
                     await OldInstallGameFiles(false, Version.zero);
@@ -2223,31 +2199,6 @@ namespace CBPLauncher.Logic
                 MessageBox.Show($"Error checking for updates. Maybe no connection could be established? {ex}");
             }
         }
-
-        /*private void NewInstallGameFiles(bool _isUpdate, Version _onlineVersion)//end of night comment: probably just keep the old one (..for now), meaning that some stuff such as archiving doesn't need to be here too
-        {         //later on can refactor the whole thing maybe
-            if (Properties.Settings.Default.CBPUnloaded == false)
-            {
-                if (Properties.Settings.Default.NoWorkshopFiles == false)
-                {
-                    //load CBP files from workshop files
-                    if (_isUpdate)
-                    {
-                        //if it's an update, we want to archive the old CBP
-                    }
-                    //then do logic-y stuff regardless of archive or not
-                    // e.g. CopyToCBPFolder();
-                }
-                else if (Properties.Settings.Default.NoWorkshopFiles == true)
-                {
-                    //load CBP files from online source
-                }
-            }
-            if (Properties.Settings.Default.CBPUnloaded == true)
-            {
-                //load normal files
-            }
-        }*/
 
         //using the generated modded and original lists, check then (if needed) load each (appropriate modded or original) file in each list
         private async Task LoadDirectFiles()
@@ -2923,12 +2874,6 @@ namespace CBPLauncher.Logic
                                 if (Directory.Exists(Path.Combine(localPathCBP)))
                                 {
                                     await ArchiveNormal();
-                                }
-
-                                // compatibility with archiving a6c
-                                else if (Directory.Exists(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)")))
-                                {
-                                    await ArchiveA6c();
                                 }
 
                                 else
@@ -4605,24 +4550,6 @@ namespace CBPLauncher.Logic
                 Status = LauncherStatus.loadFailed;
                 CBPLogger.GetInstance.Error($"Error archiving previous CBP version: {ex}");
                 MessageBox.Show($"Error archiving previous CBP version: {ex}");
-            }
-        }
-
-        // can't use same version check because it uses a 3-digit identifier, not 4-digit, but since we know its name it's not too bad
-        private async Task ArchiveA6c()
-        {
-            try
-            {
-                //rename it after moving it
-                Directory.Move(Path.Combine(localMods, "Community Balance Patch (Alpha 6c)"), Path.Combine(archiveCBP, "Community Balance Patch (Alpha 6c)"));
-                CBPLogger.GetInstance.Info("Alpha 6c has been archived.");
-                MessageBox.Show("Alpha 6c has been archived.");
-            }
-            catch (Exception ex)
-            {
-                Status = LauncherStatus.loadFailed;
-                CBPLogger.GetInstance.Error($"Error archiving previous CBP version (compatibility for a6c): {ex}");
-                MessageBox.Show($"Error archiving previous CBP version (compatibility for a6c): {ex}");
             }
         }
 
