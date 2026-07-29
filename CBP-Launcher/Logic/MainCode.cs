@@ -3279,7 +3279,7 @@ namespace CBPLauncher.Logic
             //return config + config2 + primary + primary2 + secondary + secondary2 + optional + optional2 + plugin + plugin2;
 
             // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
-            return "CBP Alpha 10 (a10) active.";
+            return "Community Balance/Bugfix Patch Alpha 11 (CBPa11) active.";
         }
 
         private string GenerateOtherMenuText()
@@ -3287,7 +3287,7 @@ namespace CBPLauncher.Logic
             //return "CBP is enabled. Configuration: " + TooltipConfig() + ". See main menu for more details.";
 
             // TODO The Alpha 10+ format doesn't current support GUI-level customization of the install
-            return "CBP Alpha 10 (a10) active.";
+            return "CBP Alpha 11 (a11) active.";
         }
 
         //private string TooltipConfig()
