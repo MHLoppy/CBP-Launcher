@@ -741,7 +741,8 @@ namespace CBPLauncher.Logic
         public RelayCommand OptionalReplacementCommand { get; set; }
 
 
-        public RelayCommand WorkshopPRCommand { get; set; }
+        public RelayCommand WorkshopAltRepoBrowserCommand { get; set; }
+        public RelayCommand WorkshopAltRepoSteamCommand { get; set; }
         public RelayCommand InstallA9dCommand { get; set; }
         public RelayCommand LoadA9dCommand { get; set; }
         public RelayCommand InstallA10Command { get; set; }
@@ -1535,9 +1536,15 @@ namespace CBPLauncher.Logic
                 });
 
                 // TODO: these new commands and functions need logging
-                WorkshopPRCommand = new RelayCommand(async o =>
+                WorkshopAltRepoBrowserCommand = new RelayCommand(async o =>
                 {
                     await Task.Run(() => Process.Start("https://steamcommunity.com/sharedfiles/filedetails/?id=2528425253"));
+                });
+
+                // TODO: these new commands and functions need logging
+                WorkshopAltRepoSteamCommand = new RelayCommand(async o =>
+                {
+                    await Task.Run(() => Process.Start("steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id=2528425253"));
                 });
 
                 InstallA9dCommand = new RelayCommand(async o =>
@@ -1786,7 +1793,8 @@ namespace CBPLauncher.Logic
             OnPropertyChanged(nameof(OptionalDefaultCommand));
             OnPropertyChanged(nameof(OptionalReplacementCommand));
 
-            OnPropertyChanged(nameof(WorkshopPRCommand));
+            OnPropertyChanged(nameof(WorkshopAltRepoBrowserCommand));
+            OnPropertyChanged(nameof(WorkshopAltRepoSteamCommand));
             OnPropertyChanged(nameof(InstallA9dCommand));
             OnPropertyChanged(nameof(LoadA9dCommand));
             OnPropertyChanged(nameof(InstallA10Command));
