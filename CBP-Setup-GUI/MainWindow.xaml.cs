@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -59,6 +60,7 @@ namespace CBPSetupGUI
             
             await CheckForLanguageFiles();
             await CheckIfAlreadyRunning();
+            WarnLinuxUsers();
 
             // Step 1: figure out what location exe is running from
             int runningLocation = await FindRunningLocation();
@@ -174,6 +176,15 @@ namespace CBPSetupGUI
                 MessageBox.Show(LangRes.CBPLCurrentlyRunning);
                 await DelayedClose(LangRes.CBPLCurrentlyRunning + "\n" + LangRes.WindowWillClose, 1056);
                 return;
+            }
+        }
+
+        private void WarnLinuxUsers()   // https://stackoverflow.com/a/47390306
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                PrimaryLog.Text += LangRes.WarnLinuxUsersLog;
+                MessageBox.Show(LangRes.WarnLinuxUsersWarning);
             }
         }
 

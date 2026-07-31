@@ -565,6 +565,24 @@ namespace CBPSetupGUI.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-Windows OS detected..
+        /// </summary>
+        public static string WarnLinuxUsersLog {
+            get {
+                return ResourceManager.GetString("WarnLinuxUsersLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Like RoN itself, CBP does not official support Linux. Some users have gotten it working, but only limited support can be provided if you encounter any issues..
+        /// </summary>
+        public static string WarnLinuxUsersWarning {
+            get {
+                return ResourceManager.GetString("WarnLinuxUsersWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This window will close in 5 seconds..
         /// </summary>
         public static string WindowWillClose {

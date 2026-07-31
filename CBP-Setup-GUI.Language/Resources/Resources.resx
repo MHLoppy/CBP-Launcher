@@ -228,6 +228,12 @@
   <data name="LocationPathError" xml:space="preserve">
     <value>Error when assigning paths. This window will close in 5 seconds.</value>
   </data>
+  <data name="WarnLinuxUsersLog" xml:space="preserve">
+    <value>Non-Windows OS detected.</value>
+  </data>
+  <data name="WarnLinuxUsersWarning" xml:space="preserve">
+    <value>Like RoN itself, CBP does not official support Linux. Some users have gotten it working, but only limited support can be provided if you encounter any issues.</value>
+  </data>
   <data name="OldVersionRestore" xml:space="preserve">
     <value>Trying to restore old versions...</value>
   </data>
