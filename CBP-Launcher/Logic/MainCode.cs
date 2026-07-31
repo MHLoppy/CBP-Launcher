@@ -1388,9 +1388,13 @@ namespace CBPLauncher.Logic
                     await UseFancyLogging_Inversion();
 
                     if (Properties.Settings.Default.UseFancyLogging)
-                        MessageBox.Show("Fancy log viewer will be enabled on next startup.");
+                    {
+                        MessageBox.Show("Fancy log viewer enabled. CBP Launcher may need to be restarted for the change to be fully reflected.");
+                    }
                     else
-                        MessageBox.Show("Fancy log viewer will be disabled on next startup.");
+                    {
+                        MessageBox.Show("Fancy log viewer disabled. CBP Launcher may need to be restarted for the change to be fully reflected.");
+                    }
                 });
 
                 WarnCompatibilityCommand = new RelayCommand(async o =>
