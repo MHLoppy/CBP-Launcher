@@ -13,7 +13,7 @@
              xmlns:wrappers="clr-namespace:CBPLauncher.Wrappers"-->
     <Application.Resources>
         <ResourceDictionary>
-            
+
             <!--<vm:ViewModel_Primary x:Key="vmPrimary"/>-->
 
             <!--<wrappers:BindingWrapper x:Key="BindingWrapper"/>-->
@@ -116,6 +116,22 @@
             <DataTemplate DataType="{x:Type logic:ClassicPlusOtherVM}">
                 <skins:ClassicPlusOther/>
             </DataTemplate>
+
+            <!-- Default fonts to be used across the application whenever a specific font is not specified -->
+            <FontFamily x:Key="DefaultFont">Segoe UI, Liberation Sans, Arial, sans-serif</FontFamily>
+            <FontFamily x:Key="SemiLightWithFallback">Segoe UI Semilight, Segoe UI, Liberation Sans, Arial, sans-serif</FontFamily>
+            <!-- TODO: can put other font types like monospaced here, so that instead of only-Consolas, it has a fallback if needed -->
+            
+            <!-- Make controls default to my specified fonts, so they don't fall back to system fonts for e.g., Linux users -->
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource DefaultFont}"/>
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="FontFamily" Value="{StaticResource DefaultFont}"/>
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource DefaultFont}"/>
+            </Style>
 
         </ResourceDictionary>
     </Application.Resources>

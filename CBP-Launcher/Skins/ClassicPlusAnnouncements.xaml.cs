@@ -116,7 +116,7 @@ namespace CBPLauncher.Skins
 
             doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
             doc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#000000");
-            doc.FontFamily = new FontFamily("Segoe UI");
+            doc.FontFamily = (FontFamily)Application.Current.Resources["DefaultFont"];
             doc.FontSize = 15;
             doc.PagePadding = new Thickness(5, 5, 5, 5);
             doc.TextAlignment = TextAlignment.Left;

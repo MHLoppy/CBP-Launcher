@@ -56,11 +56,11 @@
 
 
                 <!-- left side: top left status text -->
-                <!--<Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light" Visibility="Hidden"/>-->
+                <!--<Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontWeight="Light" Visibility="Hidden"/>-->
                 <Label Content="{Binding VersionTextInstalled}" Margin="17,115,17,0" Foreground="#FFF0F0F0" FontSize="20" HorizontalContentAlignment="Center"/>
 
                 <!-- left side: update button (hidden unless "do NOT autoupdate CBP" is enabled) -->
-                <!--<Button Content="Update" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" Height="24" Margin="126,86,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="14" Panel.ZIndex="2" IsEnabled="False" Visibility="Hidden">
+                <!--<Button Content="Update" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" Height="24" Margin="126,86,0,0" Background="WhiteSmoke" FontWeight="SemiBold" FontSize="14" Panel.ZIndex="2" IsEnabled="False" Visibility="Hidden">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="9"/>
@@ -120,7 +120,7 @@
                 </Border>
 
                 <!-- left side: load/unload button -->
-                <Button Content="CBP" Command="{Binding LoadCbpCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="53,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
+                <Button Content="CBP" Command="{Binding LoadCbpCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="53,306,0,0" Background="WhiteSmoke" FontWeight="SemiBold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -128,7 +128,7 @@
                     </Button.Resources>
                 </Button>
 
-                <Button Content="EE" Command="{Binding LoadEeCommand}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="0,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
+                <Button Content="EE" Command="{Binding LoadEeCommand}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="0,306,0,0" Background="WhiteSmoke" FontWeight="SemiBold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -136,7 +136,7 @@
                     </Button.Resources>
                 </Button>
 
-                <Button Content="Other.." Command="{Binding SpV1TabOtherCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="209,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
+                <Button Content="Other.." Command="{Binding SpV1TabOtherCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="209,306,0,0" Background="WhiteSmoke" FontWeight="SemiBold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -249,7 +249,7 @@
             </Grid>
 
             <!-- right side: launcher version + background effect -->
-            <TextBlock Name="LauncherVersionText" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,6" TextWrapping="Wrap" Text="{Binding LauncherVersion}" Foreground="WhiteSmoke" FontFamily="Segoe UI Semilight" FontSize="14" Panel.ZIndex="1">
+            <TextBlock Name="LauncherVersionText" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,6" TextWrapping="Wrap" Text="{Binding LauncherVersion}" Foreground="WhiteSmoke" FontFamily="{StaticResource SemiLightWithFallback}" FontSize="14" Panel.ZIndex="1">
             </TextBlock>
             <Grid Grid.Row="2" Grid.Column="1">
                 <!--<Border CornerRadius="30,30,30,30" Opacity="0.5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-45,-40" Width="180" Height="64" Panel.ZIndex="-2" >

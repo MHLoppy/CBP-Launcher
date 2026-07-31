@@ -42,11 +42,11 @@
                 <!-- counterintuitively, textblock is lighter weight than label, but label has more functionality e.g. horizontalcontentalignment not just horizontalalignment-->
 
                 <!-- left side: top left status text -->
-                <Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontFamily="Segoe UI Light" Visibility="Hidden"/>
+                <Label Content="Checking for updates..." HorizontalContentAlignment="Center" FontSize="26" HorizontalAlignment="Left" Margin="17,23,17,0" VerticalAlignment="Top" Width="290" Foreground="#FFF0F0F0" FontWeight="Light" Visibility="Hidden"/>
                 <Label Content="{Binding VersionTextInstalled}" Margin="17,115,17,0" Foreground="#FFF0F0F0" FontSize="20" HorizontalContentAlignment="Center"/>
 
                 <!-- left side: update button (hidden unless "do NOT autoupdate CBP" is enabled) -->
-                <Button Content="Update" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" Height="24" Margin="126,86,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="14" Panel.ZIndex="2" IsEnabled="False" Visibility="Hidden">
+                <Button Content="Update" HorizontalAlignment="Left" VerticalAlignment="Top" Width="72" Height="24" Margin="126,86,0,0" Background="WhiteSmoke" FontWeight="SemiBold" FontSize="14" Panel.ZIndex="2" IsEnabled="False" Visibility="Hidden">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="9"/>
@@ -82,7 +82,7 @@
                 </Border>
 
                 <!-- left side: load/unload button -->
-                <Button Content="CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="89,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
+                <Button Content="CBP" Command="{Binding LoadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="89,306,0,0" Background="WhiteSmoke" FontWeight="SemiBold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -90,7 +90,7 @@
                     </Button.Resources>
                 </Button>
 
-                <Button Content="EE" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="173,306,0,0" Background="WhiteSmoke" FontFamily="Segoe UI Semibold" FontSize="16" Panel.ZIndex="2">
+                <Button Content="EE" Command="{Binding UnloadCBPCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="62" Height="28" Padding="0,0,0,2" Margin="173,306,0,0" Background="WhiteSmoke" FontWeight="SemiBold" FontSize="16" Panel.ZIndex="2">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>

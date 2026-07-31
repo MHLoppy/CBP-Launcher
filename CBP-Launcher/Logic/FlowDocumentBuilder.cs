@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
@@ -35,7 +36,7 @@ namespace CBPLauncher.Logic
             placeholder.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(colors.BackgroundColor);
             placeholder.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom(colors.BackgroundColor);//make the text illegible in the placeholder
 
-            placeholder.FontFamily = new FontFamily("Segoe UI");
+            placeholder.FontFamily = (FontFamily)Application.Current.Resources["DefaultFont"];
             placeholder.FontSize = 15;
             placeholder.PagePadding = new Thickness(10, 10, 10, 5); // hyperlink height is higher lol
             placeholder.TextAlignment = TextAlignment.Left;
@@ -68,7 +69,7 @@ namespace CBPLauncher.Logic
             placeholder.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom(colors.BackgroundColor);//make the text illegible in the placeholder
 
             //because the document is larger than the pure HTML page was (in terms of visual space), the background needs to be set a bit differently in order to cover the whole area:
-            placeholder.FontFamily = new FontFamily("Segoe UI");
+            placeholder.FontFamily = (FontFamily)Application.Current.Resources["DefaultFont"];
             placeholder.FontSize = 15;
             placeholder.PagePadding = new Thickness(5, 5, 5, 5);
             placeholder.TextAlignment = TextAlignment.Left;
@@ -119,7 +120,7 @@ namespace CBPLauncher.Logic
             //because the document is larger than the pure HTML page was (in terms of visual space), the background needs to be set a bit differently in order to cover the whole area:
             doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(colors.BackgroundColor);
             doc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom(colors.TextColor);
-            doc.FontFamily = new FontFamily("Segoe UI");
+            doc.FontFamily = (FontFamily)Application.Current.Resources["DefaultFont"];
             doc.FontSize = 15;
             doc.PagePadding = new Thickness(5, 5, 5, 5);
             doc.TextAlignment = TextAlignment.Left;
@@ -175,7 +176,7 @@ namespace CBPLauncher.Logic
 
         //    doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");
         //    doc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1A1A1A");
-        //    doc.FontFamily = new FontFamily("Segoe UI");
+        //    doc.FontFamily = (FontFamily)Application.Current.Resources["DefaultFont"];
         //    doc.FontSize = 15;
         //    doc.PagePadding = new Thickness(10, 5, 10, 5);
         //    doc.TextAlignment = TextAlignment.Left;

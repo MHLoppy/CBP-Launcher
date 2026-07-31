@@ -50,7 +50,7 @@ namespace CBPLauncher.Skins
                 placeholder.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");
                 placeholder.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");//make the text illegible
 
-                placeholder.FontFamily = new FontFamily("Segoe UI");
+                placeholder.FontFamily = (FontFamily)Application.Current.Resources["DefaultFont"];
                 placeholder.FontSize = 15;
                 placeholder.PagePadding = new Thickness(10, 10, 10, 5); // hyperlink height is higher lol
                 placeholder.TextAlignment = TextAlignment.Left;
@@ -172,7 +172,7 @@ namespace CBPLauncher.Skins
 
             doc.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#EEF9F9F9");
             doc.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1A1A1A");
-            doc.FontFamily = new FontFamily("Segoe UI");
+            doc.FontFamily = (FontFamily)Application.Current.Resources["DefaultFont"];
             doc.FontSize = 15;
             doc.PagePadding = new Thickness(10, 5, 10, 5);
             doc.TextAlignment = TextAlignment.Left;
