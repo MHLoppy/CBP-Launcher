@@ -4094,7 +4094,7 @@ namespace CBPLauncher.Logic
                         File.Move(patriotsOrig + " (original)", patriotsOrig);
 
                         CBPLogger.GetInstance.Info("Have attempted to restore original launcher.");
-                        MessageBox.Show("Have attempted to restore original launcher - it should be active next time RoN is started."
+                        MessageBox.Show("Running RoN:EE from Steam should now start the original launcher (instead of CBP Launcher)."
                             + "To use CBP Launcher again re-check this box.");
                     }
                     else
@@ -4122,7 +4122,7 @@ namespace CBPLauncher.Logic
                         File.Copy(Path.Combine(workshopPathCBP, "CBPSetup.exe"), patriotsOrig);
 
                         CBPLogger.GetInstance.Info("Have attempted to replace original launcher.");
-                        MessageBox.Show("Have attempted to replace original launcher - CBP Launcher should be active when RoN is started.");
+                        MessageBox.Show("Running RoN:EE from Steam should now start CBP Launcher (instead of the original launcher).");
                     }
                     else
                     {
