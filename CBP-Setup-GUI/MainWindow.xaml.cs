@@ -190,6 +190,9 @@ namespace CBPSetupGUI
 
         async Task<int> FindRunningLocation()//there's not really anything to run async here
         {
+            // 2026 note: apparently Path.GetFullPath() can resolve relative paths to absolute paths + handle symlinks
+            //              but Path.GetDirectoryName (by itself) can't
+
             string thisProcessLocation = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
             // RoN root folder
             if (File.Exists(Path.GetFullPath(Path.Combine(thisProcessLocation, "riseofnations.exe"))))
