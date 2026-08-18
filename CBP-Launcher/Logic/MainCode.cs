@@ -1295,8 +1295,8 @@ namespace CBPLauncher.Logic
                         await LoadRonVersion("CBP Pre-Release 4", "CBPPR4", "riseofnations_CBPPR4.exe", true, LauncherStatus.readyCbpPrLoaded);
                         break;
                     default:
-                        CBPLogger.GetInstance.Warning($"Version {lastUsed} not explicitly handled, falling back to latest known CBP Version (Alpha 10).");
-                        await LoadCbp("CBPa10", "CBP Alpha 10");
+                        CBPLogger.GetInstance.Warning($"Version {lastUsed} not explicitly handled, falling back to latest known CBP Version (Alpha 11).");
+                        await LoadCbp("CBPa11", "CBP Alpha 11");
                         break;
                 }
                 await Task.Yield();
@@ -1431,7 +1431,7 @@ namespace CBPLauncher.Logic
 
                 LoadCbpCommand = new RelayCommand(async o =>
                 {
-                    await LoadCbp("CBPa10", "CBP Alpha 10");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
+                    await LoadCbp("CBPa11", "CBP Alpha 11");//todo: version is hardcoded here (it needs to mirror the switch that handles version loading)
                 });
 
                 LoadEeCommand = new RelayCommand(async o =>
@@ -4649,7 +4649,7 @@ namespace CBPLauncher.Logic
                     "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                     "d384076ba6823df2df5f34283acb2fcd89788c656cbd8b659880ee87d01bba93", // PR4 non-LAA
                     "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
-                    "TODO", // TODO: add Alpha 10 non-LAA
+                    "161990bc29ca5a66c2fdcddc0c39e0248d4538a6da32229eb0eabedce268fbba", // Alpha 11 non-LAA
                 };
                 bool patchHashMatches = false;
                 foreach (string hash in hashes)
@@ -4784,7 +4784,7 @@ namespace CBPLauncher.Logic
                         "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                         "d384076ba6823df2df5f34283acb2fcd89788c656cbd8b659880ee87d01bba93", // PR4 non-LAA
                         "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
-                        "TODO", // TODO: add Alpha 11 non-LAA
+                        "161990bc29ca5a66c2fdcddc0c39e0248d4538a6da32229eb0eabedce268fbba", // Alpha 11 non-LAA
                     };
                     bool patchHashMatches = false;
                     foreach (string hash in hashes)
