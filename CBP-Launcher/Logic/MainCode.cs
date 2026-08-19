@@ -1338,7 +1338,7 @@ namespace CBPLauncher.Logic
                 UseDefaultLauncherCommand = new RelayCommand(async o =>
                 {
                     await UseDefaultLauncher_Inversion();
-                    await ReplaceRestoreDefaultLauncher();
+                    await ReplaceRestoreDefaultLauncher(false);
                 });
 
                 UsePrimaryFilesCommand = new RelayCommand(async o =>
@@ -2750,7 +2750,7 @@ namespace CBPLauncher.Logic
                             }
                         }
 
-                        await ReplaceRestoreDefaultLauncher();//this seems super clunky
+                        await ReplaceRestoreDefaultLauncher(false);//this seems super clunky
 
                         try
                         {
@@ -2809,7 +2809,7 @@ namespace CBPLauncher.Logic
                         Directory.Move(Path.Combine(unloadedModsPath, "Community Balance Patch"), Path.Combine(localPathCBP));
 
                         await GenerateLists();
-                        await ReplaceRestoreDefaultLauncher();
+                        await ReplaceRestoreDefaultLauncher(false);
                     }
 
                     UpdateLocalVersionNumber();
@@ -4078,7 +4078,7 @@ namespace CBPLauncher.Logic
             }
         }
 
-        private async Task ReplaceRestoreDefaultLauncher()
+        private async Task ReplaceRestoreDefaultLauncher(bool firstTimeRun)
         {
             //IMPLEMENTATION INCOMPLETE(?)
             
@@ -4094,8 +4094,17 @@ namespace CBPLauncher.Logic
                         File.Move(patriotsOrig + " (original)", patriotsOrig);
 
                         CBPLogger.GetInstance.Info("Have attempted to restore original launcher.");
-                        MessageBox.Show("Running RoN:EE from Steam should now start the original launcher (instead of CBP Launcher)."
-                            + "To use CBP Launcher again re-check this box.");
+                        if (firstTimeRun)
+                        {
+                            string msg = "CBP Launcher has replaced the default launcher. This can be reverted in CBP Launcher's settings, though this is not recommended if using CBP.";
+                            string title = "Launcher replaced";
+                            MessageBox.Show(msg, title);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Running RoN:EE from Steam should now start the original launcher (instead of CBP Launcher)."
+                                            + "To use CBP Launcher again re-check this box.");
+                        }
                     }
                     else
                     {
@@ -4170,12 +4179,8 @@ namespace CBPLauncher.Logic
                 Properties.Settings.Default.UseDefaultLauncher = false;
                 UseDefaultLauncherCheckbox = false;
                 await SaveSettings();
-                await ReplaceRestoreDefaultLauncher();
+                await ReplaceRestoreDefaultLauncher(true);
                 CBPLogger.GetInstance.Info("First time setup: Defaulting to CBP Launcher.");
-
-                string msg = "CBP Launcher has replaced the default launcher. This can be reverted in CBP Launcher's settings, though this is not recommended if using CBP.";
-                string title = "Launcher replaced";
-                MessageBox.Show(msg, title);
             }
         }
 
