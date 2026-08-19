@@ -152,7 +152,7 @@ namespace CBPLauncher.Skins
             paragraph.Inlines.Add(normaltext1);
             Run linktext = new Run("full patch notes");
             Hyperlink workshoplink = new Hyperlink(linktext);
-            workshoplink.NavigateUri = new Uri("https://mhloppy.com/cbp-latest-patch");
+            workshoplink.NavigateUri = new Uri("https://mhloppy.com/category/rise-of-nations/cbp-patch-notes/");
             workshoplink.Foreground = new SolidColorBrush(Color.FromRgb(229, 213, 142));
             workshoplink.RequestNavigate += new RequestNavigateEventHandler(PatchNotes_RequestNavigate);
             paragraph.Inlines.Add(workshoplink);

@@ -150,7 +150,7 @@ namespace CBPLauncher.Logic
         //        paragraph.Inlines.Add(normaltext1);
         //        Run linktext = new Run("full patch notes");
         //        Hyperlink workshoplink = new Hyperlink(linktext);
-        //        workshoplink.NavigateUri = new Uri("https://mhloppy.com/cbp-latest-patch");
+        //        workshoplink.NavigateUri = new Uri("https://mhloppy.com/category/rise-of-nations/cbp-patch-notes/");
         //        workshoplink.RequestNavigate += new RequestNavigateEventHandler(RequestNavigate);
         //        paragraph.Inlines.Add(workshoplink);
         //        Run normaltext2 = new Run(".");
