@@ -4649,7 +4649,7 @@ namespace CBPLauncher.Logic
                     "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                     "d384076ba6823df2df5f34283acb2fcd89788c656cbd8b659880ee87d01bba93", // PR4 non-LAA
                     "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
-                    "161990bc29ca5a66c2fdcddc0c39e0248d4538a6da32229eb0eabedce268fbba", // Alpha 11 non-LAA
+                    "f7b96955d21adbbaf1b5d258e8b9d762af1997dda36406f70315eda3186446b6", // Alpha 11 non-LAA
                 };
                 bool patchHashMatches = false;
                 foreach (string hash in hashes)
@@ -4784,7 +4784,7 @@ namespace CBPLauncher.Logic
                         "8d2fa3666c474fe110790050f2bafee917bb36b37588b17cb47fa90b5f9f06e0", // PR3 non-LAA
                         "d384076ba6823df2df5f34283acb2fcd89788c656cbd8b659880ee87d01bba93", // PR4 non-LAA
                         "d8f5929383468af136da410ae7b6f0b449cf162573ec123d05d0737131d4d595", // Alpha 10 non-LAA
-                        "161990bc29ca5a66c2fdcddc0c39e0248d4538a6da32229eb0eabedce268fbba", // Alpha 11 non-LAA
+                        "f7b96955d21adbbaf1b5d258e8b9d762af1997dda36406f70315eda3186446b6", // Alpha 11 non-LAA
                     };
                     bool patchHashMatches = false;
                     foreach (string hash in hashes)
