@@ -4515,6 +4515,13 @@ namespace CBPLauncher.Logic
             string cbpExePath = Path.Combine(RoNPathFinal, "riseofnations_CBP.exe");
             string archivedExeName = "riseofnations_CBP" + VersionToShorthand(localVersion) + ".exe";
             string archivedExePath = Path.Combine(RoNPathFinal, archivedExeName);
+
+            // If the exe already exists, delete it first to make the transition smooth
+            if (File.Exists(archivedExePath))
+            {
+                File.Delete(archivedExePath);
+            }
+
             File.Move(cbpExePath, archivedExePath);
             CBPLogger.GetInstance.Debug("Performed archive-by-renaming on existing CBP exe");
         }
